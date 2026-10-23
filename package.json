@@ -1,0 +1,22 @@
+{
+  "name": "chuyen-de-tot-nghiep-2-marketplace",
+  "version": "1.0.0",
+  "description": "Nền tảng quản lý freelance / marketplace việc làm part-time cho sinh viên (Chuyên đề tốt nghiệp 2 - Khoa CNTT - Đại học Văn Lang)",
+  "scripts": {
+    "server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev",
+    "test": "npm --prefix server test",
+    "migrate": "npm --prefix server run migrate",
+    "seed": "npm --prefix server run seed"
+  },
+  "keywords": [
+    "marketplace",
+    "freelance",
+    "part-time",
+    "sinh-vien",
+    "chuyen-de-2",
+    "van-lang"
+  ],
+  "author": "Nguyen Van Chi, Nguyen Tan Hoang Thong, Le Quang Anh Tuan",
+  "license": "ISC"
+}

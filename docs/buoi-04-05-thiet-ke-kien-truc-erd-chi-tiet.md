@@ -348,6 +348,10 @@ sequenceDiagram
     end
 ```
 
+### 5.3. Tài liệu Bản mẫu Giao diện (Wireframes) & Ma trận Truy vết
+- **Hồ sơ Wireframe chi tiết 14 màn hình:** Xem chi tiết tại [docs/wireframes.md](file:///d:/Tai%20Lieu/DuLieuHoc/%C4%90%E1%BB%93%20%C3%81n%20T%E1%BB%91t%20Nghi%E1%BB%87p/Chuy%C3%AAn%20%C4%90%E1%BB%81%202/docs/wireframes.md) bao gồm các màn hình của Sinh viên, Nhà tuyển dụng và Quản trị viên cùng các trạng thái Loading/Empty/Error.
+- **Bảng Ma trận Truy vết Toàn diện (FR/UC ↔ ERD ↔ API ↔ Wireframe):** Xem chi tiết tại [docs/ma-tran-truy-vet-buoi-5.md](file:///d:/Tai%20Lieu/DuLieuHoc/%C4%90%E1%BB%93%20%C3%81n%20T%E1%BB%91t%20Nghi%E1%BB%87p/Chuy%C3%AAn%20%C4%90%E1%BB%81%202/docs/ma-tran-truy-vet-buoi-5.md) bảo đảm tính nhất quán 100% giữa thiết kế và yêu cầu gốc.
+
 ---
 
 ## 6. Kiểm chứng Môi trường Phát triển & Trạng thái Sẵn sàng (Mốc 1)

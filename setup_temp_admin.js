@@ -9,14 +9,24 @@
  */
 
 const path = require('path');
-const dotenv = require('./03_backend/node_modules/dotenv');
-dotenv.config({ path: path.resolve(__dirname, '03_backend/.env') });
-
-const bcrypt = require('./03_backend/node_modules/bcryptjs');
-const db = require('./03_backend/src/config/db');
+const autoBootstrap = require('./03_backend/src/config/auto-bootstrap');
 
 async function setupAdmin() {
   console.log('--- KHỞI TẠO TÀI KHOẢN TEST ADMIN ---');
+
+  // Đảm bảo CSDL và các bảng đã được kết nối & đồng bộ trước khi tạo Admin
+  const isReady = await autoBootstrap();
+  if (!isReady) {
+    console.error('❌ Không thể khởi tạo Admin do Cơ sở dữ liệu PostgreSQL chưa sẵn sàng.');
+    process.exit(1);
+  }
+
+  const dotenv = require('./03_backend/node_modules/dotenv');
+  dotenv.config({ path: path.resolve(__dirname, '03_backend/.env') });
+
+  const bcrypt = require('./03_backend/node_modules/bcryptjs');
+  const db = require('./03_backend/src/config/db');
+
   try {
     const email = 'admin.test@vlu.edu.vn';
     const rawPassword = 'password123';
@@ -68,7 +78,7 @@ async function setupAdmin() {
 
     process.exit(0);
   } catch (err) {
-    console.error('❌ Lỗi khởi tạo tài khoản Admin:', err);
+    console.error('❌ Lỗi khởi tạo tài khoản Admin:', err.message || err);
     process.exit(1);
   }
 }

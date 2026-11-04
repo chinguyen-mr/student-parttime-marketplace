@@ -112,15 +112,22 @@ JWT_EXPIRES_IN=7d
 
 ---
 
-### Bước 3: Khởi tạo Cơ sở dữ liệu và Dữ liệu mẫu (Cơ chế Tự Động Hoàn Toàn)
+### Bước 3: Khởi tạo Cơ sở dữ liệu và Dữ liệu mẫu (Cơ chế Tự Động Hoàn Toàn 1-Click)
 
-> 💡 **Tính năng Tự Động Hóa Mới (Auto-Bootstrap):**  
-> Khi bạn khởi chạy Backend (`npm run dev:backend`), hệ thống sẽ **tự động kiểm tra và thực hiện toàn bộ các bước**:  
-> 1. Tự động thử kết nối và dò mật khẩu PostgreSQL máy mới nếu có sai lệch.  
-> 2. Tự động tạo CSDL `cd2_marketplace_db` nếu chưa có.  
-> 3. Tự động chạy toàn bộ các file SQL Migration tạo 30 bảng.  
-> 4. Tự động nạp dữ liệu mẫu (Seed Data) nếu database trống.  
-> 5. Tự động tạo tài khoản Quản trị viên (`admin.test@vlu.edu.vn` / `password123`).  
+> 💡 **Tính năng Kết nối Tự Động 1-Click cho máy mới (Auto-Bootstrap):**  
+> Khi bạn kéo code về máy mới (Máy B), bạn chỉ cần chạy **đúng 1 lệnh duy nhất** từ thư mục gốc:  
+> ```bash
+> npm run connect:db
+> # Hoặc: node connect_db.js
+> # Hoặc trên Windows: Click đúp vào file connect_db.bat
+> ```
+> Hệ thống sẽ **tự động kiểm tra và thực hiện toàn bộ quy trình**:  
+> 1. Tự động kiểm tra và tạo file cấu hình `03_backend/.env` nếu máy mới chưa có.  
+> 2. Tự động quét các cổng PostgreSQL (`5432`, `5433`, `5434`) và tự dò mật khẩu (`postgres`, `123456`, `admin`, `root`...).  
+> 3. Tự động tạo Cơ sở dữ liệu `cd2_marketplace_db` nếu chưa tồn tại.  
+> 4. Tự động chạy toàn bộ các file SQL Migration tạo 30 bảng CSDL.  
+> 5. Tự động nạp dữ liệu mẫu (Seed Data) nếu database trống.  
+> 6. Tự động khởi tạo tài khoản Quản trị viên (`admin.test@vlu.edu.vn` / `password123`).  
 >
 > *(Bạn cũng có thể chạy thủ công bằng các lệnh bên dưới nếu muốn)*:
 

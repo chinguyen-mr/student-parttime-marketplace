@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Nền tảng quản lý freelance / marketplace việc làm part-time cho sinh viên (Chuyên đề tốt nghiệp 2 - Khoa CNTT - Đại học Văn Lang)",
   "scripts": {
+    "connect:db": "node connect_db.js",
+    "setup:db": "node connect_db.js",
     "install:all": "npm --prefix 03_backend install && npm --prefix 04_frontend install",
     "dev": "npm --prefix 04_frontend run dev",
     "dev:frontend": "npm --prefix 04_frontend run dev",

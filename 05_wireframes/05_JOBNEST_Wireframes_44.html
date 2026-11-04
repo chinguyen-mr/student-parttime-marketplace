@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOBNEST - Danh mục 44 Bản Mẫu Giao Diện (Wireframes Catalog)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #594675;
+      --primary-light: #F4F1F8;
+      --primary-hover: #483860;
+      --secondary: #F4B99D;
+      --secondary-light: #FEF6F2;
+      --text: #29263A;
+      --text-muted: #6B667C;
+      --border: #E8E5ED;
+      --bg: #F8F7FB;
+      --white: #FFFFFF;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --shadow-sm: 0 1px 2px rgba(41, 38, 58, 0.04);
+      --shadow-md: 0 4px 12px rgba(41, 38, 58, 0.08);
+      --shadow-lg: 0 12px 24px rgba(41, 38, 58, 0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 60px; }
+    
+    header { background: linear-gradient(135deg, #4A3A63 0%, #594675 50%, #7565A8 100%); color: #fff; padding: 40px 24px; text-align: center; border-bottom: 3px solid var(--secondary); }
+    header h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+    header p { font-size: 15px; opacity: 0.9; max-width: 800px; margin: 0 auto; }
+    .badge-bar { display: flex; justify-content: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .badge-bar span { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 600; }
+
+    .container { max-width: 1280px; margin: 30px auto; padding: 0 20px; }
+    
+    .filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .tab-btn { background: var(--white); border: 1px solid var(--border); padding: 8px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .tab-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: var(--shadow-sm); }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 20px; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s; position: relative; display: flex; flex-direction: column; }
+    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: #D2CDE0; }
+    
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .wf-code { background: var(--primary-light); color: var(--primary); font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.5px; }
+    .actor-tag { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; text-transform: uppercase; }
+    .tag-guest { background: #E0E7FF; color: #4338CA; }
+    .tag-student { background: #ECFDF5; color: #047857; }
+    .tag-employer { background: #FEF3C7; color: #B45309; }
+    .tag-admin { background: #FEE2E2; color: #B91C1C; }
+    .tag-shared { background: #F3F4F6; color: #4B5563; }
+
+    .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; flex: 1; }
+    
+    .card-meta { border-top: 1px dashed var(--border); padding-top: 12px; font-size: 12px; display: flex; flex-direction: column; gap: 4px; color: var(--text-muted); }
+    .meta-row { display: flex; justify-content: space-between; }
+    .meta-row strong { color: var(--text); }
+    .meta-row code { font-family: monospace; background: #f1f0f4; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+    .search-box { width: 100%; max-width: 460px; margin: 0 auto 24px; position: relative; }
+    .search-box input { width: 100%; padding: 12px 18px; border-radius: 12px; border: 1px solid var(--border); font-size: 14px; outline: none; background: #fff; box-shadow: var(--shadow-sm); }
+    .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(89, 70, 117, 0.15); }
+
+    footer { text-align: center; padding: 30px; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>JOBNEST — BẢN THẢO 44 MÀN HÌNH WIREFRAME CHI TIẾT</h1>
+    <p>Nền tảng Quản lý Freelance / Marketplace Việc làm Part-time cho Sinh viên (Chuyên đề Tốt nghiệp 2 — Khoa CNTT — ĐH Văn Lang)</p>
+    <div class="badge-bar">
+      <span>🎯 44 Màn hình Wireframe Chuẩn hóa</span>
+      <span>👥 4 Phân hệ: Guest • Student • Employer • Admin</span>
+      <span>🎨 Design Tokens: Soft Lavender & Peach</span>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm màn hình theo tên, mã WF hoặc use case..." onkeyup="filterCards()">
+    </div>
+
+    <div class="filter-tabs">
+      <button class="tab-btn active" onclick="filterCategory('all', this)">Tất cả (44)</button>
+      <button class="tab-btn" onclick="filterCategory('guest', this)">Khách vãng lai (4)</button>
+      <button class="tab-btn" onclick="filterCategory('student', this)">Sinh viên (17)</button>
+      <button class="tab-btn" onclick="filterCategory('employer', this)">Nhà tuyển dụng (13)</button>
+      <button class="tab-btn" onclick="filterCategory('admin', this)">Quản trị viên (5)</button>
+      <button class="tab-btn" onclick="filterCategory('shared', this)">Hệ thống & Chung (5)</button>
+    </div>
+
+    <div class="grid" id="wireframeGrid">
+      <!-- Injected via JavaScript -->
+    </div>
+
+  </div>
+
+  <footer>
+    <strong>JOBNEST © 2026</strong> — Khoa Công nghệ Thông tin — Trường Đại học Văn Lang (VLU)<br>
+    Tài liệu thiết kế phục vụ Chuyên đề Tốt nghiệp 2.
+  </footer>
+
+  <script>
+    const screens = [
+      { code: 'WF-01', cat: 'guest', tag: 'Guest', title: 'Landing Page & Hero Banner', desc: 'Trang chủ giới thiệu hệ sinh thái việc làm sinh viên, thanh tìm kiếm thông minh và các đối tác tuyển dụng.', api: 'GET /api/jobs/featured', usecase: 'UC-01' },
+      { code: 'WF-02', cat: 'guest', tag: 'Guest', title: 'Khám phá & Lọc việc làm Part-time', desc: 'Giao diện dạng lưới hiển thị 20 tin tuyển dụng, hỗ trợ phân trang và tìm kiếm theo từ khóa.', api: 'GET /api/jobs', usecase: 'UC-05' },
+      { code: 'WF-03', cat: 'guest', tag: 'Guest', title: 'Bộ lọc nâng cao đa tiêu chí', desc: 'Dropdown tùy chỉnh lọc theo Ngành nghề, Khu vực (Quận/Huyện), Mức lương và Kinh nghiệm.', api: 'GET /api/jobs?params', usecase: 'UC-05' },
+      { code: 'WF-04', cat: 'guest', tag: 'Guest', title: 'Xem nhanh tin tuyển dụng (Quick Preview)', desc: 'Popup lướt chuột xem nhanh thông tin tóm tắt công việc với cơ chế tự động ẩn thông minh khi cuộn.', api: 'GET /api/jobs/:id/quick', usecase: 'UC-05' },
+      { code: 'WF-05', cat: 'student', tag: 'Student', title: 'Trang chi tiết công việc (Job Detail Page)', desc: 'Trang chi tiết toàn diện với logo doanh nghiệp xác thực, mức thù lao minh bạch và yêu cầu kỹ năng.', api: 'GET /api/jobs/:id', usecase: 'UC-05' },
+      { code: 'WF-06', cat: 'student', tag: 'Student', title: 'Bản đồ vị trí làm việc & Chỉ đường', desc: 'Tích hợp Leaflet Map hiển thị tọa độ GPS chính xác và nút mở Google Maps dẫn đường cho sinh viên.', api: 'GET /api/jobs/:id/map', usecase: 'UC-05' },
+      { code: 'WF-07', cat: 'student', tag: 'Student', title: 'Modal Nộp hồ sơ ứng tuyển (Apply Modal)', desc: 'Form nộp đơn cho sinh viên nhập Thư giới thiệu (Cover letter) và đính kèm liên kết CV trực tuyến.', api: 'POST /api/applications', usecase: 'UC-06' },
+      { code: 'WF-08', cat: 'shared', tag: 'Shared', title: 'Modal Đăng nhập đa vai trò (Auth Modal)', desc: 'Đăng nhập bảo mật JWT với mật khẩu mã hóa bcrypt và các chip điền nhanh tài khoản thử nghiệm.', api: 'POST /api/auth/login', usecase: 'UC-01' },
+      { code: 'WF-09', cat: 'shared', tag: 'Shared', title: 'Modal Đăng ký tài khoản Sinh viên', desc: 'Form đăng ký tài khoản sinh viên với kiểm tra định dạng email Văn Lang và độ mạnh mật khẩu.', api: 'POST /api/auth/register', usecase: 'UC-02' },
+      { code: 'WF-10', cat: 'shared', tag: 'Shared', title: 'Modal Đăng ký tài khoản Doanh nghiệp', desc: 'Form đăng ký nhà tuyển dụng kèm thông tin công ty, số điện thoại và địa chỉ trụ sở.', api: 'POST /api/auth/register', usecase: 'UC-02' },
+      { code: 'WF-11', cat: 'shared', tag: 'Shared', title: 'Modal Khôi phục mật khẩu (Forgot Password)', desc: 'Form nhập email nhận liên kết cấp lại mật khẩu bảo mật qua hệ thống mã hóa JWT.', api: 'POST /api/auth/forgot', usecase: 'UC-03' },
+      { code: 'WF-12', cat: 'student', tag: 'Student', title: 'Hồ sơ cá nhân Sinh viên (Profile Overview)', desc: 'Trang tổng quan hồ sơ sinh viên hiển thị thông tin học vấn, ngành học, điểm uy tín và kinh nghiệm.', api: 'GET /api/profile', usecase: 'UC-04' },
+      { code: 'WF-13', cat: 'student', tag: 'Student', title: 'Chỉnh sửa thông tin & Kỹ năng sinh viên', desc: 'Modal cập nhật số điện thoại, trường đại học, chuyên ngành và các thẻ kỹ năng công việc.', api: 'PUT /api/profile', usecase: 'UC-04' },
+      { code: 'WF-14', cat: 'student', tag: 'Student', title: 'Quản lý CV & Tài liệu đính kèm', desc: 'Quản lý danh sách CV mẫu và liên kết tài liệu năng lực cho từng nhóm công việc.', api: 'GET /api/profile/cvs', usecase: 'UC-04' },
+      { code: 'WF-15', cat: 'student', tag: 'Student', title: 'Danh sách việc làm đã lưu (Saved Jobs)', desc: 'Xem lại các tin tuyển dụng đã thả tim yêu thích với bộ lọc và thao tác ứng tuyển nhanh.', api: 'GET /api/jobs/saved', usecase: 'UC-05' },
+      { code: 'WF-16', cat: 'student', tag: 'Student', title: 'Quản lý hồ sơ ứng tuyển (12 Ứng tuyển mẫu)', desc: 'Theo dõi tiến độ hồ sơ theo 5 tab: Tất cả (12), Chờ duyệt (3), Đã duyệt (4), Bị từ chối (2), Hoàn thành (3).', api: 'GET /api/applications/my', usecase: 'UC-07' },
+      { code: 'WF-17', cat: 'student', tag: 'Student', title: 'Chi tiết hồ sơ ứng tuyển & Ghi chú phản hồi', desc: 'Xem phản hồi của nhà tuyển dụng, lý do phê duyệt/từ chối và thời gian bắt đầu công việc.', api: 'GET /api/applications/:id', usecase: 'UC-07' },
+      { code: 'WF-18', cat: 'student', tag: 'Student', title: 'Lịch sử ca làm việc & Hợp đồng lao động', desc: 'Giao diện theo dõi lịch làm việc tuần, thời gian hoàn thành ca và điểm danh sinh viên.', api: 'GET /api/assignments', usecase: 'UC-07' },
+      { code: 'WF-19', cat: 'student', tag: 'Student', title: 'Hộp thông báo hệ thống (Notifications Dropdown)', desc: 'Menu thông báo nhanh với đếm số chưa đọc, cập nhật thông báo khi đơn được duyệt.', api: 'GET /api/notifications', usecase: 'UC-10' },
+      { code: 'WF-20', cat: 'student', tag: 'Student', title: 'Trang chi tiết thông báo việc làm', desc: 'Xem nội dung đầy đủ của thông báo tuyển dụng và cảnh báo hạn chót nộp đơn.', api: 'GET /api/notifications/:id', usecase: 'UC-10' },
+      { code: 'WF-21', cat: 'student', tag: 'Student', title: 'Modal Đánh giá Nhà tuyển dụng sau công việc', desc: 'Chấm điểm sao uy tín (1-5 sao) và nhận xét môi trường làm việc sau khi hoàn tất hợp đồng.', api: 'POST /api/reviews', usecase: 'UC-09' },
+      { code: 'WF-22', cat: 'employer', tag: 'Employer', title: 'Bảng điều khiển Doanh nghiệp (Dashboard)', desc: 'Thống kê tổng quan số tin đang mở, tổng lượt ứng tuyển mới và lịch phỏng vấn.', api: 'GET /api/employer/stats', usecase: 'UC-08' },
+      { code: 'WF-23', cat: 'employer', tag: 'Employer', title: 'Quản lý tin đăng tuyển dụng (My Jobs)', desc: 'Danh sách tin tuyển dụng của công ty với số lượng ứng viên theo thời gian thực (8 tin chuẩn).', api: 'GET /api/jobs/my-jobs', usecase: 'UC-08' },
+      { code: 'WF-24', cat: 'employer', tag: 'Employer', title: 'Bộ lọc trạng thái tin tuyển dụng', desc: 'Lọc tin theo trạng thái Đang tuyển (5 tin) và Đã đóng (3 tin).', api: 'GET /api/jobs/my-jobs?status', usecase: 'UC-08' },
+      { code: 'WF-25', cat: 'employer', tag: 'Employer', title: 'Form Đăng tin tuyển dụng mới (Screen 11)', desc: 'Nhập tiêu đề, mức lương giờ/tháng, số lượng tuyển, ca làm và yêu cầu ứng viên.', api: 'POST /api/jobs', usecase: 'UC-08' },
+      { code: 'WF-26', cat: 'employer', tag: 'Employer', title: 'Chỉnh sửa thông tin tin tuyển dụng', desc: 'Modal sửa đổi mô tả công việc, tăng hạn nộp đơn hoặc điều chỉnh thù lao.', api: 'PUT /api/jobs/:id', usecase: 'UC-08' },
+      { code: 'WF-27', cat: 'employer', tag: 'Employer', title: 'Thao tác Đóng / Mở lại tin tuyển dụng', desc: 'Chuyển trạng thái tin đăng sang CLOSED khi đã tuyển đủ người hoặc mở lại khi cần.', api: 'PATCH /api/jobs/:id/status', usecase: 'UC-08' },
+      { code: 'WF-28', cat: 'employer', tag: 'Employer', title: 'Quản lý hồ sơ ứng viên theo tin (Screen 12)', desc: 'Bảng danh sách 10 ứng viên vị trí Kế toán với họ tên, trường, ngành và trạng thái.', api: 'GET /api/applications/job/:id', usecase: 'UC-06' },
+      { code: 'WF-29', cat: 'employer', tag: 'Employer', title: 'Modal Xem hồ sơ ứng viên & CV chi tiết', desc: 'Xem thư giới thiệu, tải file CV và xem lịch rảnh làm việc của sinh viên ứng tuyển.', api: 'GET /api/applications/:id/cv', usecase: 'UC-06' },
+      { code: 'WF-30', cat: 'employer', tag: 'Employer', title: 'Thao tác Phê duyệt hồ sơ ứng viên (Accept)', desc: 'Phê duyệt sinh viên vào nhận việc, hệ thống gửi thông báo và chuyển trạng thái sang ACCEPTED.', api: 'PATCH /api/applications/:id/status', usecase: 'UC-06' },
+      { code: 'WF-31', cat: 'employer', tag: 'Employer', title: 'Thao tác Từ chối hồ sơ ứng viên (Reject)', desc: 'Từ chối ứng viên không phù hợp kèm lý do lịch sự và chuyển trạng thái sang REJECTED.', api: 'PATCH /api/applications/:id/status', usecase: 'UC-06' },
+      { code: 'WF-32', cat: 'employer', tag: 'Employer', title: 'Modal Đánh giá Sinh viên sau khi làm việc', desc: 'Chấm điểm thái độ làm việc, kỹ năng chuyên môn và xác nhận hoàn thành công việc.', api: 'POST /api/reviews', usecase: 'UC-09' },
+      { code: 'WF-33', cat: 'employer', tag: 'Employer', title: 'Hồ sơ thông tin Doanh nghiệp (Company Profile)', desc: 'Trang giới thiệu công ty, quy mô nhân sự, lĩnh vực hoạt động và danh sách tin đang tuyển.', api: 'GET /api/employer/profile', usecase: 'UC-04' },
+      { code: 'WF-34', cat: 'employer', tag: 'Employer', title: 'Chỉnh sửa hồ sơ Doanh nghiệp', desc: 'Cập nhật logo công ty, địa chỉ văn phòng, website và lời giới thiệu môi trường làm việc.', api: 'PUT /api/employer/profile', usecase: 'UC-04' },
+      { code: 'WF-35', cat: 'admin', tag: 'Admin', title: 'Admin Dashboard — Thống kê KPI hệ thống', desc: 'Biểu đồ tăng trưởng người dùng, tổng số việc làm, tỷ lệ hồ sơ được duyệt và điểm hài lòng.', api: 'GET /api/admin/stats', usecase: 'UC-11' },
+      { code: 'WF-36', cat: 'admin', tag: 'Admin', title: 'Admin — Quản lý tài khoản người dùng', desc: 'Bảng quản lý 122 người dùng với phân quyền Sinh viên, Doanh nghiệp và Quản trị viên.', api: 'GET /api/admin/users', usecase: 'UC-11' },
+      { code: 'WF-37', cat: 'admin', tag: 'Admin', title: 'Admin — Khóa / Kích hoạt tài khoản', desc: 'Khóa tài khoản vi phạm chính sách hoặc mở khóa sau khi đã xác minh thông tin.', api: 'PATCH /api/admin/users/:id', usecase: 'UC-11' },
+      { code: 'WF-38', cat: 'admin', tag: 'Admin', title: 'Admin — Kiểm duyệt tin tuyển dụng mới', desc: 'Phê duyệt tin tuyển dụng hợp lệ hoặc từ chối các tin tuyển dụng có dấu hiệu lừa đảo.', api: 'PATCH /api/admin/jobs/:id', usecase: 'UC-12' },
+      { code: 'WF-39', cat: 'admin', tag: 'Admin', title: 'Admin — Quản lý báo cáo vi phạm & Tranh chấp', desc: 'Xử lý phản ánh từ sinh viên về việc chậm trả lương hoặc gian lận ca làm việc.', api: 'GET /api/admin/reports', usecase: 'UC-12' },
+      { code: 'WF-40', cat: 'shared', tag: 'Shared', title: 'Chính sách bảo mật & Điều khoản sử dụng', desc: 'Modal hiển thị Điều khoản dịch vụ, Quyền riêng tư và Quy chuẩn minh bạch thù lao sinh viên.', api: 'Static / Component', usecase: 'Shared' },
+      { code: 'WF-41', cat: 'shared', tag: 'Shared', title: 'Trung tâm hỗ trợ sinh viên & FAQ', desc: 'Hộp thoại giải đáp thắc mắc thường gặp về nộp hồ sơ, khiếu nại thù lao và hướng dẫn bảo vệ bản thân.', api: 'Static / Component', usecase: 'Shared' },
+      { code: 'WF-42', cat: 'shared', tag: 'Shared', title: 'Trang tính năng đang phát triển (Coming Soon)', desc: 'Màn hình giới thiệu các phân hệ nâng cao (Hợp đồng thông minh, Cổng thanh toán sinh viên).', api: 'Static / Component', usecase: 'Shared' },
+      { code: 'WF-43', cat: 'shared', tag: 'Shared', title: 'Trang 404 Không tìm thấy (Not Found)', desc: 'Màn hình thông báo lỗi đường dẫn thân thiện kèm nút điều hướng quay về trang khám phá việc làm.', api: 'Static / Component', usecase: 'Shared' },
+      { code: 'WF-44', cat: 'shared', tag: 'Shared', title: 'Thanh điều hướng nổi & Toast phản hồi (Floating UI)', desc: 'Floating Action Buttons (Hỗ trợ, Đổi vai trò, Trạng thái Backend API 5000) và Animated Toasts.', api: 'UI Primitives', usecase: 'Shared' }
+    ];
+
+    function renderCards(items) {
+      const grid = document.getElementById('wireframeGrid');
+      grid.innerHTML = items.map(s => `
+        <div class="card" data-cat="${s.cat}">
+          <div class="card-header">
+            <span class="wf-code">${s.code}</span>
+            <span class="actor-tag tag-${s.cat}">${s.tag}</span>
+          </div>
+          <h3 class="card-title">${s.title}</h3>
+          <p class="card-desc">${s.desc}</p>
+          <div class="card-meta">
+            <div class="meta-row"><span>Use Case:</span> <strong>${s.usecase}</strong></div>
+            <div class="meta-row"><span>API Endpoint:</span> <code>${s.api}</code></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    renderCards(screens);
+
+    function filterCategory(cat, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (cat === 'all') {
+        renderCards(screens);
+      } else {
+        renderCards(screens.filter(s => s.cat === cat));
+      }
+    }
+
+    function filterCards() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      renderCards(screens.filter(s => 
+        s.title.toLowerCase().includes(q) || 
+        s.code.toLowerCase().includes(q) || 
+        s.desc.toLowerCase().includes(q) ||
+        s.usecase.toLowerCase().includes(q)
+      ));
+    }
+  </script>
+</body>
+</html>

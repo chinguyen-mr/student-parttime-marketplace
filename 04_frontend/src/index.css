@@ -1,0 +1,609 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ==========================================================================
+   JOBNEST DESIGN SYSTEM: SOFT LAVENDER & PEACH PALETTE
+   ========================================================================== */
+:root {
+  /* Brand Tokens: Soft Lavender & Peach Palette */
+  --color-primary: #7565A8;          /* Soft Lavender Primary */
+  --color-primary-hover: #635394;    /* Deep Lavender Hover */
+  --color-secondary: #F4B99D;        /* Warm Peach Secondary */
+  --color-secondary-hover: #E8A484;  /* Deep Peach Hover */
+  --color-lavender: #A997C5;         /* Soft Pastel Lavender Accent */
+  --color-lavender-light: #EEEAF7;   /* Light Lavender Tint */
+  --color-lavender-surface: #F3EFF9; /* Subtle Lavender Card Accent */
+  --color-accent: #F4B99D;           /* Warm Peach Accent / CTA */
+  --color-accent-hover: #E8A484;     /* Darker Peach Hover */
+  --color-accent-bg: #FDF1EA;        /* Warm Peach Tinted Background */
+  --color-background: #F8F7FB;       /* Soft Cream Canvas Main Background */
+  --color-surface: #FFFFFF;          /* Pure White Surface */
+  --color-border: #EAE7F0;           /* Soft Lavender Tinted Border */
+  --color-border-hover: #D5CFE2;     /* Border Hover / Active */
+  --color-text: #29263A;             /* Dark Eggplant Main Text */
+  --color-text-secondary: #777486;   /* Muted Slate Purple Secondary Text */
+  --color-text-muted: #9C98AA;       /* Subtle Hint Text */
+
+  /* Functional Status Colors (Softened to match palette) */
+  --color-success: #269A73;
+  --color-success-bg: #EAF7F2;
+  --color-success-border: #A7E3CE;
+  --color-warning: #E5A34C;
+  --color-warning-bg: #FEF7EE;
+  --color-warning-border: #F9DAA8;
+  --color-danger: #D95F68;
+  --color-danger-bg: #FDF1F2;
+  --color-danger-border: #F5B8BC;
+
+  /* Aliases for backwards compatibility with existing UI components */
+  --primary: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
+  --primary-light: var(--color-lavender-light);
+  --secondary: var(--color-secondary);
+  --accent: var(--color-accent);
+  --accent-bg: var(--color-accent-bg);
+  --bg-main: var(--color-background);
+  --bg-card: var(--color-surface);
+  --text-main: var(--color-text);
+  --text-muted: var(--color-text-secondary);
+  --border: var(--color-border);
+
+  /* Shadows (Soft & Elegant) */
+  --shadow-sm: 0 1px 3px 0 rgba(41, 38, 58, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(117, 101, 168, 0.08), 0 2px 6px -2px rgba(41, 38, 58, 0.03);
+  --shadow-lg: 0 16px 36px -4px rgba(41, 38, 58, 0.12), 0 6px 12px -4px rgba(117, 101, 168, 0.05);
+  --shadow-accent: 0 4px 14px rgba(244, 185, 157, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Form Controls with Soft Lavender Focus Rings */
+input, select, textarea {
+  font-family: inherit;
+  border: 1px solid var(--color-border);
+  outline: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(169, 151, 197, 0.25);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Badges Styled with Soft Lavender & Peach */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.badge-primary { 
+  background: var(--color-lavender-light); 
+  color: var(--color-primary); 
+  border: 1px solid var(--color-border);
+}
+
+.badge-accent { 
+  background: var(--color-accent-bg); 
+  color: #9C4123; 
+  border: 1px solid rgba(242, 161, 132, 0.4);
+}
+
+.badge-secondary { 
+  background: #F1EFF5; 
+  color: var(--color-secondary); 
+  border: 1px solid var(--color-border);
+}
+
+.badge-success { 
+  background: var(--color-success-bg); 
+  color: var(--color-success); 
+  border: 1px solid var(--color-success-border);
+}
+
+.badge-warning { 
+  background: var(--color-warning-bg); 
+  color: var(--color-warning); 
+  border: 1px solid var(--color-warning-border);
+}
+
+.badge-danger { 
+  background: var(--color-danger-bg); 
+  color: var(--color-danger); 
+  border: 1px solid var(--color-danger-border);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.18s ease;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(89, 70, 117, 0.25);
+}
+
+/* Peach Accent CTA Button */
+.btn-accent {
+  background: var(--color-accent);
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+.btn-accent:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-accent);
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+.btn-secondary:hover {
+  background: var(--color-lavender-light);
+  border-color: var(--color-border-hover);
+}
+
+.btn-success {
+  background: var(--color-success);
+  color: #ffffff;
+}
+.btn-success:hover {
+  background: #166534;
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: #ffffff;
+}
+.btn-danger:hover {
+  background: #991b1b;
+}
+
+/* Card Container */
+.card {
+  background: var(--color-surface);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-hover);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-lavender);
+}
+
+/* ==========================================================================
+   FOOTER RESPONSIVE STYLES (VIECLAM24H & VIETNAMWORKS PATTERN)
+   ========================================================================== */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr 1.15fr 1.15fr;
+  gap: 28px;
+}
+
+@media (max-width: 1140px) {
+  .footer-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.footer-link-btn,
+.footer-text-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #BDB3CC;
+  font-size: 13.5px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+  display: inline-block;
+  transition: color 0.15s ease;
+  font-family: inherit;
+}
+
+.footer-link-btn:hover,
+.footer-text-link:hover {
+  color: #F2A184;
+}
+
+/* ==========================================================================
+   RESPONSIVE HEADER & NAVIGATION (STABLE ON ALL ZOOM LEVELS & SCREEN SIZES)
+   ========================================================================== */
+.app-header {
+  background: var(--color-surface);
+  border-bottom: 1.5px solid #000000;
+  padding: 0 36px;
+  min-height: 74px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.app-header-top-row {
+  display: contents;
+}
+
+.app-brand-wrapper {
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.brand-badge {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.brand-subtitle {
+  font-size: 11.5px;
+  color: #777080;
+  margin: 2px 0 0 0;
+  white-space: nowrap;
+}
+
+.app-nav-container {
+  order: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.app-header-right {
+  order: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1140px) {
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 16px;
+    gap: 10px;
+  }
+  .app-header-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 12px;
+    order: 1;
+  }
+  .app-brand-wrapper {
+    order: 1;
+  }
+  .app-header-right {
+    order: 2;
+  }
+  .app-nav-container {
+    order: 2;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 4px;
+    width: 100%;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .app-nav-container::-webkit-scrollbar {
+    display: none;
+  }
+  .app-nav-container button {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .brand-subtitle {
+    display: none;
+  }
+  .app-header-right {
+    gap: 6px;
+  }
+  .user-profile-pill {
+    max-width: 125px !important;
+    padding: 4px 6px !important;
+  }
+  .profile-subtitle {
+    display: none !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand-badge {
+    display: none !important;
+  }
+}
+
+/* Search Filter Grid (Screen 6) */
+.search-filter-grid {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr 1.2fr auto;
+  gap: 12px;
+  margin-top: 20px;
+  align-items: center;
+}
+
+@media (max-width: 960px) {
+  .search-filter-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 12px;
+  }
+  .search-filter-grid > div:first-child {
+    grid-column: span 2;
+  }
+  .search-filter-grid > button {
+    grid-column: span 2;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .search-filter-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .search-filter-grid > div:first-child {
+    grid-column: span 1;
+  }
+  .search-filter-grid > button {
+    grid-column: span 1;
+  }
+}
+
+/* Floating Actions safe spacing */
+.floating-actions-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .floating-actions-container {
+    bottom: 16px;
+    right: 12px;
+    gap: 8px;
+  }
+}
+
+.job-card-hover {
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.job-card-hover:hover {
+  border-color: #A997C5 !important;
+  box-shadow: 0 8px 20px rgba(89, 70, 117, 0.09) !important;
+}
+
+/* Custom Dropdown Styling Enhancements */
+.jobnest-dropdown-container {
+  font-family: inherit;
+}
+
+.jobnest-dropdown-container ::-webkit-scrollbar {
+  width: 5px;
+}
+
+.jobnest-dropdown-container ::-webkit-scrollbar-track {
+  background: #F8FAFC;
+  border-radius: 4px;
+}
+
+.jobnest-dropdown-container ::-webkit-scrollbar-thumb {
+  background: #D8CFE5;
+  border-radius: 4px;
+}
+
+.jobnest-dropdown-container ::-webkit-scrollbar-thumb:hover {
+  background: #A997C5;
+}
+
+
+
+/* ==========================================================================
+   EMPLOYER PORTAL FULL-WIDTH RESPONSIVE LAYOUT (WF-E01 to WF-E12)
+   ========================================================================== */
+.employer-portal-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.employer-grid-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: calc(100vh - 74px);
+  width: 100%;
+}
+
+.employer-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1200px) {
+  .employer-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .employer-grid-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-mobile-menu-bar {
+    display: flex !important;
+  }
+  .employer-sidebar-aside {
+    display: none;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    border-right: none !important;
+    border-bottom: 1.5px solid #E2E8F0;
+  }
+  .employer-sidebar-aside.mobile-open {
+    display: block !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .employer-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   ADMIN PORTAL FULL-WIDTH RESPONSIVE LAYOUT (WF-A01 to WF-A08)
+   ========================================================================== */
+.admin-portal-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-kpi-grid > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Desktop rộng rãi (>=1500px): 6 cột thẳng hàng */
+@media (min-width: 1500px) {
+  .admin-kpi-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Laptop / Desktop vừa (1100px - 1499px): 3 cột x 2 hàng cân xứng */
+@media (max-width: 1499px) and (min-width: 1100px) {
+  .admin-kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablet (641px - 1099px): 2 cột */
+@media (max-width: 1099px) and (min-width: 641px) {
+  .admin-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile nhỏ (<=640px): 1 cột */
+@media (max-width: 640px) {
+  .admin-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

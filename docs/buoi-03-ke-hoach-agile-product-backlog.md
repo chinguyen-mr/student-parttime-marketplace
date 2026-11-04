@@ -97,4 +97,20 @@ Nhóm gồm 3 thành viên, phân công chuyên môn rõ ràng nhằm tránh tì
    - *Rủi ro CSDL PostgreSQL:* Đã xây dựng sẵn script `npm run migrate` và `npm run seed` tự động tạo DB, có thể thiết lập lại môi trường trong 15 giây.
 
 ---
+
+## 6. Trả lời Câu hỏi Thảo luận nhanh (Theo Slide Buổi 3)
+
+### Câu 1: Mục backlog nào nhóm bạn dự đoán sẽ mất nhiều thời gian hơn ước tính ban đầu? Vì sao?
+- **Mục PB-11 (Đánh giá hai chiều sau khi hoàn thành công việc):**
+  - *Nguyên nhân:* Tính năng đánh giá tưởng chừng đơn giản nhưng đi kèm nhiều quy tắc ràng buộc chặt chẽ: Chỉ được đánh giá khi tin tuyển dụng ở trạng thái `COMPLETED`; người đánh giá và người được đánh giá phải có quan hệ làm việc thực tế trong đơn ứng tuyển (`applications.status = 'ACCEPTED'`); mỗi bên chỉ được đánh giá duy nhất 1 lần cho mỗi công việc; không được tự đánh giá chính mình.
+  - *Giải pháp:* Tách bạch logic kiểm tra quyền vào tầng Service độc lập (`ReviewService`) và viết bộ unit test kiểm thử toàn diện trước khi nối API.
+
+### Câu 2: Nếu một thành viên trong nhóm không hoàn thành đúng hạn phần việc của mình, nhóm sẽ xử lý thế nào?
+- **Cơ chế Pair Programming & Cross-Support (Hỗ trợ chéo):** Nhóm phân công vai trò chính và vai trò phụ. Khi một thành viên gặp khó khăn kỹ thuật hoặc chậm tiến độ, Nhóm trưởng sẽ chủ động họp khẩn để tái phân bổ:
+  - Nếu Frontend bị chậm: Backend Lead sẽ hỗ trợ chuẩn bị sẵn mock JSON và template giao diện.
+  - Nếu Backend bị vướng: Thành viên phụ trách CSDL sẽ hỗ trợ viết câu lệnh SQL hoặc xử lý các repository queries.
+- **Nguyên tắc "Fail Fast, Escalate Early":** Thành viên có nghĩa vụ thông báo chậm nhất 24 giờ trước hạn nếu nhận thấy nguy cơ trễ deadline, tuyệt đối không giấu lỗi đến sát buổi demo.
+
+---
 *Tài liệu đã được nhóm rà soát, thống nhất và lưu trữ chính thức tại kho mã nguồn của dự án.*
+

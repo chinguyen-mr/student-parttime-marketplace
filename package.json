@@ -3,11 +3,19 @@
   "version": "1.0.0",
   "description": "Nền tảng quản lý freelance / marketplace việc làm part-time cho sinh viên (Chuyên đề tốt nghiệp 2 - Khoa CNTT - Đại học Văn Lang)",
   "scripts": {
-    "server": "npm --prefix server run dev",
-    "client": "npm --prefix client run dev",
-    "test": "npm --prefix server test",
-    "migrate": "npm --prefix server run migrate",
-    "seed": "npm --prefix server run seed"
+    "install:all": "npm --prefix 03_backend install && npm --prefix 04_frontend install",
+    "dev": "npm --prefix 04_frontend run dev",
+    "dev:frontend": "npm --prefix 04_frontend run dev",
+    "dev:backend": "npm --prefix 03_backend run dev",
+    "dev:server": "npm --prefix 03_backend run dev",
+    "frontend": "npm --prefix 04_frontend run dev",
+    "backend": "npm --prefix 03_backend run dev",
+    "server": "npm --prefix 03_backend run dev",
+    "client": "npm --prefix 04_frontend run dev",
+    "test": "npm --prefix 03_backend test",
+    "migrate": "npm --prefix 03_backend run migrate",
+    "seed": "npm --prefix 03_backend run seed",
+    "build:frontend": "npm --prefix 04_frontend run build"
   },
   "keywords": [
     "marketplace",

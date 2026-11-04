@@ -1,0 +1,17 @@
+{
+  "name": "JobNest - Nền tảng Việc làm Part-time & Freelance",
+  "short_name": "JobNest",
+  "description": "Nền tảng kết nối sinh viên với các công việc freelance và part-time, giúp sinh viên tìm việc, ứng tuyển, tích lũy kinh nghiệm và phát triển nghề nghiệp.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBFAFD",
+  "theme_color": "#594675",
+  "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
-# Chuyên đề Tốt nghiệp 2 — Nền tảng quản lý Freelance / Marketplace việc làm part-time cho sinh viên
+# Chuyên đề Tốt nghiệp 2 — Nền tảng quản lý Freelance / Marketplace việc làm part-time cho sinh viên (JOBNEST)
 
-**Khoa Công nghệ Thông tin — Trường Đại học Văn Lang**  
-**Đề tài:** Nền tảng quản lý freelance / marketplace việc làm part-time cho sinh viên  
+**Khoa Công nghệ Thông tin — Trường Đại học Văn Lang (VLU)**  
+**Đề tài:** Nền tảng quản lý freelance / marketplace việc làm part-time cho sinh viên (**JOBNEST**)  
 **Giảng viên hướng dẫn:** ThS. Nguyễn Văn Trung  
 **Sinh viên thực hiện:**
 1. Nguyễn Tấn Hoàng Thông (2374802010485)
@@ -12,106 +12,220 @@
 
 ## 1. Công nghệ sử dụng (Technology Stack)
 
-- **Backend:** Node.js + Express.js (Kiến trúc phân tầng 3-tier: Routes - Services - Repositories - Validators).
-- **Cơ sở dữ liệu:** PostgreSQL 18 (Local connection qua cổng 5432).
-- **Frontend:** React.js + Tailwind CSS + Vite.
-- **Xác thực:** JWT (JSON Web Token), mã hóa mật khẩu bằng bcrypt.
-- **Kiểm thử tự động:** `node:test` (Native Node.js test runner) và Playwright / Chrome DevTools MCP.
+- **Backend:** Node.js (>=20) + Express.js (Kiến trúc phân tầng 3-tier: Routes → Services → Repositories → Validators).
+- **Cơ sở dữ liệu:** PostgreSQL (>=14) (Kết nối qua cổng `5432`, `pg` Pool parameterized queries).
+- **Frontend:** React 19 + Vite 8 + CSS Design Tokens (Bảng màu Soft Lavender `#7565A8` & Peach `#F4B99D`).
+- **Thư viện giao diện & Hoạt họa:** Lucide React, Motion/React, Animate UI, Leaflet Map.
+- **Xác thực & Bảo mật:** JWT (JSON Web Token), mã hóa mật khẩu an toàn bằng `bcryptjs`, RBAC 3 vai trò (Student, Employer, Admin).
+- **Kiểm thử tự động:** `node:test` (Native Node.js integration tests) với **31/31 test cases** trên **8 suites**.
 
 ---
 
 ## 2. Cấu trúc thư mục dự án
 
-```
+```text
 Chuyên Đề 2/
-├── client/                     # Ứng dụng Frontend (React + Vite + Tailwind CSS)
+├── 01_tailieu/                     # Đề cương, SRS, đặc tả Use Case, slide bài giảng
+├── 02_database/                    # Tài liệu ERD 30 bảng, schema DDL và migrations
+│   ├── migrations/                 # DDL tạo bảng CSDL và nâng cấp cột
+│   └── erd/                        # File vẽ ERD (.drawio)
+│
+├── 03_backend/                     # Dịch vụ Backend API (Node.js + Express + PostgreSQL)
 │   ├── src/
-│   │   ├── components/         # Các component UI tái sử dụng
-│   │   ├── pages/              # Trang Sinh viên, Nhà tuyển dụng, Admin
-│   │   ├── App.jsx
+│   │   ├── config/                 # Kết nối DB pool, migrate, seed
+│   │   ├── errors/                 # AppError & Domain Errors
+│   │   ├── middleware/             # Xác thực JWT, phân quyền vai trò (RBAC), xử lý lỗi tập trung
+│   │   ├── modules/                # Các module nghiệp vụ (auth, jobs, applications, proposals, admin...)
+│   │   ├── app.js                  # Cấu hình Express app & API routes
+│   │   └── server.js               # Khởi chạy HTTP Server (Cổng 5000)
+│   ├── tests/integration/          # 8 test suites kiểm thử tích hợp (31 tests)
+│   ├── .env                        # Biến môi trường kết nối CSDL và Secret Key
+│   └── package.json
+│
+├── 04_frontend/                    # Ứng dụng Frontend Web (React 19 + Vite + Design Tokens)
+│   ├── src/
+│   │   ├── components/             # Reusable UI components (JobCard, Header, Footer, Dropdown, Modals...)
+│   │   ├── pages/
+│   │   │   ├── admin/              # Phân hệ Quản trị viên (WF-A01 -> WF-A08)
+│   │   │   ├── employer/           # Phân hệ Nhà tuyển dụng (WF-E01 -> WF-E12)
+│   │   │   ├── student/            # Phân hệ Sinh viên (WF-S01 -> WF-S11)
+│   │   │   └── HomePage.jsx        # Trang chủ & Khám phá thị trường (WF-G01, WF-G02)
+│   │   ├── App.jsx                 # Điều phối Root Layout, Dual-Zone UX & Route-based Footer
 │   │   └── main.jsx
 │   └── package.json
 │
-├── server/                     # Dịch vụ Backend API (Node.js + Express + PostgreSQL)
-│   ├── src/
-│   │   ├── config/             # Kết nối DB pool, migrate, seed
-│   │   ├── errors/             # AppError & Domain Errors
-│   │   ├── middleware/         # Xác thực JWT, phân quyền vai trò, xử lý lỗi
-│   │   ├── routes/             # Định tuyến HTTP RESTful API (UC-01 -> UC-10)
-│   │   ├── services/           # Nghiệp vụ cốt lõi (Business Logic Rules)
-│   │   ├── repositories/       # Truy vấn dữ liệu PostgreSQL (Parameterized SQL)
-│   │   ├── validators/         # Kiểm tra hợp lệ đầu vào request
-│   │   ├── app.js              # Cấu hình Express app
-│   │   └── server.js           # Khởi chạy máy chủ HTTP (Port 5000)
-│   ├── migrations/             # DDL tạo bảng CSDL (001_initial_schema.sql)
-│   ├── seeds/                  # Dữ liệu mẫu khởi tạo (001_seed_data.sql)
-│   ├── tests/                  # Bộ Unit Test chạy bằng node --test
-│   ├── .env                    # Biến môi trường kết nối CSDL và Secret Key
-│   └── package.json
+├── 05_wireframes/                  # Danh mục 44 bản mẫu Wireframe HTML & Catalog
+├── docs/                           # Báo cáo kỹ thuật, ma trận đối chiếu 44 Wireframe, audit logs
+│   ├── WIREFRAME_UI_AUDIT_MATRIX.md    # Ma trận đối chiếu 44 màn hình Wireframe (100% MATCHED)
+│   ├── WF_A01_DISPLAY_FIX_REPORT.md    # Báo cáo tối ưu bố cục Bảng điều khiển Admin WF-A01
+│   ├── UI_LAYOUT_REDESIGN_REPORT.md    # Báo cáo kiến trúc 100vw, Dual-Zone UX & Route-based Footer
+│   ├── UI_RESPONSIVE_TEST_REPORT.md    # Báo cáo kiểm thử thích ứng 6 dải màn hình
+│   └── UI_IMPLEMENTATION_CHANGELOG.md  # Nhật ký thay đổi mã nguồn toàn diện
 │
-├── docs/                       # Tài liệu kỹ thuật
-│   ├── architecture.md         # Bản vẽ và giải thích kiến trúc phân tầng
-│   └── api-docs.md             # Đặc tả chi tiết toàn bộ RESTful API
-│
-├── Tài Liệu/                   # Tài liệu đề cương, SRS, đặc tả Use Case, slide bài giảng
-├── .gitignore                  # Cấu hình loại trừ Git
-├── package.json                # Script tổng điều phối toàn dự án
+├── setup_temp_admin.js             # Script khởi tạo tài khoản Test Admin cố định
+├── package.json                    # Script tổng điều phối toàn dự án từ thư mục gốc
 └── README.md
 ```
 
 ---
 
-## 3. Hướng dẫn khởi chạy hệ thống
+## 3. Hướng dẫn cài đặt và khởi chạy hệ thống
 
-### Bước 1: Khởi tạo Cơ sở dữ liệu và Dữ liệu mẫu
+### Bước 1: Cài đặt thư viện phụ thuộc (Dependencies)
 
-Hệ thống đã có script tự động tạo cơ sở dữ liệu `cd2_marketplace_db` và nạp dữ liệu mẫu:
-
-```bash
-# Di chuyển vào thư mục server
-cd server
-
-# Chạy migration tạo bảng
-npm run migrate
-
-# Nạp dữ liệu mẫu (Admin, Nhà tuyển dụng, Sinh viên, Tin tuyển dụng mẫu)
-npm run seed
-```
-
-### Bước 2: Chạy bộ kiểm thử tự động (Unit Tests)
-
-Bộ kiểm thử chạy hoàn toàn bằng công cụ tích hợp sẵn `node:test` của Node.js:
+Mở terminal tại thư mục gốc của dự án (`Chuyên Đề 2`) và cài đặt cho cả Backend lẫn Frontend:
 
 ```bash
-cd server
-npm test
-```
-*Kết quả: 10/10 test cases vượt qua thành công về nghiệp vụ xác thực, tin tuyển dụng, đơn ứng tuyển và đánh giá.*
+# 1. Cài đặt thư viện Backend
+cd 03_backend
+npm install
 
-### Bước 3: Khởi chạy Backend API
+# 2. Cài đặt thư viện Frontend
+cd ../04_frontend
+npm install
 
-```bash
-cd server
-npm run dev
-```
-Backend API sẽ hoạt động tại: **`http://localhost:5000`**  
-Kiểm tra sức khỏe hệ thống: **`http://localhost:5000/health`**
-
-### Bước 4: Khởi chạy Frontend Web
-
-```bash
-cd client
-npm run dev
+# 3. Quay lại thư mục gốc
+cd ..
 ```
 
 ---
 
-## 4. Tài khoản mẫu dùng để thử nghiệm (Mật khẩu: `password123`)
+### Bước 2: Cấu hình biến môi trường (`03_backend/.env`)
 
-| Vai trò | Email đăng nhập | Mật khẩu | Mục đích |
+Kiểm tra hoặc tạo tập tin `03_backend/.env` với các thông số kết nối PostgreSQL:
+
+```env
+PORT=5000
+NODE_ENV=development
+
+# Cấu hình kết nối PostgreSQL
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=cd2_marketplace_db
+DB_USER=postgres
+DB_PASSWORD=postgres
+
+# Bảo mật JWT
+JWT_SECRET=super_secret_jwt_key_cdtn2_jobnest_2026
+JWT_EXPIRES_IN=7d
+```
+
+---
+
+### Bước 3: Khởi tạo Cơ sở dữ liệu và Dữ liệu mẫu (Cơ chế Tự Động Hoàn Toàn)
+
+> 💡 **Tính năng Tự Động Hóa Mới (Auto-Bootstrap):**  
+> Khi bạn khởi chạy Backend (`npm run dev:backend`), hệ thống sẽ **tự động kiểm tra và thực hiện toàn bộ các bước**:  
+> 1. Tự động thử kết nối và dò mật khẩu PostgreSQL máy mới nếu có sai lệch.  
+> 2. Tự động tạo CSDL `cd2_marketplace_db` nếu chưa có.  
+> 3. Tự động chạy toàn bộ các file SQL Migration tạo 30 bảng.  
+> 4. Tự động nạp dữ liệu mẫu (Seed Data) nếu database trống.  
+> 5. Tự động tạo tài khoản Quản trị viên (`admin.test@vlu.edu.vn` / `password123`).  
+>
+> *(Bạn cũng có thể chạy thủ công bằng các lệnh bên dưới nếu muốn)*:
+
+```bash
+# Cách chạy thủ công từ thư mục gốc (nếu cần):
+npm run migrate
+npm run seed
+node setup_temp_admin.js
+```
+
+---
+
+### Bước 4: Chạy bộ kiểm thử tự động (Integration Tests)
+
+Dự án tích hợp bộ test tự động sử dụng `node:test` của Node.js, kiểm tra toàn bộ quy tắc nghiệp vụ cốt lõi (Xác thực JWT, Rule A3 duyệt ứng viên, chuyển đổi trạng thái FSM ca làm việc, cấm tự nộp đơn, v.v.):
+
+```bash
+# Chạy từ thư mục gốc
+npm test
+
+# Hoặc chạy từ 03_backend
+cd 03_backend
+npm test
+```
+*Kết quả mong đợi:* **`✔ 31/31 passed across 8 suites (100% PASS)`**.
+
+---
+
+### Bước 5: Khởi chạy Máy chủ Backend API
+
+```bash
+# Chạy từ thư mục gốc
+npm run dev:backend
+
+# Hoặc chạy trực tiếp trong 03_backend
+cd 03_backend
+npm run dev
+```
+
+- **Địa chỉ API:** `http://localhost:5000`
+- **Kiểm tra trạng thái (Health Check):** `http://localhost:5000/api/health` hoặc `http://localhost:5000/health`
+
+---
+
+### Bước 6: Khởi chạy Ứng dụng Frontend (React + Vite)
+
+Mở một cửa sổ terminal mới:
+
+```bash
+# Chạy từ thư mục gốc
+npm run dev:frontend
+
+# Hoặc chạy trực tiếp trong 04_frontend
+cd 04_frontend
+npm run dev
+```
+
+- **Địa chỉ ứng dụng Web:** **`http://localhost:5173`**
+
+---
+
+### Bước 7: Kiểm tra Biên dịch Frontend (Production Build)
+
+Để đảm bảo mã nguồn không có bất kỳ lỗi cú pháp nào trước khi đóng gói:
+
+```bash
+npm run build:frontend
+# Hoặc: cd 04_frontend && npm run build
+```
+*Kết quả:* `✓ built in ~800ms (0 errors, 0 warnings)`.
+
+---
+
+## 4. Tài khoản thử nghiệm có sẵn (Quick Login Chips)
+
+Giao diện Đăng nhập của hệ thống (`AuthModal`) đã tích hợp sẵn các **Chip bấm nhanh** để đăng nhập ngay mà không cần nhập tay:
+
+| Vai trò | Email đăng nhập | Mật khẩu | Quyền hạn & Chức năng kiểm thử |
 |---|---|---|---|
-| **Quản trị viên (Admin)** | `admin@marketplace.vlu.edu.vn` | `password123` | Quản trị tài khoản, kiểm duyệt tin đăng, xem thống kê |
-| **Nhà tuyển dụng 1** | `techcorp@gmail.com` | `password123` | Đăng tin, xem và duyệt hồ sơ ứng viên CNTT |
-| **Nhà tuyển dụng 2** | `coffeehouse@gmail.com` | `password123` | Đăng việc part-time F&B, quản lý trạng thái công việc |
-| **Sinh viên 1** | `nguyen.van.chi@vlu.edu.vn` | `password123` | Tìm việc, nộp đơn ứng tuyển, theo dõi kết quả, đánh giá |
-| **Sinh viên 2** | `le.quang.tuan@vlu.edu.vn` | `password123` | Tìm việc part-time, quản lý hồ sơ cá nhân |
+| **Quản trị viên (ADMIN)** | `admin.test@vlu.edu.vn` | `password123` | Truy cập toàn quyền **Admin Portal (WF-A01 → WF-A08)**: Duyệt tin tuyển dụng (có lý do bắt buộc khi từ chối), Quản lý & Khóa tài khoản, Xử lý khiếu nại báo cáo vi phạm, Quản lý ngành nghề, Xem nhật ký kiểm toán hệ thống. |
+| **Nhà tuyển dụng (EMPLOYER)** | `employer.test@vlu.edu.vn` | `password123` | Truy cập **Employer Portal (WF-E01 → WF-E12)**: Đăng tin tuyển dụng (Part-time / Freelance), Xem danh sách ứng viên & CV chi tiết, Tuyển chọn ứng viên (Rule A3), Quản lý ca làm, Nghiệm thu sản phẩm, Đánh giá sinh viên. Đã có tick xanh `VERIFIED EMPLOYER`. |
+| **Sinh viên (STUDENT)** | `student.test@vlu.edu.vn` | `password123` | Truy cập **Student Dashboard (WF-S01 → WF-S11)**: Tìm kiếm & lọc việc làm, Nộp đơn Part-time (Cover letter + CV), Gửi báo giá Freelance (Proposal), Bàn giao link sản phẩm, Đánh giá nhà tuyển dụng. |
+
+---
+
+## 5. Danh mục lệnh điều phối nhanh (Root NPM Commands)
+
+Tập tin `package.json` tại thư mục gốc hỗ trợ các lệnh tắt tiện lợi:
+
+| Lệnh thực thi | Mục đích | Thao tác tương ứng |
+|---|---|---|
+| `npm run dev:frontend` (hoặc `npm run dev`) | Khởi chạy máy chủ giao diện người dùng | `npm --prefix 04_frontend run dev` (Port 5173) |
+| `npm run dev:backend` (hoặc `npm run backend`) | Khởi chạy máy chủ Backend API | `npm --prefix 03_backend run dev` (Port 5000) |
+| `npm test` | Chạy bộ 31 bài kiểm thử tích hợp | `npm --prefix 03_backend test` |
+| `npm run migrate` | Chạy migration cấu trúc bảng CSDL | `npm --prefix 03_backend run migrate` |
+| `npm run seed` | Nạp dữ liệu mẫu vào PostgreSQL | `npm --prefix 03_backend run seed` |
+| `npm run build:frontend` | Biên dịch đóng gói Frontend | `npm --prefix 04_frontend run build` |
+
+---
+
+## 6. Danh mục 44 Màn hình Wireframe và Tài liệu Nghiệm thu
+
+Dự án đã đối chiếu và đồng bộ trọn vẹn **44 / 44 màn hình Wireframe** từ `JOBNEST_Wireframe_44(1).drawio`:
+1. [**`docs/WIREFRAME_UI_AUDIT_MATRIX.md`**](docs/WIREFRAME_UI_AUDIT_MATRIX.md): Ma trận đối chiếu 44 màn hình (Guest, Student, Employer, Admin, Supplementary) với kết quả **100% MATCHED**.
+2. [**`docs/WF_A01_DISPLAY_FIX_REPORT.md`**](docs/WF_A01_DISPLAY_FIX_REPORT.md): Báo cáo khắc phục lỗi hiển thị Bảng điều khiển Quản trị WF-A01, thanh Navigation tràn viền và 6 thẻ KPI.
+3. [**`docs/UI_LAYOUT_REDESIGN_REPORT.md`**](docs/UI_LAYOUT_REDESIGN_REPORT.md): Báo cáo kiến trúc bố cục Full-width 100vw, mô hình Dual-Zone UX và quy tắc ẩn hiện chân trang (Route-based Footer).
+4. [**`docs/UI_RESPONSIVE_TEST_REPORT.md`**](docs/UI_RESPONSIVE_TEST_REPORT.md): Báo cáo kiểm thử đáp ứng trên 6 dải độ phân giải (1920x1080 đến 390x844).
+5. [**`docs/UI_IMPLEMENTATION_CHANGELOG.md`**](docs/UI_IMPLEMENTATION_CHANGELOG.md): Nhật ký chi tiết các endpoint API và component giao diện đã thực thi.

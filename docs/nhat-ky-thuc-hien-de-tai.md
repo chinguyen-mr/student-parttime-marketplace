@@ -29,7 +29,7 @@
   - Thu thập và phân tích chi tiết yêu cầu người dùng, xác định 3 Actor: Sinh viên, Nhà tuyển dụng, Quản trị viên.
   - Phân tích và mã hóa danh mục yêu cầu chức năng từ FR-01 đến FR-08.
   - Viết tài liệu đặc tả chi tiết 10 Use Case (`UC-01` $\rightarrow$ `UC-10`) với đầy đủ Pre-condition, Post-condition, Main Flow, Exception Flow và Business Rules.
-- **Kết quả đạt được:** Hoàn thiện tài liệu `CDTN2_SRS.docx` và `Dac_ta.docx`.
+- **Kết quả đạt được:** Hoàn thiện tài liệu `CDTN2_SRS.docx`, `Dac_ta.docx` và hồ sơ đặc tả yêu cầu [buoi-02-phan-tich-yeu-cau-srs-rut-gon.md](file:///d:/Tai%20Lieu/DuLieuHoc/%C4%90%E1%BB%93%20%C3%81n%20T%E1%BB%91t%20Nghi%E1%BB%87p/Chuy%C3%AAn%20%C4%90%E1%BB%81%202/docs/buoi-02-phan-tich-yeu-cau-srs-rut-gon.md).
 - **Khó khăn / Góp ý của GVHD:** Quy định thống nhất UC-06 là "Ứng tuyển việc làm"; bước xem chi tiết tin thuộc Main Flow của UC-05/UC-06 chứ không tách thành Use Case độc lập.
 
 ---
@@ -79,3 +79,17 @@
   - Thiết kế chi tiết CSDL và API: Hoàn thành 100%, có bằng chứng DDL SQL và kiểm thử tự động.
   - Nhật ký thực hiện đề tài: Đầy đủ, minh bạch từ Buổi 1 đến Buổi 5.
   - Môi trường phát triển: Đã thiết lập hoàn tất, có thể chạy và tái lập trên máy của GVHD.
+
+---
+
+## Bảng Xác nhận Đóng góp & Trách nhiệm Thành viên (Buổi 1 — Buổi 5)
+
+| Thành viên | Trách nhiệm chính đã thực hiện (Buổi 1 - 5) | Đóng góp (%) | Chữ ký xác nhận |
+|---|---|---|---|
+| **Nguyễn Văn Chí**<br>(Nhóm trưởng) | - Điều phối tiến độ nhóm, lập kế hoạch Agile & Product Backlog (Buổi 1, 3).<br>- Thiết kế kiến trúc 3 tầng Backend Express.js, Module Auth JWT, Applications, Reviews (Buổi 4, 5).<br>- Viết bộ Unit Test tự động `node:test` đạt 10/10 test cases PASS. | 100% | *Đã xác nhận* |
+| **Nguyễn Tấn Hoàng Thông** | - Phân tích đặc tả yêu cầu, lập ma trận 5W1H và SRS (Buổi 2).<br>- Thiết kế CSDL PostgreSQL (ERD), viết migration DDL và seed data (Buổi 4, 5).<br>- Đặc tả API Quản lý Tin việc làm và Phân hệ Quản trị viên (Admin). | 100% | *Đã xác nhận* |
+| **Lê Quang Anh Tuấn** | - Thiết kế hệ thống Wireframe chi tiết 14 màn hình cho 3 Actor (Buổi 5).<br>- Khởi tạo và thiết lập dự án Frontend React.js + Tailwind CSS + Vite (Buổi 4, 5).<br>- Xây dựng ma trận truy vết yêu cầu (Traceability Matrix) bảo đảm tính nhất quán. | 100% | *Đã xác nhận* |
+
+---
+*Nhật ký được lập và cập nhật định kỳ sau mỗi buổi học, có chữ ký và xác nhận của toàn thể thành viên trong nhóm.*
+

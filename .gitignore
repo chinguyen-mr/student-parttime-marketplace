@@ -32,3 +32,13 @@ coverage/
 *.sw?
 .DS_Store
 Thumbs.db
+
+# Office temporary lock files
+~$*
+
+# Playwright MCP test outputs
+.playwright-mcp/
+
+# Scratch & tooling cache
+scratch/
+.gitnexus/

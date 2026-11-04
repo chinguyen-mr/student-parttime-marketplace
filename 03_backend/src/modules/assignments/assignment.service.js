@@ -1,0 +1,164 @@
+const db = require('../../config/db');
+const { 
+    NotFoundError, 
+    ForbiddenError, 
+    StateTransitionInvalidError 
+} = require('../../utils/app-error');
+
+class AssignmentService {
+    /**
+     * Danh sách hợp đồng/công việc của Sinh viên
+     */
+    async getMyAssignments(studentId) {
+        const res = await db.query(
+            `SELECT wa.*, 
+                    j.title AS job_title, j.category, j.work_type, j.location, j.salary, j.salary_type,
+                    emp.full_name AS employer_name, emp.email AS employer_email, emp.phone AS employer_phone,
+                    app.cover_letter,
+                    prop.proposal_text, prop.proposed_price, prop.estimated_duration
+             FROM work_assignments wa
+             JOIN jobs j ON j.id = wa.job_id
+             JOIN users emp ON emp.id = j.employer_id
+             LEFT JOIN applications app ON app.id = wa.application_id
+             LEFT JOIN freelance_proposals prop ON prop.id = wa.proposal_id
+             WHERE wa.student_id = $1
+             ORDER BY wa.created_at DESC`,
+            [studentId]
+        );
+        return res.rows;
+    }
+
+    /**
+     * Danh sách hợp đồng/công việc thuộc các tin của Nhà tuyển dụng
+     */
+    async getEmployerAssignments(employerId) {
+        const res = await db.query(
+            `SELECT wa.*, 
+                    j.title AS job_title, j.category, j.work_type, j.location,
+                    stu.full_name AS student_name, stu.email AS student_email, stu.phone AS student_phone,
+                    pr.school AS university, pr.major,
+                    app.cover_letter,
+                    prop.proposal_text, prop.proposed_price, prop.estimated_duration
+             FROM work_assignments wa
+             JOIN jobs j ON j.id = wa.job_id
+             JOIN users stu ON stu.id = wa.student_id
+             LEFT JOIN student_profiles pr ON pr.user_id = stu.id
+             LEFT JOIN applications app ON app.id = wa.application_id
+             LEFT JOIN freelance_proposals prop ON prop.id = wa.proposal_id
+             WHERE j.employer_id = $1
+             ORDER BY wa.created_at DESC`,
+            [employerId]
+        );
+        return res.rows;
+    }
+
+    /**
+     * Xem chi tiết một Assignment
+     */
+    async getAssignmentById(assignmentId, userId, userRole) {
+        const id = parseInt(assignmentId, 10);
+        const res = await db.query(
+            `SELECT wa.*, 
+                    j.title AS job_title, j.category, j.work_type, j.location, j.salary, j.salary_type, j.employer_id,
+                    emp.full_name AS employer_name, emp.email AS employer_email, emp.phone AS employer_phone,
+                    stu.full_name AS student_name, stu.email AS student_email, stu.phone AS student_phone,
+                    pr.school AS university, pr.major,
+                    app.cover_letter,
+                    prop.proposal_text, prop.proposed_price, prop.estimated_duration
+             FROM work_assignments wa
+             JOIN jobs j ON j.id = wa.job_id
+             JOIN users emp ON emp.id = j.employer_id
+             JOIN users stu ON stu.id = wa.student_id
+             LEFT JOIN student_profiles pr ON pr.user_id = stu.id
+             LEFT JOIN applications app ON app.id = wa.application_id
+             LEFT JOIN freelance_proposals prop ON prop.id = wa.proposal_id
+             WHERE wa.id = $1`,
+            [id]
+        );
+
+        if (res.rows.length === 0) {
+            throw new NotFoundError('Không tìm thấy hợp đồng công việc');
+        }
+
+        const assignment = res.rows[0];
+
+        if (userRole !== 'ADMIN' && assignment.student_id !== userId && assignment.employer_id !== userId) {
+            throw new ForbiddenError('Bạn không có quyền truy cập hợp đồng công việc này');
+        }
+
+        return assignment;
+    }
+
+    /**
+     * Cập nhật trạng thái Assignment (NOT_STARTED -> IN_PROGRESS -> COMPLETED)
+     */
+    async updateStatus(assignmentId, employerId, newStatus) {
+        const id = parseInt(assignmentId, 10);
+        const res = await db.query(
+            `SELECT wa.*, j.employer_id, j.title AS job_title 
+             FROM work_assignments wa
+             JOIN jobs j ON j.id = wa.job_id
+             WHERE wa.id = $1`,
+            [id]
+        );
+
+        if (res.rows.length === 0) {
+            throw new NotFoundError('Không tìm thấy hợp đồng công việc');
+        }
+
+        const wa = res.rows[0];
+
+        // Verify employer owns the job
+        if (wa.employer_id !== employerId) {
+            throw new ForbiddenError('Bạn không có quyền cập nhật hợp đồng của tin tuyển dụng khác');
+        }
+
+        const currentStatus = wa.status;
+
+        // Verify State Transitions
+        if (currentStatus === 'NOT_STARTED') {
+            if (newStatus === 'COMPLETED') {
+                throw new StateTransitionInvalidError('Không thể chuyển thẳng từ NOT_STARTED sang COMPLETED (phải qua IN_PROGRESS)');
+            }
+            if (newStatus !== 'IN_PROGRESS') {
+                throw new StateTransitionInvalidError(`Không thể chuyển trạng thái từ "${currentStatus}" sang "${newStatus}"`);
+            }
+        } else if (currentStatus === 'IN_PROGRESS') {
+            if (newStatus !== 'COMPLETED') {
+                throw new StateTransitionInvalidError(`Không thể chuyển trạng thái từ "${currentStatus}" sang "${newStatus}"`);
+            }
+        } else if (currentStatus === 'COMPLETED') {
+            throw new StateTransitionInvalidError('Không thể lùi trạng thái công việc đã hoàn thành (COMPLETED)');
+        }
+
+        const updateRes = await db.query(
+            `UPDATE work_assignments 
+             SET status = $1, updated_at = CURRENT_TIMESTAMP 
+             WHERE id = $2 
+             RETURNING *`,
+            [newStatus, id]
+        );
+
+        // Tạo thông báo cho Sinh viên
+        try {
+            const title = newStatus === 'IN_PROGRESS' 
+                ? 'Công việc đã bắt đầu' 
+                : 'Công việc đã hoàn thành';
+            const body = newStatus === 'IN_PROGRESS'
+                ? `Công việc "${wa.job_title}" đã chuyển sang trạng thái đang thực hiện (IN_PROGRESS).`
+                : `Công việc "${wa.job_title}" đã được xác nhận hoàn thành (COMPLETED). Hãy để lại nhận xét đánh giá!`;
+
+            await db.query(
+                `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
+                 VALUES ($1, $2, $3, $4, 'ASSIGNMENT', $5)`,
+                [wa.student_id, `ASSIGNMENT_${newStatus}`, title, body, id]
+            );
+        } catch (notifErr) {
+            console.error('Lỗi tạo notification assignment:', notifErr.message);
+        }
+
+        return updateRes.rows[0];
+    }
+}
+
+module.exports = new AssignmentService();

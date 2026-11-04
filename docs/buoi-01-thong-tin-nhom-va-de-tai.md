@@ -36,3 +36,19 @@
 2. **Kênh Đăng tin tuyển dụng:** Nhà tuyển dụng đăng tin part-time/freelance với mô tả, mức lương, địa điểm và thời gian làm việc.
 3. **Kênh Tìm kiếm & Ứng tuyển:** Sinh viên tìm kiếm, lọc tin theo ngành nghề/khu vực/mức lương và nộp hồ sơ ứng tuyển trực tuyến.
 4. **Quản lý Trạng thái & Đánh giá hai chiều:** Quản lý tiến độ việc làm (*Đang tuyển* $\rightarrow$ *Đã nhận người* $\rightarrow$ *Hoàn thành*) và đánh giá xếp hạng uy tín hai chiều sau khi công việc kết thúc.
+
+---
+
+## 4. Trả lời Câu hỏi Thảo luận nhanh & Quản trị Rủi ro (Theo Slide Buổi 1)
+
+### Câu 1: Đề tài nhóm bạn chọn có điểm gì khác biệt so với đề tài mẫu hoặc đề tài của nhóm khác?
+- **Tính đặc thù sinh viên:** Nền tảng được tinh chỉnh tập trung vào thị trường lao động sinh viên: công việc part-time thời vụ ngắn hạn, linh hoạt theo ca học, vị trí gần các cụm trường đại học (ưu tiên khu vực TP.HCM).
+- **Cơ chế đánh giá 2 chiều minh bạch (Mutual Review):** Khác với các trang rao vặt một chiều, hệ thống chỉ mở khóa chức năng đánh giá khi công việc đạt trạng thái `COMPLETED` và người tham gia phải có quan hệ làm việc thực tế, giúp loại trừ hoàn toàn tình trạng review ảo hoặc tin tuyển dụng lừa đảo.
+- **Quy trình ứng tuyển tức thời (Instant Application Flow):** Sinh viên có thể nộp đơn trực tiếp kèm hồ sơ/CV lưu sẵn trên hệ thống mà không cần các thủ tục phỏng vấn dài dòng như tuyển dụng full-time.
+
+### Câu 2: Rủi ro lớn nhất mà nhóm dự đoán sẽ gặp phải trong 10 buổi tới là gì và giải pháp?
+- **Rủi ro 1 — Rò rỉ phạm vi (Scope Creep):** Dễ bị sa đà vào việc tích hợp cổng thanh toán tiền thật hoặc chat real-time phức tạp.
+  - *Giải pháp:* Nhóm và GVHD đã thống nhất giới hạn chặt chẽ phạm vi trong đồ án CD2, phân loại các tính năng này vào nhóm `Won't-have` trong Product Backlog MoSCoW.
+- **Rủi ro 2 — Nghẽn tích hợp giữa Frontend và Backend:** Thành viên làm việc riêng rẽ dẫn đến việc ghép nối ở Buổi 6, 7 bị xung đột schema.
+  - *Giải pháp:* Thiết kế và chốt hợp đồng API (API Contract) chi tiết 14 trường thông tin và tạo migration DDL + Seed data chuẩn ngay từ Buổi 5 trước khi viết code giao diện.
+

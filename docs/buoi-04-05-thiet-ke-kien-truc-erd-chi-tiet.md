@@ -368,4 +368,23 @@ Phục vụ việc chấm điểm của Giảng viên hướng dẫn theo **Rubr
 | **Quản lý phiên bản** | Khởi tạo Git repo, có `.gitignore`, commit có cấu trúc rõ ràng | Commit `c098282` và `b900e51` đã lưu trữ an toàn | **PASS** |
 
 ---
+
+## 7. Trả lời Câu hỏi Thảo luận nhanh (Theo Slide Buổi 4 & Buổi 5)
+
+### 7.1. Câu hỏi thảo luận theo Slide Buổi 4 (Thiết kế Kiến trúc tổng thể)
+1. **Câu hỏi 1: Thành phần nào trong kiến trúc của nhóm có nguy cơ trở thành điểm nghẽn (bottleneck) nhất?**
+   - *Phân tích:* Điểm nghẽn tiềm năng lớn nhất nằm ở tầng truy xuất CSDL PostgreSQL khi thực hiện tìm kiếm full-text và lọc đa tiêu chí (ngành nghề, mức lương, khu vực).
+   - *Giải pháp kiến trúc:* Nhóm đã thiết kế các chỉ mục tối ưu: `idx_jobs_filter ON jobs(status, category, location, salary)` và `idx_jobs_employer_id`. Đồng thời, tầng Backend sử dụng cơ chế Connection Pooling (`pg.Pool`) với giới hạn connection hợp lý để ngăn chặn tình trạng cạn kiệt tài nguyên máy chủ.
+2. **Câu hỏi 2: Nếu công nghệ đã chọn gặp vấn đề không giải quyết được, nhóm bạn có phương án B nào không?**
+   - *Phân tích:* Nếu môi trường PostgreSQL local trên Windows của thành viên gặp lỗi dịch vụ, phương án B là chuyển sang sử dụng PostgreSQL Cloud miễn phí (như Supabase hoặc Neon) chỉ bằng cách cập nhật chuỗi kết nối trong file `.env`. Nhờ kiến trúc 3 tầng tách biệt, toàn bộ mã nguồn tầng Service và Repository giữ nguyên 100%.
+
+### 7.2. Câu hỏi thảo luận theo Slide Buổi 5 (Thiết kế Chi tiết & Đánh giá Giữa kỳ 1)
+1. **Câu hỏi 1: Phần thiết kế chi tiết nào của nhóm khiến bạn tự tin nhất, và phần nào còn khiến bạn lo lắng?**
+   - *Tự tin nhất:* Mô hình CSDL ERD và logic nghiệp vụ tại tầng Service. Ràng buộc toàn vẹn dữ liệu được kiểm soát 2 lớp: tầng CSDL với `UNIQUE(job_id, student_id)`, `CHECK(rating >= 1 AND rating <= 5)` và tầng Service với 10/10 test cases tự động bằng `node:test` chứng minh tính chính xác tuyệt đối.
+   - *Lo lắng nhất:* Xử lý an toàn khi tải lên tệp tin CV (PDF/Word) ở Buổi 6 (cần kiểm tra chặt mime-type và giới hạn dung lượng để phòng ngừa mã độc).
+2. **Câu hỏi 2: Nếu phải cắt giảm 1 phần trong thiết kế chi tiết để kịp tiến độ, nhóm bạn sẽ cắt phần nào trước?**
+   - Nhóm sẽ ưu tiên cắt giảm các tính năng nhóm **Could-have** (ví dụ: mục PB-14 hiển thị thông báo thời gian thực hoặc các biểu đồ thống kê chuyên sâu của Admin), tuyệt đối bảo toàn toàn bộ 10 Use Cases cốt lõi thuộc nhóm **Must-have** và **Should-have** đảm bảo luồng nghiệp vụ Marketplace 2 chiều vận hành thông suốt.
+
+---
 *Hồ sơ kỹ thuật Buổi 4 và Buổi 5 đã hoàn thiện trọn vẹn, sẵn sàng trình nộp Giảng viên hướng dẫn cho Mốc đánh giá giữa kỳ lần 1.*
+

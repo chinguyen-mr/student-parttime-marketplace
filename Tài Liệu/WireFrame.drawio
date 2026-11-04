@@ -1,0 +1,1128 @@
+@startsalt
+' ============================================================
+' JOBNEST - WIREFRAME SPECIFICATION
+' 36 SCREENS | ONE PLANTUML SALT DIAGRAM
+' Desktop-first responsive web application
+' ============================================================
+
+scale 0.65
+
+{+
+{T
+  **JOBNEST — WIREFRAME SPECIFICATION**
+  36 màn hình | Guest: 05 | Student: 11 | Employer: 12 | Admin: 08
+  Phiên bản thiết kế đề xuất — các nội dung TBD vẫn giữ nguyên trạng thái TBD
+}
+{+
+  **GUEST — KHÁCH / NGƯỜI CHƯA ĐĂNG NHẬP**
+  {+
+    **G01 — TRANG CHỦ**
+    {+
+      { "JOBNEST" | "Tìm kiếm việc làm..." | "Loại công việc ▼" | [Tìm việc] | [Đăng nhập] | [Đăng ký] }
+      {+
+        {^
+          **TÌM VIỆC LÀM PHÙ HỢP VỚI SINH VIÊN**
+          Tìm công việc bán thời gian, thời vụ và freelance phù hợp với bạn.
+          { "Từ khóa công việc..." | "Địa điểm..." | "Loại công việc ▼" | [Tìm việc ngay] }
+        }
+      }
+      {+
+        **DANH MỤC CÔNG VIỆC**
+        {+
+          { [Phục vụ] | [Gia sư] | [Thiết kế] | [IT] }
+        }
+      }
+      {+
+        **VIỆC LÀM NỔI BẬT**
+        {+
+          { (Logo) | **Nhân viên phục vụ** | Mức lương | Địa điểm | [Bán thời gian] | [Xem chi tiết] }
+          { (Logo) | **Gia sư Toán** | Mức lương | Địa điểm | [Thời vụ] | [Xem chi tiết] }
+          { (Logo) | **Thiết kế giao diện** | Ngân sách | Từ xa | [Freelance] | [Xem chi tiết] }
+        }
+        [Xem tất cả việc làm]
+      }
+      {+
+        **BẠN LÀ NHÀ TUYỂN DỤNG?**
+        Đăng tin tuyển dụng và tìm ứng viên phù hợp.
+        [Đăng tin miễn phí]
+      }
+      {+
+        JOBNEST | Giới thiệu | Liên hệ | Điều khoản | © 2026
+      }
+    }
+    Trạng thái: Loading — khung chờ danh sách việc | Empty — chưa có việc làm | Error — [Thử lại]
+  }
+  {+
+    **G02 — DANH SÁCH VIỆC LÀM**
+    { "JOBNEST" | "Tìm kiếm..." | [Tìm] | [Đăng nhập] | [Đăng ký] }
+    {+
+      {+
+        **BỘ LỌC**
+        Loại công việc
+        [ ] Bán thời gian
+        [ ] Thời vụ
+        [ ] Freelance
+        --
+        Danh mục
+        [Chọn danh mục ▼]
+        --
+        Địa điểm
+        [Nhập địa điểm...]
+        --
+        Mức lương
+        [Từ] — [Đến]
+        --
+        Sắp xếp
+        [Mới nhất ▼]
+        [Áp dụng] [Xóa bộ lọc]
+      }
+      |
+      {+
+        **KẾT QUẢ TÌM KIẾM**
+        Từ khóa: [________________] [Tìm kiếm]
+        {+
+          **Nhân viên phục vụ**
+          Nhà tuyển dụng | Mức lương | Địa điểm | Ngày đăng
+          [Bán thời gian] [Xem chi tiết]
+        }
+        {+
+          **Gia sư**
+          Nhà tuyển dụng | Mức lương | Địa điểm | Ngày đăng
+          [Thời vụ] [Xem chi tiết]
+        }
+        {+
+          **Thiết kế đồ họa**
+          Nhà tuyển dụng | Ngân sách | Địa điểm | Ngày đăng
+          [Freelance] [Xem chi tiết]
+        }
+        Hiển thị X–Y / Z kết quả
+        [Trước] [1] [2] [3] [Tiếp]
+      }
+    }
+    Bộ lọc được lưu trong URL query parameters.
+    Trạng thái: Loading | Empty — [Xóa bộ lọc] | Error — [Thử lại]
+    G-21: Quy tắc sắp xếp mặc định — TBD.
+  }
+  {+
+    **G03 — CHI TIẾT CÔNG VIỆC**
+    { "JOBNEST" | "Tìm việc" | [Đăng nhập] | [Đăng ký] }
+    {+
+      {+
+        **TÊN CÔNG VIỆC**
+        Nhà tuyển dụng: Tên hiển thị
+        Mức lương / Ngân sách | Địa điểm | Hạn ứng tuyển
+        Loại công việc: [PART_TIME / SEASONAL / FREELANCE]
+        --
+        **MÔ TẢ CÔNG VIỆC**
+        Nội dung mô tả chi tiết...
+        --
+        **YÊU CẦU**
+        Nội dung yêu cầu...
+        --
+        **QUYỀN LỢI**
+        Nội dung quyền lợi...
+        --
+        **THÔNG TIN THEO LOẠI CÔNG VIỆC**
+        PART_TIME: Lịch làm việc | Số giờ mỗi tuần
+        SEASONAL: Ngày bắt đầu | Ngày kết thúc | Lịch làm việc
+        FREELANCE: Phạm vi công việc | Sản phẩm bàn giao | Hạn hoàn thành | Ngân sách
+      }
+      |
+      {+
+        **NHÀ TUYỂN DỤNG**
+        (Ảnh đại diện)
+        Tên hiển thị
+        Giới thiệu
+        Địa điểm
+        --
+        {# **HÀNH ĐỘNG**}
+        {#if}
+        [Ứng tuyển] / [Gửi Proposal]
+        [Lưu việc làm — yêu cầu đăng nhập]
+        {#endif}
+      }
+    }
+    Guest chọn Ứng tuyển / Gửi Proposal → G05 → quay lại G03 qua return URL an toàn.
+    Student: PART_TIME / SEASONAL → S06; FREELANCE → S07.
+    CLOSED / EXPIRED: hiển thị trạng thái và vô hiệu hóa CTA.
+    G-23: Quy tắc hiển thị CLOSED / EXPIRED — TBD.
+  }
+  {+
+    **G04 — ĐĂNG KÝ**
+    { "JOBNEST" | [Đăng nhập] }
+    {+
+      **TẠO TÀI KHOẢN**
+      Vai trò:
+      ( ) Student
+      ( ) Individual Employer
+      --
+      Email
+      [Nhập email................................]
+      Mật khẩu
+      [Nhập mật khẩu.............................]
+      Xác nhận mật khẩu
+      [Nhập lại mật khẩu.........................]
+      Họ và tên (Student)
+      [Nhập họ và tên............................]
+      Tên hiển thị (Individual Employer)
+      [Nhập tên hiển thị.........................]
+      [Đăng ký]
+      Đã có tài khoản? [Đăng nhập]
+    }
+    Validation hiển thị bên dưới trường dữ liệu.
+    409: Email đã tồn tại | 400: Dữ liệu không hợp lệ.
+    Thành công: chuyển đến đăng nhập / Dashboard theo vai trò.
+  }
+  {+
+    **G05 — ĐĂNG NHẬP / QUÊN MẬT KHẨU / ĐẶT LẠI MẬT KHẨU**
+    { "JOBNEST" }
+    {+
+      **ĐĂNG NHẬP**
+      Email
+      [Nhập email................................]
+      Mật khẩu
+      [Nhập mật khẩu.............................]
+      [ ] Ghi nhớ đăng nhập
+      [Đăng nhập]
+      [Quên mật khẩu?]
+      Chưa có tài khoản? [Đăng ký]
+    }
+    {+
+      **QUÊN MẬT KHẨU**
+      Email
+      [Nhập email................................]
+      [Gửi yêu cầu đặt lại mật khẩu]
+      Kiểm tra email để tiếp tục.
+    }
+    {+
+      **ĐẶT LẠI MẬT KHẨU**
+      Token / OTP
+      [Nhập mã...................................]
+      Mật khẩu mới
+      [Nhập mật khẩu mới........................]
+      Xác nhận mật khẩu
+      [Nhập lại mật khẩu.........................]
+      [Đặt lại mật khẩu]
+    }
+    Đăng nhập thành công: chuyển Dashboard theo vai trò.
+    Có return URL: quay lại G03 sau đăng nhập.
+    Lỗi: 401 | 403 | 400 | 410.
+  }
+}
+{+
+  **STUDENT — SINH VIÊN**
+  {+
+    **S01 — DASHBOARD STUDENT**
+    {+
+      { "JOBNEST" | "Xin chào, Student" | [Thông báo] | [Tài khoản] }
+      {+
+        **MENU**
+        [Dashboard]
+        [Hồ sơ]
+        [Quản lý CV]
+        [Việc đã lưu]
+        [Lịch sử ứng tuyển]
+        [Thông báo]
+      }
+      |
+      {+
+        **TỔNG QUAN**
+        {+
+          { **Ứng tuyển đang chờ** | 00 }
+          { **Assignment đang thực hiện** | 00 }
+          { **Công việc đã hoàn thành** | 00 }
+          { **Thông báo chưa đọc** | 00 }
+        }
+        --
+        **ASSIGNMENT ĐANG THỰC HIỆN**
+        {+
+          Tên công việc | Nhà tuyển dụng | Trạng thái | [Xem chi tiết]
+        }
+        {+
+          Tên công việc | Nhà tuyển dụng | Trạng thái | [Xem chi tiết]
+        }
+        --
+        **ỨNG TUYỂN GẦN ĐÂY**
+        Tên công việc | Ngày gửi | Trạng thái
+        [Xem lịch sử ứng tuyển]
+      }
+    }
+    Dashboard chỉ tổng hợp dữ liệu, không thực hiện chuyển trạng thái nghiệp vụ từ thẻ thống kê.
+    Empty: Chưa có hoạt động. [Tìm việc làm]
+  }
+  {+
+    **S02 — HỒ SƠ STUDENT**
+    {+
+      { "JOBNEST" | [Dashboard] | [Hồ sơ] | [Đăng xuất] }
+      {+
+        **MENU STUDENT**
+        [Dashboard] [Hồ sơ] [Quản lý CV] [Việc đã lưu] [Lịch sử ứng tuyển] [Thông báo]
+      }
+      |
+      {+
+        **THÔNG TIN CÁ NHÂN**
+        (Ảnh đại diện) [Tải ảnh lên]
+        Họ và tên [................................]
+        Ngày sinh [................................]
+        Trường học [................................]
+        Chuyên ngành [.............................]
+        Giới thiệu bản thân
+        [..........................................]
+        --
+        **KỸ NĂNG**
+        [Nhập kỹ năng....................] [Thêm]
+        Kỹ năng đã thêm: [Kỹ năng 1] [Xóa] [Kỹ năng 2] [Xóa]
+        --
+        **HỌC VẤN**
+        Cơ sở đào tạo [.............................]
+        Bằng cấp [..................................]
+        Ngày bắt đầu [........] Ngày kết thúc [........]
+        [Thêm học vấn] [Xóa mục]
+        --
+        **KINH NGHIỆM**
+        Chức danh [................................]
+        Tổ chức [...................................]
+        Mô tả [.....................................]
+        Ngày bắt đầu [........] Ngày kết thúc [........]
+        [Thêm kinh nghiệm] [Xóa mục]
+        --
+        [Lưu hồ sơ]
+      }
+    }
+    Certificate CRUD: S1 — TBD.
+  }
+  {+
+    **S03 — QUẢN LÝ CV**
+    {+
+      **CV CỦA TÔI**
+      [Tải CV mới]
+      {+
+        **CV_Student_01.pdf**
+        Ngày tải lên: ...
+        [Mặc định]
+        [Đặt làm mặc định] [Xóa]
+      }
+      {+
+        **CV_Student_02.pdf**
+        Ngày tải lên: ...
+        [Đặt làm mặc định] [Xóa]
+      }
+      --
+      **TẢI CV**
+      [Chọn tệp] Chưa có tệp được chọn
+      [Tải lên]
+      Tiến trình tải lên: [==========------]
+    }
+    API-D1: Quản lý CV chưa được phê duyệt.
+    MIME type / dung lượng tối đa: TBD.
+  }
+  {+
+    **S04 — VIỆC ĐÃ LƯU**
+    {+
+      **DANH SÁCH VIỆC LÀM ĐÃ LƯU**
+      {+
+        **Nhân viên phục vụ**
+        Nhà tuyển dụng | Mức lương | Địa điểm
+        Trạng thái công việc: ...
+        [Xem chi tiết] [Bỏ lưu]
+      }
+      {+
+        **Gia sư**
+        Nhà tuyển dụng | Mức lương | Địa điểm
+        Trạng thái công việc: ...
+        [Xem chi tiết] [Bỏ lưu]
+      }
+      Empty: Bạn chưa lưu công việc nào. [Tìm việc]
+    }
+    API-D2: Saved Jobs chưa được phê duyệt.
+    Quy tắc hiển thị Job đã đóng / hết hạn: TBD.
+  }
+  {+
+    **S05 — LỊCH SỬ ỨNG TUYỂN**
+    {+
+      **LỊCH SỬ ỨNG TUYỂN**
+      Bộ lọc trạng thái:
+      [Tất cả ▼] Pending | Reviewing | Shortlisted | Accepted | Rejected | Withdrawn
+      {+
+        **Tên công việc**
+        Nhà tuyển dụng | Thời gian gửi
+        Trạng thái: [PENDING]
+        [Xem chi tiết]
+      }
+      {+
+        **Tên công việc**
+        Nhà tuyển dụng | Thời gian gửi
+        Trạng thái: [REVIEWING]
+        [Xem chi tiết]
+      }
+      [Rút ứng tuyển — nếu chính sách cho phép]
+    }
+    S2: Quy tắc rút Application — TBD.
+    API-D3 / API-D4 chưa được phê duyệt.
+  }
+  {+
+    **S06 — FORM ỨNG TUYỂN**
+    {+
+      **ỨNG TUYỂN CÔNG VIỆC**
+      Công việc: Tên công việc
+      Loại: PART_TIME / SEASONAL
+      --
+      **CHỌN CV**
+      [Chọn CV ▼]
+      CV mặc định: ...
+      --
+      **THƯ GIỚI THIỆU**
+      [..........................................]
+      [..........................................]
+      --
+      [Gửi ứng tuyển] [Hủy]
+    }
+    Chỉ sử dụng cho PART_TIME / SEASONAL.
+    CV bắt buộc hay không: G-28 — TBD.
+    Thành công: quay lại S05.
+    FREELANCE không sử dụng form Application này.
+  }
+  {+
+    **S07 — FORM PROPOSAL FREELANCE**
+    {+
+      **GỬI PROPOSAL**
+      Công việc: Tên dự án
+      Loại: FREELANCE
+      --
+      Nội dung Proposal
+      [..........................................]
+      [..........................................]
+      Thời lượng dự kiến
+      [Số] [Đơn vị thời gian ▼]
+      Giá đề xuất
+      [Nhập số tiền...............................]
+      --
+      [Gửi Proposal] [Hủy]
+    }
+    proposal_text là trường bắt buộc.
+    proposed_price và estimated_duration theo cấu hình được duyệt — TBD.
+    Không tạo Application cho FREELANCE.
+  }
+  {+
+    **S08 — CHI TIẾT WORK ASSIGNMENT**
+    {+
+      **WORK ASSIGNMENT**
+      Tên công việc: ...
+      Nhà tuyển dụng: ...
+      Trạng thái Assignment:
+      [NOT_STARTED / IN_PROGRESS / COMPLETED]
+      --
+      **TIẾN ĐỘ CÔNG VIỆC**
+      {+
+        Ngày | Nội dung cập nhật | Người cập nhật
+        ... | ... | ...
+        ... | ... | ...
+      }
+      --
+      **CẬP NHẬT TIẾN ĐỘ**
+      [Nhập nội dung tiến độ......................]
+      [Cập nhật]
+      --
+      [Quay lại danh sách]
+    }
+    Assignment không sử dụng trạng thái SUBMITTED.
+    Chỉ hiển thị hành động cập nhật khi phù hợp trạng thái.
+    G-06: Quyền cập nhật theo actor — TBD.
+    G-58: API lịch sử Assignment — TBD.
+  }
+  {+
+    **S09 — NỘP DELIVERABLE**
+    {+
+      **NỘP SẢN PHẨM**
+      Assignment: Tên công việc
+      Phiên bản hiện tại: ...
+      --
+      Tệp bàn giao
+      [Chọn tệp]
+      Hoặc đường dẫn sản phẩm
+      [https://..................................]
+      Mô tả bàn giao
+      [..........................................]
+      [..........................................]
+      --
+      [Gửi sản phẩm]
+      --
+      **LỊCH SỬ PHIÊN BẢN**
+      {+
+        Phiên bản | Ngày gửi | Trạng thái | Mô tả
+        v1 | ... | SUBMITTED | ...
+        v2 | ... | ... | ...
+      }
+    }
+    Mỗi lần gửi tạo phiên bản mới, không ghi đè phiên bản cũ.
+    SUBMITTED thuộc Deliverable, không thuộc Assignment.
+    API-D6 chưa được phê duyệt. MIME / dung lượng: TBD.
+  }
+  {+
+    **S10 — ĐÁNH GIÁ NHÀ TUYỂN DỤNG**
+    {+
+      **CÔNG VIỆC ĐÃ HOÀN THÀNH**
+      Tên Assignment: ...
+      Nhà tuyển dụng: ...
+      --
+      **ĐÁNH GIÁ**
+      Mức đánh giá:
+      [☆] [☆] [☆] [☆] [☆]
+      Nhận xét
+      [..........................................]
+      [..........................................]
+      [Gửi đánh giá]
+    }
+    Chỉ hiển thị Assignment đủ điều kiện đánh giá và chưa được đánh giá.
+    C10: Thang điểm — TBD.
+    G-41: Nhận xét bắt buộc hay không — TBD.
+    G-42: Độ dài tối đa nhận xét — TBD.
+    409: Đã tồn tại đánh giá.
+  }
+  {+
+    **S11 — THÔNG BÁO STUDENT**
+    {+
+      **THÔNG BÁO**
+      [Đánh dấu tất cả đã đọc — nếu được hỗ trợ]
+      {+
+        **Tiêu đề thông báo**
+        Nội dung thông báo...
+        Thời gian | [Chưa đọc]
+        [Xem nội dung]
+      }
+      {+
+        **Tiêu đề thông báo**
+        Nội dung thông báo...
+        Thời gian | [Đã đọc]
+        [Xem nội dung]
+      }
+      [Trước] [1] [2] [Tiếp]
+    }
+    Nhấn thông báo: đánh dấu đã đọc và điều hướng đến đối tượng liên quan.
+    C3: Danh sách trigger thông báo — TBD.
+    G-07: Phân trang / sắp xếp — TBD.
+    G-43: Idempotency đánh dấu đã đọc — TBD.
+    G-44: Chính sách xóa thông báo — TBD.
+  }
+}
+{+
+  **INDIVIDUAL EMPLOYER — NHÀ TUYỂN DỤNG CÁ NHÂN**
+  {+
+    **E01 — DASHBOARD EMPLOYER**
+    {+
+      { "JOBNEST" | "Xin chào, Nhà tuyển dụng" | [Thông báo] | [Tài khoản] }
+      {+
+        **MENU**
+        [Dashboard]
+        [Hồ sơ]
+        [Xác minh]
+        [Quản lý Job]
+        [Ứng viên]
+        [Proposal]
+        [Assignment]
+        [Thông báo]
+      }
+      |
+      {+
+        **TỔNG QUAN**
+        {+
+          { **Job đã đăng** | 00 }
+          { **Application chờ xử lý** | 00 }
+          { **Proposal chờ xử lý** | 00 }
+          { **Assignment đang thực hiện** | 00 }
+        }
+        --
+        **CẦN XỬ LÝ**
+        {+
+          Application gần đây | Job | Trạng thái
+        }
+        {+
+          Proposal gần đây | Job | Trạng thái
+        }
+        [Xem danh sách]
+      }
+    }
+    Dashboard chỉ tổng hợp; không chuyển trạng thái nghiệp vụ từ thẻ thống kê.
+  }
+  {+
+    **E02 — HỒ SƠ EMPLOYER**
+    {+
+      **HỒ SƠ NHÀ TUYỂN DỤNG CÁ NHÂN**
+      (Ảnh đại diện) [Tải ảnh lên]
+      Tên hiển thị
+      [..........................................]
+      Giới thiệu
+      [..........................................]
+      [..........................................]
+      Địa điểm
+      [..........................................]
+      [Lưu hồ sơ]
+    }
+  }
+  {+
+    **E03 — XÁC MINH EMAIL VÀ SỐ ĐIỆN THOẠI**
+    {+
+      **TRẠNG THÁI XÁC MINH**
+      Email: [Chưa xác minh / Đã xác minh]
+      [Gửi mã OTP email]
+      Mã OTP email
+      [Nhập mã........................] [Xác minh]
+      --
+      Số điện thoại: [Chưa xác minh / Đã xác minh]
+      [Gửi mã OTP điện thoại]
+      Mã OTP điện thoại
+      [Nhập mã........................] [Xác minh]
+      --
+      Điều kiện đăng tin:
+      Email đã xác minh AND Số điện thoại đã xác minh.
+      [Trở về Dashboard]
+    }
+    Chưa xác minh đủ hai kênh: không cho phép đăng Job.
+  }
+  {+
+    **E04 — DANH SÁCH JOB**
+    {+
+      {+
+        **BỘ LỌC**
+        Loại Job
+        [Tất cả ▼]
+        Trạng thái
+        [Tất cả ▼]
+        [Áp dụng] [Xóa]
+      }
+      |
+      {+
+        **QUẢN LÝ CÔNG VIỆC**
+        [Tạo Job mới]
+        {+
+          Tên Job | Loại | Ngày tạo | Trạng thái | Hành động
+          Nhân viên phục vụ | PART_TIME | ... | PUBLISHED | [Xem] [Sửa]
+          Gia sư | SEASONAL | ... | PENDING_REVIEW | [Xem] [Sửa]
+          Thiết kế | FREELANCE | ... | REJECTED | [Xem] [Sửa]
+        }
+        Lý do từ chối: moderation_reason
+      }
+    }
+  }
+  {+
+    **E05 — TẠO / SỬA JOB**
+    {+
+      **THÔNG TIN CÔNG VIỆC**
+      Loại công việc:
+      [PART_TIME] [SEASONAL] [FREELANCE]
+      Tiêu đề
+      [..........................................]
+      Mô tả
+      [..........................................]
+      [..........................................]
+      Địa điểm / Hình thức làm việc
+      [..........................................]
+      Mức lương / Ngân sách
+      [..........................................]
+      Lịch làm việc
+      [..........................................]
+      Số lượng cần tuyển (quantity_required)
+      [1]
+      --
+      **TRƯỜNG THEO LOẠI CÔNG VIỆC**
+      PART_TIME:
+      Mức trả theo giờ / ca / ngày
+      Lịch làm việc (bắt buộc)
+      Ngày bắt đầu / kết thúc (tùy quy tắc)
+      --
+      SEASONAL:
+      Mức trả theo giờ / ngày / toàn kỳ
+      Lịch làm việc (bắt buộc)
+      Ngày bắt đầu (bắt buộc)
+      Ngày kết thúc (bắt buộc)
+      --
+      FREELANCE:
+      Hình thức: On-site / Remote / Hybrid
+      Ngân sách dự án
+      Lịch làm việc (tùy chọn)
+      Hạn hoàn thành (bắt buộc)
+      Yêu cầu Deliverable (bắt buộc)
+      Chính sách chỉnh sửa: TBD
+      --
+      [Lưu bản nháp] [Xem trước] [Gửi duyệt] [Hủy]
+    }
+    Lưu bản nháp → DRAFT.
+    Gửi duyệt → PENDING_REVIEW.
+    S6: Quy tắc NULL / NOT NULL và CHECK theo job_type — TBD.
+  }
+  {+
+    **E06 — QUẢN LÝ ỨNG VIÊN**
+    {+
+      **ỨNG VIÊN THEO JOB**
+      Job: [Chọn Job ▼]
+      Bộ lọc trạng thái: [Tất cả ▼]
+      {+
+        Ứng viên | Ngày gửi | Trạng thái | Hành động
+        Student A | ... | PENDING | [Xem chi tiết]
+        Student B | ... | REVIEWING | [Xem chi tiết]
+      }
+      --
+      **CHI TIẾT APPLICATION**
+      Thông tin Student
+      Nội dung Application
+      CV được gửi
+      Trạng thái Application
+      [Quay lại danh sách]
+      [Chuyển đến màn hình chọn ứng viên]
+    }
+    Không có nút Accept / Chọn ứng viên trực tiếp tại E06.
+    Chuyển sang E08 để thực hiện lựa chọn chính thức.
+    G-29: Bộ lọc Application — TBD.
+  }
+  {+
+    **E07 — QUẢN LÝ PROPOSAL**
+    {+
+      **PROPOSAL THEO JOB FREELANCE**
+      Job: [Chọn Job ▼]
+      {+
+        Student | Thời gian gửi | Trạng thái | Hành động
+        Student A | ... | ... | [Xem Proposal]
+        Student B | ... | ... | [Xem Proposal]
+      }
+      --
+      **CHI TIẾT PROPOSAL**
+      Thông tin Student
+      proposal_text
+      estimated_duration
+      proposed_price (nếu trường được bật)
+      Trạng thái Proposal
+      [Quay lại danh sách]
+      [Chuyển đến màn hình chọn ứng viên]
+    }
+    Không có nút Accept tại E07.
+    G-32: API chi tiết Proposal — TBD.
+    G-33: Quy tắc chuyển trạng thái Proposal — TBD.
+  }
+  {+
+    **E08 — CHỌN ỨNG VIÊN / TẠO ASSIGNMENT**
+    {+
+      **CHỌN ỨNG VIÊN**
+      Job: Tên công việc
+      Loại: PART_TIME / SEASONAL / FREELANCE
+      Số lượng cần tuyển (quantity_required): [N]
+      Số lượng đã chọn: [M]
+      --
+      **DANH SÁCH ỨNG VIÊN ĐỦ ĐIỀU KIỆN**
+      {+
+        [ ] Student A | Application / Proposal | Thông tin
+        [ ] Student B | Application / Proposal | Thông tin
+        [ ] Student C | Application / Proposal | Thông tin
+      }
+      --
+      [Xác nhận chọn]
+      [Hủy]
+    }
+    API DUY NHẤT: POST /jobs/:jobId/selections
+    Chỉ E08 xác nhận lựa chọn và tạo Work Assignment.
+    Mỗi Student được chọn nhận một Assignment riêng.
+    Vô hiệu hóa chọn thêm khi quantity_required đã đủ.
+    Không vượt quá số lượng cần tuyển.
+  }
+  {+
+    **E09 — QUẢN LÝ WORK ASSIGNMENT**
+    {+
+      **DANH SÁCH ASSIGNMENT**
+      Job: [Chọn Job ▼]
+      Trạng thái Assignment: [Tất cả ▼]
+      {+
+        Student | Job | Assignment Status | Hành động
+        Student A | Job A | NOT_STARTED | [Xem chi tiết]
+        Student B | Job A | IN_PROGRESS | [Xem chi tiết]
+        Student C | Job B | COMPLETED | [Xem chi tiết]
+      }
+      --
+      **CHI TIẾT ASSIGNMENT**
+      Student: ...
+      Job: ...
+      Trạng thái: NOT_STARTED / IN_PROGRESS / COMPLETED
+      --
+      **LỊCH SỬ TIẾN ĐỘ**
+      Ngày | Nội dung | Người cập nhật
+      ... | ... | ...
+      [Xem chi tiết tiến độ]
+    }
+    Trạng thái hiển thị là Assignment status, không phải Job.status.
+    G-58: API lịch sử Assignment — TBD.
+    G-59: Idempotency hoàn thành Assignment — TBD.
+  }
+  {+
+    **E10 — NGHIỆM THU DELIVERABLE**
+    {+
+      **SẢN PHẨM CHỜ NGHIỆM THU**
+      Assignment: ...
+      Student: ...
+      Phiên bản hiện tại: ...
+      --
+      **NỘI DUNG BÀN GIAO**
+      Tệp / Đường dẫn: ...
+      Mô tả: ...
+      [Xem / Tải sản phẩm]
+      --
+      **LỊCH SỬ PHIÊN BẢN**
+      Phiên bản | Thời gian | Trạng thái
+      v1 | ... | ...
+      v2 | ... | SUBMITTED
+      --
+      **PHẢN HỒI NGHIỆM THU**
+      Lý do yêu cầu chỉnh sửa
+      [..........................................]
+      [..........................................]
+      [Chấp nhận] [Yêu cầu chỉnh sửa]
+    }
+    Yêu cầu chỉnh sửa bắt buộc nhập lý do.
+    Hai hành động chỉ cập nhật Deliverable.
+    Assignment vẫn IN_PROGRESS sau Chấp nhận hoặc Yêu cầu chỉnh sửa.
+  }
+  {+
+    **E11 — ĐÁNH GIÁ STUDENT**
+    {+
+      **ASSIGNMENT ĐÃ HOÀN THÀNH**
+      Student: ...
+      Assignment: ...
+      --
+      **ĐÁNH GIÁ**
+      Mức đánh giá:
+      [☆] [☆] [☆] [☆] [☆]
+      Nhận xét
+      [..........................................]
+      [..........................................]
+      [Gửi đánh giá]
+    }
+    C10: Thang điểm / giới hạn chỉnh sửa — TBD.
+    G-41: Nhận xét bắt buộc hay không — TBD.
+    G-42: Độ dài tối đa nhận xét — TBD.
+  }
+  {+
+    **E12 — THÔNG BÁO EMPLOYER**
+    {+
+      **THÔNG BÁO**
+      [Đánh dấu tất cả đã đọc — nếu được hỗ trợ]
+      {+
+        **Tiêu đề thông báo**
+        Nội dung thông báo...
+        Thời gian | [Chưa đọc]
+        [Xem nội dung]
+      }
+      {+
+        **Tiêu đề thông báo**
+        Nội dung thông báo...
+        Thời gian | [Đã đọc]
+        [Xem nội dung]
+      }
+      [Trước] [1] [2] [Tiếp]
+    }
+    C3: Trigger thông báo — TBD.
+    G-07: Phân trang / sắp xếp — TBD.
+    G-43: Idempotency đánh dấu đã đọc — TBD.
+  }
+}
+{+
+  **ADMIN — QUẢN TRỊ VIÊN**
+  {+
+    **A01 — DASHBOARD ADMIN**
+    {+
+      { "JOBNEST ADMIN" | [Thông báo] | [Tài khoản Admin] }
+      {+
+        **MENU ADMIN**
+        [Dashboard]
+        [Quản lý User]
+        [Kiểm duyệt Job]
+        [Báo cáo]
+        [Danh mục]
+        [Lịch sử Log]
+      }
+      |
+      {+
+        **TỔNG QUAN HỆ THỐNG**
+        {+
+          { **Tổng Student** | 000 }
+          { **Tổng Employer** | 000 }
+          { **Tổng Job** | 000 }
+          { **Tổng Application** | 000 }
+          { **Job chờ duyệt** | 000 }
+          { **Report chờ xử lý** | 000 }
+        }
+        --
+        **BIỂU ĐỒ (NẾU ĐƯỢC HỖ TRỢ)**
+        {+
+          Tăng trưởng người dùng
+          [Khu vực biểu đồ]
+        }
+        {+
+          Job theo loại
+          [Khu vực biểu đồ]
+        }
+      }
+    }
+    FR-40 chưa có UC riêng: G-49.
+    API thống kê / log: G-50 TBD.
+    Định nghĩa chỉ số / thời gian lưu trữ: G-51 TBD.
+  }
+  {+
+    **A02 — QUẢN LÝ USER**
+    {+
+      {+
+        **BỘ LỌC**
+        Vai trò [Tất cả ▼]
+        Trạng thái [Active / Locked ▼]
+        Email [.........................]
+        [Tìm kiếm] [Xóa lọc]
+      }
+      |
+      {+
+        **DANH SÁCH USER**
+        {+
+          ID | Email | Role | Status | Ngày tạo | Hành động
+          001 | user1@... | Student | Active | ... | [Lock]
+          002 | user2@... | Employer | Locked | ... | [Unlock]
+          003 | user3@... | Student | Active | ... | [Lock]
+        }
+        [Trước] [1] [2] [Tiếp]
+      }
+    }
+    [Xác nhận khóa / mở khóa]
+    Ghi audit log sau hành động.
+    Không được khóa Admin cuối cùng.
+    C6: Quy trình cấp quyền Admin — TBD.
+    API-D7 chưa được phê duyệt.
+  }
+  {+
+    **A03 — HÀNG ĐỢI KIỂM DUYỆT JOB**
+    {+
+      **HÀNG ĐỢI KIỂM DUYỆT**
+      Lọc loại Job: [Tất cả ▼]
+      {+
+        Tên Job | Employer | Loại | Ngày gửi | Hành động
+        Job A | Employer A | PART_TIME | ... | [Kiểm duyệt]
+        Job B | Employer B | SEASONAL | ... | [Kiểm duyệt]
+        Job C | Employer C | FREELANCE | ... | [Kiểm duyệt]
+      }
+      [Trước] [1] [2] [Tiếp]
+    }
+    C9: Chính sách kiểm duyệt — TBD.
+    Danh sách có thể chỉ gồm Job bị gắn cờ theo chính sách được duyệt.
+  }
+  {+
+    **A04 — CHI TIẾT KIỂM DUYỆT JOB**
+    {+
+      **THÔNG TIN JOB**
+      Tiêu đề: ...
+      Nhà tuyển dụng: ...
+      Loại Job: ...
+      Mức lương / Ngân sách: ...
+      Địa điểm: ...
+      --
+      **MÔ TẢ**
+      Nội dung mô tả...
+      --
+      **YÊU CẦU**
+      Nội dung yêu cầu...
+      --
+      **QUYẾT ĐỊNH KIỂM DUYỆT**
+      [Phê duyệt]
+      Lý do từ chối (moderation_reason)
+      [..........................................]
+      [..........................................]
+      [Từ chối]
+      [Quay lại hàng đợi]
+    }
+    Phê duyệt → PUBLISHED.
+    Từ chối bắt buộc có moderation_reason.
+    Nút Từ chối bị vô hiệu hóa nếu chưa nhập lý do.
+    C9: Chính sách kiểm duyệt — TBD.
+  }
+  {+
+    **A05 — QUẢN LÝ REPORT**
+    {+
+      **DANH SÁCH BÁO CÁO**
+      Trạng thái: [OPEN / RESOLVED ▼]
+      Loại đối tượng: [Tất cả ▼]
+      {+
+        Report ID | Người báo cáo | Đối tượng | Lý do | Trạng thái | Hành động
+        R001 | User A | Job A | ... | OPEN | [Chi tiết]
+        R002 | User B | User C | ... | OPEN | [Chi tiết]
+        R003 | User D | Job B | ... | RESOLVED | [Chi tiết]
+      }
+      [Trước] [1] [2] [Tiếp]
+    }
+    G-48: Enum trạng thái / hành động Report — TBD.
+    API-D10: Submit Report chưa được phê duyệt.
+  }
+  {+
+    **A06 — CHI TIẾT REPORT**
+    {+
+      **THÔNG TIN REPORT**
+      Mã báo cáo: ...
+      Người báo cáo: ...
+      Đối tượng bị báo cáo: ...
+      Lý do: ...
+      Nội dung chi tiết: ...
+      --
+      **ĐỐI TƯỢNG ĐƯỢC BÁO CÁO**
+      [Xem nội dung đối tượng]
+      --
+      **LỊCH SỬ XỬ LÝ**
+      Thời gian | Admin | Hành động | Ghi chú
+      ... | ... | ... | ...
+      --
+      **XỬ LÝ REPORT**
+      Hành động: [Chọn hành động ▼]
+      Ghi chú
+      [..........................................]
+      [..........................................]
+      [Thực hiện xử lý]
+      [Đóng Report — RESOLVED]
+    }
+    G-48: Enum hành động / trạng thái — TBD.
+    G-51: Quy tắc chuyển trạng thái — TBD.
+    C3: Thông báo cho người báo cáo — TBD.
+  }
+  {+
+    **A07 — QUẢN LÝ DANH MỤC**
+    {+
+      **DANH MỤC CÔNG VIỆC**
+      [Thêm danh mục]
+      {+
+        Tên danh mục | Danh mục cha | Trạng thái | Hành động
+        Phục vụ | — | Active | [Sửa] [Ẩn]
+        Gia sư | — | Active | [Sửa] [Ẩn]
+        Thiết kế | — | Active | [Sửa] [Ẩn]
+        Thiết kế đồ họa | Thiết kế | Active | [Sửa] [Ẩn]
+      }
+      --
+      **THÊM / SỬA DANH MỤC**
+      Tên danh mục
+      [..........................................]
+      Danh mục cha
+      [Chọn danh mục cha ▼]
+      Trạng thái
+      [Active / Inactive ▼]
+      [Lưu] [Hủy]
+    }
+    G-46: Quan hệ danh mục cha-con — TBD.
+    API-D8: Quản lý danh mục Admin chưa được phê duyệt.
+    Chính sách xóa danh mục đang được tham chiếu — TBD.
+    S5: API danh mục công khai — TBD.
+  }
+  {+
+    **A08 — LỊCH SỬ LOG**
+    {+
+      **LỊCH SỬ HOẠT ĐỘNG ADMIN**
+      Bộ lọc Admin
+      [Chọn Admin ▼]
+      Loại hành động
+      [Chọn hành động ▼]
+      Khoảng thời gian
+      [Từ ngày] — [Đến ngày]
+      [Tìm kiếm] [Xóa lọc]
+      --
+      {+
+        Thời gian | Admin | Hành động | Đối tượng | Chi tiết
+        ... | Admin A | LOCK_USER | User 001 | [Xem]
+        ... | Admin B | APPROVE_JOB | Job 002 | [Xem]
+        ... | Admin A | RESOLVE_REPORT | Report 003 | [Xem]
+      }
+      [Trước] [1] [2] [Tiếp]
+      --
+      **CHI TIẾT LOG**
+      Metadata: [Hiển thị chi tiết khi chọn bản ghi]
+    }
+    FR-40 chưa có UC riêng: G-49.
+    API Log / thống kê: G-50 TBD.
+    Thời gian lưu trữ log: G-51 TBD.
+  }
+}
+{+
+  **TRẠNG THÁI GIAO DIỆN DÙNG CHUNG**
+  {+
+    **LOADING**
+    [Đang tải dữ liệu...]
+    Skeleton cho danh sách / thẻ / bảng.
+  }
+  {+
+    **EMPTY**
+    Không có dữ liệu phù hợp.
+    Hiển thị thông điệp theo ngữ cảnh và CTA phù hợp.
+  }
+  {+
+    **ERROR**
+    Không thể tải dữ liệu.
+    [Thử lại]
+    Hiển thị lỗi cụ thể nếu có.
+  }
+  {+
+    **SUCCESS**
+    Thao tác thành công.
+    [Thông báo thành công]
+  }
+  {+
+    **VALIDATION**
+    Hiển thị lỗi ngay bên dưới trường dữ liệu không hợp lệ.
+  }
+  {+
+    **UNAUTHORIZED — 401**
+    Chưa đăng nhập hoặc phiên đăng nhập không hợp lệ.
+    Điều hướng đăng nhập và giữ return URL an toàn.
+  }
+  {+
+    **FORBIDDEN — 403**
+    Bạn không có quyền thực hiện thao tác này.
+  }
+  {+
+    **NOT FOUND — 404**
+    Không tìm thấy dữ liệu được yêu cầu.
+  }
+  {+
+    **EXPIRED / CLOSED**
+    Hiển thị nhãn trạng thái.
+    Vô hiệu hóa hành động không còn hợp lệ.
+  }
+}
+{+
+  **RESPONSIVE WEB**
+  Desktop: từ 1024px — Sidebar cố định, bố cục nhiều cột.
+  Tablet: 768–1023px — Sidebar thu gọn, bố cục hai cột.
+  Mobile: dưới 768px — Menu dạng Drawer, nội dung một cột.
+  Không xây dựng Native Mobile App.
+}
+{+
+  **DESIGN SYSTEM — ĐỀ XUẤT, CHƯA KHÓA**
+  Màu chính: #2563EB | Màu phụ: #10B981
+  Cảnh báo: #F59E0B | Lỗi: #EF4444 | Trung tính: #6B7280
+  Nền: #F9FAFB
+  Font: Inter / Roboto
+  H1: 32px | H2: 24px | H3: 18px | Body: 14px | Small: 12px
+  Spacing: 4 / 8 / 16 / 24 / 32px
+  Bo góc: Input / Button 4px | Card 8px
+}
+{+
+  **QUY TẮC PHÂN QUYỀN VÀ NGHIỆP VỤ**
+  1. Chỉ hiển thị menu / hành động thuộc vai trò được phép.
+  2. Kiểm tra quyền sở hữu và trạng thái trước khi hiển thị hành động.
+  3. Backend phải kiểm tra lại quyền và điều kiện nghiệp vụ.
+  4. CV và Deliverable chỉ hiển thị cho vai trò được phép truy cập.
+  5. Guest Apply / Proposal phải đăng nhập và quay lại Job qua return URL an toàn.
+  6. PART_TIME / SEASONAL dùng Application; FREELANCE dùng Proposal.
+  7. Chỉ E08 xác nhận chọn ứng viên và tạo Assignment qua POST /jobs/:jobId/selections.
+  8. Mỗi Student được chọn có một Work Assignment riêng.
+  9. Assignment không có trạng thái SUBMITTED; Deliverable sở hữu trạng thái SUBMITTED.
+  10. E10 chỉ cập nhật Deliverable; Assignment vẫn IN_PROGRESS sau nghiệm thu hoặc yêu cầu chỉnh sửa.
+}
+{+
+  **OPEN ITEMS — KHÔNG TỰ Ý CHỐT**
+  G-06 | G-07 | G-21 | G-23 | G-28 | G-29 | G-32 | G-33
+  G-41 | G-42 | G-43 | G-44 | G-46 | G-48 | G-49 | G-50
+  G-51 | G-58 | G-59
+  C3 | C6 | C9 | C10
+  S1 | S2 | S3 | S4 | S5 | S6
+  API-D1 | API-D2 | API-D3 | API-D4 | API-D5
+  API-D6 | API-D7 | API-D8 | API-D9 | API-D10
+  Các nội dung trên tiếp tục ở trạng thái TBD / chưa được phê duyệt.
+}
+}
+@end

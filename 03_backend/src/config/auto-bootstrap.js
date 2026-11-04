@@ -135,6 +135,14 @@ async function autoBootstrap() {
             }
             fs.writeFileSync(envPath, envContent, 'utf8');
             console.log(`🔑 Đã tự động cập nhật Port (${workingPort}) & Mật khẩu vào 03_backend/.env`);
+
+            // Làm mới kết nối của db.js sang thông số mới
+            try {
+                const db = require('./db');
+                if (db && typeof db.refreshPool === 'function') {
+                    db.refreshPool();
+                }
+            } catch (e) {}
         } catch (e) {
             // Không chặn nếu ghi file thất bại
         }

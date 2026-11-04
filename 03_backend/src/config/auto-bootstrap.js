@@ -190,9 +190,25 @@ async function autoBootstrap() {
         const tablesExist = tableCheck.rows[0]?.exists === true;
 
         if (!tablesExist) {
-            console.log(`📜 Đang tự động chạy toàn bộ SQL Migrations để tạo bảng CSDL...`);
-            const migrationsDir = path.resolve(__dirname, '../../../02_database/migrations');
-            if (fs.existsSync(migrationsDir)) {
+            const dumpPath = path.resolve(__dirname, '../../../02_database/cd2_marketplace_full_dump.sql');
+            let dumpLoaded = false;
+
+            if (fs.existsSync(dumpPath)) {
+                try {
+                    console.log(`📦 Phát hiện bản sao CSDL hoàn chỉnh (cd2_marketplace_full_dump.sql). Đang tự động nạp toàn bộ cấu trúc & dữ liệu...`);
+                    const dumpSql = fs.readFileSync(dumpPath, 'utf8');
+                    await pool.query(dumpSql);
+                    console.log(`✅ Đã nạp thành công 100% CSDL từ file Dump!`);
+                    dumpLoaded = true;
+                } catch (dErr) {
+                    console.warn(`⚠️ Nạp file dump gặp cảnh báo, chuyển sang chạy từng migration:`, dErr.message);
+                }
+            }
+
+            if (!dumpLoaded) {
+                console.log(`📜 Đang tự động chạy toàn bộ SQL Migrations để tạo bảng CSDL...`);
+                const migrationsDir = path.resolve(__dirname, '../../../02_database/migrations');
+                if (fs.existsSync(migrationsDir)) {
                 // Ưu tiên các bảng gốc trước
                 const priorityOrder = [
                     'users.sql',

@@ -52,3 +52,4 @@ echo   - Chạy Backend:  npm run dev:backend
 echo   - Chạy Frontend: npm run dev:frontend
 echo.
 pause
+

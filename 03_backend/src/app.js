@@ -16,8 +16,6 @@ const errorHandler = require('./middleware/error.middleware');
 const { NotFoundError } = require('./utils/app-error');
 const db = require('./config/db');
 
-
-
 const app = express();
 
 // Middlewares
@@ -52,6 +50,18 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 app.use(express.json());
+
+// Root Endpoint & Favicon (Phản hồi thân thiện khi mở cổng 5000 trên trình duyệt)
+app.get('/', (req, res) => {
+    res.json({
+        service: 'cd2-marketplace-backend',
+        status: 'online',
+        health_check: 'http://localhost:5000/health',
+        frontend_app: 'http://localhost:5173',
+        message: 'Máy chủ Backend API đang hoạt động bình thường! Để mở giao diện Web người dùng, vui lòng truy cập http://localhost:5173'
+    });
+});
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // Health Check — KHÔNG trả err.message (lộ host/user/db name)
 app.get('/health', async (req, res) => {
@@ -90,8 +100,6 @@ app.use('/api/proposals', proposalRoutes);
 app.use('/api/v1/proposals', proposalRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/v1/assignments', assignmentRoutes);
-
-
 
 // 404 Route Handler
 app.use((req, res, next) => {

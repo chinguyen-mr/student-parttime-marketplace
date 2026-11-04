@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('../../config/jwt.config');
 const userRepository = require('../../database/repositories/user.repository');
 const profileRepository = require('../../database/repositories/profile.repository');
 const { ConflictError, UnauthorizedError, AppError } = require('../../utils/app-error');
@@ -57,7 +58,7 @@ class AuthService {
                 role: user.role,
                 full_name: user.full_name,
             },
-            process.env.JWT_SECRET || 'supersecretjwtkey_marketplace_cd2_vlu_2026',
+            getJwtSecret(),
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
     }

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('../config/jwt.config');
 const { UnauthorizedError, ForbiddenError } = require('../utils/app-error');
 
 function verifyToken(req, res, next) {
@@ -9,7 +10,7 @@ function verifyToken(req, res, next) {
 
     const token = authHeader.split(' ')[1];
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretjwtkey_marketplace_cd2_vlu_2026');
+        const decoded = jwt.verify(token, getJwtSecret());
         req.user = decoded; // { id, email, role, full_name }
         next();
     } catch (err) {

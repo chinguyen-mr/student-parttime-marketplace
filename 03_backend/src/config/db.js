@@ -18,8 +18,28 @@ function createPool() {
 let pool = createPool();
 
 pool.on('error', (err) => {
-    console.error('Unexpected error on idle PostgreSQL client', err);
+    console.error(`[DB] Unexpected error on idle PostgreSQL client (${err.code || 'UNKNOWN'})`);
 });
+
+async function testConnection() {
+    try {
+        await pool.query('SELECT 1');
+        return { ok: true };
+    } catch (err) {
+        let hint = 'Không xác định được nguyên nhân.';
+        if (err.code === 'ECONNREFUSED') {
+            hint = 'PostgreSQL chưa chạy hoặc DB_PORT sai.';
+        } else if (err.code === '28P01') {
+            hint = 'Sai DB_USER/DB_PASSWORD.';
+        } else if (err.code === '3D000') {
+            hint = `Database "${process.env.DB_NAME}" chưa tồn tại. Chạy: npm run migrate`;
+        } else if (err.code === 'ENOTFOUND') {
+            hint = 'DB_HOST không phân giải được.';
+        }
+        console.error(`[DB] Kết nối thất bại (${err.code || 'UNKNOWN'}): ${hint}`);
+        return { ok: false, code: err.code || 'UNKNOWN', hint };
+    }
+}
 
 module.exports = {
     query: (text, params) => pool.query(text, params),
@@ -35,8 +55,9 @@ module.exports = {
         } catch (e) {}
         pool = createPool();
         pool.on('error', (err) => {
-            console.error('Unexpected error on idle PostgreSQL client', err);
+            console.error(`[DB] Unexpected error on idle PostgreSQL client (${err.code || 'UNKNOWN'})`);
         });
         return pool;
-    }
+    },
+    testConnection,
 };

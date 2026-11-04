@@ -1,20 +1,21 @@
 /**
  * setup_temp_admin.js
- * Tạo tài khoản Test Quản trị viên (ADMIN) cố định trong Database:
- * Email: admin.test@vlu.edu.vn
- * Password: password123
- * Role: ADMIN
- * Status: ACTIVE
- * LƯU Ý: Tuyệt đối KHÔNG tự động xóa tài khoản này sau khi chạy!
+ * Tạo tài khoản Test Quản trị viên (ADMIN) — CHỈ KHI CHƯA TỒN TẠI.
+ *
+ * Quy tắc:
+ * - Mật khẩu đọc từ biến môi trường SEED_ADMIN_PASSWORD (bắt buộc).
+ * - KHÔNG in mật khẩu ra console.
+ * - Tài khoản đã tồn tại → KHÔNG sửa gì, chỉ báo và thoát.
+ * - Chỉ chạy khi người quản trị chủ động thực thi lệnh này.
  */
 
 const path = require('path');
 const autoBootstrap = require('./03_backend/src/config/auto-bootstrap');
 
 async function setupAdmin() {
-  console.log('--- KHỞI TẠO TÀI KHOẢN TEST ADMIN ---');
+  console.log('--- KHỞI TẠO TÀI KHOẢN TEST ADMIN (chỉ INSERT nếu chưa tồn tại) ---');
 
-  // Đảm bảo CSDL và các bảng đã được kết nối & đồng bộ trước khi tạo Admin
+  // 1. Kiểm tra CSDL sẵn sàng (chế độ check — không ghi dữ liệu)
   const isReady = await autoBootstrap();
   if (!isReady) {
     console.error('❌ Không thể khởi tạo Admin do Cơ sở dữ liệu PostgreSQL chưa sẵn sàng.');
@@ -27,54 +28,46 @@ async function setupAdmin() {
   const bcrypt = require('./03_backend/node_modules/bcryptjs');
   const db = require('./03_backend/src/config/db');
 
+  // 2. Email + mật khẩu bắt buộc từ biến môi trường
+  const email = process.env.SEED_ADMIN_EMAIL;
+  const rawPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    console.error('❌ Thiếu hoặc sai định dạng SEED_ADMIN_EMAIL.');
+    console.error('   Đặt email admin hợp lệ trong biến môi trường trước khi chạy.');
+    process.exit(1);
+  }
+  if (!rawPassword) {
+    console.error('❌ Thiếu biến môi trường SEED_ADMIN_PASSWORD.');
+    console.error('   Ví dụ (PowerShell):  $env:SEED_ADMIN_PASSWORD="..."; node setup_temp_admin.js');
+    console.error('   Ví dụ (Git Bash):    SEED_ADMIN_PASSWORD="..." node setup_temp_admin.js');
+    process.exit(1);
+  }
+
   try {
-    const email = 'admin.test@vlu.edu.vn';
-    const rawPassword = 'password123';
     const role = 'ADMIN';
     const fullName = 'Quản trị viên Hệ thống (Admin Test)';
     const phone = '0900000001';
 
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(rawPassword, saltRounds);
-
-    // 1. Kiểm tra tài khoản đã tồn tại hay chưa
-    const checkRes = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-    let adminUser;
+    // 3. Chỉ INSERT khi chưa tồn tại — KHÔNG UPDATE tài khoản hiện hữu
+    const checkRes = await db.query('SELECT id, email, status FROM users WHERE email = $1', [email]);
 
     if (checkRes.rows.length > 0) {
-      // Đã tồn tại -> Cập nhật mật khẩu, vai trò ADMIN và trạng thái ACTIVE
-      const updateRes = await db.query(
-        `UPDATE users 
-         SET password_hash = $1, role = $2, status = 'ACTIVE', full_name = $3, phone = $4, updated_at = CURRENT_TIMESTAMP
-         WHERE email = $5
-         RETURNING id, email, full_name, phone, role, status, created_at`,
-        [passwordHash, role, fullName, phone, email]
-      );
-      adminUser = updateRes.rows[0];
-      console.log('✅ Đã cập nhật tài khoản Admin hiện có:', adminUser);
-    } else {
-      // Chưa tồn tại -> Insert mới
-      const insertRes = await db.query(
-        `INSERT INTO users (email, password_hash, full_name, phone, role, status)
-         VALUES ($1, $2, $3, $4, $5, 'ACTIVE')
-         RETURNING id, email, full_name, phone, role, status, created_at`,
-        [email, passwordHash, fullName, phone, role]
-      );
-      adminUser = insertRes.rows[0];
-      console.log('✅ Đã tạo mới tài khoản Admin thành công:', adminUser);
+      const existing = checkRes.rows[0];
+      console.log(`ℹ️ Tài khoản Admin đã tồn tại (ID: ${existing.id}, status: ${existing.status}).`);
+      console.log('   Không thay đổi gì theo chính sách bảo vệ dữ liệu hiện có.');
+      process.exit(0);
     }
 
-    // 2. Thử nghiệm kiểm tra hash
-    const match = await bcrypt.compare(rawPassword, passwordHash);
-    console.log('🔐 Xác thực mật khẩu:', match ? 'KHỚP (SUCCESS)' : 'KHÔNG KHỚP (FAILED)');
-
-    console.log('\n=============================================');
-    console.log('THÔNG TIN TÀI KHOẢN ADMIN ĐÃ SẴN SÀNG:');
-    console.log(`- Email:    ${email}`);
-    console.log(`- Mật khẩu: ${rawPassword}`);
-    console.log(`- Vai trò:  ${role}`);
-    console.log(`- Trạng thái: ${adminUser.status}`);
-    console.log('=============================================\n');
+    const passwordHash = await bcrypt.hash(rawPassword, 10);
+    const insertRes = await db.query(
+      `INSERT INTO users (email, password_hash, full_name, phone, role, status)
+       VALUES ($1, $2, $3, $4, $5, 'ACTIVE')
+       RETURNING id, email, role, status`,
+      [email, passwordHash, fullName, phone, role]
+    );
+    const adminUser = insertRes.rows[0];
+    console.log(`✅ Đã tạo mới tài khoản Admin (ID: ${adminUser.id}, email: ${adminUser.email}).`);
+    console.log('   Mật khẩu đã được thiết lập từ biến môi trường (không hiển thị).');
 
     process.exit(0);
   } catch (err) {

@@ -21,7 +21,8 @@ const db = require('./config/db');
 const app = express();
 
 // Middlewares
-const allowedOrigins = [
+// CORS allowlist: ưu tiên CORS_ORIGINS từ env; mặc định giữ đủ 8 origin localhost hiện có.
+const defaultAllowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:5175',
@@ -32,12 +33,18 @@ const allowedOrigins = [
     'http://127.0.0.1:3000',
 ];
 
+const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
+    : defaultAllowedOrigins;
+
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+        if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(new Error('Origin không được phép bởi CORS'));
+            // Không ném lỗi: chỉ bỏ CORS header, trình duyệt tự chặn — không lộ stack/config.
+            console.warn(`[CORS] Từ chối origin: ${origin}`);
+            callback(null, false);
         }
     },
     credentials: true,
@@ -46,18 +53,12 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Health Check
+// Health Check — KHÔNG trả err.message (lộ host/user/db name)
 app.get('/health', async (req, res) => {
-    let dbStatus = 'ok';
-    try {
-        await db.query('SELECT 1');
-    } catch (err) {
-        dbStatus = `unhealthy: ${err.message}`;
-    }
-
-    res.status(dbStatus === 'ok' ? 200 : 503).json({
-        status: dbStatus === 'ok' ? 'ok' : 'degraded',
-        db: dbStatus,
+    const result = await db.testConnection();
+    res.status(result.ok ? 200 : 503).json({
+        status: result.ok ? 'ok' : 'degraded',
+        db: result.ok ? 'ok' : 'unavailable',
         service: 'cd2-marketplace-backend',
         timestamp: new Date().toISOString(),
     });

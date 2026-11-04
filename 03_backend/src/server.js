@@ -1,24 +1,37 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+const { getJwtSecret } = require('./config/jwt.config');
 const autoBootstrap = require('./config/auto-bootstrap');
 
 async function startServer() {
-    // 1. Tự động kiểm tra và khởi tạo CSDL, bảng, dữ liệu mẫu và Admin trên máy mới trước khi nạp routes & pool
+    // 1. Fail-fast: JWT_SECRET bắt buộc hợp lệ TRƯỚC khi listen.
+    try {
+        getJwtSecret();
+    } catch (e) {
+        console.error(`\n❌ [CONFIG] ${e.message}`);
+        console.error(`👉 Mở 03_backend/.env và đặt JWT_SECRET tối thiểu 32 ký tự.`);
+        console.error(`   Tạo nhanh: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"\n`);
+        process.exit(1);
+    }
+
+    // 2. Kiểm tra kết nối CSDL theo AUTO_BOOTSTRAP=off|check. KHÔNG ghi dữ liệu.
+    //    Lỗi DB không chặn startup — /health sẽ báo degraded.
     try {
         await autoBootstrap();
     } catch (e) {
-        console.error('Cảnh báo quá trình Auto-Bootstrap:', e.message);
+        console.error('Cảnh báo quá trình kiểm tra CSDL:', e.message);
     }
 
-    // 2. Nạp Express App sau khi CSDL đã sẵn sàng
+    // 3. Nạp Express App
     const app = require('./app');
     const PORT = process.env.PORT || 5000;
+    const HOST = process.env.HOST || '127.0.0.1';
 
-    app.listen(PORT, () => {
+    app.listen(PORT, HOST, () => {
         console.log(`====================================================`);
-        console.log(`🚀 CD2 Marketplace Backend is running on port ${PORT}`);
+        console.log(`🚀 CD2 Marketplace Backend is running on http://${HOST}:${PORT}`);
         console.log(`👉 Environment: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`👉 Health Check: http://localhost:${PORT}/health`);
+        console.log(`👉 Health Check: http://${HOST}:${PORT}/health`);
         console.log(`👉 Database: PostgreSQL (${process.env.DB_NAME || 'cd2_marketplace_db'})`);
         console.log(`====================================================`);
     });

@@ -4,41 +4,40 @@ const bcrypt = require('bcryptjs');
 const db = require('../src/config/db');
 
 async function setupTempEmployer() {
-  console.log('=== KHỞI TẠO TÀI KHOẢN EMPLOYER TEST VĨNH VIỄN (KHÔNG TỰ ĐỘNG XÓA) ===');
-  
+  console.log('=== KHỞI TẠO TÀI KHOẢN EMPLOYER TEST (chỉ INSERT nếu chưa tồn tại) ===');
+
   const email = 'employer.test@vlu.edu.vn';
-  const rawPassword = 'password123';
+  const rawPassword = process.env.SEED_EMPLOYER_PASSWORD;
+  if (!rawPassword) {
+    console.error('❌ Thiếu biến môi trường SEED_EMPLOYER_PASSWORD.');
+    console.error('   Ví dụ (PowerShell): $env:SEED_EMPLOYER_PASSWORD="..."; node scripts/setup_temp_employer.js');
+    console.error('   Ví dụ (Git Bash):   SEED_EMPLOYER_PASSWORD="..." node scripts/setup_temp_employer.js');
+    process.exit(1);
+  }
   const fullName = 'Công Ty Công Nghệ Giáo Dục Văn Lang (VLU Tech)';
   const phone = '0987654321';
   const role = 'EMPLOYER';
 
   try {
-    // 1. Kiểm tra tài khoản trong bảng users
+    // 1. Chỉ INSERT khi chưa tồn tại — KHÔNG UPDATE tài khoản hiện hữu
     const existingUser = await db.query('SELECT id FROM users WHERE email = $1', [email]);
-    let userId;
-
-    const password_hash = await bcrypt.hash(rawPassword, 10);
 
     if (existingUser.rows.length > 0) {
-      userId = existingUser.rows[0].id;
-      console.log(`Đã tìm thấy tài khoản (ID: ${userId}), đang cập nhật trạng thái ACTIVE & mật khẩu...`);
-      await db.query(
-        `UPDATE users 
-         SET password_hash = $1, full_name = $2, phone = $3, role = $4, status = 'ACTIVE', updated_at = NOW()
-         WHERE id = $5`,
-        [password_hash, fullName, phone, role, userId]
-      );
-    } else {
-      console.log('Tạo mới tài khoản Employer...');
-      const insertRes = await db.query(
-        `INSERT INTO users (email, password_hash, full_name, phone, role, status)
-         VALUES ($1, $2, $3, $4, $5, 'ACTIVE')
-         RETURNING id`,
-        [email, password_hash, fullName, phone, role]
-      );
-      userId = insertRes.rows[0].id;
-      console.log(`Đã tạo thành công User ID: ${userId}`);
+      console.log(`ℹ️ Tài khoản Employer đã tồn tại (ID: ${existingUser.rows[0].id}).`);
+      console.log('   Không thay đổi gì theo chính sách bảo vệ dữ liệu hiện có.');
+      process.exit(0);
     }
+
+    const password_hash = await bcrypt.hash(rawPassword, 10);
+    console.log('Tạo mới tài khoản Employer...');
+    const insertRes = await db.query(
+      `INSERT INTO users (email, password_hash, full_name, phone, role, status)
+       VALUES ($1, $2, $3, $4, $5, 'ACTIVE')
+       RETURNING id`,
+      [email, password_hash, fullName, phone, role]
+    );
+    const userId = insertRes.rows[0].id;
+    console.log(`Đã tạo thành công User ID: ${userId}`);
 
     // 2. Tạo hoặc cập nhật Employer Profile (VERIFIED, Doanh nghiệp / Công ty, MST, Website, GPKD)
     const profileCheck = await db.query('SELECT user_id FROM employer_profiles WHERE user_id = $1', [userId]);
@@ -52,15 +51,7 @@ async function setupTempEmployer() {
     const businessLicenseFile = '/uploads/licenses/GPKD_VLU_ENTERPRISE_2026.pdf';
 
     if (profileCheck.rows.length > 0) {
-      await db.query(
-        `UPDATE employer_profiles
-         SET display_name = $1, bio = $2, location = $3, avatar_url = $4,
-             account_type = $5, tax_code = $6, website = $7, business_license_file = $8,
-             email_verified_at = NOW(), phone_verified_at = NOW(), updated_at = NOW()
-         WHERE user_id = $9`,
-        [companyName, bio, location, avatarUrl, accountType, taxCode, website, businessLicenseFile, userId]
-      );
-      console.log('Đã cập nhật Employer Profile: Trạng thái VERIFIED, Loại tài khoản: Doanh nghiệp / Công ty.');
+      console.log('ℹ️ Employer Profile đã tồn tại — không thay đổi theo chính sách bảo vệ dữ liệu.');
     } else {
       await db.query(
         `INSERT INTO employer_profiles (
@@ -198,9 +189,9 @@ async function setupTempEmployer() {
     }
 
     console.log('================================================================');
-    console.log('KHỞI TẠO THÀNH CÔNG TÀI KHOẢN EMPLOYER TEST VĨNH VIỄN:');
+    console.log('KHỞI TẠO THÀNH CÔNG TÀI KHOẢN EMPLOYER TEST:');
     console.log(' - Email:         employer.test@vlu.edu.vn');
-    console.log(' - Mật khẩu:      password123');
+    console.log(' - Mật khẩu:      (đặt từ SEED_EMPLOYER_PASSWORD, không hiển thị)');
     console.log(' - Role:          EMPLOYER');
     console.log(' - Trạng thái:    ACTIVE');
     console.log(' - Xác minh:      VERIFIED (Đầy đủ email, phone, GPKD)');

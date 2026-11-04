@@ -1,320 +1,98 @@
-const fs = require('fs');
-const path = require('path');
-const { Client, Pool } = require('pg');
-const bcrypt = require('bcryptjs');
+/**
+ * auto-bootstrap.js
+ * KIỂM TRA trạng thái cơ sở dữ liệu PostgreSQL — KHÔNG tạo và KHÔNG sửa dữ liệu.
+ *
+ * Chế độ (AUTO_BOOTSTRAP trong .env):
+ *   - off   (mặc định): chỉ kiểm tra kết nối. Không ghi bất cứ gì.
+ *   - check            : kiểm tra kết nối + báo cáo tình trạng thiếu gì,
+ *                        kèm lệnh thủ công cần chạy. Không ghi dữ liệu.
+ *
+ * TUYỆT ĐỐI KHÔNG:
+ *   - Không tạo/ghi đè file .env
+ *   - Không đoán/thử mật khẩu PostgreSQL
+ *   - Không CREATE DATABASE
+ *   - Không nạp file SQL dump
+ *   - Không chạy migration
+ *   - Không seed dữ liệu
+ *   - Không tạo/cập nhật tài khoản admin
+ *
+ * Migration và seed phải được chạy thủ công:
+ *   npm run migrate
+ *   npm run seed
+ */
 
-const envPath = path.resolve(__dirname, '../../.env');
-if (!fs.existsSync(envPath)) {
-    // Tự động tạo file .env mẫu nếu trên máy mới chưa có
-    const defaultEnv = [
-        'PORT=5000',
-        'NODE_ENV=development',
-        'DB_HOST=localhost',
-        'DB_PORT=5432',
-        'DB_NAME=cd2_marketplace_db',
-        'DB_USER=postgres',
-        'DB_PASSWORD=postgres',
-        'JWT_SECRET=super_secret_jwt_key_cdtn2_jobnest_2026',
-        'JWT_EXPIRES_IN=7d'
-    ].join('\n');
+const db = require('./db');
+
+function getMode() {
+    const mode = (process.env.AUTO_BOOTSTRAP || 'off').trim().toLowerCase();
+    return mode === 'check' ? 'check' : 'off';
+}
+
+async function checkSchemaState() {
     try {
-        fs.writeFileSync(envPath, defaultEnv, 'utf8');
-        console.log(`📝 [AUTO-BOOTSTRAP] Đã tự động tạo file cấu hình mới tại: 03_backend/.env`);
-    } catch (e) {
-        // bỏ qua nếu không thể ghi file
+        const res = await db.query(
+            `SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' LIMIT 200`
+        );
+        const tables = res.rows.map(r => r.table_name);
+        const hasUsers = tables.includes('users');
+        let userCount = null;
+        if (hasUsers) {
+            const cnt = await db.query('SELECT COUNT(*) FROM users');
+            userCount = parseInt(cnt.rows[0]?.count || '0', 10);
+        }
+        return { ok: true, hasUsers, userCount, tableCount: tables.length };
+    } catch (err) {
+        return { ok: false, code: err.code || 'UNKNOWN' };
     }
 }
-require('dotenv').config({ path: envPath });
 
-/**
- * Tự động đồng bộ hóa Cơ sở dữ liệu khi khởi động Backend:
- * 1. Tự động quét các cổng PostgreSQL phổ biến (5432, 5433, 5434).
- * 2. Tự động phát hiện và thử các mật khẩu PostgreSQL phổ biến (postgres, 123456, admin, root,...).
- * 3. Tự động tạo Database cd2_marketplace_db nếu chưa có trên máy mới.
- * 4. Tự động chạy toàn bộ các file SQL Migration tạo đầy đủ các bảng dữ liệu (có cơ chế multi-pass giải quyết phụ thuộc khóa ngoại).
- * 5. Tự động nạp dữ liệu mẫu (Seed Data) nếu hệ thống chưa có dữ liệu.
- * 6. Tự động khởi tạo tài khoản Quản trị viên (admin.test@vlu.edu.vn / password123).
- */
 async function autoBootstrap() {
-    const dbHost = process.env.DB_HOST || 'localhost';
-    const initialPort = parseInt(process.env.DB_PORT || '5432', 10);
-    const dbUser = process.env.DB_USER || 'postgres';
-    const dbName = process.env.DB_NAME || 'cd2_marketplace_db';
-    let dbPassword = process.env.DB_PASSWORD || 'postgres';
+    const mode = getMode();
 
-    console.log(`\n====================================================`);
-    console.log(`🔄 [AUTO-BOOTSTRAP] Đang kiểm tra & chuẩn bị CSDL cho máy mới...`);
+    // 1. Kiểm tra cấu hình bắt buộc (không ghi file nào)
+    const missing = [];
+    if (!process.env.JWT_SECRET) missing.push('JWT_SECRET');
+    if (!process.env.DB_PASSWORD) missing.push('DB_PASSWORD');
+    if (!process.env.DB_NAME) missing.push('DB_NAME');
 
-    // Danh sách các cổng PostgreSQL tiềm năng (5432 chuẩn, 5433 phụ)
-    const candidatePorts = [...new Set([initialPort, 5432, 5433, 5434])];
-
-    // Danh sách mật khẩu phổ biến
-    const candidatePasswords = [
-        dbPassword,
-        'postgres',
-        '123456',
-        'admin',
-        'root',
-        '12345678',
-        'password',
-        ''
-    ];
-    const uniqueCandidates = [...new Set(candidatePasswords)];
-
-    let connectedClient = null;
-    let workingPassword = null;
-    let workingPort = null;
-    let hadConnectionRefused = false;
-
-    // Quét tìm tổ hợp Port + Mật khẩu kết nối được
-    for (const port of candidatePorts) {
-        for (const pwd of uniqueCandidates) {
-            const client = new Client({
-                host: dbHost,
-                port: port,
-                user: dbUser,
-                password: pwd,
-                database: 'postgres',
-                connectionTimeoutMillis: 2000
-            });
-
-            try {
-                await client.connect();
-                connectedClient = client;
-                workingPassword = pwd;
-                workingPort = port;
-                break;
-            } catch (err) {
-                await client.end().catch(() => {});
-                if (err.code === 'ECONNREFUSED') {
-                    hadConnectionRefused = true;
-                }
-                // Nếu sai mật khẩu (28P01), tiếp tục thử mật khẩu tiếp theo
-            }
-        }
-        if (connectedClient) break;
-    }
-
-    if (!connectedClient) {
-        if (hadConnectionRefused) {
-            console.error(`\n❌ [LỖI KẾT NỐI] Dịch vụ PostgreSQL chưa được BẬT trên máy này!`);
-            console.error(`👉 CÁCH KHẮC PHỤC TRÊN WINDOWS:`);
-            console.error(`   1. Nhấn phím Windows + R, gõ "services.msc" rồi Enter.`);
-            console.error(`   2. Tìm dòng "postgresql-x64-..." trong danh sách.`);
-            console.error(`   3. Click chuột phải vào nó -> chọn "Start".`);
-            console.error(`   (Nếu trong danh sách không có "postgresql", hãy tải và cài đặt PostgreSQL từ: https://www.postgresql.org/download/windows/)\n`);
-        } else {
-            console.error(`\n❌ [LỖI XÁC THỰC] PostgreSQL đang chạy nhưng mật khẩu không khớp với các mật khẩu mặc định.`);
-            console.error(`👉 Vui lòng mở file 03_backend/.env và cập nhật DB_PASSWORD đúng với mật khẩu bạn đặt khi cài PostgreSQL.\n`);
-        }
+    if (missing.length > 0) {
+        console.error(`❌ [BOOTSTRAP] Thiếu biến môi trường: ${missing.join(', ')}. Hãy cấu hình trong 03_backend/.env.`);
         return false;
     }
 
-    console.log(`🔌 Kết nối PostgreSQL thành công tại Cổng: ${workingPort}, User: ${dbUser}`);
+    // 2. Kiểm tra kết nối (chỉ đọc)
+    console.log(`🔍 [BOOTSTRAP] Đang kiểm tra kết nối PostgreSQL (mode: ${mode})...`);
+    const conn = await db.testConnection();
 
-    // Cập nhật lại .env nếu phát hiện Port hoặc Mật khẩu khác biệt
-    let envNeedsUpdate = false;
-    if (workingPassword !== dbPassword || workingPort !== initialPort) {
-        process.env.DB_PASSWORD = workingPassword;
-        process.env.DB_PORT = workingPort.toString();
-        envNeedsUpdate = true;
-    }
-
-    if (envNeedsUpdate && fs.existsSync(envPath)) {
-        try {
-            let envContent = fs.readFileSync(envPath, 'utf8');
-            if (envContent.includes('DB_PASSWORD=')) {
-                envContent = envContent.replace(/DB_PASSWORD=.*/, `DB_PASSWORD=${workingPassword}`);
-            } else {
-                envContent += `\nDB_PASSWORD=${workingPassword}`;
-            }
-            if (envContent.includes('DB_PORT=')) {
-                envContent = envContent.replace(/DB_PORT=.*/, `DB_PORT=${workingPort}`);
-            } else {
-                envContent += `\nDB_PORT=${workingPort}`;
-            }
-            fs.writeFileSync(envPath, envContent, 'utf8');
-            console.log(`🔑 Đã tự động cập nhật Port (${workingPort}) & Mật khẩu vào 03_backend/.env`);
-
-            // Làm mới kết nối của db.js sang thông số mới
-            try {
-                const db = require('./db');
-                if (db && typeof db.refreshPool === 'function') {
-                    db.refreshPool();
-                }
-            } catch (e) {}
-        } catch (e) {
-            // Không chặn nếu ghi file thất bại
-        }
-    }
-
-    try {
-        // Kiểm tra & tự động tạo Database cd2_marketplace_db
-        const dbCheckRes = await connectedClient.query(
-            `SELECT 1 FROM pg_database WHERE datname = $1`,
-            [dbName]
-        );
-
-        if (dbCheckRes.rowCount === 0) {
-            console.log(`📦 Database "${dbName}" chưa tồn tại. Đang tự động tạo mới...`);
-            await connectedClient.query(`CREATE DATABASE "${dbName}"`);
-            console.log(`✅ Đã tạo thành công Database "${dbName}"!`);
-        } else {
-            console.log(`✅ Database "${dbName}" đã tồn tại sẵn.`);
-        }
-    } catch (err) {
-        console.error('⚠️ Lỗi kiểm tra/tạo Database:', err.message);
-    } finally {
-        await connectedClient.end().catch(() => {});
-    }
-
-    // Kết nối trực tiếp vào cd2_marketplace_db để kiểm tra bảng & nạp dữ liệu
-    const pool = new Pool({
-        host: dbHost,
-        port: workingPort,
-        user: dbUser,
-        password: workingPassword,
-        database: dbName,
-        connectionTimeoutMillis: 5000
-    });
-
-    try {
-        // Kiểm tra xem bảng users đã tồn tại chưa
-        const tableCheck = await pool.query(`
-            SELECT EXISTS (
-                SELECT FROM information_schema.tables 
-                WHERE table_schema = 'public' AND table_name = 'users'
-            );
-        `);
-
-        const tablesExist = tableCheck.rows[0]?.exists === true;
-
-        if (!tablesExist) {
-            const dumpPath = path.resolve(__dirname, '../../../02_database/cd2_marketplace_full_dump.sql');
-            let dumpLoaded = false;
-
-            if (fs.existsSync(dumpPath)) {
-                try {
-                    console.log(`📦 Phát hiện bản sao CSDL hoàn chỉnh (cd2_marketplace_full_dump.sql). Đang tự động nạp toàn bộ cấu trúc & dữ liệu...`);
-                    const dumpSql = fs.readFileSync(dumpPath, 'utf8');
-                    await pool.query(dumpSql);
-                    console.log(`✅ Đã nạp thành công 100% CSDL từ file Dump!`);
-                    dumpLoaded = true;
-                } catch (dErr) {
-                    console.warn(`⚠️ Nạp file dump gặp cảnh báo, chuyển sang chạy từng migration:`, dErr.message);
-                }
-            }
-
-            if (!dumpLoaded) {
-                console.log(`📜 Đang tự động chạy toàn bộ SQL Migrations để tạo bảng CSDL...`);
-                const migrationsDir = path.resolve(__dirname, '../../../02_database/migrations');
-                if (fs.existsSync(migrationsDir)) {
-                // Ưu tiên các bảng gốc trước
-                const priorityOrder = [
-                    'users.sql',
-                    'categories.sql',
-                    'employer_profiles.sql',
-                    'student_profiles.sql',
-                    'student_cvs.sql',
-                    'student_skills.sql',
-                    'student_experiences.sql',
-                    'student_educations.sql',
-                    'jobs.sql',
-                    'part_time_details.sql',
-                    'freelance_details.sql',
-                    'seasonal_details.sql',
-                    'job_skills.sql',
-                    'job_views.sql',
-                    'job_saved.sql',
-                    'applications.sql',
-                    'application_histories.sql',
-                    'freelance_proposals.sql',
-                    'proposal_histories.sql',
-                    'work_assignments.sql',
-                    'work_deliverables.sql',
-                    'deliverable_reviews.sql',
-                    'work_progress.sql',
-                    'reviews.sql',
-                    'reports.sql',
-                    'report_actions.sql',
-                    'notifications.sql',
-                    'verification_tokens.sql',
-                    'password_reset_tokens.sql',
-                    'admin_logs.sql',
-                    'update_columns_for_data_v2.sql'
-                ];
-
-                const allFiles = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql'));
-                // Sắp xếp theo thứ tự ưu tiên, các file khác đẩy xuống sau
-                const sortedFiles = [
-                    ...priorityOrder.filter(f => allFiles.includes(f)),
-                    ...allFiles.filter(f => !priorityOrder.includes(f))
-                ];
-
-                // Cơ chế chạy lặp tối đa 3 vòng để giải quyết triệt để phụ thuộc khóa ngoại
-                let pendingFiles = [...sortedFiles];
-                let pass = 1;
-                while (pendingFiles.length > 0 && pass <= 3) {
-                    const remaining = [];
-                    for (const file of pendingFiles) {
-                        try {
-                            const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
-                            await pool.query(sql);
-                        } catch (mErr) {
-                            remaining.push(file);
-                        }
-                    }
-                    if (remaining.length === pendingFiles.length) {
-                        // Không tiến triển thêm được nữa
-                        break;
-                    }
-                    pendingFiles = remaining;
-                    pass++;
-                }
-
-                console.log(`✅ Đã thiết lập hoàn tất các bảng Cơ sở dữ liệu!`);
-            }
-        } else {
-            console.log(`✅ Hệ thống bảng CSDL đã sẵn sàng.`);
-        }
-
-        // Kiểm tra nạp Seed Data nếu bảng users đang rỗng
-        const userCountRes = await pool.query(`SELECT COUNT(*) FROM users`);
-        const userCount = parseInt(userCountRes.rows[0]?.count || '0', 10);
-
-        if (userCount === 0) {
-            console.log(`🌱 Cơ sở dữ liệu đang trống. Đang tự động nạp dữ liệu mẫu (Seed Data)...`);
-            const seedPath = path.resolve(__dirname, '../../../02_database/seeds/001_seed_data.sql');
-            if (fs.existsSync(seedPath)) {
-                const seedSql = fs.readFileSync(seedPath, 'utf8');
-                await pool.query(seedSql);
-                console.log(`✅ Đã nạp thành công dữ liệu mẫu!`);
-            }
-        }
-
-        // Đảm bảo tài khoản Quản trị viên admin.test@vlu.edu.vn luôn tồn tại
-        const adminEmail = 'admin.test@vlu.edu.vn';
-        const adminCheck = await pool.query(`SELECT 1 FROM users WHERE email = $1`, [adminEmail]);
-
-        if (adminCheck.rowCount === 0) {
-            console.log(`👑 Đang tạo tài khoản Quản trị viên thử nghiệm (${adminEmail})...`);
-            const passwordHash = await bcrypt.hash('password123', 10);
-            await pool.query(`
-                INSERT INTO users (email, password_hash, full_name, phone, role, status)
-                VALUES ($1, $2, 'Quản trị viên Hệ thống (Admin Test)', '0900000001', 'ADMIN', 'ACTIVE')
-            `, [adminEmail, passwordHash]);
-            console.log(`✅ Đã sẵn sàng tài khoản Quản trị viên (${adminEmail} / password123)!`);
-        }
-
-        console.log(`✨ [AUTO-BOOTSTRAP] Cơ sở dữ liệu PostgreSQL đã kết nối & đồng bộ 100%!`);
-        console.log(`====================================================\n`);
-        return true;
-    } catch (err) {
-        console.error('⚠️ [AUTO-BOOTSTRAP] Cảnh báo kiểm tra CSDL:', err.message);
+    if (!conn.ok) {
+        console.error(`❌ [BOOTSTRAP] Không kết nối được PostgreSQL (${conn.code}).`);
+        console.error(`👉 Kiểm tra: PostgreSQL đã chạy chưa? DB_HOST/DB_PORT/DB_USER/DB_PASSWORD trong .env đã đúng chưa?`);
+        console.error(`👉 Nếu database chưa tồn tại, chạy thủ công: npm run migrate`);
         return false;
-    } finally {
-        await pool.end().catch(() => {});
     }
+
+    console.log(`✅ [BOOTSTRAP] Kết nối PostgreSQL thành công.`);
+
+    // 3. Chế độ 'check': báo cáo tình trạng, không ghi dữ liệu
+    if (mode === 'check') {
+        const state = await checkSchemaState();
+        if (!state.ok) {
+            console.warn(`⚠️ [BOOTSTRAP] Không đọc được danh sách bảng (${state.code}).`);
+        } else {
+            console.log(`📊 [BOOTSTRAP] Số bảng trong schema 'public': ${state.tableCount}`);
+            if (!state.hasUsers) {
+                console.warn(`⚠️ [BOOTSTRAP] Chưa có bảng 'users'. Chạy thủ công: npm run migrate`);
+            } else {
+                console.log(`📊 [BOOTSTRAP] Số tài khoản trong bảng 'users': ${state.userCount}`);
+                if (state.userCount === 0) {
+                    console.warn(`⚠️ [BOOTSTRAP] Database chưa có dữ liệu. Chạy thủ công: npm run seed`);
+                }
+            }
+        }
+        console.log(`ℹ️ [BOOTSTRAP] Không có thao tác ghi dữ liệu nào được thực hiện.`);
+    }
+
+    return true;
 }
 
 module.exports = autoBootstrap;

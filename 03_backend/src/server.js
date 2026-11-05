@@ -25,7 +25,9 @@ async function startServer() {
     // 3. Nạp Express App
     const app = require('./app');
     const PORT = process.env.PORT || 5000;
-    const HOST = process.env.HOST || '127.0.0.1';
+    // '::' = dual-stack: nhận cả IPv4 (127.0.0.1) lẫn IPv6 (::1) trên cùng socket.
+    // Quan trọng trên Windows vì trình duyệt phân giải 'localhost' → ::1 trước IPv4.
+    const HOST = process.env.HOST || '::';
 
     app.listen(PORT, HOST, () => {
         console.log(`====================================================`);

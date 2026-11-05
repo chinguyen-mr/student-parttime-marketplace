@@ -1,5 +1,8 @@
 # JobNest — Hướng dẫn chạy dự án trên máy mới (Windows)
 
+> **Cách đơn giản nhất:** chạy bằng Docker, không cần cài Node/PostgreSQL. Xem [`DOCKER.md`](./DOCKER.md).
+> Tài liệu này hướng dẫn chạy thủ công khi không dùng Docker.
+
 ## 1. Yêu cầu hệ thống
 
 - **Windows 10/11**

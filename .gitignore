@@ -42,3 +42,4 @@ Thumbs.db
 # Scratch & tooling cache
 scratch/
 .gitnexus/
+graphify-out/cache/

@@ -139,6 +139,25 @@ class AssignmentService {
             [newStatus, id]
         );
 
+        // Tự động chuyển trạng thái tin tuyển dụng sang COMPLETED nếu mọi phân công đều đã hoàn thành
+        if (newStatus === 'COMPLETED') {
+            try {
+                const uncompletedRes = await db.query(
+                    `SELECT COUNT(*) FROM work_assignments WHERE job_id = $1 AND status != 'COMPLETED'`,
+                    [wa.job_id]
+                );
+                const count = uncompletedRes?.rows?.[0]?.count ? parseInt(uncompletedRes.rows[0].count, 10) : null;
+                if (count === 0) {
+                    await db.query(
+                        `UPDATE jobs SET status = 'COMPLETED', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+                        [wa.job_id]
+                    );
+                }
+            } catch (jobErr) {
+                // Safe catch for mock DB environments
+            }
+        }
+
         // Tạo thông báo cho Sinh viên
         try {
             const title = newStatus === 'IN_PROGRESS' 

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
+import StatusBadge from '../../components/common/StatusBadge';
 import { API_BASE, formatApiError } from '../../config/api';
 
 export default function EmployerJobsPage({
@@ -115,36 +116,10 @@ export default function EmployerJobsPage({
 
   // Render Status Badge
   const renderStatus = (job) => {
-    const isRejected = job.status === 'REJECTED' || job.moderation_status === 'REJECTED';
-    const isOpen = job.status === 'OPEN' || job.status === 'RECRUITING' || job.status === 'PUBLISHED';
-    const isPending = job.status === 'PENDING' || job.moderation_status === 'PENDING';
-
-    if (isRejected) {
-      return (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#FEE2E2', color: '#B91C1C', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>
-          <XCircle size={12} /> Bị từ chối
-        </span>
-      );
-    }
-    if (isOpen) {
-      return (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#ECFDF5', color: '#047857', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>
-          <CheckCircle2 size={12} /> Đang mở (PUBLISHED)
-        </span>
-      );
-    }
-    if (isPending) {
-      return (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#FEF3C7', color: '#B45309', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>
-          <Clock size={12} /> Chờ duyệt
-        </span>
-      );
-    }
-    return (
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#F1F5F9', color: '#64748B', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>
-        Đã đóng
-      </span>
-    );
+    const status = (job.moderation_status === 'REJECTED' || job.status === 'REJECTED') ? 'REJECTED' :
+                   (job.moderation_status === 'PENDING' || job.status === 'PENDING') ? 'PENDING' :
+                   job.status;
+    return <StatusBadge status={status} />;
   };
 
   return (
@@ -153,7 +128,7 @@ export default function EmployerJobsPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>
-            QUẢN LÝ TIN TUYỂN DỤNG (WF-E04)
+            QUẢN LÝ TIN TUYỂN DỤNG
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
             Danh sách tin đăng của doanh nghiệp
@@ -185,24 +160,24 @@ export default function EmployerJobsPage({
             onClick={onNavigateCreateJob}
             style={{ padding: '8px 18px', fontSize: 13.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}
           >
-            <Plus size={16} /> + Đăng tin mới
+            <Plus size={16} /> Đăng tin mới
           </Button>
         </div>
       </div>
 
-      {/* Filter Tabs matching Wireframe WF-E04: All | Draft | Pending | Published | Closed | Rejected */}
+      {/* Filter Tabs */}
       <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid var(--color-border)', padding: '16px 20px', marginBottom: 20, boxShadow: 'var(--shadow-sm)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
           {/* Status Pills */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {[
-              { id: 'ALL', label: 'Tất cả (All)' },
-              { id: 'DRAFT', label: 'Bản nháp (Draft)' },
-              { id: 'PENDING', label: 'Chờ duyệt (Pending)' },
-              { id: 'PUBLISHED', label: 'Đang mở (Published)' },
-              { id: 'CLOSED', label: 'Đã đóng (Closed)' },
-              { id: 'EXPIRED', label: 'Hết hạn (Expired)' },
-              { id: 'REJECTED', label: 'Bị từ chối (Rejected)' },
+              { id: 'ALL', label: 'Tất cả' },
+              { id: 'DRAFT', label: 'Bản nháp' },
+              { id: 'PENDING', label: 'Chờ duyệt' },
+              { id: 'PUBLISHED', label: 'Đang mở' },
+              { id: 'CLOSED', label: 'Đã đóng' },
+              { id: 'EXPIRED', label: 'Hết hạn' },
+              { id: 'REJECTED', label: 'Bị từ chối' },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -272,7 +247,7 @@ export default function EmployerJobsPage({
                 <tr style={{ background: '#FAFAFD', borderBottom: '2px solid #F1F5F9', color: 'var(--color-text-secondary)', fontSize: 12.5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   <th style={{ padding: '14px 16px', fontWeight: 700 }}>Tiêu đề công việc</th>
                   <th style={{ padding: '14px 16px', fontWeight: 700 }}>Loại</th>
-                  <th style={{ padding: '14px 16px', fontWeight: 700 }}>SL tuyển</th>
+                  <th style={{ padding: '14px 16px', fontWeight: 700 }}>Số lượng</th>
                   <th style={{ padding: '14px 16px', fontWeight: 700 }}>Trạng thái</th>
                   <th style={{ padding: '14px 16px', fontWeight: 700 }}>Số hồ sơ</th>
                   <th style={{ padding: '14px 16px', fontWeight: 700 }}>Hạn nộp</th>
@@ -313,7 +288,7 @@ export default function EmployerJobsPage({
                             background: job.work_type === 'FREELANCE' ? '#EEF2FF' : 'var(--color-primary-light)',
                             color: job.work_type === 'FREELANCE' ? '#4F46E5' : 'var(--color-primary)'
                           }}>
-                            {job.work_type === 'FREELANCE' ? 'FL' : job.work_type === 'SEASONAL' ? 'SS' : 'PT'}
+                            {job.work_type === 'FREELANCE' ? 'Freelance' : job.work_type === 'SEASONAL' ? 'Thời vụ' : 'Part-time'}
                           </span>
                         </td>
 
@@ -362,13 +337,27 @@ export default function EmployerJobsPage({
                               <Eye size={14} />
                             </button>
 
-                            <button
-                              onClick={() => onEditJob && onEditJob(job)}
-                              title="Chỉnh sửa tin"
-                              style={{ background: '#ffffff', border: '1px solid var(--color-border)', borderRadius: 6, padding: '5px 8px', cursor: 'pointer', color: '#475569' }}
-                            >
-                              <Edit3 size={14} />
-                            </button>
+                            {(() => {
+                              const isLocked = job.status === 'FILLED' || job.status === 'COMPLETED';
+                              return (
+                                <button
+                                  onClick={() => !isLocked && onEditJob && onEditJob(job)}
+                                  disabled={isLocked}
+                                  title={isLocked ? 'Tin đã nhận người hoặc hoàn thành không thể chỉnh sửa (AC5)' : 'Chỉnh sửa tin'}
+                                  style={{
+                                    background: isLocked ? '#F8FAFC' : '#ffffff',
+                                    border: `1px solid ${isLocked ? '#E2E8F0' : 'var(--color-border)'}`,
+                                    borderRadius: 6,
+                                    padding: '5px 8px',
+                                    cursor: isLocked ? 'not-allowed' : 'pointer',
+                                    color: isLocked ? '#94A3B8' : '#475569',
+                                    opacity: isLocked ? 0.5 : 1
+                                  }}
+                                >
+                                  <Edit3 size={14} />
+                                </button>
+                              );
+                            })()}
 
                             <button
                               onClick={() => handleToggleJobStatus(job.id, job.status)}

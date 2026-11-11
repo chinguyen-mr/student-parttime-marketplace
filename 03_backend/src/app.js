@@ -8,19 +8,31 @@ const jobRoutes = require('./modules/jobs/job.routes');
 const applicationRoutes = require('./modules/applications/application.routes');
 const reviewRoutes = require('./modules/reviews/review.routes');
 const adminRoutes = require('./modules/reports/admin.routes');
+const reportRoutes = require('./modules/reports/report.routes');
 const selectionRoutes = require('./modules/selections/selection.routes');
 const notificationRoutes = require('./modules/notifications/notification.routes');
 const proposalRoutes = require('./modules/proposals/proposal.routes');
 const assignmentRoutes = require('./modules/assignments/assignment.routes');
+const webhookRoutes = require('./modules/webhooks/webhook.routes');
 const errorHandler = require('./middleware/error.middleware');
 const { NotFoundError } = require('./utils/app-error');
 const db = require('./config/db');
 
 const app = express();
 
+// Express reverse-proxy configuration: trust 1 hop (Nginx reverse proxy)
+// Ensures req.ip correctly reflects the client's IP from X-Forwarded-For set by Nginx
+app.set('trust proxy', 1);
+
 // Middlewares
-// CORS allowlist: ưu tiên CORS_ORIGINS từ env; mặc định giữ đủ 8 origin localhost hiện có.
+// CORS allowlist: hỗ trợ các cổng chuẩn (8080, 8081, 5173, 3000) và tự động cho phép mọi cổng localhost trong môi trường phát triển
 const defaultAllowedOrigins = [
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+    'http://localhost:8081',
+    'http://127.0.0.1:8081',
+    'http://localhost:8082',
+    'http://127.0.0.1:8082',
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:5175',
@@ -37,7 +49,8 @@ const allowedOrigins = process.env.CORS_ORIGINS
 
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        const isLocalhost = Boolean(origin && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin));
+        if (!origin || allowedOrigins.includes(origin) || isLocalhost) {
             callback(null, true);
         } else {
             // Không ném lỗi: chỉ bỏ CORS header, trình duyệt tự chặn — không lộ stack/config.
@@ -57,8 +70,8 @@ app.get('/', (req, res) => {
         service: 'cd2-marketplace-backend',
         status: 'online',
         health_check: 'http://localhost:5000/health',
-        frontend_app: 'http://localhost:5173',
-        message: 'Máy chủ Backend API đang hoạt động bình thường! Để mở giao diện Web người dùng, vui lòng truy cập http://localhost:5173'
+        frontend_app: 'http://localhost:8080',
+        message: 'Máy chủ Backend API đang hoạt động bình thường! Để mở giao diện Web người dùng, vui lòng truy cập http://localhost:8080'
     });
 });
 app.get('/favicon.ico', (req, res) => res.status(204).end());
@@ -94,12 +107,16 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/v1/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/proposals', proposalRoutes);
 app.use('/api/v1/proposals', proposalRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/v1/assignments', assignmentRoutes);
+app.use('/api/webhooks', webhookRoutes);
+app.use('/api/v1/webhooks', webhookRoutes);
 
 // 404 Route Handler
 app.use((req, res, next) => {

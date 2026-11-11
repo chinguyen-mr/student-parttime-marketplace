@@ -3,7 +3,7 @@ import {
   Building2, MapPin, DollarSign, Clock, Calendar, 
   ArrowLeft, Send, Bookmark, CheckCircle2, Award, Briefcase, 
   GraduationCap, Users, ExternalLink, Share2, ShieldCheck, 
-  ChevronRight, Sparkles, AlertCircle, FileText, Globe, Check, Edit3
+  ChevronRight, Sparkles, AlertCircle, FileText, Globe, Check, Edit3, Flag
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Button } from '../../components/ui';
@@ -12,6 +12,7 @@ import { getJobBannerUrl } from '../../utils/bannerHelper';
 import JobLocationMap from '../../components/JobLocationMap';
 import ProposalModal from '../../components/forms/ProposalModal';
 import { API_BASE } from '../../config/api';
+import { updateSEO, cleanupSEO } from '../../utils/seoHelper';
 
 export default function JobDetailPage({
   jobId,
@@ -27,6 +28,7 @@ export default function JobDetailPage({
   onSelectRelatedJob,
   onViewEmployerProfile,
   onViewCompany,
+  onReportViolation,
   currentUser,
   onOpenAuth,
   showToast
@@ -60,6 +62,16 @@ export default function JobDetailPage({
       setIsSaved(propIsSaved);
     }
   }, [propIsSaved]);
+
+  // WP-03: Dynamic SEO Metadata (Title, Meta Description, Canonical URL, Robots)
+  useEffect(() => {
+    if (!loading) {
+      updateSEO('job_detail', currentJob);
+    }
+    return () => {
+      cleanupSEO('jobs');
+    };
+  }, [currentJob, loading]);
 
   // Fetch full job detail and related jobs from API if needed
   useEffect(() => {
@@ -195,6 +207,17 @@ export default function JobDetailPage({
   // Website link
   const companyWebsite = currentJob.website || currentJob.company_website;
 
+  // NTD role & ownership check
+  const isEmployerRole = currentUser?.role === 'EMPLOYER';
+  const isMyJob = Boolean(
+    isEmployerRole && (
+      (currentJob?.employer_id && String(currentJob.employer_id) === String(currentUser?.id)) ||
+      (currentJob?.user_id && String(currentJob.user_id) === String(currentUser?.id)) ||
+      (currentJob?.employer_email && currentUser?.email && currentJob.employer_email.toLowerCase() === currentUser.email.toLowerCase()) ||
+      (currentJob?.employer_name && currentUser?.full_name && currentJob.employer_name.trim().toLowerCase() === currentUser.full_name.trim().toLowerCase())
+    )
+  );
+
   // =========================================================================
   // LOGIC 3: NÚT LƯU VIỆC LÀM (BOOKMARK + LOCALSTORAGE)
   // =========================================================================
@@ -225,13 +248,12 @@ export default function JobDetailPage({
   // LOGIC 4: NÚT ỨNG TUYỂN (PHÂN QUYỀN GUEST, STUDENT, EMPLOYER)
   // =========================================================================
   const handleApplyClick = () => {
-    // 1. Nếu chưa đăng nhập
+    // 1. Nếu chưa đăng nhập -> Chuyển hướng qua trang Login và ghi nhớ job này (không mở popup)
     if (!currentUser?.token) {
-      if (showToast) {
-        showToast('Vui lòng đăng nhập với tài khoản Sinh viên để ứng tuyển', 'error');
-      }
-      if (onOpenAuth) {
-        onOpenAuth('login');
+      if (onApply) {
+        onApply(currentJob);
+      } else if (onOpenAuth) {
+        onOpenAuth('login', currentJob);
       }
       return;
     }
@@ -246,11 +268,11 @@ export default function JobDetailPage({
       return;
     }
 
-    // 3. Nếu là STUDENT
-    if (currentJob.work_type === 'FREELANCE' || currentJob.job_type === 'FREELANCE') {
+    // 3. Nếu là STUDENT -> Điều hướng qua handleOpenApplyModal để kiểm tra hồ sơ
+    if (onApply) {
+      onApply(currentJob);
+    } else if (currentJob.work_type === 'FREELANCE' || currentJob.job_type === 'FREELANCE') {
       setProposalModalOpen(true);
-    } else {
-      if (onApply) onApply(currentJob);
     }
   };
 
@@ -485,21 +507,15 @@ export default function JobDetailPage({
               {currentJob.title}
             </h1>
 
-            {/* Tóm tắt nhanh: Tên Job — Nhà tuyển dụng — Mức lương — Địa điểm — Hạn ứng tuyển (k163) */}
+            {/* Tóm tắt nhanh: Nhà tuyển dụng — Địa điểm — Hình thức làm việc */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, flexWrap: 'wrap', color: 'var(--color-text-secondary)', fontSize: 14 }}>
               <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
                 🏢 {companyDisplayName}
               </span>
               <span>•</span>
-              <span style={{ fontWeight: 700, color: '#047857' }}>
-                💰 {formatSalary()}
-              </span>
-              <span>•</span>
               <span>📍 {currentJob.location || 'TP. Hồ Chí Minh'}</span>
               <span>•</span>
-              <span>
-                📅 Hạn: {deadlineDate ? deadlineDate.toLocaleDateString('vi-VN') : 'Thường xuyên'}
-              </span>
+              <span>💼 {getWorkTypeLabel()}</span>
             </div>
           </div>
         </div>
@@ -702,10 +718,7 @@ export default function JobDetailPage({
               borderRadius: 14,
               border: '1.5px solid #29263A',
               padding: '24px',
-              boxShadow: '0 4px 16px rgba(41, 38, 58, 0.08)',
-              position: 'sticky',
-              top: 80,
-              zIndex: 10
+              boxShadow: '0 4px 16px rgba(41, 38, 58, 0.08)'
             }}
           >
             <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', marginBottom: 4 }}>
@@ -743,32 +756,42 @@ export default function JobDetailPage({
               {isEmployerRole ? (
                 isMyJob ? (
                   /* Trường 2: Tin của chính NTD -> Hiện nút Chỉnh sửa tin này (dẫn về Workspace) */
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (onEditJob) onEditJob(currentJob);
-                      else if (handleBack) handleBack();
-                    }}
-                    style={{
-                      width: '100%',
-                      background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: 10,
-                      padding: '12px 20px',
-                      fontSize: 14.5,
-                      fontWeight: 800,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    <Edit3 size={16} /> Chỉnh sửa tin này (Quản lý)
-                  </button>
+                  (() => {
+                    const isJobLocked = currentJob.status === 'FILLED' || currentJob.status === 'COMPLETED';
+                    return (
+                      <button
+                        type="button"
+                        disabled={isJobLocked}
+                        title={isJobLocked ? 'Tin đã nhận người hoặc hoàn thành không thể chỉnh sửa (AC5)' : 'Chỉnh sửa tin này'}
+                        onClick={() => {
+                          if (!isJobLocked) {
+                            if (onEditJob) onEditJob(currentJob);
+                            else if (handleBack) handleBack();
+                          }
+                        }}
+                        style={{
+                          width: '100%',
+                          background: isJobLocked ? '#94A3B8' : 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: 10,
+                          padding: '12px 20px',
+                          fontSize: 14.5,
+                          fontWeight: 800,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 8,
+                          cursor: isJobLocked ? 'not-allowed' : 'pointer',
+                          opacity: isJobLocked ? 0.6 : 1,
+                          boxShadow: isJobLocked ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <Edit3 size={16} /> {isJobLocked ? 'Tin đã hoàn tất (Không thể sửa)' : 'Chỉnh sửa tin này (Quản lý)'}
+                      </button>
+                    );
+                  })()
                 ) : (
                   /* Trường 2: Tin của NTD khác -> Ẩn nút Ứng tuyển, chỉ hiện nút Xem thông tin công ty */
                   <button
@@ -1034,6 +1057,39 @@ export default function JobDetailPage({
             >
               <Building2 size={14} /> Xem hồ sơ công ty
             </button>
+
+            {/* Nút Báo cáo tin tuyển dụng vi phạm (WF-X01) */}
+            <button
+              type="button"
+              onClick={() => onReportViolation && onReportViolation(currentJob)}
+              style={{
+                width: '100%',
+                marginTop: 8,
+                padding: '7px 14px',
+                borderRadius: 8,
+                border: '1px dashed #CBD5E1',
+                background: 'transparent',
+                color: '#64748B',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 5,
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#FCA5A5';
+                e.currentTarget.style.color = '#DC2626';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#CBD5E1';
+                e.currentTarget.style.color = '#64748B';
+              }}
+            >
+              <Flag size={13} /> Báo cáo tin này
+            </button>
           </div>
 
           {/* DANH MỤC & TAGS LIÊN QUAN */}
@@ -1056,7 +1112,7 @@ export default function JobDetailPage({
                 letterSpacing: '0.03em',
               }}
             >
-              Từ khóa tìm kiếm
+              Thẻ liên quan
             </h4>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>

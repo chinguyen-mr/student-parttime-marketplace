@@ -197,25 +197,12 @@ export default function AdminCategoriesPage({
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{
-              background: '#FEE2E2',
-              color: '#B91C1C',
-              fontSize: 11.5,
-              fontWeight: 800,
-              padding: '2px 8px',
-              borderRadius: 6,
-              textTransform: 'uppercase'
-            }}>
-              WF-A07
-            </span>
-            <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>
-              QUẢN TRỊ DANH MỤC NGÀNH NGHỀ
-            </span>
-          </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
-            Quản lý Danh mục ngành nghề (Category Management)
+            Quản lý danh mục ngành nghề
           </h1>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748B' }}>
+            Cấu hình phân loại việc làm và kỹ năng tuyển dụng trên hệ thống
+          </p>
         </div>
 
         <div style={{ display: 'flex', gap: 10 }}>
@@ -537,19 +524,6 @@ export default function AdminCategoriesPage({
             </table>
           </div>
         )}
-      </div>
-
-      {/* Note Box matching WF-A07 Wireframe 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: API-D8, G-46, S5 TBD.
       </div>
     </div>
   );

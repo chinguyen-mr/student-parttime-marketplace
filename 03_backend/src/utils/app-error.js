@@ -16,6 +16,13 @@ class NotFoundError extends AppError {
     }
 }
 
+class BadRequestError extends AppError {
+    constructor(message = 'Bad request') {
+        super(message, 400);
+        this.name = 'BadRequestError';
+    }
+}
+
 class UnauthorizedError extends AppError {
     constructor(message = 'Unauthorized access') {
         super(message, 401);
@@ -55,6 +62,7 @@ class QuantityExceededError extends AppError {
 
 module.exports = {
     AppError,
+    BadRequestError,
     NotFoundError,
     UnauthorizedError,
     ForbiddenError,

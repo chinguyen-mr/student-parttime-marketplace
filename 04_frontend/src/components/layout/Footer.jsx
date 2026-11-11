@@ -5,7 +5,8 @@ export default function Footer({
   onSelectLocation,
   onNavigateTab,
   onOpenPolicy,
-  onOpenSupport
+  onOpenSupport,
+  onNavigateAbout
 }) {
   const handleNav = (tab) => {
     if (onNavigateTab) {
@@ -56,19 +57,19 @@ export default function Footer({
         }}>
           {/* CỘT 1: JobNest */}
           <div>
-            <h4 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
+            <h3 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
               JobNest
-            </h4>
+            </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
-                { label: 'Về JobNest', action: () => onOpenPolicy ? onOpenPolicy('about') : handleNav('coming_soon') },
-                { label: 'Giới thiệu nền tảng', action: () => onOpenPolicy ? onOpenPolicy('about') : handleNav('coming_soon') },
-                { label: 'Liên hệ', action: () => onOpenSupport ? onOpenSupport() : handleNav('coming_soon') },
-                { label: 'Hỏi đáp (FAQ)', action: () => onOpenSupport ? onOpenSupport() : handleNav('coming_soon') },
-                { label: 'Thỏa thuận sử dụng', action: () => onOpenPolicy ? onOpenPolicy('terms') : handleNav('coming_soon') },
-                { label: 'Quy định bảo mật', action: () => onOpenPolicy ? onOpenPolicy('privacy') : handleNav('coming_soon') },
-                { label: 'Quy chế hoạt động sàn giao dịch', action: () => onOpenPolicy ? onOpenPolicy('terms') : handleNav('coming_soon') },
-                { label: 'Sơ đồ trang web', action: () => handleNav('home') }
+                { label: 'Về JobNest', action: () => onNavigateAbout ? onNavigateAbout('about') : (onOpenPolicy ? onOpenPolicy('about') : handleNav('coming_soon')) },
+                { label: 'Giới thiệu nền tảng', action: () => onNavigateAbout ? onNavigateAbout('platform') : (onOpenPolicy ? onOpenPolicy('about') : handleNav('coming_soon')) },
+                { label: 'Liên hệ', action: () => onNavigateAbout ? onNavigateAbout('contact') : (onOpenSupport ? onOpenSupport() : handleNav('coming_soon')) },
+                { label: 'Hỏi đáp (FAQ)', action: () => onNavigateAbout ? onNavigateAbout('faq') : (onOpenSupport ? onOpenSupport() : handleNav('coming_soon')) },
+                { label: 'Thỏa thuận sử dụng', action: () => onNavigateAbout ? onNavigateAbout('terms') : (onOpenPolicy ? onOpenPolicy('terms') : handleNav('coming_soon')) },
+                { label: 'Quy định bảo mật', action: () => onNavigateAbout ? onNavigateAbout('privacy') : (onOpenPolicy ? onOpenPolicy('privacy') : handleNav('coming_soon')) },
+                { label: 'Quy chế hoạt động sàn giao dịch', action: () => onNavigateAbout ? onNavigateAbout('regulations') : (onOpenPolicy ? onOpenPolicy('terms') : handleNav('coming_soon')) },
+                { label: 'Sơ đồ trang web', action: () => onNavigateAbout ? onNavigateAbout('sitemap') : handleNav('home') }
               ].map(item => (
                 <li key={item.label}>
                   <button
@@ -78,14 +79,14 @@ export default function Footer({
                       background: 'none',
                       border: 'none',
                       padding: 0,
-                      color: '#A99EB8',
+                      color: '#C4B5FD',
                       fontSize: '13px',
                       cursor: 'pointer',
                       textAlign: 'left',
                       transition: 'color 0.15s ease'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = '#A99EB8'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#C4B5FD'}
                   >
                     {item.label}
                   </button>
@@ -96,9 +97,9 @@ export default function Footer({
 
           {/* CỘT 2: Dành cho Nhà tuyển dụng */}
           <div>
-            <h4 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
+            <h3 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
               Dành cho Nhà tuyển dụng
-            </h4>
+            </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
                 { label: 'Đăng tuyển dụng', action: () => handleNav('create_job') },
@@ -133,9 +134,9 @@ export default function Footer({
 
           {/* CỘT 3: Việc làm theo khu vực */}
           <div>
-            <h4 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
+            <h3 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
               Việc làm theo khu vực
-            </h4>
+            </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
                 { label: 'Hồ Chí Minh', val: 'TP.HCM' },
@@ -152,14 +153,14 @@ export default function Footer({
                       background: 'none',
                       border: 'none',
                       padding: 0,
-                      color: '#A99EB8',
+                      color: '#C4B5FD',
                       fontSize: '13px',
                       cursor: 'pointer',
                       textAlign: 'left',
                       transition: 'color 0.15s ease'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = '#A99EB8'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#C4B5FD'}
                   >
                     {item.label}
                   </button>
@@ -192,9 +193,9 @@ export default function Footer({
 
           {/* CỘT 4: Việc làm theo ngành nghề */}
           <div>
-            <h4 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
+            <h3 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
               Việc làm theo ngành nghề
-            </h4>
+            </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
                 { label: 'Kế toán', val: 'Kế toán' },
@@ -211,14 +212,14 @@ export default function Footer({
                       background: 'none',
                       border: 'none',
                       padding: 0,
-                      color: '#A99EB8',
+                      color: '#C4B5FD',
                       fontSize: '13px',
                       cursor: 'pointer',
                       textAlign: 'left',
                       transition: 'color 0.15s ease'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = '#A99EB8'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#C4B5FD'}
                   >
                     {item.label}
                   </button>
@@ -251,34 +252,35 @@ export default function Footer({
 
           {/* CỘT 5: Ứng dụng di động & Chứng nhận & Mạng xã hội */}
           <div>
-            <h4 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
+            <h3 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
               Ứng dụng di động
-            </h4>
+            </h3>
 
             {/* Badges: App Store & Google Play */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '18px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
               {/* App Store */}
               <div 
                 style={{
                   background: '#000000',
-                  border: '1px solid rgba(255,255,255,0.25)',
-                  borderRadius: '7px',
-                  padding: '5px 12px',
+                  border: '1.5px solid rgba(255,255,255,0.3)',
+                  borderRadius: '8px',
+                  padding: '7px 14px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '10px',
                   width: 'fit-content',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  minHeight: 44
                 }}
                 onClick={() => handleNav('coming_soon')}
               >
                 {/* Apple icon SVG */}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff">
                   <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.64-.78 1.08-1.87.96-2.96-.93.04-2.07.62-2.73 1.4-.58.67-1.09 1.76-.95 2.82 1.04.08 2.1-.5 2.72-1.26z"/>
                 </svg>
-                <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
-                  <div style={{ fontSize: '8.5px', color: '#B3B3B3' }}>Download on the</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.2px' }}>App Store</div>
+                <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+                  <div style={{ fontSize: '11px', color: '#D1D5DB', fontWeight: 500 }}>Download on the</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.2px' }}>App Store</div>
                 </div>
               </div>
 
@@ -286,34 +288,35 @@ export default function Footer({
               <div 
                 style={{
                   background: '#000000',
-                  border: '1px solid rgba(255,255,255,0.25)',
-                  borderRadius: '7px',
-                  padding: '5px 12px',
+                  border: '1.5px solid rgba(255,255,255,0.3)',
+                  borderRadius: '8px',
+                  padding: '7px 14px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '10px',
                   width: 'fit-content',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  minHeight: 44
                 }}
                 onClick={() => handleNav('coming_soon')}
               >
                 {/* Google Play icon SVG */}
-                <svg width="18" height="18" viewBox="0 0 24 24">
+                <svg width="20" height="20" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M3.61 2.05L13.89 12 3.61 21.95c-.37-.32-.61-.83-.61-1.45V3.5c0-.62.24-1.13.61-1.45z"/>
                   <path fill="#FBBC04" d="M17.39 8.56l-3.5 3.44 3.5 3.44 3.96-2.27c1.13-.65 1.13-1.7 0-2.35l-3.96-2.26z"/>
                   <path fill="#EA4335" d="M13.89 12L3.61 2.05c.2-.17.47-.28.78-.28.53 0 1.03.26 1.54.55l11.46 6.24L13.89 12z"/>
                   <path fill="#34A853" d="M13.89 12l3.5 3.44-11.46 6.24c-.51.29-1.01.55-1.54.55-.31 0-.58-.11-.78-.28L13.89 12z"/>
                 </svg>
-                <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
-                  <div style={{ fontSize: '8.5px', color: '#B3B3B3' }}>GET IT ON</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.2px' }}>Google Play</div>
+                <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+                  <div style={{ fontSize: '11px', color: '#D1D5DB', fontWeight: 500 }}>GET IT ON</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.2px' }}>Google Play</div>
                 </div>
               </div>
             </div>
 
             {/* Chứng nhận bởi */}
             <div style={{ marginBottom: '18px' }}>
-              <div style={{ fontSize: '11.5px', color: '#8E82A3', marginBottom: '6px' }}>
+              <div style={{ fontSize: '12.5px', color: '#C4B5FD', fontWeight: 600, marginBottom: '6px' }}>
                 Chứng nhận bởi
               </div>
               <img 
@@ -331,10 +334,10 @@ export default function Footer({
 
             {/* Theo dõi JobNest trên */}
             <div>
-              <div style={{ fontSize: '11.5px', color: '#8E82A3', marginBottom: '8px' }}>
+              <div style={{ fontSize: '12.5px', color: '#C4B5FD', fontWeight: 600, marginBottom: '8px' }}>
                 Theo dõi JobNest trên
               </div>
-              {/* 5 Social Circles matching Image 2 */}
+              {/* 5 Social Circles */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {/* Facebook (Blue) */}
                 <a
@@ -350,17 +353,17 @@ export default function Footer({
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(24, 119, 242, 0.45)',
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.15s ease',
                     textDecoration: 'none'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.06)';
-                    e.currentTarget.style.boxShadow = '0 6px 18px rgba(24, 119, 242, 0.65)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 3px 8px rgba(0, 0, 0, 0.4)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = '0 4px 14px rgba(24, 119, 242, 0.45)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.3)';
                   }}
                   title="Facebook"
                 >
@@ -383,17 +386,17 @@ export default function Footer({
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(10, 102, 194, 0.45)',
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.15s ease',
                     textDecoration: 'none'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.06)';
-                    e.currentTarget.style.boxShadow = '0 6px 18px rgba(10, 102, 194, 0.65)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 3px 8px rgba(0, 0, 0, 0.4)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = '0 4px 14px rgba(10, 102, 194, 0.45)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.3)';
                   }}
                   title="LinkedIn"
                 >
@@ -412,22 +415,22 @@ export default function Footer({
                     height: 34,
                     borderRadius: '50%',
                     background: '#000000',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.15s ease',
                     textDecoration: 'none'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.06)';
-                    e.currentTarget.style.boxShadow = '0 6px 18px rgba(255, 255, 255, 0.25)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 3px 8px rgba(0, 0, 0, 0.4)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = '0 4px 14px rgba(0, 0, 0, 0.5)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.3)';
                   }}
                   title="TikTok"
                 >
@@ -445,22 +448,22 @@ export default function Footer({
                     width: 34,
                     height: 34,
                     borderRadius: '50%',
-                    background: '#FF0000',
+                    background: '#DC2626',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(255, 0, 0, 0.45)',
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.15s ease',
                     textDecoration: 'none'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.06)';
-                    e.currentTarget.style.boxShadow = '0 6px 18px rgba(255, 0, 0, 0.65)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 3px 8px rgba(0, 0, 0, 0.4)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = '0 4px 14px rgba(255, 0, 0, 0.45)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.3)';
                   }}
                   title="YouTube"
                 >
@@ -483,17 +486,17 @@ export default function Footer({
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(225, 48, 108, 0.45)',
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.3)',
                     transition: 'all 0.15s ease',
                     textDecoration: 'none'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.06)';
-                    e.currentTarget.style.boxShadow = '0 6px 18px rgba(225, 48, 108, 0.65)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 3px 8px rgba(0, 0, 0, 0.4)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = '0 4px 14px rgba(225, 48, 108, 0.45)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.3)';
                   }}
                   title="Instagram"
                 >

@@ -20,7 +20,7 @@ function validateApply(req, res, next) {
 }
 
 function validateApplicationStatus(req, res, next) {
-    const { status } = req.body;
+    const { status, reason, note } = req.body;
     
     // A3 RULE: Chặn hoàn toàn việc set ACCEPTED qua PATCH /applications/:id/status
     if (status === 'ACCEPTED') {
@@ -31,6 +31,14 @@ function validateApplicationStatus(req, res, next) {
 
     if (!status || !allowed.includes(status)) {
         return next(new AppError(`Trạng thái xử lý ứng viên không hợp lệ. Chỉ chấp nhận: ${allowed.join(', ')}`, 400));
+    }
+
+    // BẮT BUỘC: Khi từ chối ứng viên, Nhà tuyển dụng phải cung cấp lý do từ chối rõ ràng
+    if (status === 'REJECTED') {
+        const rejectionReason = reason || note;
+        if (!rejectionReason || !rejectionReason.trim()) {
+            return next(new AppError('Bắt buộc phải nhập hoặc chọn lý do khi từ chối hồ sơ ứng tuyển.', 400));
+        }
     }
 
     next();

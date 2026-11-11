@@ -44,6 +44,27 @@ export default function EmployerCreateJobPage({
   const [submitting, setSubmitting] = useState(false);
   const [deadlineError, setDeadlineError] = useState(null);
 
+  // Sync form state if editingJob changes
+  useEffect(() => {
+    if (editingJob) {
+      setWorkType(editingJob.work_type || 'PART_TIME');
+      setTitle(editingJob.title || '');
+      setCategory(editingJob.category || 'Công nghệ thông tin');
+      setLocation(editingJob.location || 'Quận Bình Thạnh, TP.HCM');
+      setDescription(editingJob.description || '');
+      setRequirements(editingJob.requirements || '');
+      setSalaryType(editingJob.salary_type || 'HOURLY');
+      setSalary(editingJob.salary || 40000);
+      setQuantityRequired(editingJob.quantity_required || editingJob.slots || 1);
+      if (editingJob.application_deadline) {
+        setApplicationDeadline(new Date(editingJob.application_deadline).toISOString().split('T')[0]);
+      }
+      if (editingJob.job_banner_url) {
+        setJobBannerUrl(editingJob.job_banner_url);
+      }
+    }
+  }, [editingJob]);
+
   // Validate deadline in future whenever it changes
   useEffect(() => {
     if (applicationDeadline) {
@@ -82,6 +103,8 @@ export default function EmployerCreateJobPage({
       return;
     }
 
+    const isEditing = !!editingJob?.id;
+
     try {
       setSubmitting(true);
       const payload = {
@@ -100,8 +123,11 @@ export default function EmployerCreateJobPage({
         revision_policy: workType === 'FREELANCE' ? revisionPolicy.trim() : undefined
       };
 
-      const res = await fetch(`${API_BASE}/jobs`, {
-        method: 'POST',
+      const url = isEditing ? `${API_BASE}/jobs/${editingJob.id}` : `${API_BASE}/jobs`;
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${currentUser.token}`
@@ -111,13 +137,20 @@ export default function EmployerCreateJobPage({
 
       const data = await res.json();
       if (data.success) {
-        if (showToast) showToast('Đăng tin tuyển dụng thành công! Tin đang chờ kiểm duyệt (PENDING).', 'success');
+        if (showToast) {
+          showToast(
+            isEditing 
+              ? 'Cập nhật tin tuyển dụng thành công!' 
+              : 'Đăng tin tuyển dụng thành công! Tin đang chờ kiểm duyệt (PENDING).',
+            'success'
+          );
+        }
         if (onSuccess) onSuccess(data.data);
       } else {
-        throw new Error(data.message || 'Lỗi đăng tin tuyển dụng');
+        throw new Error(data.message || (isEditing ? 'Lỗi cập nhật tin tuyển dụng' : 'Lỗi đăng tin tuyển dụng'));
       }
     } catch (err) {
-      if (showToast) showToast(formatApiError(err, 'Lỗi tạo tin tuyển dụng'), 'error');
+      if (showToast) showToast(formatApiError(err, isEditing ? 'Lỗi cập nhật tin tuyển dụng' : 'Lỗi tạo tin tuyển dụng'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -162,52 +195,6 @@ export default function EmployerCreateJobPage({
           WF-E05 Form động
         </span>
       </div>
-
-      {/* Pre-condition Banner matching WF-E05 / WF-E03: Phải xác minh cả Email và Phone trước khi đăng Job */}
-      {(!currentUser?.phone_verified && currentUser?.verification_status !== 'VERIFIED') && (
-        <div style={{
-          background: '#FFFBEB',
-          border: '1.5px solid #FDE68A',
-          borderRadius: 12,
-          padding: '14px 18px',
-          marginBottom: 20,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 12
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <AlertCircle size={20} color="#D97706" style={{ flexShrink: 0 }} />
-            <div>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: '#92400E' }}>
-                Yêu cầu tiên quyết: Xác minh tài khoản (WF-E03)
-              </div>
-              <div style={{ fontSize: 12.5, color: '#B45309' }}>
-                Theo quy định, Nhà tuyển dụng phải hoàn tất xác minh cả Email và Số điện thoại trước khi tin đăng có thể gửi duyệt công khai.
-              </div>
-            </div>
-          </div>
-          {onNavigateVerification && (
-            <button
-              type="button"
-              onClick={onNavigateVerification}
-              style={{
-                background: '#D97706',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: 8,
-                padding: '6px 14px',
-                fontSize: 12.5,
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
-            >
-              Đến Trung tâm Xác thực (WF-E03)
-            </button>
-          )}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', padding: '28px', boxShadow: 'var(--shadow-sm)' }}>
         
@@ -521,7 +508,8 @@ export default function EmployerCreateJobPage({
             disabled={submitting || !!deadlineError}
             style={{ padding: '10px 24px', fontSize: 13.5, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 8 }}
           >
-            <Send size={15} /> {submitting ? 'Đang gửi duyệt...' : 'Gửi duyệt tin tuyển dụng'}
+            {editingJob?.id ? <Save size={15} /> : <Send size={15} />} 
+            {submitting ? 'Đang lưu...' : (editingJob?.id ? 'Lưu thay đổi tin tuyển dụng' : 'Gửi duyệt tin tuyển dụng')}
           </Button>
         </div>
       </form>

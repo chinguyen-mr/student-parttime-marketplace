@@ -13,3 +13,4 @@ export { default as SupportModal } from './SupportModal';
 export { default as JobCardSkeleton } from './JobCardSkeleton';
 export { default as JobListSkeleton } from './JobListSkeleton';
 export { default as EmptyState } from './EmptyState';
+export { default as StatusBadge } from './StatusBadge';

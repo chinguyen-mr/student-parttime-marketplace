@@ -42,3 +42,52 @@ This project is indexed by GitNexus as **student-parttime-marketplace** (380 sym
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+
+---
+
+# AI Engineering Skills & Architecture Standards — JobNest
+
+## 1. UI/UX Craft & Auditing — Impeccable Framework
+- **Skill reference:** `.agents/skills/impeccable/SKILL.md` (by Paul Bakaus).
+- **When to use:** Whenever reviewing, crafting, or polishing frontend components in `04_frontend/src/`.
+- **Mandatory guidelines:**
+  - Strictly adhere to `PRODUCT.md` and `DESIGN.md`.
+  - Always preserve the **Soft Lavender (`#7565A8`)** and **Warm Peach (`#F4B99D`)** brand design system.
+  - Reject generic AI templates (AI slop: uninspired purple/blue gradients, non-semantic divs, monotonous cards).
+  - Guarantee 4 UI states: Loading skeleton, Empty state with recovery action, Error toast/alert, and Success confirmation.
+  - Maintain WCAG 2.1 AA accessibility standards and mobile touch targets (>= 44x44px).
+
+## 2. DevSecOps & Security Auditing — Security Audit Skill
+- **Skill reference:** `.agents/skills/security-audit/SKILL.md`.
+- **When to use:** Before deploying, committing major backend/auth changes, or performing milestone reviews.
+- **5-Step Audit Pipeline:**
+  1. `Recon`: Map trust boundaries, public vs protected endpoints, and input surfaces.
+  2. `Hunt`: Methodically inspect for OWASP Top 10 flaws (JWT secret leaks, IDOR, SQLi, XSS, CSRF, container privilege).
+  3. `Validate`: Trace input flow from Source to Sink; reject false positives.
+  4. `Verify`: Cross-check with test suite (`npm test`) and active environment variables.
+  5. `Report`: Document findings in `docs/security/SECURITY_AUDIT_REPORT.md`.
+- **Safety rules:** Strictly non-destructive. Never drop database tables, delete user files, or tamper with credentials.
+
+## 3. Academic & Defense Presentation — PPT Master
+- **Skill reference:** `.agents/skills/ppt-master/SKILL.md` (by Hugo He).
+- **When to use:** Preparing slide presentations for milestone reviews, sprint demonstrations, or graduation thesis defense.
+- **Mandatory guidelines:**
+  - Follow the 15-slide defense curriculum documented in `docs/presentation/README.md`.
+  - Ingest facts strictly from approved documentation (`01_docs/`, `02_database/Data_v2.xlsx`, `docs/architecture/`). Never fabricate metrics or features.
+  - Produce native, editable DrawingML vector shapes in `.pptx` format via `scripts/generate_presentation.py`.
+
+## 4. Draw.io Architecture Diagram Maintenance
+- **Standard format:** `.drawio.svg` (editable vector SVG with embedded XML) inside `docs/architecture/`.
+- **Recommended VS Code Extension:** `hediet.vscode-drawio`.
+- **Managed diagrams:**
+  1. `system-context.drawio.svg`: Context level (Student, Employer, Admin, External APIs).
+  2. `application-architecture.drawio.svg`: 3-Tier Layered Architecture (React, Express, PostgreSQL).
+  3. `deployment-architecture.drawio.svg`: Docker Compose containers, networks, and volumes.
+  4. `database-erd.drawio.svg`: 13 Core tables bám sát `02_database/Data_v2.xlsx`.
+  5. `authentication-flow.drawio.svg`: Sequence flow for JWT, bcrypt, and RBAC middleware.
+- **Git synchronization rule:** Always commit updated `.drawio.svg` diagrams alongside code changes when modifying database schemas, API routes, or Docker setups.
+
+## 5. Centralized AI Tooling & Skills Hub (`.ai/`)
+- **Single Source of Truth:** All agent personas, categorized skills, master prompt templates, rules, workflows, and MCP configurations are centrally maintained in `.ai/`.
+- **Reference guide:** Consult `.ai/README.md` for directory structure, agent roles, adding new skills, and cross-machine usage instructions.

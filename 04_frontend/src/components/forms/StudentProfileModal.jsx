@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   User, Mail, Phone, Calendar, School, MapPin, 
-  FileText, Plus, X, UploadCloud, CheckCircle2, Award, Camera
+  FileText, Plus, X, UploadCloud, CheckCircle2, Award, Camera, AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnimatedModal, Button } from '../ui';
@@ -12,23 +12,73 @@ export function StudentProfileCard({
   onCancel,
   isModal = false,
 }) {
-  const [fullName, setFullName] = useState(currentUser?.full_name || 'Nguyễn Văn Chí');
-  const [phone, setPhone] = useState('0912345678');
-  const [dob, setDob] = useState('2003-05-15');
-  const [university, setUniversity] = useState('Trường Đại học Văn Lang (VLU)');
-  const [major, setMajor] = useState('Khoa Công nghệ Thông tin');
-  const [address, setAddress] = useState('Quận Bình Thạnh, TP. Hồ Chí Minh');
-  const [bio, setBio] = useState('Sinh viên năm 4 đam mê lập trình Web, tìm kiếm cơ hội thực tập và việc làm part-time để tích lũy kinh nghiệm thực tế.');
+  // Đọc dữ liệu đã lưu trong localStorage hoặc từ currentUser
+  const savedProfile = (() => {
+    if (!currentUser?.id) return null;
+    try {
+      const cached = localStorage.getItem(`jobnest_student_profile_${currentUser.id}`);
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const isDemoStudent = currentUser?.email === 'student.test@vlu.edu.vn' || currentUser?.id === 4 || !currentUser;
+
+  const [fullName, setFullName] = useState(
+    currentUser?.full_name || savedProfile?.fullName || (isDemoStudent ? 'Nguyễn Văn Chí' : '')
+  );
+  const [phone, setPhone] = useState(
+    currentUser?.phone || savedProfile?.phone || (isDemoStudent ? '0912345678' : '')
+  );
+  const [dob, setDob] = useState(
+    currentUser?.dob || savedProfile?.dob || (isDemoStudent ? '2003-05-15' : '')
+  );
+  const [university, setUniversity] = useState(
+    currentUser?.university || currentUser?.school || savedProfile?.university || (isDemoStudent ? 'Trường Đại học Văn Lang (VLU)' : '')
+  );
+  const [major, setMajor] = useState(
+    currentUser?.major || currentUser?.faculty || savedProfile?.major || (isDemoStudent ? 'Khoa Công nghệ Thông tin' : '')
+  );
+  const [address, setAddress] = useState(
+    currentUser?.location || currentUser?.address || savedProfile?.address || (isDemoStudent ? 'Quận Bình Thạnh, TP. Hồ Chí Minh' : '')
+  );
+  const [bio, setBio] = useState(
+    currentUser?.bio || savedProfile?.bio || (isDemoStudent ? 'Sinh viên năm 4 đam mê lập trình Web, tìm kiếm cơ hội thực tập và việc làm part-time để tích lũy kinh nghiệm thực tế.' : '')
+  );
   
-  // Exact default skills from Wireframe Screen 9
-  const [skills, setSkills] = useState(['Giao tiếp', 'Làm việc nhóm', 'Tin học văn phòng', 'Java', 'SQL']);
+  // Default skills or existing skills
+  const [skills, setSkills] = useState(() => {
+    if (savedProfile?.skills && Array.isArray(savedProfile.skills) && savedProfile.skills.length > 0) return savedProfile.skills;
+    if (currentUser?.skills && Array.isArray(currentUser.skills) && currentUser.skills.length > 0) return currentUser.skills;
+    if (isDemoStudent) return ['Giao tiếp', 'Làm việc nhóm', 'Tin học văn phòng', 'Java', 'SQL'];
+    return [];
+  });
   const [newSkill, setNewSkill] = useState('');
   const [isAddingSkill, setIsAddingSkill] = useState(false);
   
-  // Exact CV file from Wireframe Screen 9
-  const [cvFileName, setCvFileName] = useState('CV_NguyenVanA.pdf');
+  // CV file
+  const [cvFileName, setCvFileName] = useState(
+    savedProfile?.cvFileName || currentUser?.cv_url || (isDemoStudent ? 'CV_NguyenVanChi.pdf' : '')
+  );
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Tính toán các trường còn thiếu để thông báo cho sinh viên
+  const missingFields = [];
+  if (!fullName?.trim()) missingFields.push('Họ và tên');
+  if (!phone?.trim()) missingFields.push('Số điện thoại');
+  if (!dob?.trim()) missingFields.push('Ngày sinh');
+  if (!university?.trim()) missingFields.push('Trường / Khoa');
+  if (!address?.trim()) missingFields.push('Địa chỉ');
+  if (!bio?.trim()) missingFields.push('Giới thiệu bản thân');
+  if (!skills || skills.length === 0) missingFields.push('Kỹ năng');
+  if (!cvFileName) missingFields.push('File CV đính kèm');
+
+  const totalRequired = 8;
+  const completedCount = totalRequired - missingFields.length;
+  const percentComplete = Math.round((completedCount / totalRequired) * 100);
+  const isProfileComplete = missingFields.length === 0;
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !skills.includes(newSkill.trim())) {
@@ -181,6 +231,53 @@ export function StudentProfileCard({
           </button>
         </div>
       </div>
+
+      {/* ================= BANNER KIỂM TRA ĐỘ HOÀN THIỆN HỒ SƠ ================= */}
+      {isProfileComplete ? (
+        <div style={{
+          background: '#ECFDF5',
+          border: '1.5px solid #10B981',
+          borderRadius: 12,
+          padding: '14px 18px',
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          boxShadow: '0 2px 8px rgba(16, 185, 129, 0.12)',
+        }}>
+          <CheckCircle2 size={24} color="#10B981" style={{ flexShrink: 0 }} />
+          <div>
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: '#065F46' }}>
+              Trạng thái: Hồ sơ đã đầy đủ thông tin (100%)
+            </div>
+            <div style={{ fontSize: 12, color: '#047857', marginTop: 2 }}>
+              Thông tin của bạn đã đầy đủ. Bạn có thể ứng tuyển ngay bất kỳ công việc nào mà không cần nhập lại!
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div style={{
+          background: '#FFFBEB',
+          border: '1.5px solid #F59E0B',
+          borderRadius: 12,
+          padding: '14px 18px',
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 12,
+          boxShadow: '0 2px 8px rgba(245, 158, 11, 0.12)',
+        }}>
+          <AlertTriangle size={24} color="#D97706" style={{ flexShrink: 0, marginTop: 2 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: '#92400E' }}>
+              Trạng thái: Hồ sơ chưa đầy đủ ({percentComplete}%)
+            </div>
+            <div style={{ fontSize: 12.5, color: '#B45309', marginTop: 4, lineHeight: 1.5 }}>
+              Còn thiếu: <strong>{missingFields.join(', ')}</strong>. Vui lòng bổ sung đầy đủ các mục trên để đủ điều kiện ứng tuyển việc làm!
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================= 2. MAIN BORDERED CARD CONTAINER (Matching Wireframe) ================= */}
       <div style={{
@@ -569,16 +666,20 @@ export function StudentProfileCard({
           </div>
         </div>
 
-        {/* Divider Line before bottom actions */}
-        <div style={{ height: 1, background: 'var(--color-border)', margin: '24px 0 18px 0' }} />
-
-        {/* ================= PHẦN 5: ACTIONS (HỦY THAY ĐỔI / LƯU THÔNG TIN) ================= */}
+        {/* ================= PHẦN 5: STICKY ACTIONS BAR ================= */}
         <div style={{
+          position: 'sticky',
+          bottom: 0,
+          background: '#ffffff',
+          padding: '16px 0 0 0',
+          borderTop: '1px solid var(--color-border)',
+          marginTop: 24,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           gap: 12,
           flexWrap: 'wrap',
+          zIndex: 10
         }}>
           <button
             type="button"
@@ -586,16 +687,16 @@ export function StudentProfileCard({
             style={{
               padding: '8px 22px',
               borderRadius: 8,
-              border: '2px solid var(--color-text)',
+              border: '1.5px solid var(--color-border)',
               background: '#ffffff',
               color: 'var(--color-text)',
               fontSize: 13,
-              fontWeight: 800,
+              fontWeight: 700,
               cursor: 'pointer',
               transition: 'all 0.15s ease',
             }}
           >
-            HỦY THAY ĐỔI
+            Hủy thay đổi
           </button>
 
           <button
@@ -604,17 +705,17 @@ export function StudentProfileCard({
             style={{
               padding: '9px 28px',
               borderRadius: 8,
-              border: '2px solid var(--color-text)',
-              background: 'var(--color-primary)',
+              border: 'none',
+              background: isSaving ? '#9CA3AF' : '#7565A8',
               color: '#ffffff',
               fontSize: 13,
-              fontWeight: 800,
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(89, 70, 117, 0.28)',
+              fontWeight: 700,
+              cursor: isSaving ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 12px rgba(117, 101, 168, 0.25)',
               transition: 'all 0.15s ease',
             }}
           >
-            {isSaving ? 'ĐANG LƯU...' : 'LƯU THÔNG TIN'}
+            {isSaving ? 'Đang lưu...' : 'Lưu thông tin'}
           </button>
         </div>
       </div>

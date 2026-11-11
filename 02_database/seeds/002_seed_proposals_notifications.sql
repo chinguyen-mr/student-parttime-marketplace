@@ -1,7 +1,7 @@
 -- Seed file: 002_seed_proposals_notifications.sql (Day 2)
 
 -- Seed Proposals for Freelance Jobs
-INSERT INTO proposals (job_id, student_id, proposal_text, estimated_duration, proposed_price, status) VALUES
+INSERT INTO freelance_proposals (job_id, student_id, proposal_text, estimated_duration, proposed_price, status) VALUES
 (1, 53, 'Em có 2 năm kinh nghiệm làm React.js và Node.js, từng làm 3 dự án freelance tương tự. Em cam kết giao sản phẩm đúng hạn và hỗ trợ fix bug 1 tháng.', '3 ngày', 1500000, 'SUBMITTED'),
 (1, 54, 'Chào anh/chị, em là sinh viên năm cuối ĐH Văn Lang chuyên ngành Thiết kế đồ họa. Em thành thạo Figma, Photoshop và Illustrator, sẵn sàng gửi portfolio qua email.', '5 ngày', 1600000, 'SUBMITTED'),
 (1, 55, 'Em nhận dự án này và có thể bắt đầu ngay hôm nay. Em sẽ cập nhật tiến độ mỗi 2 ngày một lần để anh/chị tiện theo dõi.', '1 tuần', 1700000, 'SUBMITTED'),
@@ -39,8 +39,10 @@ INSERT INTO proposals (job_id, student_id, proposal_text, estimated_duration, pr
 (136, 63, 'Em có thể hoàn thành phần việc này trong vòng 5 ngày. Đã từng thực hiện các dự án tương tự với đánh giá 5 sao từ khách hàng trước.', '2 tuần', 2000000, 'REVIEWING')
 ON CONFLICT (job_id, student_id) DO NOTHING;
 
--- Seed Notifications for Users
-INSERT INTO notifications (user_id, type, title, body, target_type, target_id, read_at) VALUES
+-- Seed Notifications for Users (Idempotent: tránh duplicate khi re-seed)
+INSERT INTO notifications (user_id, type, title, body, target_type, target_id, read_at)
+SELECT v.user_id, v.type, v.title, v.body, v.target_type, v.target_id, v.read_at
+FROM (VALUES
 (53, 'APPLICATION_ACCEPTED', 'Hồ sơ ứng tuyển được chấp nhận', 'Chúc mừng bạn! Nhà tuyển dụng đã duyệt đơn ứng tuyển của bạn cho vị trí part-time.', 'APPLICATION', 1, CURRENT_TIMESTAMP - INTERVAL '0 days'),
 (54, 'APPLICATION_REJECTED', 'Thông báo về hồ sơ ứng tuyển', 'Rất tiếc hồ sơ ứng tuyển của bạn chưa phù hợp ở thời điểm hiện tại. Hãy tiếp tục ứng tuyển các tin khác nhé!', 'APPLICATION', 2, NULL),
 (55, 'JOB_APPROVED', 'Tin tuyển dụng đã được kiểm duyệt', 'Tin tuyển dụng của bạn đã được Quản trị viên duyệt và đang hiển thị công khai trên hệ sinh thái JobNest.', 'JOB', 3, CURRENT_TIMESTAMP - INTERVAL '2 days'),
@@ -95,5 +97,14 @@ INSERT INTO notifications (user_id, type, title, body, target_type, target_id, r
 (64, 'PROPOSAL_RECEIVED', 'Bạn nhận được đề xuất Freelance mới', 'Một sinh viên vừa nộp báo giá và đề xuất giải pháp cho dự án của bạn. Nhấp để xem chi tiết.', 'PROPOSAL', 12, NULL),
 (3, 'REVIEW_RECEIVED', 'Bạn có một đánh giá mới', 'Đối tác vừa gửi đánh giá 5 sao kèm nhận xét uy tín về chất lượng công việc vừa qua.', 'REVIEW', 13, CURRENT_TIMESTAMP - INTERVAL '3 days'),
 (4, 'REMINDER_DEADLINE', 'Nhắc nhở hạn chót công việc', 'Thời hạn nộp đơn cho công việc bạn quan tâm sẽ kết thúc trong 24 giờ tới.', 'JOB', 14, NULL),
-(5, 'APPLICATION_ACCEPTED', 'Hồ sơ ứng tuyển được chấp nhận', 'Chúc mừng bạn! Nhà tuyển dụng đã duyệt đơn ứng tuyển của bạn cho vị trí part-time.', 'APPLICATION', 15, CURRENT_TIMESTAMP - INTERVAL '5 days');
+(5, 'APPLICATION_ACCEPTED', 'Hồ sơ ứng tuyển được chấp nhận', 'Chúc mừng bạn! Nhà tuyển dụng đã duyệt đơn ứng tuyển của bạn cho vị trí part-time.', 'APPLICATION', 15, CURRENT_TIMESTAMP - INTERVAL '5 days')
+) AS v(user_id, type, title, body, target_type, target_id, read_at)
+WHERE NOT EXISTS (
+    SELECT 1 FROM notifications n
+    WHERE n.user_id = v.user_id
+      AND n.type = v.type
+      AND n.title = v.title
+      AND n.target_type = v.target_type
+      AND n.target_id = v.target_id
+);
 

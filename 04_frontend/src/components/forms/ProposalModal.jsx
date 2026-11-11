@@ -96,21 +96,10 @@ export default function ProposalModal({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{
-                background: '#F1EEF8',
-                color: '#7565A8',
-                border: '1px solid #D8B4FE',
-                borderRadius: 4,
-                padding: '2px 8px',
-                fontSize: 11,
-                fontWeight: 700
-              }}>
-                WF-S07 — FREELANCE PROPOSAL FORM
-              </span>
               <span className="badge badge-success" style={{ fontSize: 11 }}>Dự án Freelance</span>
             </div>
             <h3 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
-              Nộp Đề xuất dự án Freelance (Proposal)
+              Nộp đề xuất dự án (Proposal)
             </h3>
             <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: 0 }}>
               Gửi phương án thực hiện, thời gian dự kiến và mức thù lao đề xuất cho Nhà tuyển dụng

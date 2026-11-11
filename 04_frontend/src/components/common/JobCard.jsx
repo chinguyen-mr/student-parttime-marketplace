@@ -11,6 +11,7 @@ export default function JobCard({
   onApply,
   onHoverStart,
   onHoverEnd,
+  onViewCompany,
 }) {
   const cardRef = useRef(null);
   const onHoverEndRef = useRef(onHoverEnd);
@@ -24,6 +25,29 @@ export default function JobCard({
       if (onHoverEndRef.current && jobRef.current) {
         onHoverEndRef.current(jobRef.current);
       }
+    };
+  }, []);
+
+  const isSuppressedByScrollRef = useRef(false);
+  const isCursorInsideRef = useRef(false);
+
+  // Rule 2 & 3: Khi có sự kiện cuộn xảy ra trong lúc chuột đang ở trên Card này:
+  // Đánh dấu Card bị suppress cho đến khi người dùng THỰC SỰ di chuyển chuột ra khỏi Card (mouseLeave)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isCursorInsideRef.current) {
+        isSuppressedByScrollRef.current = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+    window.addEventListener('wheel', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll, { capture: true });
+      window.removeEventListener('wheel', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
     };
   }, []);
 
@@ -67,29 +91,6 @@ export default function JobCard({
 
   // Location display
   const locationShort = job.location ? job.location.split(',')[0].trim() : 'TP.HCM';
-
-  const isSuppressedByScrollRef = useRef(false);
-  const isCursorInsideRef = useRef(false);
-
-  // Rule 2 & 3: Khi có sự kiện cuộn xảy ra trong lúc chuột đang ở trên Card này:
-  // Đánh dấu Card bị suppress cho đến khi người dùng THỰC SỰ di chuyển chuột ra khỏi Card (mouseLeave)
-  useEffect(() => {
-    const handleScroll = () => {
-      if (isCursorInsideRef.current) {
-        isSuppressedByScrollRef.current = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
-    window.addEventListener('wheel', handleScroll, { passive: true });
-    window.addEventListener('touchmove', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll, { capture: true });
-      window.removeEventListener('wheel', handleScroll);
-      window.removeEventListener('touchmove', handleScroll);
-    };
-  }, []);
 
   const handleMouseEnter = () => {
     isCursorInsideRef.current = true;
@@ -135,13 +136,13 @@ export default function JobCard({
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
-      return { text: 'Đã hết hạn', isExpired: true, isUrgent: false, color: '#ef4444', bg: '#fef2f2', border: '#fecaca' };
+      return { text: 'Đã hết hạn', isExpired: true, isUrgent: false, color: '#991B1B', bg: '#FEF2F2', border: '#FCA5A5' };
     }
     if (diffDays <= 3) {
-      return { text: diffDays === 0 ? 'Hết hạn hôm nay' : `Sắp hết hạn (${diffDays} ngày)`, isExpired: false, isUrgent: true, color: '#ea580c', bg: '#fff7ed', border: '#fed7aa' };
+      return { text: diffDays === 0 ? 'Hết hạn hôm nay' : `Sắp hết hạn (${diffDays} ngày)`, isExpired: false, isUrgent: true, color: '#9A3412', bg: '#FFF7ED', border: '#FDBA74' };
     }
     if (diffDays <= 14) {
-      return { text: `Còn ${diffDays} ngày`, isExpired: false, isUrgent: false, color: '#0284c7', bg: '#f0f9ff', border: '#bae6fd' };
+      return { text: `Còn ${diffDays} ngày`, isExpired: false, isUrgent: false, color: '#0369A1', bg: '#F0F9FF', border: '#7DD3FC' };
     }
     return null;
   };
@@ -176,12 +177,23 @@ export default function JobCard({
         {/* Top Header: Logo, Company & Save Button */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
           {/* Real Company Logo with smart fallbacks */}
-          <CompanyLogo
-            src={job.company_logo_url || job.employer_avatar}
-            alt={companyDisplayName}
-            size={44}
-            borderRadius={10}
-          />
+          <div
+            onClick={(e) => {
+              if (onViewCompany) {
+                e.stopPropagation();
+                onViewCompany(job);
+              }
+            }}
+            style={{ cursor: onViewCompany ? 'pointer' : 'default', flexShrink: 0 }}
+            title={onViewCompany ? `Xem trang công khai của ${companyDisplayName}` : companyDisplayName}
+          >
+            <CompanyLogo
+              src={job.company_logo_url || job.employer_avatar}
+              alt={companyDisplayName}
+              size={44}
+              borderRadius={10}
+            />
+          </div>
 
           {/* Title & Company Name */}
           <div style={{ flex: 1, minWidth: 0, paddingRight: 4 }}>
@@ -206,15 +218,26 @@ export default function JobCard({
             </h3>
 
             <p
+              onClick={(e) => {
+                if (onViewCompany) {
+                  e.stopPropagation();
+                  onViewCompany(job);
+                }
+              }}
               style={{
                 fontSize: 12.5,
-                color: 'var(--color-text-secondary)',
+                color: onViewCompany ? 'var(--color-primary, #7565A8)' : 'var(--color-text-secondary)',
+                cursor: onViewCompany ? 'pointer' : 'default',
                 margin: 0,
-                whiteSpace: 'nowrap',
+                lineHeight: 1.4,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                wordBreak: 'break-word',
+                fontWeight: onViewCompany ? 600 : 400,
               }}
-              title={companyDisplayName}
+              title={onViewCompany ? `Xem trang công khai của ${companyDisplayName} (WF-G06)` : companyDisplayName}
             >
               {companyDisplayName}
             </p>
@@ -239,7 +262,7 @@ export default function JobCard({
               justifyContent: 'center',
               cursor: 'pointer',
               flexShrink: 0,
-              transition: 'all 0.15s ease',
+              transition: 'color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease',
             }}
             onMouseEnter={(e) => {
               if (!isSaved) {
@@ -261,6 +284,68 @@ export default function JobCard({
           </button>
         </div>
 
+        {/* AI Schedule Matching Score Banner & Explainable Reasons (P0-03 & P0-05) */}
+        {job.matching_score !== undefined && job.matching_score !== null && (
+          <div
+            style={{
+              background: job.matching_score >= 85 ? 'rgba(34, 197, 94, 0.08)' : job.matching_score >= 60 ? 'rgba(117, 101, 168, 0.08)' : 'rgba(234, 88, 12, 0.08)',
+              border: `1px solid ${job.matching_score >= 85 ? '#86efac' : job.matching_score >= 60 ? '#c4b5fd' : '#fed7aa'}`,
+              borderRadius: 8,
+              padding: '8px 10px',
+              marginBottom: 12,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  color: job.matching_score >= 85 ? '#15803d' : job.matching_score >= 60 ? '#6b21a8' : '#c2410c',
+                }}
+              >
+                <Sparkles size={13} />
+                {job.badge_label || `Độ phù hợp: ${job.matching_score}%`}
+              </span>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 900,
+                  color: job.matching_score >= 85 ? '#15803d' : job.matching_score >= 60 ? '#6b21a8' : '#c2410c',
+                  background: '#ffffff',
+                  padding: '1px 7px',
+                  borderRadius: 10,
+                  border: `1px solid ${job.matching_score >= 85 ? '#bbf7d0' : '#e9d5ff'}`,
+                }}
+              >
+                {job.matching_score}%
+              </span>
+            </div>
+            {Array.isArray(job.match_reasons) && job.match_reasons.length > 0 && (
+              <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {job.match_reasons.slice(0, 2).map((reason, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      fontSize: 12,
+                      color: 'var(--color-text-main, #374151)',
+                      lineHeight: 1.4,
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 4,
+                    }}
+                  >
+                    <span style={{ color: '#15803d', flexShrink: 0, fontWeight: 700 }}>✓</span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{reason}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Salary: Prominent & Clean with Deadline Badge */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -275,7 +360,7 @@ export default function JobCard({
               {formatSalary()}
             </span>
             {job.salary_type === 'HOURLY' && (
-              <span style={{ fontSize: 11.5, color: 'var(--color-primary)', background: 'var(--color-primary-light)', padding: '1px 6px', borderRadius: 4, fontWeight: 600 }}>
+              <span style={{ fontSize: 12, color: 'var(--color-primary-dark, #5B21B6)', background: 'var(--color-primary-light, #EDE9FE)', padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>
                 Lương theo giờ
               </span>
             )}
@@ -284,12 +369,12 @@ export default function JobCard({
           {deadlineBadge && (
             <span
               style={{
-                fontSize: 11,
-                fontWeight: 600,
+                fontSize: 12,
+                fontWeight: 700,
                 color: deadlineBadge.color,
                 background: deadlineBadge.bg,
                 border: `1px solid ${deadlineBadge.border}`,
-                padding: '2px 8px',
+                padding: '2.5px 8px',
                 borderRadius: 12,
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -321,16 +406,16 @@ export default function JobCard({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 3,
-              fontSize: 11.5,
+              gap: 4,
+              fontSize: 12,
               fontWeight: 600,
-              color: 'var(--color-text-secondary)',
-              background: 'var(--color-lavender-surface)',
-              padding: '2.5px 8px',
+              color: 'var(--color-text-main, #374151)',
+              background: 'var(--color-lavender-surface, #F3F4F6)',
+              padding: '3px 8px',
               borderRadius: 6,
             }}
           >
-            <MapPin size={11} color="var(--color-text-secondary)" />
+            <MapPin size={12} color="var(--color-text-secondary, #4B5563)" />
             {locationShort}
           </span>
 
@@ -339,13 +424,13 @@ export default function JobCard({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              fontSize: 11.5,
-              fontWeight: 600,
-              color: 'var(--color-primary)',
-              background: 'var(--color-primary-light)',
-              padding: '2.5px 8px',
+              fontSize: 12,
+              fontWeight: 700,
+              color: 'var(--color-primary-dark, #5B21B6)',
+              background: 'var(--color-primary-light, #EDE9FE)',
+              padding: '3px 8px',
               borderRadius: 6,
-              border: '1px solid var(--color-border)',
+              border: '1px solid #DDD6FE',
             }}
           >
             {getWorkTypeLabel()}
@@ -357,11 +442,12 @@ export default function JobCard({
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                fontSize: 11,
-                color: 'var(--color-text-secondary)',
-                background: 'var(--color-surface)',
+                fontSize: 12,
+                fontWeight: 500,
+                color: 'var(--color-text-secondary, #4B5563)',
+                background: 'var(--color-surface, #ffffff)',
                 border: '1px solid var(--color-border)',
-                padding: '2px 7px',
+                padding: '2.5px 7px',
                 borderRadius: 6,
               }}
             >
@@ -381,15 +467,15 @@ export default function JobCard({
             background: 'var(--color-surface, #ffffff)',
             border: '1px solid var(--color-primary, #594675)',
             color: 'var(--color-primary, #594675)',
-            fontSize: 11.5,
+            fontSize: 12.5,
             fontWeight: 700,
             borderRadius: 6,
-            padding: '4px 10px',
+            padding: '5px 12px',
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 4,
-            transition: 'all 0.15s ease',
+            transition: 'background-color 0.15s ease, color 0.15s ease',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = 'var(--color-primary, #594675)';

@@ -156,13 +156,13 @@ export default function EmployerCandidateSelectionPage({
       <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
         <div>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-            WF-E08 — CANDIDATE SELECTION
+            TUYỂN CHỌN ỨNG VIÊN
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>
-            Tuyển chọn Ứng viên (Quy tắc A3)
+            Tuyển chọn ứng viên
           </h1>
           <p style={{ margin: '4px 0 0 0', fontSize: 13.5, color: 'var(--color-text-secondary)' }}>
-            Màn hình DUY NHẤT phê duyệt ứng viên, kích hoạt Work Assignment và đóng các hồ sơ còn lại.
+            Phê duyệt ứng viên trúng tuyển và tự động khởi tạo phân công công việc.
           </p>
         </div>
 
@@ -373,19 +373,6 @@ export default function EmployerCandidateSelectionPage({
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Wireframe Note Box matching WF-E08 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: Màn hình DUY NHẤT chọn ứng viên: POST /jobs/:jobId/selections. Validation: không vượt quantity_required.
       </div>
     </div>
   );

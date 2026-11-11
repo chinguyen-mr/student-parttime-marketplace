@@ -20,6 +20,11 @@ export default function AdminUsersPage({
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
+
+  const totalPages = Math.ceil(users.length / pageSize) || 1;
+  const paginatedUsers = users.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   // Modal Khóa / Mở khóa
   const [selectedUserForAction, setSelectedUserForAction] = useState(null);
@@ -59,6 +64,7 @@ export default function AdminUsersPage({
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchUsers();
   }, [roleFilter, statusFilter, currentUser]);
 
@@ -165,23 +171,12 @@ export default function AdminUsersPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{
-              background: '#FEE2E2',
-              color: '#B91C1C',
-              fontSize: 11.5,
-              fontWeight: 800,
-              padding: '2px 8px',
-              borderRadius: 6,
-              textTransform: 'uppercase'
-            }}>
-              WF-A02
-            </span>
             <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>
               QUẢN TRỊ NGƯỜI DÙNG
             </span>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
-            Quản lý Người dùng (User Management)
+            Quản lý người dùng
           </h1>
         </div>
 
@@ -303,21 +298,22 @@ export default function AdminUsersPage({
             description="Hãy thử thay đổi từ khóa tìm kiếm hoặc bỏ bớt các bộ lọc Role / Status."
           />
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <>
+            <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
                 <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #000000', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
                   <th style={{ padding: '14px 16px', width: 60 }}>ID</th>
                   <th style={{ padding: '14px 16px' }}>Email & Họ tên</th>
-                  <th style={{ padding: '14px 16px', width: 140 }}>Role</th>
-                  <th style={{ padding: '14px 16px', width: 140 }}>Status</th>
+                  <th style={{ padding: '14px 16px', width: 140 }}>Vai trò</th>
+                  <th style={{ padding: '14px 16px', width: 140 }}>Trạng thái</th>
                   <th style={{ padding: '14px 16px', width: 140 }}>Xác thực NTD</th>
-                  <th style={{ padding: '14px 16px', width: 120 }}>Created</th>
+                  <th style={{ padding: '14px 16px', width: 120 }}>Ngày tạo</th>
                   <th style={{ padding: '14px 16px', width: 160, textAlign: 'right' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((u) => {
+                {paginatedUsers.map((u) => {
                   const isLocked = u.status === 'BANNED' || u.status === 'LOCKED';
                   const isSelf = currentUser?.id === u.id;
                   const isEmployer = u.role === 'EMPLOYER';
@@ -457,8 +453,88 @@ export default function AdminUsersPage({
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+
+          {/* Pagination bar */}
+          {users.length > 0 && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '14px 20px',
+              borderTop: '1px solid #E2E8F0',
+              background: '#F8FAFC',
+              flexWrap: 'wrap',
+              gap: 12,
+              fontSize: 13
+            }}>
+              <div style={{ color: '#64748B' }}>
+                Hiển thị <strong>{Math.min((currentPage - 1) * pageSize + 1, users.length)}</strong> - <strong>{Math.min(currentPage * pageSize, users.length)}</strong> trên tổng số <strong>{users.length}</strong> tài khoản
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 6,
+                    border: '1px solid #CBD5E1',
+                    background: currentPage === 1 ? '#F1F5F9' : '#ffffff',
+                    color: currentPage === 1 ? '#94A3B8' : '#0F172A',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: 13,
+                    fontWeight: 600
+                  }}
+                >
+                  ← Trước
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setCurrentPage(page)}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 6,
+                      border: '1px solid',
+                      borderColor: currentPage === page ? '#7565A8' : '#CBD5E1',
+                      background: currentPage === page ? '#7565A8' : '#ffffff',
+                      color: currentPage === page ? '#ffffff' : '#0F172A',
+                      cursor: 'pointer',
+                      fontSize: 13,
+                      fontWeight: 700
+                    }}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 6,
+                    border: '1px solid #CBD5E1',
+                    background: currentPage === totalPages ? '#F1F5F9' : '#ffffff',
+                    color: currentPage === totalPages ? '#94A3B8' : '#0F172A',
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: 13,
+                    fontWeight: 600
+                  }}
+                >
+                  Sau →
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
 
       {/* ================= MODAL XÁC NHẬN KHÓA TÀI KHOẢN (CHUẨN WIREFRAME WF-A02) ================= */}
       {selectedUserForAction && (
@@ -552,19 +628,6 @@ export default function AdminUsersPage({
           </div>
         </div>
       )}
-
-      {/* Note Box matching WF-A02 Wireframe 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: API-D7, C6 TBD.
-      </div>
     </div>
   );
 }

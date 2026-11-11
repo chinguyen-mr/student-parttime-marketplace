@@ -44,8 +44,8 @@ services:
       DB_NAME: ${POSTGRES_DB:-cd2_marketplace_db}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET chưa được đặt trong .env (tối thiểu 32 ký tự)}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      # CORS: cho phép cả Vite dev (5173) và frontend Docker (8080)
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080}
+      # CORS: cho phép cả Vite dev (5173, 8081, 8082) và frontend Docker (8080)
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080,http://localhost:8081,http://127.0.0.1:8081,http://localhost:8082,http://127.0.0.1:8082}
       AUTO_BOOTSTRAP: off
     ports:
       - "5000:5000"

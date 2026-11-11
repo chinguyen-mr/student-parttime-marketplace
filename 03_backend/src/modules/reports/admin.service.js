@@ -74,9 +74,14 @@ class AdminService {
         return res.rows;
     }
 
-    async updateUserStatus(userId, status, adminId = null) {
+    async updateUserStatus(userId, status, adminId = null, reason = null) {
         if (!['ACTIVE', 'BANNED', 'PENDING'].includes(status)) {
             throw new AppError('Trạng thái tài khoản không hợp lệ (ACTIVE, BANNED, PENDING)', 400);
+        }
+
+        // Bắt buộc nhập lý do khi khóa tài khoản
+        if (status === 'BANNED' && (!reason || !reason.trim())) {
+            throw new AppError('Bắt buộc phải nhập lý do khi khóa tài khoản người dùng.', 400);
         }
 
         // Quy tắc Wireframe WF-A02: "Không thể khóa Admin cuối cùng."
@@ -99,6 +104,47 @@ class AdminService {
             throw new NotFoundError('Không tìm thấy người dùng');
         }
 
+        // Cập nhật thông tin lý do khóa / mở khóa
+        if (status === 'BANNED') {
+            await db.query(
+                `UPDATE users 
+                 SET suspension_reason = $1, suspended_at = CURRENT_TIMESTAMP 
+                 WHERE id = $2`,
+                [reason, userId]
+            );
+
+            // Gửi thông báo cho người dùng bị khóa kèm lý do và hướng dẫn khiếu nại
+            try {
+                await db.query(
+                    `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
+                     VALUES ($1, 'ACCOUNT_BANNED', 'Tài khoản của bạn đã bị khóa', $2, 'USER', $1)`,
+                    [
+                        userId,
+                        `Tài khoản của bạn đã bị khóa bởi Quản trị viên. Lý do: ${reason}. Bạn có thể gửi khiếu nại để được xem xét mở khóa.`
+                    ]
+                );
+            } catch (notifErr) {
+                console.warn('Lỗi gửi notification khóa user:', notifErr.message);
+            }
+        } else if (status === 'ACTIVE') {
+            await db.query(
+                `UPDATE users 
+                 SET suspension_reason = NULL, suspended_at = NULL, suspension_expires_at = NULL 
+                 WHERE id = $1`,
+                [userId]
+            );
+
+            // Gửi thông báo mở khóa
+            try {
+                await db.query(
+                    `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
+                     VALUES ($1, 'ACCOUNT_UNBANNED', 'Tài khoản đã được mở khóa', 'Tài khoản của bạn đã được Quản trị viên kích hoạt lại và có thể tiếp tục sử dụng hệ thống.', 'USER', $1)`
+                );
+            } catch (notifErr) {
+                console.warn('Lỗi gửi notification mở khóa user:', notifErr.message);
+            }
+        }
+
         // Log action
         try {
             await db.query(
@@ -108,7 +154,7 @@ class AdminService {
                     adminId,
                     status === 'BANNED' ? 'BAN_USER' : 'UNBAN_USER',
                     userId,
-                    JSON.stringify({ new_status: status, email: user.email })
+                    JSON.stringify({ new_status: status, email: user.email, reason: reason || null })
                 ]
             );
         } catch (e) {
@@ -511,6 +557,207 @@ class AdminService {
 
         const res = await db.query(query, params);
         return res.rows;
+    }
+
+    // =========================================================================
+    // 7. VIOLATION & APPEAL POLICY (4-TIER ENFORCEMENT)
+    // =========================================================================
+    async recordUserViolation(userId, payload, adminId = null) {
+        const { violation_code, violation_type, severity = 'MEDIUM', reason, evidence } = payload;
+        if (!reason || !reason.trim()) {
+            throw new AppError('Bắt buộc phải nhập lý do khi ghi nhận vi phạm.', 400);
+        }
+
+        const userRes = await db.query('SELECT id, role, status, violation_count FROM users WHERE id = $1', [userId]);
+        if (userRes.rows.length === 0) {
+            throw new NotFoundError('Không tìm thấy người dùng');
+        }
+        const user = userRes.rows[0];
+
+        const newCount = (user.violation_count || 0) + 1;
+        let tier = 1;
+        let newStatus = user.status;
+        let title = '';
+        let body = '';
+
+        if (newCount === 1) {
+            tier = 1;
+            title = 'Cảnh báo vi phạm chính sách lần 1';
+            body = `Hệ thống ghi nhận vi phạm lần 1: ${reason}. Vui lòng tuân thủ quy chuẩn cộng đồng JobNest.`;
+        } else if (newCount === 2) {
+            tier = 2;
+            title = 'Cảnh cáo vi phạm chính sách lần 2';
+            body = `Hệ thống phát cảnh cáo lần 2: ${reason}. Nếu tiếp tục vi phạm, tài khoản sẽ bị tạm khóa.`;
+        } else if (newCount === 3) {
+            tier = 3;
+            newStatus = 'BANNED';
+            title = 'Tài khoản bị tạm khóa 7 ngày (Vi phạm lần 3)';
+            body = `Tài khoản của bạn đã bị tạm khóa do vi phạm lần 3: ${reason}. Bạn có thể gửi khiếu nại để được xem xét.`;
+            await db.query(
+                `UPDATE users 
+                 SET status = 'BANNED', suspension_reason = $1, suspended_at = CURRENT_TIMESTAMP, 
+                     suspension_expires_at = CURRENT_TIMESTAMP + INTERVAL '7 days' 
+                 WHERE id = $2`,
+                [reason, userId]
+            );
+        } else {
+            tier = 4;
+            newStatus = 'BANNED';
+            title = 'Tài khoản bị khóa vĩnh viễn (Vi phạm lần 4)';
+            body = `Tài khoản của bạn đã bị khóa vĩnh viễn do tích lũy 4 lần vi phạm: ${reason}. Quyết định có hiệu lực ngay lập tức.`;
+            await db.query(
+                `UPDATE users 
+                 SET status = 'BANNED', suspension_reason = $1, suspended_at = CURRENT_TIMESTAMP, 
+                     suspension_expires_at = NULL 
+                 WHERE id = $2`,
+                [reason, userId]
+            );
+        }
+
+        await db.query(
+            `UPDATE users SET violation_count = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`,
+            [newCount, userId]
+        );
+
+        const violRes = await db.query(
+            `INSERT INTO user_violations 
+             (user_id, violation_code, violation_type, severity, tier, reason, evidence, handled_by)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             RETURNING *`,
+            [userId, violation_code || `VIOL-${Date.now().toString().slice(-6)}`, violation_type || 'CHÍNH SÁCH CHUNG', severity, tier, reason, evidence || null, adminId]
+        );
+
+        try {
+            await db.query(
+                `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
+                 VALUES ($1, 'VIOLATION_NOTICE', $2, $3, 'USER', $1)`,
+                [userId, title, body]
+            );
+        } catch (notifErr) {}
+
+        try {
+            await db.query(
+                `INSERT INTO admin_logs (admin_id, action, target_type, target_id, metadata)
+                 VALUES ($1, 'RECORD_VIOLATION', 'USER', $2, $3)`,
+                [adminId, userId, JSON.stringify({ tier, newCount, reason, violation_type })]
+            );
+        } catch (e) {}
+
+        return {
+            violation: violRes.rows[0],
+            violation_count: newCount,
+            tier,
+            status: newStatus
+        };
+    }
+
+    async listUserViolations(userId) {
+        const res = await db.query(
+            `SELECT v.*, u.full_name as handler_name
+             FROM user_violations v
+             LEFT JOIN users u ON v.handled_by = u.id
+             WHERE v.user_id = $1
+             ORDER BY v.created_at DESC`,
+            [userId]
+        );
+        return res.rows;
+    }
+
+    async submitAppeal(userId, payload) {
+        const { violation_id, appeal_reason, evidence_url } = payload;
+        if (!appeal_reason || !appeal_reason.trim()) {
+            throw new AppError('Bắt buộc phải nhập nội dung giải trình khi gửi khiếu nại.', 400);
+        }
+
+        const res = await db.query(
+            `INSERT INTO user_appeals (user_id, violation_id, appeal_reason, evidence_url)
+             VALUES ($1, $2, $3, $4)
+             RETURNING *`,
+            [userId, violation_id || null, appeal_reason, evidence_url || null]
+        );
+
+        return res.rows[0];
+    }
+
+    async listAppeals(options = {}) {
+        const { status = 'ALL', limit = 50, offset = 0 } = options;
+        let query = `
+            SELECT a.*, u.email, u.full_name, u.role, u.status as user_status, u.violation_count
+            FROM user_appeals a
+            JOIN users u ON a.user_id = u.id
+            WHERE 1=1
+        `;
+        const params = [];
+        if (status !== 'ALL') {
+            params.push(status);
+            query += ` AND a.status = $${params.length}`;
+        }
+        params.push(limit, offset);
+        query += ` ORDER BY a.created_at DESC LIMIT $${params.length - 1} OFFSET $${params.length}`;
+
+        const res = await db.query(query, params);
+        return res.rows;
+    }
+
+    async resolveAppeal(appealId, payload, adminId = null) {
+        const { status, admin_response } = payload;
+        if (!['APPROVED', 'REJECTED'].includes(status)) {
+            throw new AppError('Quyết định giải quyết khiếu nại không hợp lệ (APPROVED hoặc REJECTED)', 400);
+        }
+        if (!admin_response || !admin_response.trim()) {
+            throw new AppError('Bắt buộc phải nhập phản hồi của Quản trị viên.', 400);
+        }
+
+        const appealRes = await db.query('SELECT * FROM user_appeals WHERE id = $1', [appealId]);
+        if (appealRes.rows.length === 0) {
+            throw new NotFoundError('Không tìm thấy đơn khiếu nại');
+        }
+        const appeal = appealRes.rows[0];
+
+        const updatedRes = await db.query(
+            `UPDATE user_appeals
+             SET status = $1, admin_response = $2, resolved_by = $3, resolved_at = CURRENT_TIMESTAMP
+             WHERE id = $4
+             RETURNING *`,
+            [status, admin_response, adminId, appealId]
+        );
+
+        if (status === 'APPROVED') {
+            await db.query(
+                `UPDATE users 
+                 SET status = 'ACTIVE', suspension_reason = NULL, suspended_at = NULL, suspension_expires_at = NULL 
+                 WHERE id = $1`,
+                [appeal.user_id]
+            );
+
+            if (appeal.violation_id) {
+                await db.query(`UPDATE user_violations SET status = 'REVOKED' WHERE id = $1`, [appeal.violation_id]);
+            }
+
+            try {
+                await db.query(
+                    `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
+                     VALUES ($1, 'APPEAL_APPROVED', 'Khiếu nại được chấp thuận', $2, 'USER', $1)`,
+                    [
+                        appeal.user_id,
+                        `Khiếu nại của bạn đã được chấp thuận! Tài khoản đã được khôi phục. Phản hồi: ${admin_response}`
+                    ]
+                );
+            } catch (e) {}
+        } else {
+            try {
+                await db.query(
+                    `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
+                     VALUES ($1, 'APPEAL_REJECTED', 'Khiếu nại bị từ chối', $2, 'USER', $1)`,
+                    [
+                        appeal.user_id,
+                        `Khiếu nại của bạn đã bị từ chối. Lý do: ${admin_response}`
+                    ]
+                );
+            } catch (e) {}
+        }
+
+        return updatedRes.rows[0];
     }
 }
 

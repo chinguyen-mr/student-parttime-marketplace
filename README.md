@@ -1,655 +1,580 @@
-# JOBNEST — NỀN TẢNG QUẢN LÝ VIỆC LÀM PART-TIME & FREELANCE CHO SINH VIÊN
+# JOBNEST — Nền tảng việc làm Part-time & Freelance cho Sinh viên
 
-> **Đồ án Chuyên đề Tốt nghiệp 2**  
-> **Khoa Công nghệ Thông tin — Trường Đại học Văn Lang (VLU)**  
-> **Mã học phần:** 242_71ITBS40103_01  
-> **Giảng viên hướng dẫn:** ThS. Nguyễn Văn Trung  
-> **Kho lưu trữ GitHub chính thức:** [https://github.com/chinguyen-mr/student-parttime-marketplace.git](https://github.com/chinguyen-mr/student-parttime-marketplace.git)
+> **Đồ án Chuyên đề Tốt nghiệp 2** — Khoa Công nghệ Thông tin, Trường Đại học Văn Lang (VLU)
+> Mã học phần: `242_71ITBS40103_01` · GVHD: ThS. Nguyễn Văn Trung
 
----
+JobNest là nền tảng kết nối **sinh viên** với các công việc **bán thời gian, thời vụ và dự án freelance**, giúp nhà tuyển dụng đăng tin, duyệt hồ sơ và theo dõi tiến độ công việc minh bạch qua hệ thống hợp đồng số (*Work Assignment*) và đánh giá hai chiều.
 
-## MỤC LỤC TỔNG QUAN
-
-1. [Tổng quan dự án (Project Overview)](#1-tổng-quan-dự-án-project-overview)
-2. [Mục tiêu dự án (Project Goals)](#2-mục-tiêu-dự-án-project-goals)
-3. [Tính năng chính (Main Features)](#3-tính-năng-chính-main-features)
-4. [Các vai trò người dùng (User Roles)](#4-các-vai-trò-người-dùng-user-roles)
-5. [Ngăn xếp công nghệ (Technology Stack)](#5-ngăn-xếp-công-nghệ-technology-stack)
-6. [Kiến trúc hệ thống (System Architecture)](#6-kiến-trúc-hệ-thống-system-architecture)
-7. [Kiến trúc cơ sở dữ liệu (Database Architecture)](#7-kiến-trúc-cơ-sở-dữ-liệu-database-architecture)
-8. [Cấu trúc thư mục dự án (Repository Structure)](#8-cấu-trúc-thư-mục-dự-án-repository-structure)
-9. [Yêu cầu hệ thống (System Requirements)](#9-yêu-cầu-hệ-thống-system-requirements)
-10. [Cài đặt từ máy tính mới từ con số 0 (Installation From Scratch)](#10-cài-đặt-từ-máy-tính-mới-từ-con-số-0-installation-from-scratch)
-11. [Tải mã nguồn dự án (Clone Repository)](#11-tải-mã-nguồn-dự-án-clone-repository)
-12. [Cài đặt các gói thư viện (Install Dependencies)](#12-cài-đặt-các-gói-thư-viện-install-dependencies)
-13. [Cấu hình biến môi trường (Environment Configuration)](#13-cấu-hình-biến-môi-trường-environment-configuration)
-14. [Cài đặt và thiết lập PostgreSQL (PostgreSQL Installation)](#14-cài-đặt-và-thiết-lập-postgresql-postgresql-installation)
-15. [Khởi tạo Cơ sở dữ liệu (Database Creation)](#15-khởi-tạo-cơ-sở-dữ-liệu-database-creation)
-16. [Chạy Migration lược đồ bảng (Database Migration)](#16-chạy-migration-lược-đồ-bảng-database-migration)
-17. [Nạp dữ liệu mẫu (Seed Data)](#17-nạp-dữ-liệu-mẫu-seed-data)
-18. [Khởi chạy máy chủ Backend (Run Backend)](#18-khởi-chạy-máy-chủ-backend-run-backend)
-19. [Khởi chạy ứng dụng Frontend (Run Frontend)](#19-khởi-chạy-ứng-dụng-frontend-run-frontend)
-20. [Khởi chạy toàn bộ hệ thống (Run Full Application)](#20-khởi-chạy-toàn-bộ-hệ-thống-run-full-application)
-21. [Kiểm tra trạng thái dịch vụ (Health Check)](#21-kiểm-tra-trạng-thái-dịch-vụ-health-check)
-22. [Danh sách tài khoản thử nghiệm (Demo Accounts)](#22-danh-sách-tài-khoản-thử-nghiệm-demo-accounts)
-23. [Tổng quan API Endpoints (API Overview)](#23-tổng-quan-api-endpoints-api-overview)
-24. [Kiểm thử tự động (Testing)](#24-kiểm-thử-tự-động-testing)
-25. [Đóng gói phân phối (Production Build)](#25-đóng-gói-phân-phối-production-build)
-26. [Xử lý lỗi thường gặp (Troubleshooting)](#26-xử-lý-lỗi-thường-gặp-troubleshooting)
-27. [Lưu ý an toàn & bảo mật (Security Notes)](#27-lưu-ý-an-toàn--bảo-mật-security-notes)
-28. [Quy trình phát triển (Development Workflow)](#28-quy-trình-phát-triển-development-workflow)
-29. [Quy trình làm việc với Git (Git Workflow)](#29-quy-trình-làm-việc-với-git-git-workflow)
-30. [Danh mục tài liệu kỹ thuật liên quan (Documentation)](#30-danh-mục-tài-liệu-kỹ-thuật-liên-quan-documentation)
-31. [Các giới hạn kỹ thuật đã biết (Known Limitations)](#31-các-giới-hạn-kỹ-thuật-đã-biết-known-limitations)
-32. [Thông tin nhóm tác giả (Contribution / Team Information)](#32-thông-tin-nhóm-tác-giả-contribution--team-information)
+File này là **tài liệu hướng dẫn duy nhất bạn cần** để hiểu dự án và tự chạy được nó trên máy mình — kể cả khi bạn **chưa từng cài đặt Node.js hay PostgreSQL bao giờ**. Cứ làm theo đúng thứ tự từng bước, đừng bỏ bước nào.
 
 ---
 
-## 1. TỔNG QUAN DỰ ÁN (PROJECT OVERVIEW)
+## Mục lục
 
-**JOBNEST** là nền tảng sàn thương mại điện tử dịch vụ kết nối việc làm part-time, thời vụ và các gói dự án freelance chuyên biệt dành cho sinh viên Đại học Văn Lang và các trường đại học tại TP. Hồ Chí Minh. Nền tảng giải quyết bài toán tìm kiếm việc làm uy tín, minh bạch tiến độ làm việc, bảo vệ thù lao lao động của sinh viên thông qua quy trình giao việc có hợp đồng cam kết (*Work Assignment*) và hệ thống đánh giá hai chiều (*Two-way Review System*).
-
----
-
-## 2. MỤC TIÊU DỰ ÁN (PROJECT GOALS)
-
-- **Minh bạch thông tin việc làm:** Loại bỏ các tin tuyển dụng lừa đảo thông qua cơ chế kiểm duyệt tin 2 cấp (Hệ thống & Quản trị viên).
-- **Hỗ trợ đa hình thức làm việc:** Tích hợp linh hoạt 3 nhóm hình thức: Việc bán thời gian cố định (*Part-time*), Việc dự án khoán gọn (*Freelance*), và Việc thời vụ sự kiện ngắn hạn (*Seasonal*).
-- **Kiểm soát hợp đồng & tiến độ (Rule A3):** Tuyến chọn lọc ứng viên độc quyền nhằm chuyển đổi đơn ứng tuyển sang hợp đồng thực thi có thời hạn, tiến độ và sản phẩm bàn giao (*Deliverables*).
-- **Bảo vệ quyền lợi đôi bên:** Quy trình nghiệm thu sản phẩm, giải quyết khiếu nại báo cáo vi phạm và đánh giá sao công khai sau khi công việc hoàn thành.
-
----
-
-## 3. TÍNH NĂNG CHÍNH (MAIN FEATURES)
-
-1. **Khám phá & Bộ lọc việc làm nâng cao (WF-G01, WF-G02):** Tìm kiếm theo từ khóa, ngành nghề, khoảng thù lao, địa điểm và bản đồ số Leaflet.
-2. **Quy trình ứng tuyển Part-time & Báo giá Freelance (WF-S03, WF-S04):** Sinh viên nộp hồ sơ CV đính kèm thư giới thiệu hoặc nộp đề xuất báo giá dự án (Proposal) kèm thời gian cam kết.
-3. **Quản lý tuyển dụng & Duyệt hồ sơ (WF-E03, WF-E04):** Nhà tuyển dụng theo dõi danh sách ứng viên, thay đổi trạng thái và thực hiện chấp thuận ứng viên (Selections).
-4. **Hợp đồng & Nhật ký tiến độ công việc (WF-E05, WF-S05):** Quản lý tiến trình công việc theo máy trạng thái hữu hạn (FSM): `NOT_STARTED` $\rightarrow$ `IN_PROGRESS` $\rightarrow$ `COMPLETED`.
-5. **Nghiệm thu bàn giao sản phẩm Freelance (WF-S06, WF-E06):** Sinh viên tải lên sản phẩm demo, nhà tuyển dụng duyệt nghiệm thu hoặc yêu cầu chỉnh sửa có phản hồi.
-6. **Đánh giá hai chiều sau công việc (WF-E07, WF-S07):** Nhà tuyển dụng và sinh viên chấm điểm sao và nhận xét năng lực lẫn nhau.
-7. **Trung tâm thông báo thời gian thực (WF-S08, WF-E08):** Thông báo biến động trạng thái đơn, hợp đồng và phản hồi báo cáo.
-8. **Bảng điều khiển Quản trị viên (WF-A01 $\rightarrow$ WF-A08):** Giám sát KPI sàn, kiểm duyệt tin đăng, quản lý người dùng, xử lý báo cáo vi phạm và tra cứu nhật ký kiểm toán hệ thống.
+1. [Dự án này là gì, dùng để làm gì](#1-dự-án-này-là-gì-dùng-để-làm-gì)
+2. [Vai trò người dùng trong hệ thống](#2-vai-trò-người-dùng-trong-hệ-thống)
+3. [Công nghệ sử dụng](#3-công-nghệ-sử-dụng)
+4. [Cấu trúc thư mục dự án](#4-cấu-trúc-thư-mục-dự-án)
+5. [Trước khi bắt đầu: chọn 1 trong 2 cách chạy](#5-trước-khi-bắt-đầu-chọn-1-trong-2-cách-chạy)
+6. [CÁCH A — Chạy bằng Docker (khuyến nghị, dễ nhất)](#6-cách-a--chạy-bằng-docker-khuyến-nghị-dễ-nhất)
+7. [CÁCH B — Chạy thủ công (tự cài Node.js + PostgreSQL)](#7-cách-b--chạy-thủ-công-tự-cài-nodejs--postgresql)
+8. [Tài khoản dùng thử (Demo Accounts)](#8-tài-khoản-dùng-thử-demo-accounts)
+9. [Bảng lệnh thường dùng (Cheatsheet)](#9-bảng-lệnh-thường-dùng-cheatsheet)
+10. [Kiểm tra hệ thống đang chạy tốt hay không](#10-kiểm-tra-hệ-thống-đang-chạy-tốt-hay-không)
+11. [Tổng quan API](#11-tổng-quan-api)
+12. [Chạy kiểm thử tự động (Testing)](#12-chạy-kiểm-thử-tự-động-testing)
+13. [Đóng gói bản production](#13-đóng-gói-bản-production)
+14. [Xử lý lỗi thường gặp](#14-xử-lý-lỗi-thường-gặp)
+15. [Bảo mật — những điều tuyệt đối không được làm](#15-bảo-mật--những-điều-tuyệt-đối-không-được-làm)
+16. [Quy trình làm việc nhóm với Git](#16-quy-trình-làm-việc-nhóm-với-git)
+17. [Tài liệu kỹ thuật khác trong dự án](#17-tài-liệu-kỹ-thuật-khác-trong-dự-án)
+18. [Giới hạn hiện tại của hệ thống](#18-giới-hạn-hiện-tại-của-hệ-thống)
+19. [Thông tin nhóm thực hiện](#19-thông-tin-nhóm-thực-hiện)
 
 ---
 
-## 4. CÁC VAI TRÒ NGƯỜI DÙNG (USER ROLES)
+## 1. Dự án này là gì, dùng để làm gì
 
-| Vai trò (Role) | Mô tả trách nhiệm | Quyền hạn chính |
-|---|---|---|
-| **STUDENT (Sinh viên)** | Tìm việc làm bán thời gian hoặc nhận dự án freelance | Tạo hồ sơ kỹ năng/học vấn, nộp đơn ứng tuyển, gửi proposal, cập nhật tiến độ, nộp sản phẩm, đánh giá đối tác. |
-| **EMPLOYER (Nhà tuyển dụng)** | Doanh nghiệp, chuỗi cửa hàng hoặc cá nhân tuyển dụng | Đăng tin tuyển dụng, xem danh sách ứng viên/proposal, duyệt chọn ứng viên (tạo Work Assignment), nghiệm thu sản phẩm, đánh giá sinh viên. |
-| **ADMIN (Quản trị viên)** | Ban điều hành hệ thống sàn JOBNEST | Duyệt/từ chối tin tuyển dụng, khóa tài khoản vi phạm, giải quyết báo cáo khiếu nại, xem thống kê KPI và nhật ký Admin Logs. |
+JobNest giải quyết 2 bài toán:
 
----
+- **Sinh viên** cần tìm việc làm thêm uy tín, lịch linh hoạt, biết rõ lương trước khi ứng tuyển, và được bảo vệ quyền lợi khi làm freelance.
+- **Nhà tuyển dụng** (doanh nghiệp vừa và nhỏ) cần đăng tin nhanh, lọc ứng viên tốt, và quản lý tiến độ công việc không cần gặp mặt.
 
-## 5. NGĂN XẾP CÔNG NGHỆ (TECHNOLOGY STACK)
-
-### Backend Service (`03_backend`)
-- **Runtime Environment:** Node.js (phiên bản `>= 20.0.0`, kiểm thử thực tế trên Node v24).
-- **Web Framework:** Express.js `4.21.2` (Kiến trúc phân tầng 3 lớp: Routes $\rightarrow$ Services $\rightarrow$ Repositories).
-- **PostgreSQL Client:** `pg` `8.13.1` (Connection Pooling với cơ chế tự động dò cổng mạng và cấp lại kết nối động).
-- **Xác thực & Bảo mật:** `jsonwebtoken` `9.0.3` (JWT RBAC), `bcryptjs` `3.0.3` (Mã hóa mật khẩu an toàn).
-- **Kiểm thử tự động:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) với **31/31 bài test tích hợp pass 100%**.
-
-### Frontend Web Client (`04_frontend`)
-- **Core Library:** React `19.3.1` + React DOM `19.3.1`.
-- **Build Tool & Bundler:** Vite `8.3.4` (Hỗ trợ Hot Module Replacement & Rollup production build).
-- **Giao diện & Biểu tượng:** `lucide-react` `1.61.0`, `motion` `14.9.0`, `@animate-ui/react` `2.4.1`.
-- **Bản đồ số:** `leaflet` `1.9.4` (Hiển thị tọa độ địa điểm tuyển dụng).
-- **Thiết kế giao diện:** CSS Design Tokens (Bảng màu nhận diện thương hiệu Soft Lavender `#7565A8` & Warm Peach `#F4B99D`).
-
-### Cơ sở dữ liệu (Database)
-- **Hệ quản trị CSDL:** PostgreSQL (>= 14.0, tương thích phiên bản 14, 15, 16, 17 và 18).
-- **Lược đồ CSDL:** 30 bảng quan hệ, toàn vẹn ràng buộc khóa ngoại `CASCADE` và chỉ mục `INDEX` tối ưu truy vấn.
-
----
-
-## 6. KIẾN TRÚC HỆ THỐNG (SYSTEM ARCHITECTURE)
-
-Dự án áp dụng mô hình phân tách độc lập Client-Server (Decoupled Single Page Application & RESTful API):
+**Luồng nghiệp vụ chính:**
 
 ```mermaid
-flowchart TD
-    Client["Frontend Web Client\n(React 19 + Vite @ Port 5173)"]
-    Proxy["Vite Dev Proxy\n(/api & /health)"]
-    Backend["Backend RESTful API\n(Express.js @ Port 5000)"]
-    Auth["JWT Authentication &\nRBAC Middleware"]
-    Modules["Nghiệp vụ Module\n(Auth, Jobs, Applications, Proposals, Selections, Assignments)"]
-    DBPool["PostgreSQL Dynamic Pool\n(pg Client)"]
-    Postgres[("Cơ sở dữ liệu PostgreSQL\n(cd2_marketplace_db @ Port 5432/5433)")]
-
-    Client -->|HTTP Requests| Proxy
-    Proxy -->|Forward Proxy| Backend
-    Backend --> Auth
-    Auth --> Modules
-    Modules --> DBPool
-    DBPool --> Postgres
+flowchart LR
+    A["Sinh viên tìm việc\nvà ứng tuyển / gửi báo giá"] --> B["Nhà tuyển dụng\nduyệt hồ sơ, chọn ứng viên"]
+    B --> C["Tạo Hợp đồng công việc\n(Work Assignment)"]
+    C --> D["Theo dõi tiến độ\nNOT_STARTED → IN_PROGRESS → COMPLETED"]
+    D --> E["Nghiệm thu sản phẩm\n(với việc Freelance)"]
+    E --> F["Đánh giá 2 chiều\nsau khi hoàn thành"]
 ```
 
+**Tính năng chính:**
+
+| Nhóm tính năng | Mô tả |
+|---|---|
+| Tìm & lọc việc làm | Tìm theo từ khóa, ngành nghề, mức lương, địa điểm (có bản đồ Leaflet) |
+| Ứng tuyển Part-time / Báo giá Freelance | Sinh viên nộp CV hoặc gửi đề xuất (proposal) kèm thời gian cam kết |
+| Quản lý tuyển dụng | Nhà tuyển dụng xem danh sách ứng viên, duyệt chọn (tạo hợp đồng tự động) |
+| Hợp đồng & tiến độ | Theo dõi trạng thái công việc theo quy trình chuẩn (FSM) |
+| Nghiệm thu sản phẩm | Sinh viên nộp bài, nhà tuyển dụng duyệt hoặc yêu cầu sửa |
+| Đánh giá 2 chiều | Nhà tuyển dụng và sinh viên chấm sao, nhận xét lẫn nhau |
+| Thông báo real-time | Báo thay đổi trạng thái đơn, hợp đồng, phản hồi |
+| Trang quản trị Admin | Duyệt tin đăng, khoá tài khoản vi phạm, xử lý báo cáo, xem thống kê KPI |
+
 ---
 
-## 7. KIẾN TRÚC CƠ SỞ DỮ LIỆU (DATABASE ARCHITECTURE)
+## 2. Vai trò người dùng trong hệ thống
 
-Hệ thống bao gồm **30 bảng quan hệ** thuộc lược đồ `public`:
-
-1. **Nhóm Xác thực & Người dùng:** `users`, `employer_profiles`, `student_profiles`, `student_skills`, `student_educations`, `student_experiences`, `student_cvs`, `verification_tokens`, `password_reset_tokens`.
-2. **Nhóm Tin tuyển dụng:** `categories`, `jobs`, `part_time_details`, `freelance_details`, `seasonal_details`, `job_skills`, `job_views`, `job_saved`.
-3. **Nhóm Ứng tuyển & Báo giá:** `applications`, `application_histories`, `freelance_proposals`, `proposal_histories`.
-4. **Nhóm Hợp đồng & Tiến độ:** `work_assignments`, `work_deliverables`, `deliverable_reviews`, `work_progress`.
-5. **Nhóm Tương tác & Quản trị:** `reviews`, `reports`, `report_actions`, `notifications`, `admin_logs`.
+| Vai trò | Là ai | Làm được gì |
+|---|---|---|
+| **STUDENT** (Sinh viên) | Người đi tìm việc | Tạo hồ sơ, ứng tuyển, gửi proposal, cập nhật tiến độ, nộp sản phẩm, đánh giá |
+| **EMPLOYER** (Nhà tuyển dụng) | Doanh nghiệp/cá nhân tuyển người | Đăng tin, duyệt ứng viên, tạo hợp đồng, nghiệm thu, đánh giá |
+| **ADMIN** (Quản trị viên) | Ban quản trị sàn JobNest | Duyệt/từ chối tin đăng, khoá tài khoản vi phạm, xử lý khiếu nại, xem KPI |
 
 ---
 
-## 8. CẤU TRÚC THƯ MỤC DỰ ÁN (REPOSITORY STRUCTURE)
+## 3. Công nghệ sử dụng
+
+| Thành phần | Công nghệ | Phiên bản |
+|---|---|---|
+| Backend (API) | Node.js + Express.js | Node `>= 20`, Express `4.21.x` |
+| Kết nối CSDL | `pg` (PostgreSQL client), connection pooling | `8.13.x` |
+| Xác thực | JWT (`jsonwebtoken`) + mã hoá mật khẩu (`bcryptjs`) | — |
+| Kiểm thử Backend | Node.js Test Runner (`node:test`) có sẵn, không cần cài thêm | — |
+| Frontend (giao diện) | React + Vite | React `19.x`, Vite `8.x` |
+| Giao diện & icon | `lucide-react`, `motion`, `@animate-ui/react` | — |
+| Bản đồ | `leaflet` (OpenStreetMap, cần Internet để tải nền bản đồ) | — |
+| Cơ sở dữ liệu | PostgreSQL | `>= 14` (khuyên dùng 15–17) |
+| Đóng gói | Docker + Docker Compose (tuỳ chọn) | — |
+
+---
+
+## 4. Cấu trúc thư mục dự án
 
 ```text
 Chuyên Đề 2/
-├── 01_tailieu/                     # Hồ sơ đặc tả SRS, Use Case, đề cương đồ án
-├── 02_database/                    # Tài liệu lược đồ CSDL & Migrations
-│   ├── migrations/                 # 31 tập tin SQL DDL khởi tạo bảng
-│   ├── seeds/                      # File nạp dữ liệu mẫu ban đầu (001_seed_data.sql)
-│   ├── cd2_marketplace_full_dump.sql # Bản sao lưu toàn bộ cấu trúc & 133 users (~603 KB)
-│   └── erd/                        # Sơ đồ quan hệ thực thể (.drawio)
+├── 02_database/              # Lược đồ CSDL, migration, dữ liệu mẫu
+│   ├── migrations/           # File SQL tạo từng bảng (chạy bằng npm run migrate)
+│   ├── seeds/                # File SQL nạp dữ liệu mẫu (npm run seed)
+│   └── cd2_marketplace_full_dump.sql   # Bản dump đầy đủ: toàn bộ bảng + dữ liệu mẫu
 │
-├── 03_backend/                     # Mã nguồn máy chủ Backend API (Node.js + Express)
+├── 03_backend/                # Mã nguồn máy chủ API (Node.js + Express)
 │   ├── src/
-│   │   ├── config/                 # db.js, auto-bootstrap.js, migrate.js, seed.js
-│   │   ├── middleware/             # auth.middleware.js, error.middleware.js
-│   │   ├── modules/                # auth, jobs, applications, proposals, selections...
-│   │   ├── app.js                  # Cấu hình Express app, CORS, routes
-│   │   └── server.js               # Điểm khởi chạy máy chủ HTTP (Port 5000)
-│   ├── tests/integration/          # 8 test suites kiểm thử tích hợp (31 tests)
-│   ├── .env.example                # Biến môi trường mẫu cho Backend
-│   ├── package.json
-│   └── package-lock.json
+│   │   ├── config/            # Kết nối DB, migrate, seed, auto-bootstrap
+│   │   ├── middleware/        # Xác thực (auth), xử lý lỗi
+│   │   ├── modules/           # Nghiệp vụ: auth, jobs, applications, proposals,
+│   │   │                      #   selections, assignments, reviews, reports, notifications
+│   │   ├── app.js             # Cấu hình Express app, CORS, route
+│   │   └── server.js          # File khởi chạy server (cổng 5000)
+│   ├── tests/integration/     # Bộ test tích hợp
+│   ├── .env.example           # Mẫu file cấu hình môi trường (copy thành .env)
+│   └── package.json
 │
-├── 04_frontend/                    # Mã nguồn ứng dụng giao diện (React 19 + Vite)
+├── 04_frontend/                # Mã nguồn giao diện (React + Vite)
 │   ├── src/
-│   │   ├── components/             # UI components dùng chung (Header, Footer, JobCard...)
-│   │   ├── pages/                  # Phân hệ trang: admin/, employer/, student/, guest/
-│   │   ├── services/               # api.js (kết nối tập trung & health check)
-│   │   ├── App.jsx                 # Điều phối Root Layout & Tabs
+│   │   ├── components/         # Thành phần UI dùng chung (header, footer, card...)
+│   │   ├── pages/               # admin/, employer/, student/, guest/
+│   │   ├── services/            # Kết nối API (api.js)
 │   │   └── main.jsx
-│   ├── .env.example                # Biến môi trường mẫu cho Frontend
-│   ├── vite.config.js              # Cấu hình Vite & API Proxy
-│   ├── package.json
-│   └── package-lock.json
+│   ├── .env.example             # Mẫu cấu hình môi trường frontend
+│   └── package.json
 │
-├── 05_wireframes/                  # Danh mục 44 file HTML wireframe đối chiếu
-├── docs/                           # Báo cáo kỹ thuật, ma trận kiểm toán, changelog
-│   ├── README_ENVIRONMENT_AUDIT.md # Báo cáo kiểm định môi trường và thư viện
-│   ├── README_SETUP_VERIFICATION.md# Báo cáo bằng chứng kiểm thử 13 hạng mục
-│   ├── PROJECT_DOCUMENTATION_CHANGELOG.md # Nhật ký thay đổi đồng bộ tài liệu
-│   └── PROJECT_SETUP_GAP_REGISTER.md     # Danh mục ghi nhận điểm rà soát kỹ thuật
-│
-├── setup_new_machine.bat           # Kịch bản 1-Click tự động cài đặt & kết nối cho máy mới
-├── connect_db.bat                  # Kịch bản 1-Click kết nối CSDL PostgreSQL
-├── connect_db.js                   # Công cụ CLI kết nối, quét port, tạo DB và nạp data
-├── dump_database.js                # Công cụ xuất dữ liệu CSDL ra file SQL Dump
-├── setup_temp_admin.js             # Công cụ khởi tạo/cập nhật tài khoản Admin Test
-├── package.json                    # Cấu hình điều phối tổng thể toàn bộ dự án
-└── README.md                       # Tài liệu hướng dẫn chính thức này
+├── docs/                       # Tài liệu kỹ thuật, báo cáo, sơ đồ kiến trúc
+├── infrastructure/             # Cấu hình hạ tầng bổ sung (CRM nội bộ, nginx...)
+├── connect_db.js / connect_db.bat    # Công cụ tự động kết nối & khởi tạo CSDL
+├── setup_new_machine.bat             # Script cài đặt 1-click cho máy Windows mới
+├── setup_temp_admin.js               # Công cụ tạo nhanh tài khoản Admin thử nghiệm
+├── docker-compose.yml                # Cấu hình chạy toàn bộ hệ thống bằng Docker
+├── package.json                      # Script điều phối chung (gọi backend + frontend)
+└── README.md                         # Chính là file bạn đang đọc
 ```
 
 ---
 
-## 9. YÊU CẦU HỆ THỐNG (SYSTEM REQUIREMENTS)
+## 5. Trước khi bắt đầu: chọn 1 trong 2 cách chạy
 
-- **Hệ điều hành:** Windows 10/11 (64-bit), macOS 12 Monterey trở lên, hoặc Linux Ubuntu 20.04+ LTS.
-- **Node.js:** Phiên bản `>= 20.0.0` (Khuyến nghị bản LTS như **v20.x** hoặc **v22.x/v24.x**).
-- **npm:** Phiên bản `>= 9.0.0` (Đi kèm sẵn khi cài đặt Node.js).
-- **PostgreSQL Server:** Phiên bản `>= 14.0` (Được hỗ trợ tối ưu trên bản 15, 16, 17 hoặc 18).
-- **Dung lượng ổ đĩa trống:** Tối thiểu **1.5 GB** (cho mã nguồn, `node_modules` và cơ sở dữ liệu).
-- **RAM:** Tối thiểu 4 GB (Khuyến nghị 8 GB để chạy mượt cả Backend, Frontend và PostgreSQL).
+Có **2 cách** để chạy được dự án này. Bạn chỉ cần chọn **một** cách, không cần làm cả hai.
+
+| | **CÁCH A — Docker** | **CÁCH B — Thủ công** |
+|---|---|---|
+| Cần cài gì | Chỉ cần **Docker Desktop** | Node.js + PostgreSQL + Git |
+| Độ khó | ⭐ Dễ nhất, gần như tự động | ⭐⭐⭐ Cần làm nhiều bước tay |
+| Phù hợp với | Người mới, muốn chạy thử nhanh | Người muốn sửa code, debug sâu |
+| Thời gian | ~10 phút | ~20–30 phút |
+
+> 💡 **Nếu bạn không chắc nên chọn cách nào → chọn CÁCH A (Docker).** Nó đơn giản và ít lỗi vặt hơn nhiều.
 
 ---
 
-## 10. CÀI ĐẶT TỪ MÁY TÍNH MỚI TỪ CON SỐ 0 (INSTALLATION FROM SCRATCH)
+## 6. CÁCH A — Chạy bằng Docker (khuyến nghị, dễ nhất)
 
-> 💡 **Dành cho ai?** Phần này hướng dẫn chi tiết dành riêng cho người vừa cài lại Windows hoặc nhận một máy tính hoàn toàn mới, chưa cài bất kỳ công cụ lập trình nào.
+Cách này **không cần cài Node.js hay PostgreSQL** lên máy. Mọi thứ (database, backend, frontend) chạy gọn trong Docker.
 
-### Bước 1: Cài đặt Git
-1. Tải bộ cài đặt Git chính thức cho Windows tại: [https://git-scm.com/download/win](https://git-scm.com/download/win).
-2. Chạy tập tin `.exe` vừa tải về, bấm **Next** liên tục theo các tùy chọn mặc định để hoàn tất cài đặt.
-3. Mở **PowerShell** hoặc **Command Prompt (CMD)** và kiểm tra:
+### Bước 1 — Cài Docker Desktop
+
+1. Tải tại: [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
+2. Cài đặt như một phần mềm bình thường (Next → Next → Finish), sau đó **khởi động lại máy** nếu được yêu cầu.
+3. Mở Docker Desktop lên, đợi đến khi biểu tượng cá voi 🐳 chuyển sang màu xanh (nghĩa là đã chạy).
+4. Mở **PowerShell** (hoặc Terminal) và kiểm tra:
    ```powershell
-   git --version
+   docker version
+   docker compose version
    ```
-   *Kết quả hợp lệ:* `git version 2.x.x`.
+   Nếu cả 2 lệnh đều ra thông tin phiên bản (không báo lỗi) → đã sẵn sàng.
 
-### Bước 2: Cài đặt Node.js và npm
-1. Truy cập trang chủ chính thức của Node.js: [https://nodejs.org/](https://nodejs.org/).
-2. Chọn phiên bản **LTS (Long Term Support)** và tải file cài đặt `.msi` (x64).
-3. Mở file `.msi`, tích chọn đồng ý điều khoản, bấm **Next** cho đến khi hoàn tất.
-4. Mở cửa sổ PowerShell mới và kiểm tra:
+### Bước 2 — Tải mã nguồn dự án
+
+Nếu dùng Git:
+```powershell
+git clone <đường-dẫn-repository-của-bạn>
+cd "Chuyên Đề 2"
+```
+Nếu không dùng Git: giải nén file `.zip` của dự án ra một thư mục, rồi mở Terminal **ngay tại thư mục đó**.
+
+### Bước 3 — Tạo file cấu hình `.env`
+
+Ở thư mục gốc dự án (cùng cấp với `docker-compose.yml`), chạy:
+```powershell
+copy .env.docker.example .env
+```
+*(Trên macOS/Linux dùng `cp .env.docker.example .env`)*
+
+Mở file `.env` vừa tạo bằng Notepad hoặc VS Code, điền **2 giá trị bắt buộc**:
+
+```env
+POSTGRES_PASSWORD=đặt-một-mật-khẩu-bất-kỳ-ở-đây
+JWT_SECRET=chuỗi-ký-tự-ngẫu-nhiên-ít-nhất-32-ký-tự
+```
+
+Muốn tạo nhanh `JWT_SECRET` ngẫu nhiên (nếu máy có Node.js), chạy:
+```powershell
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+Không có Node.js cũng không sao — tự gõ đại một chuỗi dài ≥ 32 ký tự (chữ + số) là được.
+
+> ⚠️ File `.env` đã nằm trong `.gitignore` — **không bao giờ** commit file này lên Git vì nó chứa mật khẩu thật.
+
+### Bước 4 — Khởi động toàn bộ hệ thống
+
+```powershell
+docker compose up -d
+```
+
+Lần chạy đầu tiên sẽ hơi lâu (vài phút) vì Docker phải tải image và build ứng dụng. Nó sẽ **tự động nạp sẵn dữ liệu mẫu** vào database, bạn không cần làm gì thêm.
+
+Kiểm tra cả 3 dịch vụ đã chạy xong (trạng thái `healthy`):
+```powershell
+docker compose ps
+```
+
+### Bước 5 — Mở ứng dụng
+
+| Thành phần | Địa chỉ |
+|---|---|
+| **Giao diện web (mở cái này)** | [http://localhost:8080](http://localhost:8080) |
+| Kiểm tra sức khoẻ hệ thống | [http://localhost:8080/health](http://localhost:8080/health) |
+| API backend (để debug) | [http://localhost:5000/health](http://localhost:5000/health) |
+
+Mở trình duyệt, vào `http://localhost:8080` — nếu thấy giao diện JobNest hiện ra là **thành công**. Đăng nhập thử bằng [tài khoản demo ở mục 8](#8-tài-khoản-dùng-thử-demo-accounts).
+
+### Các lệnh Docker hay dùng sau này
+
+```powershell
+docker compose logs -f backend      # Xem log backend (để debug lỗi)
+docker compose logs -f frontend     # Xem log frontend
+docker compose stop                 # Tạm dừng (giữ nguyên dữ liệu)
+docker compose start                # Chạy lại sau khi stop
+docker compose down                 # Dừng và xoá container (database vẫn còn)
+docker compose down -v              # Xoá SẠCH kể cả database (nạp lại từ đầu)
+docker compose up -d --build        # Build lại sau khi có sửa code
+```
+
+➡️ Nếu gặp lỗi khi làm theo cách này, xem ngay [mục 14 — Xử lý lỗi thường gặp](#14-xử-lý-lỗi-thường-gặp).
+
+---
+
+## 7. CÁCH B — Chạy thủ công (tự cài Node.js + PostgreSQL)
+
+Dùng cách này nếu bạn cần sửa code, debug sâu, hoặc không muốn dùng Docker. Hướng dẫn dưới đây viết cho người **chưa cài bất kỳ công cụ lập trình nào**.
+
+### Bước 1 — Cài Git
+
+1. Tải tại [git-scm.com/download/win](https://git-scm.com/download/win)
+2. Cài đặt theo mặc định (bấm Next liên tục).
+3. Kiểm tra: mở PowerShell, gõ `git --version` → phải ra dạng `git version 2.x.x`.
+
+### Bước 2 — Cài Node.js
+
+1. Tải bản **LTS** tại [nodejs.org](https://nodejs.org/)
+2. Cài đặt theo mặc định.
+3. Mở **cửa sổ PowerShell mới** (bắt buộc phải mở mới để nhận thay đổi), kiểm tra:
    ```powershell
    node -v
    npm -v
    ```
-   *Kết quả hợp lệ:* `node: >= v20.0.0`, `npm: >= 9.x.x`.
+   Kết quả hợp lệ: `node` ≥ `v20.0.0`, `npm` ≥ `9.x`.
 
-### Bước 3: Cài đặt PostgreSQL Server & pgAdmin 4
-1. Tải bộ cài đặt PostgreSQL chính thức cho Windows từ EnterpriseDB: [https://www.postgresql.org/download/windows/](https://www.postgresql.org/download/windows/).
-2. Trong quá trình cài đặt:
-   - **Components:** Giữ nguyên các tích chọn mặc định (*PostgreSQL Server*, *pgAdmin 4*, *Command Line Tools*).
-   - **Password (RẤT QUAN TRỌNG):** Đặt mật khẩu cho tài khoản siêu quản trị `postgres` (Khuyến nghị đặt là `postgres` hoặc `123` hoặc ghi nhớ chính xác mật khẩu bạn đặt).
-   - **Port:** Mặc định là `5432`. Bấm **Next** để hoàn thành.
-3. Sau khi cài xong, mở hộp thoại `Windows + R`, gõ `services.msc`, kiểm tra xem dịch vụ tên `postgresql-x64-...` đã có trạng thái **Running** hay chưa.
+### Bước 3 — Cài PostgreSQL
 
----
+1. Tải tại [postgresql.org/download/windows](https://www.postgresql.org/download/windows/)
+2. Khi cài, màn hình sẽ hỏi **mật khẩu** cho tài khoản `postgres` — **đặt một mật khẩu và ghi nhớ thật kỹ**, bạn sẽ cần dùng lại ở Bước 6.
+3. Giữ cổng mặc định `5432`, các bước còn lại bấm Next theo mặc định.
+4. Kiểm tra PostgreSQL đã chạy: nhấn `Windows + R`, gõ `services.msc`, tìm dòng `postgresql-x64-...`, cột **Status** phải là **Running**.
 
-## 11. TẢI MÃ NGUỒN DỰ ÁN (CLONE REPOSITORY)
-
-Mở PowerShell hoặc Git Bash, di chuyển tới thư mục bạn muốn lưu dự án (ví dụ `D:\Projects` hoặc `C:\Users\<Tên_bạn>\Documents`) và chạy lệnh:
+### Bước 4 — Tải mã nguồn dự án
 
 ```powershell
-git clone https://github.com/chinguyen-mr/student-parttime-marketplace.git
-cd student-parttime-marketplace
+git clone <đường-dẫn-repository-của-bạn>
+cd "Chuyên Đề 2"
 ```
 
-*(Nếu không sử dụng Git, bạn có thể tải file ZIP trực tiếp từ GitHub, sau đó giải nén ra một thư mục trên máy).*
+### Bước 5 — Cài các thư viện cần thiết
 
----
-
-## 12. CÀI ĐẶT CÁC GÓI THƯ VIỆN (INSTALL DEPENDENCIES)
-
-Từ thư mục gốc dự án, chạy lệnh duy nhất để tự động cài đặt toàn bộ `node_modules` cho cả Backend và Frontend:
-
+Từ thư mục gốc dự án, chạy **một lệnh duy nhất** (tự cài cho cả backend lẫn frontend):
 ```powershell
 npm run install:all
 ```
+Đợi cho đến khi chạy xong hẳn (không còn dòng lệnh nào chạy nữa), việc này có thể mất vài phút.
 
-*Lệnh trên tương đương với:*
-```powershell
-npm --prefix 03_backend install
-npm --prefix 04_frontend install
-```
-
-> ⚠️ **Lưu ý:** Không xóa tập tin `package-lock.json` để đảm bảo phiên bản thư viện được cài đặt luôn đồng nhất trên mọi máy tính.
-
----
-
-## 13. CẤU HÌNH BIẾN MÔI TRƯỜNG (ENVIRONMENT CONFIGURATION)
-
-### 13.1. Cấu hình Backend (`03_backend/.env`)
-
-Tạo tập tin `03_backend/.env` bằng cách sao chép từ file mẫu `03_backend/.env.example`:
+### Bước 6 — Tạo file cấu hình `.env` cho Backend
 
 ```powershell
-# Trên Windows PowerShell:
-Copy-Item 03_backend\.env.example 03_backend\.env
-
-# Trên Linux/macOS/Git Bash:
-cp 03_backend/.env.example 03_backend/.env
+copy 03_backend\.env.example 03_backend\.env
 ```
+*(macOS/Linux: `cp 03_backend/.env.example 03_backend/.env`)*
 
-Nội dung chi tiết trong `03_backend/.env`:
+Mở file `03_backend/.env` bằng Notepad hoặc VS Code, sửa các dòng sau cho đúng với máy bạn:
+
 ```env
 PORT=5000
 NODE_ENV=development
 
-# Cấu hình kết nối PostgreSQL
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
-DB_PASSWORD=mật_khẩu_postgresql_trên_máy_của_bạn
+DB_PASSWORD=mật-khẩu-bạn-đặt-ở-Bước-3
 DB_NAME=cd2_marketplace_db
 
-# Khóa bí mật JWT
-JWT_SECRET=supersecretjwtkey_marketplace_cd2_vlu_2026
+JWT_SECRET=chuỗi-ký-tự-ngẫu-nhiên-ít-nhất-32-ký-tự
 JWT_EXPIRES_IN=7d
 ```
 
-| Biến môi trường | Ý nghĩa | Giá trị mẫu | Bắt buộc |
-|---|---|---|---|
-| `PORT` | Cổng HTTP Server của Backend API | `5000` | Có |
-| `NODE_ENV` | Môi trường vận hành (`development` / `production`) | `development` | Có |
-| `DB_HOST` | Địa chỉ máy chủ CSDL PostgreSQL | `localhost` | Có |
-| `DB_PORT` | Cổng kết nối PostgreSQL (mặc định 5432, một số máy là 5433) | `5432` | Có |
-| `DB_USER` | Tên người dùng quản trị PostgreSQL | `postgres` | Có |
-| `DB_PASSWORD` | Mật khẩu tài khoản PostgreSQL bạn đã đặt khi cài đặt | *Điền đúng mật khẩu của bạn* | Có |
-| `DB_NAME` | Tên cơ sở dữ liệu của dự án | `cd2_marketplace_db` | Có |
-| `JWT_SECRET` | Khóa bí mật dùng để ký và xác thực JWT token | *Chuỗi ký tự bảo mật* | Có |
-| `JWT_EXPIRES_IN` | Thời hạn hiệu lực của token đăng nhập | `7d` | Có |
+| Biến | Ý nghĩa | Bắt buộc sửa? |
+|---|---|---|
+| `DB_PASSWORD` | Mật khẩu PostgreSQL bạn đặt lúc cài | **Có** — sai là không kết nối được |
+| `JWT_SECRET` | Khoá bí mật để mã hoá phiên đăng nhập | **Có** — phải ≥ 32 ký tự |
+| `DB_NAME` | Tên database sẽ tạo ở bước sau | Giữ nguyên `cd2_marketplace_db` |
+| Các dòng còn lại | Có giá trị mặc định sẵn | Không cần sửa |
 
-### 13.2. Cấu hình Frontend (`04_frontend/.env`)
+### Bước 7 — Tạo file cấu hình `.env` cho Frontend (tuỳ chọn)
 
-Sao chép từ file mẫu `04_frontend/.env.example`:
-
+Mặc định frontend tự gọi API ở `http://localhost:5000/api`. Nếu backend và frontend chạy **trên cùng một máy** thì **bỏ qua bước này**. Nếu chạy trên 2 máy khác nhau trong cùng mạng LAN:
 ```powershell
-Copy-Item 04_frontend\.env.example 04_frontend\.env
+copy 04_frontend\.env.example 04_frontend\.env
 ```
-
-Nội dung trong `04_frontend/.env`:
+Sửa trong file vừa tạo:
 ```env
-# URL trỏ tới máy chủ Backend API
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://<IP-máy-chạy-backend>:5000/api
 ```
 
----
+### Bước 8 — Tạo database và nạp dữ liệu
 
-## 14. CÀI ĐẶT VÀ THIẾT LẬP POSTGRESQL (POSTGRESQL INSTALLATION)
-
-Đảm bảo dịch vụ PostgreSQL đang hoạt động trước khi kết nối:
-
-- **Kiểm tra trên Windows:**
-  1. Nhấn `Windows + R`, gõ `services.msc` $\rightarrow$ Enter.
-  2. Tìm dịch vụ có tên bắt đầu bằng `postgresql-x64-...`.
-  3. Cột **Status** phải hiển thị là **Running**. Nếu chưa, click chuột phải $\rightarrow$ chọn **Start**.
-- **Kiểm tra cổng 5432 bằng PowerShell:**
-  ```powershell
-  Test-NetConnection -ComputerName localhost -Port 5432
-  ```
-  Nếu `TcpTestSucceeded : True` nghĩa là cổng kết nối đã sẵn sàng.
-
----
-
-## 15. KHỞI TẠO CƠ SỞ DỮ LIỆU (DATABASE CREATION)
-
-### Cách A: Tự động hoàn toàn bằng kịch bản dự án (Khuyến nghị)
-Bạn chỉ cần chạy công cụ tự động hóa từ thư mục gốc:
+**Cách nhanh nhất (khuyến nghị)** — chạy công cụ tự động từ thư mục gốc:
 ```powershell
 npm run connect:db
 ```
-*(Hoặc trên Windows: Click đúp vào file `connect_db.bat`)*. Công cụ này sẽ tự động phát hiện port, kiểm tra kết nối và tạo mới database `cd2_marketplace_db` nếu máy tính chưa có.
+Lệnh này tự dò cổng, kiểm tra kết nối và **tự tạo database** `cd2_marketplace_db` nếu chưa có.
 
-### Cách B: Tạo thủ công qua pgAdmin 4
-1. Mở phần mềm **pgAdmin 4**, đăng nhập mật khẩu master.
-2. Mở nhánh **Servers** $\rightarrow$ chọn PostgreSQL Server của bạn.
-3. Click chuột phải vào **Databases** $\rightarrow$ chọn **Create** $\rightarrow$ **Database...**.
-4. Ô **Database**, nhập chính xác: `cd2_marketplace_db`.
-5. Bấm **Save**.
-
-### Cách C: Tạo qua câu lệnh psql (Command Line)
+Sau đó nạp cấu trúc bảng + dữ liệu mẫu:
 ```powershell
-psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE cd2_marketplace_db;"
-```
-
----
-
-## 16. CHẠY MIGRATION LƯỢC ĐỒ BẢNG (DATABASE MIGRATION)
-
-Dự án cung cấp 31 tập tin SQL Migration chuẩn hóa trong thư mục `02_database/migrations/`.
-
-- **Chạy tự động:**
-  ```powershell
-  npm run migrate
-  ```
-- **Thứ tự thực thi ưu tiên:**
-  Hệ thống nạp theo thứ tự logic khóa ngoại: `users.sql` $\rightarrow$ `categories.sql` $\rightarrow$ `employer_profiles.sql` $\rightarrow$ `student_profiles.sql` $\rightarrow$ `jobs.sql` $\rightarrow$ `applications.sql` $\rightarrow$ `work_assignments.sql` $\rightarrow$ `reviews.sql` $\rightarrow$ `reports.sql` $\rightarrow$ `notifications.sql`.
-
----
-
-## 17. NẠP DỮ LIỆU MẪU (SEED DATA)
-
-Để có sẵn việc làm mẫu, hồ sơ sinh viên, đánh giá và 133 tài khoản người dùng thực tế:
-
-### Lựa chọn 1: Nạp bản sao lưu đầy đủ qua pgAdmin 4 (Chuẩn xác 100%)
-1. Mở **pgAdmin 4**, click chọn database `cd2_marketplace_db`.
-2. Trên thanh công cụ, chọn **Tools** $\rightarrow$ **Query Tool**.
-3. Bấm icon Mở File (📁 hoặc `Ctrl + O`), chọn file:
-   ```text
-   02_database/cd2_marketplace_full_dump.sql
-   ```
-4. Bấm nút **Play (Tam giác xanh ▶️)** hoặc phím **F5**. Toàn bộ 30 bảng và 133 users sẽ được nạp tức thì.
-
-### Lựa chọn 2: Nạp dữ liệu mẫu ban đầu qua dòng lệnh
-```powershell
+npm run migrate
 npm run seed
 ```
 
----
+> **Cách thay thế (nạp nhanh toàn bộ bằng 1 file, nếu máy có `psql`):**
+> ```powershell
+> psql -U postgres -d cd2_marketplace_db -f 02_database/cd2_marketplace_full_dump.sql
+> ```
+> Lệnh này nạp luôn toàn bộ 30 bảng kèm dữ liệu mẫu (kể cả các tài khoản demo ở mục 8) trong một bước.
 
-## 18. KHỞI CHẠY MÁY CHỦ BACKEND (RUN BACKEND)
+### Bước 9 — Chạy Backend
 
-Mở một cửa sổ Terminal tại thư mục gốc dự án:
-
+Mở **Terminal thứ nhất**, từ thư mục gốc dự án:
 ```powershell
 npm run dev:backend
 ```
+Thành công khi thấy dòng tương tự:
+```
+✅ [BOOTSTRAP] Kết nối PostgreSQL thành công.
+🚀 CD2 Marketplace Backend is running on http://127.0.0.1:5000
+```
+**Giữ cửa sổ này mở**, không tắt đi.
 
-- **Cổng dịch vụ:** `http://localhost:5000`
-- **Cơ chế:** Kích hoạt tính năng `Auto-Bootstrap`, tự kiểm tra kết nối CSDL, đồng bộ bảng nếu thiếu và lắng nghe HTTP requests.
+### Bước 10 — Chạy Frontend
 
----
-
-## 19. KHỞI CHẠY ỨNG DỤNG FRONTEND (RUN FRONTEND)
-
-Mở một cửa sổ Terminal **thứ hai** tại thư mục gốc dự án:
-
+Mở **Terminal thứ hai** (terminal mới, khác với Terminal 1), từ thư mục gốc dự án:
 ```powershell
 npm run dev:frontend
 ```
+Khi thấy dòng báo `Local: http://localhost:5173/` là đã chạy xong.
 
-- **Địa chỉ giao diện:** `http://localhost:5173`
-- Mở trình duyệt Web (Chrome, Edge, Firefox) và truy cập đường dẫn trên để trải nghiệm giao diện người dùng.
+### Bước 11 — Mở ứng dụng
 
----
+Mở trình duyệt, truy cập: **[http://localhost:5173](http://localhost:5173)**
 
-## 20. KHỞI CHẠY TOÀN BỘ HỆ THỐNG (RUN FULL APPLICATION)
+Đăng nhập thử bằng [tài khoản demo ở mục 8](#8-tài-khoản-dùng-thử-demo-accounts) để kiểm tra mọi thứ hoạt động.
 
-> 💡 **Khuyến nghị trên Windows:** Bạn có thể chạy nhanh toàn bộ các bước thiết lập lần đầu chỉ bằng một cú click đúp chuột vào file:
-> ```text
-> setup_new_machine.bat
-> ```
-> File sẽ tự động kiểm tra Node.js, chạy `install:all`, kết nối CSDL, nạp schema và tạo sẵn tài khoản Admin.
+> 💡 **Mẹo cho Windows:** bạn có thể chạy nhanh các Bước 5–8 cùng lúc bằng cách double-click vào file `setup_new_machine.bat` ở thư mục gốc — nó tự cài thư viện, kết nối CSDL, nạp dữ liệu và tạo sẵn tài khoản Admin.
 
-Sau đó, duy trì 2 cửa sổ terminal:
-- **Terminal 1:** `npm run dev:backend` (Dịch vụ API cổng 5000)
-- **Terminal 2:** `npm run dev:frontend` (Giao diện Web cổng 5173)
+➡️ Nếu gặp lỗi khi làm theo cách này, xem ngay [mục 14 — Xử lý lỗi thường gặp](#14-xử-lý-lỗi-thường-gặp).
 
 ---
 
-## 21. KIỂM TRA TRẠNG THÁI DỊCH VỤ (HEALTH CHECK)
+## 8. Tài khoản dùng thử (Demo Accounts)
 
-Truy cập đường dẫn kiểm tra sức khỏe hệ thống:
-```text
-http://localhost:5000/health
+Sau khi đã nạp dữ liệu mẫu (Docker tự nạp sẵn; cách thủ công cần làm Bước 8), dùng các tài khoản sau để đăng nhập thử — **mật khẩu chung cho tất cả là `password123`**:
+
+| Vai trò | Email | Mật khẩu | Dùng để thử gì |
+|---|---|---|---|
+| Admin | `admin.test@vlu.edu.vn` | `password123` | Toàn quyền quản trị, duyệt tin, xử lý báo cáo, xem KPI |
+| Nhà tuyển dụng | `employer.test@gmail.com` | `password123` | Đăng việc, duyệt báo giá, quản lý hợp đồng |
+| Sinh viên (IT) | `nguyen.van.chi@vlu.edu.vn` | `password123` | Ứng tuyển, gửi proposal, nộp sản phẩm |
+| Sinh viên (QTKD) | `le.quang.tuan@vlu.edu.vn` | `password123` | Ứng tuyển part-time, đánh giá nhà tuyển dụng |
+
+> 🔒 Các tài khoản này **chỉ dùng để demo/kiểm thử**. Nếu triển khai thật (production), phải xoá hoặc đổi mật khẩu toàn bộ tài khoản mẫu.
+
+---
+
+## 9. Bảng lệnh thường dùng (Cheatsheet)
+
+Tất cả chạy từ **thư mục gốc dự án**:
+
+| Lệnh | Tác dụng |
+|---|---|
+| `npm run install:all` | Cài thư viện cho cả backend và frontend |
+| `npm run connect:db` | Tự động kết nối / tạo database |
+| `npm run migrate` | Tạo cấu trúc bảng trong database |
+| `npm run seed` | Nạp dữ liệu mẫu |
+| `npm run dev:backend` | Chạy server API (cổng 5000) |
+| `npm run dev:frontend` | Chạy giao diện web (cổng 5173) |
+| `npm test` | Chạy toàn bộ test tự động của backend |
+| `npm run build:frontend` | Đóng gói frontend cho production |
+| `docker compose up -d` | (Docker) Khởi động toàn bộ hệ thống |
+| `docker compose down` | (Docker) Dừng hệ thống, giữ dữ liệu |
+
+---
+
+## 10. Kiểm tra hệ thống đang chạy tốt hay không
+
+Truy cập đường dẫn health check:
+
+- Chạy thủ công (Cách B): [http://localhost:5000/health](http://localhost:5000/health)
+- Chạy bằng Docker (Cách A): [http://localhost:8080/health](http://localhost:8080/health)
+
+**Kết quả bình thường** (HTTP 200):
+```json
+{
+  "status": "ok",
+  "db": "ok",
+  "service": "cd2-marketplace-backend",
+  "timestamp": "2026-11-06T10:00:00.000Z"
+}
 ```
 
-- **Khi hoạt động bình thường (HTTP 200 OK):**
-  ```json
-  {
-    "status": "ok",
-    "db": "ok",
-    "service": "cd2-marketplace-backend",
-    "timestamp": "2026-11-04T15:00:00.000Z"
-  }
-  ```
-- **Khi Cơ sở dữ liệu bị mất kết nối (HTTP 503 Degraded):**
-  ```json
-  {
-    "status": "degraded",
-    "db": "unhealthy: connect ECONNREFUSED 127.0.0.1:5432",
-    "service": "cd2-marketplace-backend"
-  }
-  ```
+**Nếu database chưa kết nối được** (HTTP 503):
+```json
+{
+  "status": "degraded",
+  "db": "unhealthy: connect ECONNREFUSED 127.0.0.1:5432"
+}
+```
+→ Xem [mục 14](#14-xử-lý-lỗi-thường-gặp) để khắc phục.
 
 ---
 
-## 22. DANH SÁCH TÀI KHOẢN THỬ NGHIỆM (DEMO ACCOUNTS)
+## 11. Tổng quan API
 
-Tất cả tài khoản thử nghiệm đều dùng mật khẩu chung: **`password123`**
+Backend hỗ trợ cả 2 tiền tố `/api` và `/api/v1` (dùng cái nào cũng được, kết quả giống nhau).
 
-| Vai trò (Role) | Email đăng nhập | Mật khẩu | Mục đích sử dụng |
-|---|---|---|---|
-| **ADMIN (Quản trị viên)** | `admin.test@vlu.edu.vn` | `password123` | Quản trị toàn quyền, duyệt tin tuyển dụng, xử lý báo cáo vi phạm, xem dashboard KPI |
-| **ADMIN (Hệ thống)** | `admin@marketplace.vlu.edu.vn` | `password123` | Tài khoản quản trị khởi tạo từ dữ liệu mẫu Seed |
-| **EMPLOYER (Doanh nghiệp IT)** | `techcorp@gmail.com` | `password123` | Đăng việc Freelance/Part-time, duyệt báo giá proposal, quản lý hợp đồng |
-| **EMPLOYER (Chuỗi F&B)** | `coffeehouse@gmail.com` | `password123` | Đăng tin tuyển phục vụ, nhân viên pha chế part-time, chọn ứng viên |
-| **STUDENT (Sinh viên IT)** | `nguyen.van.chi@vlu.edu.vn` | `password123` | Nộp đơn part-time, nộp proposal freelance, nộp sản phẩm nghiệm thu |
-| **STUDENT (Sinh viên QTKD)** | `le.quang.tuan@vlu.edu.vn` | `password123` | Ứng tuyển công việc bán thời gian, đánh giá nhà tuyển dụng |
-
-> 🔒 **Cảnh báo bảo mật:** Các tài khoản trên chỉ phục vụ mục đích kiểm thử và demo trong môi trường phát triển (Development). Khi triển khai thực tế (Production), bắt buộc phải đổi toàn bộ mật khẩu và không sử dụng tài khoản mẫu.
-
----
-
-## 23. TỔNG QUAN API ENDPOINTS (API OVERVIEW)
-
-Máy chủ Backend hỗ trợ cả 2 tiền tố `/api` và `/api/v1`:
-
-- **Hệ thống & Sức khỏe:**
-  - `GET /health`: Kiểm tra trạng thái máy chủ và kết nối CSDL PostgreSQL.
-- **Xác thực & Người dùng (`/api/auth`):**
-  - `POST /api/auth/register`: Đăng ký tài khoản mới (Hỗ trợ role STUDENT hoặc EMPLOYER).
-  - `POST /api/auth/login`: Đăng nhập hệ thống, trả về JWT Token và thông tin user.
-  - `GET /api/profile/me`: Lấy thông tin hồ sơ của người dùng đang đăng nhập.
-- **Tin tuyển dụng (`/api/jobs`):**
-  - `GET /api/jobs`: Danh sách tin tuyển dụng có phân trang, bộ lọc và tìm kiếm.
-  - `GET /api/jobs/:id`: Chi tiết tin tuyển dụng kèm thông tin doanh nghiệp.
-  - `POST /api/jobs`: Nhà tuyển dụng tạo tin tuyển dụng mới.
-- **Ứng tuyển & Tuyển chọn (`/api/applications`, `/api/jobs/:jobId/selections`):**
-  - `POST /api/applications`: Sinh viên nộp đơn ứng tuyển part-time.
-  - `POST /api/jobs/:jobId/selections`: **RULE A3** — Tuyến duy nhất chấp thuận ứng viên và khởi tạo Hợp đồng công việc (*Work Assignment*).
-- **Đề xuất dự án Freelance (`/api/proposals`):**
-  - `POST /api/proposals`: Sinh viên nộp báo giá đề xuất cho tin Freelance.
-  - `PATCH /api/proposals/:id/status`: Cập nhật trạng thái xem xét đề xuất.
-- **Hợp đồng & Nghiệm thu (`/api/assignments`):**
-  - `GET /api/assignments/my-assignments`: Danh sách hợp đồng đang thực hiện của sinh viên.
-  - `PATCH /api/assignments/:id/progress`: Cập nhật trạng thái tiến độ (`NOT_STARTED` $\rightarrow$ `IN_PROGRESS` $\rightarrow$ `COMPLETED`).
-- **Đánh giá & Phản hồi (`/api/reviews`):**
-  - `POST /api/reviews`: Đánh giá chất lượng hợp tác hai chiều sau khi hoàn thành công việc.
+| Nhóm | Endpoint chính | Mô tả |
+|---|---|---|
+| Hệ thống | `GET /health` | Kiểm tra server và kết nối DB |
+| Xác thực | `POST /api/auth/register` | Đăng ký tài khoản (STUDENT hoặc EMPLOYER) |
+| Xác thực | `POST /api/auth/login` | Đăng nhập, trả về JWT token |
+| Hồ sơ | `GET /api/profile/me` | Lấy thông tin người dùng đang đăng nhập |
+| Việc làm | `GET /api/jobs` | Danh sách tin tuyển dụng (có lọc, phân trang) |
+| Việc làm | `GET /api/jobs/:id` | Chi tiết một tin tuyển dụng |
+| Việc làm | `POST /api/jobs` | Nhà tuyển dụng đăng tin mới |
+| Ứng tuyển | `POST /api/applications` | Sinh viên nộp đơn ứng tuyển part-time |
+| Tuyển chọn | `POST /api/jobs/:jobId/selections` | Duyệt ứng viên và tự động tạo hợp đồng |
+| Báo giá | `POST /api/proposals` | Sinh viên gửi báo giá cho việc freelance |
+| Hợp đồng | `GET /api/assignments/my-assignments` | Danh sách hợp đồng của sinh viên |
+| Hợp đồng | `PATCH /api/assignments/:id/progress` | Cập nhật tiến độ công việc |
+| Đánh giá | `POST /api/reviews` | Đánh giá hai chiều sau khi hoàn thành việc |
 
 ---
 
-## 24. KIỂM THỬ TỰ ĐỘNG (TESTING)
-
-Dự án tích hợp bộ kiểm thử tích hợp tự động với `node:test` nguyên bản của Node.js:
+## 12. Chạy kiểm thử tự động (Testing)
 
 ```powershell
 npm test
 ```
-
-*Hoặc chạy trực tiếp trong thư mục backend:*
+hoặc chạy trực tiếp trong thư mục backend:
 ```powershell
 cd 03_backend
 npm test
 ```
 
-- **Kết quả nghiệm thu:** **`31/31 tests passed across 8 suites (100% PASS)`**
-- **Thời gian chạy:** $\approx 450$ ms.
-- **Các bộ kiểm thử:**
-  1. Xác thực JWT & Mã hóa mật khẩu (Auth).
-  2. Quy tắc nghiệp vụ Tin tuyển dụng (Jobs FSM).
-  3. Quy tắc nghiệp vụ Ứng tuyển (Applications).
-  4. Quy tắc nghiệp vụ Báo giá Freelance (Proposals).
-  5. Tuyến độc quyền phê duyệt ứng viên (Rule A3 Selections).
-  6. Quản lý phân quyền và tiến độ công việc (Work Assignments).
-  7. Đánh giá chất lượng sau công việc (Reviews).
-  8. Trung tâm thông báo hệ thống (Notifications).
+Kết quả mong đợi: tất cả test đều **PASS**, bao phủ các nghiệp vụ: xác thực, tin tuyển dụng, ứng tuyển, báo giá, tuyển chọn ứng viên, hợp đồng công việc, đánh giá, và thông báo hệ thống.
 
 ---
 
-## 25. ĐÓNG GÓI PHÂN PHỐI (PRODUCTION BUILD)
-
-Để kiểm tra việc biên dịch và đóng gói mã nguồn Frontend cho môi trường sản xuất:
+## 13. Đóng gói bản production
 
 ```powershell
 npm run build:frontend
 ```
-
-*Hoặc thực hiện từ `04_frontend`:*
+hoặc:
 ```powershell
 cd 04_frontend
 npm run build
 ```
-
-- **Kết quả mong đợi:** Mã nguồn được tối ưu hóa vào thư mục `04_frontend/dist/` trong chưa đầy 1 giây với **0 lỗi**.
-
----
-
-## 26. XỬ LÝ LỖI THƯỜNG GẶP (TROUBLESHOOTING)
-
-| Lỗi gặp phải | Nguyên nhân | Cách kiểm tra | Cách xử lý |
-|---|---|---|---|
-| `'node' is not recognized` | Chưa cài Node.js hoặc chưa cấu hình biến môi trường PATH | Gõ `node -v` trên terminal | Cài đặt lại Node.js LTS từ trang chủ [nodejs.org](https://nodejs.org/), khởi động lại terminal |
-| `'npm' is not recognized` | npm chưa được nhận diện trong PATH hệ thống | Gõ `npm -v` | Khởi động lại máy hoặc thêm đường dẫn Node.js vào biến System PATH |
-| `connect ECONNREFUSED 127.0.0.1:5432` | Dịch vụ PostgreSQL Server trên máy tính chưa được BẬT | `Test-NetConnection -Port 5432 -ComputerName localhost` | Mở `services.msc`, tìm `postgresql-x64-...`, click chuột phải chọn **Start** |
-| `password authentication failed for user "postgres"` | Mật khẩu tài khoản postgres máy bạn khác với mật khẩu trong file `.env` | Kiểm tra mật khẩu bạn đã đặt khi cài đặt PostgreSQL | Mở file `03_backend/.env`, sửa lại dòng `DB_PASSWORD=mật_khẩu_đúng` |
-| `database "cd2_marketplace_db" does not exist` | Cơ sở dữ liệu chưa được tạo trên PostgreSQL | Kiểm tra danh sách DB trong pgAdmin 4 | Chạy lệnh `npm run connect:db` hoặc tạo thủ công DB trong pgAdmin 4 |
-| `Cannot find module '...'` | Chưa cài đặt các gói thư viện phụ thuộc (`node_modules`) | Kiểm tra thư mục `03_backend/node_modules` | Chạy lệnh `npm run install:all` từ thư mục gốc |
-| `Port 5000 is already in use (EADDRINUSE)` | Cổng 5000 đang bị một tiến trình khác hoặc phiên bản backend cũ chiếm giữ | Chạy `netstat -ano \| findstr :5000` | Tắt ứng dụng đang chiếm cổng hoặc đổi `PORT=5001` trong `03_backend/.env` |
-| `Origin không được phép bởi CORS` | Frontend gọi API từ domain chưa được cấp phép trong cấu hình CORS | Kiểm tra log console của trình duyệt | Mở `03_backend/src/app.js`, bổ sung origin của bạn vào mảng `allowedOrigins` |
-| `relation "..." does not exist` | Bảng CSDL chưa được khởi tạo đầy đủ | Mở pgAdmin kiểm tra danh sách bảng | Chạy `npm run migrate` hoặc import file `02_database/cd2_marketplace_full_dump.sql` |
+Kết quả: mã nguồn frontend đã tối ưu sẽ nằm trong thư mục `04_frontend/dist/`.
 
 ---
 
-## 27. LƯU Ý AN TOÀN & BẢO MẬT (SECURITY NOTES)
+## 14. Xử lý lỗi thường gặp
 
-1. **Tuyệt đối không đẩy file `.env` lên GitHub:** Tập tin `.env` chứa mật khẩu CSDL và khóa bí mật JWT. Đã được đưa vào danh sách loại trừ trong `.gitignore`.
-2. **Khóa ký JWT:** Trong môi trường Production, bắt buộc phải thay đổi giá trị `JWT_SECRET` thành một chuỗi ngẫu nhiên có độ dài tối thiểu 32 ký tự.
-3. **Mã hóa mật khẩu:** Mọi mật khẩu người dùng lưu trữ trong cơ sở dữ liệu bắt buộc phải được băm qua thuật toán `bcrypt` với độ phức tạp tối thiểu 10 salt rounds. Không bao giờ lưu mật khẩu dạng văn bản rõ (plain text).
-4. **Tham số hóa truy vấn (SQL Injection Prevention):** Mọi câu lệnh SQL tương tác với PostgreSQL đều sử dụng cơ chế Parameterized Queries (`$1, $2, ...`) của thư viện `pg`.
+| Lỗi gặp phải | Nguyên nhân | Cách khắc phục |
+|---|---|---|
+| `'node' is not recognized` | Chưa cài Node.js hoặc chưa cập nhật PATH | Cài lại Node.js LTS, mở terminal mới |
+| `'npm' is not recognized` | npm chưa được nhận trong PATH | Khởi động lại máy, thử lại |
+| `connect ECONNREFUSED 127.0.0.1:5432` | PostgreSQL chưa chạy | Mở `services.msc`, bật `postgresql-x64-...` |
+| `password authentication failed for user "postgres"` | Sai mật khẩu trong `.env` | Sửa lại `DB_PASSWORD` trong `03_backend/.env` cho đúng |
+| `database "cd2_marketplace_db" does not exist` | Chưa tạo database | Chạy `npm run connect:db` |
+| `Cannot find module '...'` | Chưa cài thư viện | Chạy `npm run install:all` từ thư mục gốc |
+| `Port 5000 is already in use` | Cổng 5000 đang bị chiếm | Tắt tiến trình đang dùng cổng, hoặc đổi `PORT` trong `.env` |
+| Frontend không gọi được API / lỗi CORS | Sai `VITE_API_URL` hoặc `CORS_ORIGINS` | Kiểm tra lại 2 giá trị này trong file `.env` tương ứng |
+| `relation "..." does not exist` | Database chưa có đủ bảng | Chạy `npm run migrate`, hoặc nạp lại file dump đầy đủ |
+| **(Docker)** `required variable POSTGRES_PASSWORD is missing` | Chưa tạo file `.env` ở gốc dự án hoặc để trống | Làm lại Bước 3 ở [mục 6](#6-cách-a--chạy-bằng-docker-khuyến-nghị-dễ-nhất) |
+| **(Docker)** container `postgres` không `healthy` | Cổng 5432 trên máy đang bị chiếm | Tắt PostgreSQL cài sẵn trên máy, hoặc xoá dòng `5432:5432` trong `docker-compose.yml` |
+| **(Docker)** cổng 8080 đã có app khác dùng | Trùng cổng | Đổi `"8080:80"` thành cổng khác (ví dụ `"3000:80"`) trong `docker-compose.yml` |
+| **(Docker)** `relation ... does not exist` | Dữ liệu chưa được nạp (volume cũ, lỗi) | Chạy `docker compose down -v` rồi `docker compose up -d` lại |
+| **(Docker)** Docker daemon không chạy | Docker Desktop chưa mở | Mở Docker Desktop, đợi icon cá voi chuyển xanh |
+
+> Không tìm thấy lỗi của bạn trong bảng trên? Mở log chi tiết để xem nguyên nhân chính xác:
+> - Chạy thủ công: đọc log ngay trong cửa sổ terminal đang chạy `npm run dev:backend`.
+> - Docker: chạy `docker compose logs -f backend` hoặc `docker compose logs -f frontend`.
 
 ---
 
-## 28. QUY TRÌNH PHÁT TRIỂN (DEVELOPMENT WORKFLOW)
+## 15. Bảo mật — những điều tuyệt đối không được làm
+
+1. **Không bao giờ đưa file `.env` lên Git/GitHub.** File này chứa mật khẩu database và khoá JWT. Nó đã được liệt kê trong `.gitignore`, nhưng vẫn hãy tự kiểm tra lại trước khi `git push`.
+2. **`JWT_SECRET` phải là chuỗi ngẫu nhiên, dài tối thiểu 32 ký tự** — không dùng các chuỗi mẫu có sẵn trong tài liệu khi triển khai thật.
+3. **Mật khẩu người dùng luôn được mã hoá bằng `bcrypt`** trước khi lưu vào database — không bao giờ lưu mật khẩu dạng chữ thường (plain text).
+4. **Mọi câu truy vấn SQL đều dùng tham số hoá** (`$1, $2, ...`) để chống SQL Injection — không tự nối chuỗi SQL trực tiếp khi viết thêm code.
+5. **Tài khoản demo ở mục 8 chỉ dùng để thử nghiệm** — xoá hoặc đổi mật khẩu trước khi đưa hệ thống ra môi trường thật.
+
+---
+
+## 16. Quy trình làm việc nhóm với Git
 
 ```mermaid
 flowchart LR
-    A["Pull code mới\n(git pull)"] --> B["Cài thư viện\n(npm run install:all)"]
-    B --> C["Đồng bộ DB\n(npm run connect:db)"]
-    C --> D["Phát triển tính năng\n(dev:backend & dev:frontend)"]
-    D --> E["Chạy Unit/Integration Tests\n(npm test)"]
-    E --> F["Kiểm tra Build\n(npm run build:frontend)"]
-    F --> G["Commit & Push\n(git push)"]
+    A["git pull origin main"] --> B["npm run install:all\n(nếu có thư viện mới)"]
+    B --> C["git checkout -b feature/ten-tinh-nang"]
+    C --> D["Code & test tính năng"]
+    D --> E["npm test"]
+    E --> F["git add -A && git commit -m \"feat: mo-ta-thay-doi\""]
+    F --> G["git push origin feature/ten-tinh-nang"]
+    G --> H["Tạo Pull Request → review → merge vào main"]
 ```
 
----
-
-## 29. QUY TRÌNH LÀM VIỆC VỚI GIT (GIT WORKFLOW)
-
-1. **Nhánh chính thức:** Toàn bộ mã nguồn ổn định được quản lý trên nhánh `main`.
-2. **Đồng bộ mã nguồn trước khi làm việc:**
-   ```powershell
-   git checkout main
-   git pull origin main
-   ```
-3. **Tạo nhánh tính năng mới:**
-   ```powershell
-   git checkout -b feature/ten-tinh-nang
-   ```
-4. **Kiểm tra trạng thái thay đổi:**
-   ```powershell
-   git status
-   ```
-5. **Đóng gói commit có thông điệp rõ ràng:**
-   ```powershell
-   git add -A
-   git commit -m "feat: mo ta chi tiet thay doi"
-   git push origin feature/ten-tinh-nang
-   ```
+Quy tắc ngắn gọn:
+- Nhánh ổn định chính là `main`. **Không code trực tiếp trên `main`.**
+- Trước khi bắt đầu việc mới: `git checkout main && git pull origin main`.
+- Mỗi tính năng làm trên 1 nhánh riêng: `git checkout -b feature/ten-tinh-nang`.
+- Commit message rõ ràng, ví dụ: `git commit -m "feat: them bo loc viec lam theo luong"`.
 
 ---
 
-## 30. DANH MỤC TÀI LIỆU KỸ THUẬT LIÊN QUAN (DOCUMENTATION)
+## 17. Tài liệu kỹ thuật khác trong dự án
 
-- [Báo cáo Kiểm định Môi trường & Dependencies](file:///docs/README_ENVIRONMENT_AUDIT.md)
-- [Báo cáo Bằng chứng Nghiệm thu Cài đặt Dự án](file:///docs/README_SETUP_VERIFICATION.md)
-- [Nhật ký Đồng bộ Tài liệu Dự án (Changelog)](file:///docs/PROJECT_DOCUMENTATION_CHANGELOG.md)
-- [Bảng Ghi nhận Rà soát Kỹ thuật (Gap Register)](file:///docs/PROJECT_SETUP_GAP_REGISTER.md)
-- [Ma trận Đối chiếu 44 Màn hình Wireframe](file:///docs/WIREFRAME_UI_AUDIT_MATRIX.md)
-- [Báo cáo Tối ưu Giao diện Bảng điều khiển Admin WF-A01](file:///docs/WF_A01_DISPLAY_FIX_REPORT.md)
-
----
-
-## 31. CÁC GIỚI HẠN KỸ THUẬT ĐÃ BIẾT (KNOWN LIMITATIONS)
-
-1. **Khởi chạy đồng thời CLI:** Lệnh `npm run dev` ở thư mục gốc hiện tại chỉ kích hoạt Frontend. Nhà phát triển cần mở 2 cửa sổ terminal riêng biệt để chạy song song `npm run dev:backend` và `npm run dev:frontend`.
-2. **Bản đồ số Leaflet:** Sử dụng tile miễn phí của OpenStreetMap, cần có kết nối Internet để tải bản đồ nền tọa độ.
-3. **Lưu trữ tệp đính kèm:** Hiện tại liên kết CV và ảnh đại diện đang lưu trữ dưới dạng đường dẫn URL tĩnh hoặc Cloudinary/Mock URL, chưa cấu hình AWS S3 trong phiên bản thử nghiệm cục bộ.
+| Tài liệu | Nội dung |
+|---|---|
+| [`SETUP.md`](./SETUP.md) | Hướng dẫn chạy thủ công chi tiết hơn (không Docker) |
+| [`DOCKER.md`](./DOCKER.md) | Hướng dẫn chạy bằng Docker chi tiết hơn |
+| [`PRODUCT.md`](./PRODUCT.md) | Đặc tả sản phẩm, persona người dùng, luồng nghiệp vụ |
+| [`docs/architecture/README.md`](docs/architecture/README.md) | Sơ đồ kiến trúc hệ thống (Draw.io): Context, Application, Database ERD, Deployment, Auth flow |
+| [`02_database/erd/`](02_database/erd) | Sơ đồ quan hệ thực thể cơ sở dữ liệu |
+| [`infrastructure/twenty/README.md`](infrastructure/twenty/README.md) | Hệ thống quản trị quan hệ đối tác (Twenty CRM), chạy độc lập tại `http://localhost:3020` |
+| [`docs/`](docs) | Các báo cáo kỹ thuật, kiểm định, nhật ký thay đổi chi tiết của dự án |
 
 ---
 
-## 32. THÔNG TIN NHÓM TÁC GIẢ (CONTRIBUTION / TEAM INFORMATION)
+## 18. Giới hạn hiện tại của hệ thống
 
-### Sinh viên thực hiện đề tài:
-1. **Nguyễn Tấn Hoàng Thông** — MSSV: `2374802010485`
-2. **Lê Quang Anh Tuấn** — MSSV: `2374802010538`
-3. **Nguyễn Văn Chí** — MSSV: `2374802010056`
+1. Lệnh `npm run dev` ở thư mục gốc chỉ chạy **frontend**. Cần mở 2 terminal riêng để chạy song song `dev:backend` và `dev:frontend` (xem [Cách B](#7-cách-b--chạy-thủ-công-tự-cài-nodejs--postgresql)).
+2. Bản đồ (Leaflet) dùng nền bản đồ miễn phí của OpenStreetMap — **cần có kết nối Internet** để hiển thị bản đồ.
+3. Hiện tại CV và ảnh đại diện lưu dưới dạng URL tĩnh/mock — chưa cấu hình lưu trữ đám mây (ví dụ AWS S3) trong bản thử nghiệm cục bộ.
 
-### Đơn vị đào tạo & Hướng dẫn:
-- **Giảng viên hướng dẫn:** ThS. Nguyễn Văn Trung
-- **Đơn vị:** Khoa Công nghệ Thông tin — Trường Đại học Văn Lang (VLU)
-- **Năm thực hiện:** 2026
+---
+
+## 19. Thông tin nhóm thực hiện
+
+**Sinh viên thực hiện:**
+1. Nguyễn Tấn Hoàng Thông — MSSV `2374802010485`
+2. Lê Quang Anh Tuấn — MSSV `2374802010538`
+3. Nguyễn Văn Chí — MSSV `2374802010056`
+
+**Đơn vị đào tạo:** Khoa Công nghệ Thông tin, Trường Đại học Văn Lang (VLU)
+**Giảng viên hướng dẫn:** ThS. Nguyễn Văn Trung
+**Năm thực hiện:** 2026
+
+---
+
+> 🆘 **Vẫn bị kẹt chỗ nào đó?** Đọc kỹ lại đúng bước đang làm trong [mục 6](#6-cách-a--chạy-bằng-docker-khuyến-nghị-dễ-nhất) hoặc [mục 7](#7-cách-b--chạy-thủ-công-tự-cài-nodejs--postgresql), đối chiếu thông báo lỗi với [mục 14](#14-xử-lý-lỗi-thường-gặp). Phần lớn lỗi khi mới chạy dự án đều nằm ở: **sai mật khẩu database**, **PostgreSQL chưa bật**, hoặc **quên tạo file `.env`**.

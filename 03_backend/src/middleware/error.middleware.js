@@ -6,7 +6,7 @@ function errorHandler(err, req, res, next) {
         return res.status(409).json({
             success: false,
             message: 'Dữ liệu đã tồn tại trong hệ thống (trùng khóa duy nhất).',
-            error: err.detail || err.message,
+            error: process.env.NODE_ENV === 'development' ? (err.detail || err.message) : undefined,
         });
     }
 
@@ -15,7 +15,7 @@ function errorHandler(err, req, res, next) {
         return res.status(400).json({
             success: false,
             message: 'Tham chiếu dữ liệu không tồn tại (Lỗi ràng buộc khóa ngoại).',
-            error: err.detail || err.message,
+            error: process.env.NODE_ENV === 'development' ? (err.detail || err.message) : undefined,
         });
     }
 

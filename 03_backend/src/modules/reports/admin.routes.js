@@ -282,4 +282,75 @@ router.get('/logs', async (req, res, next) => {
     }
 });
 
+// =============================================================================
+// 7. VIOLATIONS & APPEALS (POLICY ENFORCEMENT)
+// =============================================================================
+// POST /api/admin/users/:id/violations (Ghi nhận vi phạm & tính toán bậc xử lý)
+router.post('/users/:id/violations', async (req, res, next) => {
+    try {
+        const result = await adminService.recordUserViolation(
+            parseInt(req.params.id, 10),
+            req.body,
+            req.user?.id
+        );
+        res.status(201).json({
+            success: true,
+            message: `Đã ghi nhận vi phạm lần ${result.violation_count} (Bậc ${result.tier}) thành công.`,
+            data: result,
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// GET /api/admin/users/:id/violations (Xem lịch sử vi phạm của một người dùng)
+router.get('/users/:id/violations', async (req, res, next) => {
+    try {
+        const violations = await adminService.listUserViolations(parseInt(req.params.id, 10));
+        res.status(200).json({
+            success: true,
+            data: violations,
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// GET /api/admin/appeals (Xem danh sách đơn khiếu nại)
+router.get('/appeals', async (req, res, next) => {
+    try {
+        const { status, limit = 50, page = 1 } = req.query;
+        const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+        const appeals = await adminService.listAppeals({
+            status,
+            limit: parseInt(limit, 10),
+            offset,
+        });
+        res.status(200).json({
+            success: true,
+            data: appeals,
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// PATCH /api/admin/appeals/:id (Giải quyết đơn khiếu nại: APPROVED / REJECTED)
+router.patch('/appeals/:id', async (req, res, next) => {
+    try {
+        const resolved = await adminService.resolveAppeal(
+            parseInt(req.params.id, 10),
+            req.body,
+            req.user?.id
+        );
+        res.status(200).json({
+            success: true,
+            message: `Đã xử lý khiếu nại: ${req.body.status}`,
+            data: resolved,
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;

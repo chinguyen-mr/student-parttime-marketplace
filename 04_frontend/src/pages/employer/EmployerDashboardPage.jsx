@@ -403,7 +403,7 @@ export default function EmployerDashboardPage({
           {currentUser?.token ? (
             <>
               Bạn đang đăng nhập với tài khoản <strong>{currentUser.role === 'STUDENT' ? 'Sinh viên' : currentUser.role}</strong>. 
-              Trang Bảng điều khiển này (WF-E01) chỉ dành riêng cho tài khoản Nhà tuyển dụng (Role: <code>EMPLOYER</code>).
+              Trang Bảng điều khiển này chỉ dành riêng cho tài khoản Nhà tuyển dụng.
             </>
           ) : (
             <>
@@ -1017,19 +1017,7 @@ export default function EmployerDashboardPage({
             )}
           </div>
 
-          {/* Note Box matching WF-E01 Wireframe 100% */}
-          <div style={{
-            marginTop: 20,
-            padding: '14px 18px',
-            borderRadius: 8,
-            border: '1.5px dashed #CBD5E1',
-            background: '#F8FAFC',
-            fontSize: 13,
-            color: '#64748B',
-            lineHeight: 1.5
-          }}>
-            Trạng thái UI / TBD: Dashboard tổng hợp, không có nghiệp vụ riêng.
-          </div>
+
 
     </div>
   );

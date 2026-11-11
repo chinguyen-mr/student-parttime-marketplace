@@ -14,10 +14,13 @@ class ApplicationRepository {
     async findById(id) {
         const res = await db.query(
             `SELECT a.*, j.title AS job_title, j.employer_id, j.status AS job_status,
-                    u.full_name AS student_name, u.email AS student_email, u.phone AS student_phone
+                    j.category, j.location, j.salary, j.salary_type, j.work_type,
+                    u.full_name AS student_name, u.email AS student_email, u.phone AS student_phone,
+                    emp.full_name AS employer_name, emp.email AS employer_email
              FROM applications a
              JOIN jobs j ON j.id = a.job_id
              JOIN users u ON u.id = a.student_id
+             JOIN users emp ON emp.id = j.employer_id
              WHERE a.id = $1`,
             [id]
         );

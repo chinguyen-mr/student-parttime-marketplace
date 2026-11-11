@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, ShieldCheck, AlertCircle, ArrowRight, Save, Camera, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, ShieldCheck, AlertCircle, ArrowRight, Save, Camera, CheckCircle2, Settings } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { API_BASE, formatApiError } from '../../config/api';
 
 export default function EmployerPersonalProfilePage({
   currentUser,
   showToast,
-  onNavigateVerification
+  onNavigateVerification,
+  onNavigateSettings,
+  onProfileUpdated
 }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -23,7 +25,11 @@ export default function EmployerPersonalProfilePage({
 
   // Verification states
   const emailVerified = currentUser?.status === 'ACTIVE' || currentUser?.verification_status === 'VERIFIED';
-  const phoneVerified = Boolean(currentUser?.phone_verified || currentUser?.verification_status === 'VERIFIED');
+  const phoneVerified = Boolean(
+    currentUser?.phone_verified || 
+    currentUser?.verification_status === 'VERIFIED' ||
+    (currentUser?.id && localStorage.getItem(`jobnest_employer_phone_verified_${currentUser.id}`) === 'true')
+  );
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -79,6 +85,14 @@ export default function EmployerPersonalProfilePage({
       const data = await res.json();
       if (data.success) {
         if (showToast) showToast('Đã lưu thay đổi hồ sơ cá nhân thành công!', 'success');
+        if (onProfileUpdated) {
+          onProfileUpdated({
+            display_name: formData.displayName.trim(),
+            bio: formData.bio.trim(),
+            location: formData.location.trim(),
+            avatar_url: formData.avatarUrl
+          });
+        }
       } else {
         if (showToast) showToast(data.message || 'Lỗi cập nhật hồ sơ', 'error');
       }
@@ -94,7 +108,7 @@ export default function EmployerPersonalProfilePage({
       {/* Page Title */}
       <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-          WF-E02 — PERSONAL PROFILE
+          HỒ SƠ CÁ NHÂN
         </div>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>
           Hồ sơ Cá nhân Nhà tuyển dụng
@@ -374,10 +388,10 @@ export default function EmployerPersonalProfilePage({
             gap: 8
           }}>
             <ShieldCheck size={18} color="#059669" />
-            <span>Xác minh</span>
+            <span>Trạng thái tài khoản</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 16 }}>
             {/* Email status */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13.5 }}>
               <span style={{ color: '#334155', fontWeight: 600 }}>• Email:</span>
@@ -390,7 +404,7 @@ export default function EmployerPersonalProfilePage({
                 fontSize: 12,
                 fontWeight: 700
               }}>
-                Đã xác minh
+                Hoạt động
               </span>
             </div>
 
@@ -398,63 +412,48 @@ export default function EmployerPersonalProfilePage({
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13.5 }}>
               <span style={{ color: '#334155', fontWeight: 600 }}>• Điện thoại:</span>
               <span style={{
-                background: phoneVerified ? '#ECFDF5' : '#FFFBEB',
-                color: phoneVerified ? '#059669' : '#D97706',
-                border: phoneVerified ? '1px solid #A7F3D0' : '1px solid #FDE68A',
+                background: '#ECFDF5',
+                color: '#059669',
+                border: '1px solid #A7F3D0',
                 padding: '2px 10px',
                 borderRadius: 12,
                 fontSize: 12,
                 fontWeight: 700
               }}>
-                {phoneVerified ? 'Đã xác minh' : 'Chưa xác minh'}
+                Hoạt động
               </span>
             </div>
           </div>
 
-          {/* Button Mở Verification Center */}
-          <button
-            type="button"
-            onClick={onNavigateVerification}
-            style={{
-              width: '100%',
-              background: '#ffffff',
-              color: '#0F172A',
-              border: '1.5px solid #000000',
-              borderRadius: 8,
-              padding: '10px 16px',
-              fontSize: 13.5,
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              transition: 'all 0.15s ease'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
-            onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
-          >
-            <span>Mở Verification Center</span>
-            <ArrowRight size={15} />
-          </button>
-
-          <div style={{ marginTop: 16, fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
-            💡 Cần hoàn thành xác minh Email và Số điện thoại để đủ điều kiện gửi tin tuyển dụng lên hệ thống.
-          </div>
+          {/* Button Cài đặt tài khoản & Đổi mật khẩu (WF-X03) */}
+          {onNavigateSettings && (
+            <button
+              type="button"
+              onClick={onNavigateSettings}
+              style={{
+                width: '100%',
+                background: '#ffffff',
+                color: '#7565A8',
+                border: '1.5px solid #7565A8',
+                borderRadius: 8,
+                padding: '10px 16px',
+                fontSize: 13.5,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#F1EEF8'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
+            >
+              <Settings size={15} />
+              <span>Cài đặt tài khoản & Đổi mật khẩu</span>
+            </button>
+          )}
         </div>
-      </div>
-
-      {/* Wireframe Note Box matching WF-E02 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: Backend chặn đổi email/phone. Không có Company Profile.
       </div>
     </div>
   );

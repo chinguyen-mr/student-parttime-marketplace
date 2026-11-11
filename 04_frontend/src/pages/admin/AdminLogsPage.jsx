@@ -81,23 +81,12 @@ export default function AdminLogsPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{
-              background: '#FEE2E2',
-              color: '#B91C1C',
-              fontSize: 11.5,
-              fontWeight: 800,
-              padding: '2px 8px',
-              borderRadius: 6,
-              textTransform: 'uppercase'
-            }}>
-              WF-A08
-            </span>
             <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>
               NHẬT KÝ HỆ THỐNG
             </span>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
-            Nhật ký hoạt động Quản trị (Admin System Logs)
+            Nhật ký hoạt động quản trị
           </h1>
         </div>
 
@@ -246,8 +235,18 @@ export default function AdminLogsPage({
                         </div>
                       </td>
 
-                      <td style={{ padding: '14px 16px', color: '#475569', fontSize: 12.5, fontFamily: 'monospace' }}>
-                        {typeof log.metadata === 'object' ? JSON.stringify(log.metadata) : String(log.metadata || '')}
+                      <td style={{ padding: '14px 16px', color: '#334155', fontSize: 13, lineHeight: 1.5 }}>
+                        {(() => {
+                          if (!log.metadata) return '—';
+                          if (typeof log.metadata === 'string') return log.metadata;
+                          const meta = log.metadata;
+                          if (meta.reason) return `Lý do: ${meta.reason}`;
+                          if (meta.note) return `Ghi chú: ${meta.note}`;
+                          if (meta.title) return `Tiêu đề: ${meta.title}`;
+                          if (meta.role) return `Vai trò: ${meta.role}`;
+                          if (meta.status) return `Trạng thái: ${meta.status}`;
+                          return Object.entries(meta).map(([k, v]) => `${k}: ${v}`).join(', ');
+                        })()}
                       </td>
                     </tr>
                   );
@@ -256,19 +255,6 @@ export default function AdminLogsPage({
             </table>
           </div>
         )}
-      </div>
-
-      {/* Note Box matching WF-A08 Wireframe 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: G-49, G-50, G-51 TBD.
       </div>
     </div>
   );

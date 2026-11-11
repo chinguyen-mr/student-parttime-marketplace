@@ -134,17 +134,6 @@ export default function AdminModerationPage({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <span style={{
-                background: '#FEE2E2',
-                color: '#B91C1C',
-                fontSize: 11.5,
-                fontWeight: 800,
-                padding: '2px 8px',
-                borderRadius: 6,
-                textTransform: 'uppercase'
-              }}>
-                WF-A04
-              </span>
               <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>
                 CHI TIẾT KIỂM DUYỆT TIN
               </span>
@@ -163,7 +152,7 @@ export default function AdminModerationPage({
             style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
           >
             <ArrowLeft size={15} />
-            <span>Quay lại (Hàng đợi WF-A03)</span>
+            <span>Quay lại hàng đợi duyệt</span>
           </Button>
         </div>
 
@@ -259,7 +248,7 @@ export default function AdminModerationPage({
                 • Mô tả công việc:
               </h4>
               <div style={{ fontSize: 13.5, color: '#334155', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
-                {selectedJob.description || 'Chưa cung cấp mô tả chi tiết.'}
+                {selectedJob.description ? selectedJob.description.replace(/^•?\s*Mô tả công việc:\s*/i, '') : 'Chưa cung cấp mô tả chi tiết.'}
               </div>
             </div>
 
@@ -326,7 +315,7 @@ export default function AdminModerationPage({
               onMouseLeave={(e) => e.currentTarget.style.filter = 'none'}
             >
               <CheckCircle2 size={18} />
-              <span>Duyệt tin (APPROVED)</span>
+              <span>Phê duyệt tin</span>
             </button>
 
             <div style={{ borderTop: '1px solid #CBD5E1', margin: '16px 0' }} />
@@ -380,7 +369,7 @@ export default function AdminModerationPage({
               }}
             >
               <XCircle size={18} />
-              <span>Từ chối tin (REJECTED)</span>
+              <span>Từ chối tin</span>
             </button>
 
             {/* Nút 3: Quay lại */}
@@ -396,25 +385,12 @@ export default function AdminModerationPage({
             </Button>
           </div>
         </div>
-
-        {/* Note Box matching WF-A04 Wireframe 100% */}
-        <div style={{
-          padding: '14px 18px',
-          borderRadius: 8,
-          border: '1.5px dashed #CBD5E1',
-          background: '#F8FAFC',
-          fontSize: 13,
-          color: '#64748B',
-          lineHeight: 1.5
-        }}>
-          Trạng thái UI / TBD: Nút Từ chối bị disable khi chưa nhập moderation_reason. C9 TBD.
-        </div>
       </div>
     );
   }
 
   // =========================================================================
-  // VIEW 1: WF-A03 — JOB MODERATION QUEUE
+  // VIEW 1: JOB MODERATION QUEUE
   // =========================================================================
   return (
     <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20, width: '100%' }}>
@@ -422,23 +398,12 @@ export default function AdminModerationPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{
-              background: '#FEE2E2',
-              color: '#B91C1C',
-              fontSize: 11.5,
-              fontWeight: 800,
-              padding: '2px 8px',
-              borderRadius: 6,
-              textTransform: 'uppercase'
-            }}>
-              WF-A03
-            </span>
             <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>
               HÀNG ĐỢI DUYỆT TIN
             </span>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
-            Hàng đợi kiểm duyệt tin tuyển dụng (Job Moderation Queue)
+            Kiểm duyệt tin tuyển dụng
           </h1>
         </div>
 
@@ -627,19 +592,6 @@ export default function AdminModerationPage({
             </table>
           </div>
         )}
-      </div>
-
-      {/* Note Box matching WF-A03 Wireframe 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: C9 TBD. Xem xét → A04.
       </div>
     </div>
   );

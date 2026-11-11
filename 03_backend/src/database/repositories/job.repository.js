@@ -1,14 +1,118 @@
 const db = require('../../config/db');
 
 class JobRepository {
-    async create(employerId, { title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url }) {
+    async create(employerId, { title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url, work_schedules }) {
         const res = await db.query(
             `INSERT INTO jobs (employer_id, title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
              RETURNING *`,
             [employerId, title, description, requirements || null, category, location, salary_type || 'HOURLY', salary, work_type || 'PART_TIME', application_deadline || null, job_banner_url || null]
         );
-        return res.rows[0];
+        const job = res.rows[0];
+
+        if (Array.isArray(work_schedules) && work_schedules.length > 0) {
+            const insertedSchedules = [];
+            for (const s of work_schedules) {
+                const day = parseInt(s.day_of_week, 10);
+                if (day >= 1 && day <= 7 && s.start_time && s.end_time && s.end_time > s.start_time) {
+                    try {
+                        const sRes = await db.query(
+                            `INSERT INTO job_work_schedules (job_id, day_of_week, start_time, end_time, min_hours_per_shift, is_mandatory)
+                             VALUES ($1, $2, $3, $4, $5, $6)
+                             RETURNING *`,
+                            [job.id, day, s.start_time, s.end_time, parseFloat(s.min_hours_per_shift || 0), s.is_mandatory !== false]
+                        );
+                        insertedSchedules.push(sRes.rows[0]);
+                    } catch {
+                        // ignore constraint duplicate in batch
+                    }
+                }
+            }
+            job.work_schedules = insertedSchedules;
+        } else {
+            job.work_schedules = [];
+        }
+
+        return job;
+    }
+
+    async update(jobId, { title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url, work_schedules }) {
+        const res = await db.query(
+            `UPDATE jobs 
+             SET title = $1,
+                 description = $2,
+                 requirements = $3,
+                 category = $4,
+                 location = $5,
+                 salary_type = $6,
+                 salary = $7,
+                 work_type = $8,
+                 application_deadline = $9,
+                 job_banner_url = $10,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $11
+             RETURNING *`,
+            [
+                title,
+                description,
+                requirements !== undefined ? requirements : null,
+                category,
+                location,
+                salary_type || 'HOURLY',
+                salary,
+                work_type || 'PART_TIME',
+                application_deadline || null,
+                job_banner_url !== undefined ? job_banner_url : null,
+                jobId
+            ]
+        );
+        const updatedJob = res.rows[0];
+        if (!updatedJob) return null;
+
+        if (Array.isArray(work_schedules)) {
+            await this.updateSchedules(jobId, work_schedules);
+            try {
+                const schedRes = await db.query(
+                    'SELECT * FROM job_work_schedules WHERE job_id = $1 ORDER BY day_of_week, start_time',
+                    [jobId]
+                );
+                updatedJob.work_schedules = schedRes.rows || [];
+            } catch {
+                updatedJob.work_schedules = [];
+            }
+        } else {
+            try {
+                const schedRes = await db.query(
+                    'SELECT * FROM job_work_schedules WHERE job_id = $1 ORDER BY day_of_week, start_time',
+                    [jobId]
+                );
+                updatedJob.work_schedules = schedRes.rows || [];
+            } catch {
+                updatedJob.work_schedules = [];
+            }
+        }
+
+        return updatedJob;
+    }
+
+    async updateSchedules(jobId, schedules) {
+        await db.query('DELETE FROM job_work_schedules WHERE job_id = $1', [jobId]);
+        const inserted = [];
+        if (Array.isArray(schedules)) {
+            for (const s of schedules) {
+                const day = parseInt(s.day_of_week, 10);
+                if (day >= 1 && day <= 7 && s.start_time && s.end_time && s.end_time > s.start_time) {
+                    const sRes = await db.query(
+                        `INSERT INTO job_work_schedules (job_id, day_of_week, start_time, end_time, min_hours_per_shift, is_mandatory)
+                         VALUES ($1, $2, $3, $4, $5, $6)
+                         RETURNING *`,
+                        [jobId, day, s.start_time, s.end_time, parseFloat(s.min_hours_per_shift || 0), s.is_mandatory !== false]
+                    );
+                    inserted.push(sRes.rows[0]);
+                }
+            }
+        }
+        return inserted;
     }
 
     async findById(id) {
@@ -27,10 +131,23 @@ class JobRepository {
              WHERE j.id = $1`,
             [id]
         );
-        return res.rows[0] || null;
+        const job = res.rows[0];
+        if (!job) return null;
+
+        try {
+            const schedRes = await db.query(
+                'SELECT * FROM job_work_schedules WHERE job_id = $1 ORDER BY day_of_week, start_time',
+                [id]
+            );
+            job.work_schedules = schedRes.rows || [];
+        } catch {
+            job.work_schedules = [];
+        }
+
+        return job;
     }
 
-    async findAllWithFilter({ keyword, category, location, minSalary, maxSalary, workType, status, moderationStatus = 'APPROVED', limit = 60, offset = 0 }) {
+    async findAllWithFilter({ keyword, category, location, minSalary, maxSalary, workType, employerId, status, moderationStatus = 'APPROVED', limit = 60, offset = 0 }) {
         let query = `
             SELECT j.*, u.full_name AS employer_name, 
                    COALESCE(p.display_name, u.full_name) AS company_name,
@@ -45,6 +162,11 @@ class JobRepository {
             WHERE 1=1
         `;
         const params = [];
+
+        if (employerId) {
+            params.push(employerId);
+            query += ` AND j.employer_id = $${params.length}`;
+        }
 
         if (moderationStatus) {
             params.push(moderationStatus);

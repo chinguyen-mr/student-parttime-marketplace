@@ -25,8 +25,8 @@ export default function AnimatedToast({
           transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
           style={{
             position: 'fixed',
-            top: 20,
-            right: 20,
+            top: 86,
+            right: 24,
             zIndex: 9999,
             background: toast.type === 'error' ? '#ef4444' : toast.type === 'info' ? '#0ea5e9' : '#10b981',
             color: '#ffffff',

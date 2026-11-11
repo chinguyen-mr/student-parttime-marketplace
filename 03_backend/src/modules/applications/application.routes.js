@@ -47,13 +47,30 @@ router.get('/job/:jobId', verifyToken, requireRoles('EMPLOYER'), async (req, res
     }
 });
 
+// GET /api/applications/:id (WF-S12: Chi tiết đơn ứng tuyển)
+router.get('/:id', verifyToken, async (req, res, next) => {
+    try {
+        const application = await applicationService.getApplicationDetail(
+            parseInt(req.params.id, 10),
+            req.user
+        );
+        res.status(200).json({
+            success: true,
+            data: application,
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // PATCH /api/applications/:id/status (UC-07: Nhà tuyển dụng duyệt/từ chối ứng viên)
 router.patch('/:id/status', verifyToken, requireRoles('EMPLOYER'), validateApplicationStatus, async (req, res, next) => {
     try {
         const updated = await applicationService.updateStatus(
             parseInt(req.params.id, 10),
             req.user.id,
-            req.body.status
+            req.body.status,
+            req.body.reason || req.body.note
         );
         res.status(200).json({
             success: true,

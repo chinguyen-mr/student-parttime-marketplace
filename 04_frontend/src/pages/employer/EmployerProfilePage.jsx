@@ -517,48 +517,27 @@ export default function EmployerProfilePage({ currentUser, showToast, onNavigate
                 Địa chỉ Email: <strong>{currentUser?.email || 'employer.test@vlu.edu.vn'}</strong>
               </div>
 
-              {!emailVerified ? (
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <input
-                    type="text"
-                    value={emailOtp}
-                    onChange={(e) => setEmailOtp(e.target.value)}
-                    placeholder="Nhập mã OTP 6 số"
-                    style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid var(--color-border)', fontSize: 13, width: 160 }}
-                  />
-                  {!otpSentEmail ? (
-                    <Button variant="secondary" onClick={handleSendEmailOtp} style={{ padding: '8px 14px', fontSize: 13 }}>
-                      Gửi OTP
-                    </Button>
-                  ) : (
-                    <Button variant="primary" onClick={handleVerifyEmailOtp} disabled={verifyingOtp} style={{ padding: '8px 14px', fontSize: 13 }}>
-                      {verifyingOtp ? 'Đang kiểm tra...' : 'Xác nhận OTP'}
-                    </Button>
-                  )}
-                </div>
-              ) : (
                 <div style={{ fontSize: 13, color: '#16A34A', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
-                  <CheckCircle2 size={16} /> Email đã được chứng thực chính chủ trên hệ thống JobNest.
+                  <CheckCircle2 size={16} /> Email liên hệ tài khoản chính chủ trên hệ thống JobNest.
                 </div>
-              )}
             </div>
 
             {/* Phone Verification Box */}
             <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Phone size={18} color="var(--color-primary)" /> Xác minh Số điện thoại
+                  <Phone size={18} color="var(--color-primary)" /> Số điện thoại liên hệ
                 </h3>
                 <span style={{
                   padding: '4px 10px',
                   borderRadius: 16,
                   fontSize: 12,
                   fontWeight: 700,
-                  background: phoneVerified ? '#DCFCE7' : 'var(--color-warning-bg)',
-                  color: phoneVerified ? '#16A34A' : 'var(--color-warning)',
-                  border: `1px solid ${phoneVerified ? '#86EFAC' : 'var(--color-warning-border)'}`
+                  background: '#DCFCE7',
+                  color: '#16A34A',
+                  border: '1px solid #86EFAC'
                 }}>
-                  {phoneVerified ? 'Đã xác minh' : 'Chờ xác minh'}
+                  Hoạt động
                 </span>
               </div>
 
@@ -566,30 +545,9 @@ export default function EmployerProfilePage({ currentUser, showToast, onNavigate
                 Số điện thoại liên hệ: <strong>{currentUser?.phone || '0987654321'}</strong>
               </div>
 
-              {!phoneVerified ? (
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <input
-                    type="text"
-                    value={phoneOtp}
-                    onChange={(e) => setPhoneOtp(e.target.value)}
-                    placeholder="Nhập mã OTP SMS"
-                    style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid var(--color-border)', fontSize: 13, width: 160 }}
-                  />
-                  {!otpSentPhone ? (
-                    <Button variant="secondary" onClick={handleSendPhoneOtp} style={{ padding: '8px 14px', fontSize: 13 }}>
-                      Gửi OTP SMS
-                    </Button>
-                  ) : (
-                    <Button variant="primary" onClick={handleVerifyPhoneOtp} disabled={verifyingOtp} style={{ padding: '8px 14px', fontSize: 13 }}>
-                      {verifyingOtp ? 'Đang kiểm tra...' : 'Xác nhận OTP'}
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <div style={{ fontSize: 13, color: '#16A34A', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
-                  <CheckCircle2 size={16} /> Số điện thoại đã được chứng thực bảo vệ tài khoản.
-                </div>
-              )}
+              <div style={{ fontSize: 13, color: '#16A34A', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
+                <CheckCircle2 size={16} /> Số điện thoại đã được cập nhật thành công trên tài khoản.
+              </div>
             </div>
 
             {/* Business License & CCCD Verification Box */}

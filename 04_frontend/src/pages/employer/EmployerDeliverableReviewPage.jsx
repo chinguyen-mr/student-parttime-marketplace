@@ -101,10 +101,10 @@ export default function EmployerDeliverableReviewPage({
       <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
         <div>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-            WF-E10 — DELIVERABLE REVIEW
+            NGHIỆM THU SẢN PHẨM
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>
-            Nghiệm thu Sản phẩm Bàn giao
+            Nghiệm thu sản phẩm bàn giao
           </h1>
           <p style={{ margin: '4px 0 0 0', fontSize: 13.5, color: 'var(--color-text-secondary)' }}>
             Kiểm tra tiến độ nộp bài, tệp bàn giao và đưa ra quyết định duyệt hoặc yêu cầu sửa đổi.
@@ -376,22 +376,9 @@ export default function EmployerDeliverableReviewPage({
             }}
           >
             <RotateCcw size={16} />
-            <span>Request Revision</span>
+            <span>Yêu cầu chỉnh sửa</span>
           </button>
         </div>
-      </div>
-
-      {/* Wireframe Note Box matching WF-E10 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: Accept / Request Revision chỉ cập nhật Deliverable; Assignment vẫn IN_PROGRESS.
       </div>
     </div>
   );

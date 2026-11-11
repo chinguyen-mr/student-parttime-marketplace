@@ -29,7 +29,6 @@ export default function ApplicationModal({
   const [selectedCv, setSelectedCv] = useState('CV_Nguyen_Van_Chi_Default.pdf');
   const [coverLetter, setCoverLetter] = useState('Em đã có kinh nghiệm phù hợp và có thể sắp xếp lịch học để hoàn thành tốt công việc.');
   const [submitting, setSubmitting] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   if (!isOpen || !job) return null;
@@ -40,17 +39,14 @@ export default function ApplicationModal({
     { value: 'CV_Ky_Thuat_CNTT.pdf', label: 'CV Chuyên ngành CNTT: CV_Ky_Thuat_CNTT.pdf' }
   ];
 
-  const handleOpenConfirm = (e) => {
+  const handleSubmit = async (e) => {
     e?.preventDefault();
     if (!coverLetter.trim() || coverLetter.trim().length < 10) {
       setErrorMsg('Vui lòng nhập thư giới thiệu tối thiểu 10 ký tự.');
       return;
     }
     setErrorMsg('');
-    setShowConfirmDialog(true);
-  };
 
-  const handleConfirmSubmit = async () => {
     if (!currentUser?.token) {
       if (showToast) showToast('Vui lòng đăng nhập với tài khoản Sinh viên', 'error');
       return;
@@ -74,9 +70,8 @@ export default function ApplicationModal({
       const data = await res.json();
       if (data.success) {
         if (showToast) {
-          showToast('Nộp hồ sơ ứng tuyển thành công! Đang chuyển đến Lịch sử ứng tuyển (WF-S05)...', 'success');
+          showToast('Nộp hồ sơ ứng tuyển thành công! Nhà tuyển dụng sẽ xem xét hồ sơ của bạn.', 'success');
         }
-        setShowConfirmDialog(false);
         onClose();
         if (onSuccess) {
           onSuccess(data.data);
@@ -95,7 +90,7 @@ export default function ApplicationModal({
     }
   };
 
-  const jobTypeBadge = job.work_type === 'SEASONAL' ? 'Thời vụ / Tết (SEASONAL)' : 'Part-time Bán thời gian (PART_TIME)';
+  const jobTypeBadge = job.work_type === 'SEASONAL' ? 'Thời vụ / Mùa vụ' : 'Bán thời gian (Part-time)';
 
   return (
     <AnimatedModal isOpen={isOpen} onClose={onClose} maxWidth="600px">
@@ -104,17 +99,6 @@ export default function ApplicationModal({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{
-                background: '#F1EEF8',
-                color: '#7565A8',
-                border: '1px solid #D8B4FE',
-                borderRadius: 4,
-                padding: '2px 8px',
-                fontSize: 11,
-                fontWeight: 700
-              }}>
-                WF-S06 — APPLICATION FORM
-              </span>
               <span style={{
                 background: '#FEF3C7',
                 color: '#B45309',
@@ -181,7 +165,7 @@ export default function ApplicationModal({
         </div>
 
         {/* Form Fields */}
-        <form onSubmit={handleOpenConfirm}>
+        <form onSubmit={handleSubmit}>
           {/* Field 1: Chọn CV */}
           <div style={{ marginBottom: 18 }}>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
@@ -211,7 +195,7 @@ export default function ApplicationModal({
               <ChevronDown size={16} color="#64748B" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
             </div>
             <p style={{ margin: '4px 0 0 0', fontSize: 11.5, color: 'var(--color-text-secondary)' }}>
-              Được tải lên từ mục Quản lý CV (WF-S03). Doanh nghiệp sẽ nhận liên kết tệp PDF này.
+              Được chọn từ danh sách CV đã tải lên. Doanh nghiệp tuyển dụng sẽ nhận liên kết tệp PDF này.
             </p>
           </div>
 
@@ -259,95 +243,32 @@ export default function ApplicationModal({
             </div>
           )}
 
-          {/* Buttons */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
-              disabled={submitting}
-              style={{ padding: '9px 18px', fontSize: 13 }}
-            >
-              Hủy
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={submitting}
-              style={{ padding: '9px 22px', fontSize: 13, gap: 6 }}
-            >
-              <Send size={14} /> Gửi ứng tuyển
-            </Button>
-          </div>
-        </form>
-
-        {/* =========================================================================
-            CONFIRMATION DIALOG: "Xác nhận gửi đơn" theo wireframe WF-S06
-            ========================================================================= */}
-        {showConfirmDialog && (
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(3px)',
-            borderRadius: 16,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-            zIndex: 50
-          }}>
-            <div style={{
-              background: '#ffffff',
-              borderRadius: 14,
-              padding: '24px 26px',
-              maxWidth: 420,
-              width: '100%',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                width: 48,
-                height: 48,
-                borderRadius: '50%',
-                background: '#F1EEF8',
-                color: '#7565A8',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 14px auto'
-              }}>
-                <Send size={22} />
-              </div>
-
-              <h4 style={{ fontSize: 17, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 8px 0' }}>
-                Xác nhận gửi đơn
-              </h4>
-              <p style={{ fontSize: 13.5, color: '#475569', margin: '0 0 20px 0', lineHeight: 1.5 }}>
-                Bạn chắc chắn muốn gửi đơn ứng tuyển cho công việc <strong>"{job.title}"</strong>?
-              </p>
-
-              <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-                <Button
-                  variant="secondary"
-                  onClick={() => setShowConfirmDialog(false)}
-                  disabled={submitting}
-                  style={{ padding: '8px 18px', fontSize: 13 }}
-                >
-                  Hủy
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleConfirmSubmit}
-                  disabled={submitting}
-                  style={{ padding: '8px 24px', fontSize: 13, gap: 6 }}
-                >
-                  {submitting ? 'Đang gửi...' : 'Xác nhận'}
-                </Button>
-              </div>
+          {/* Buttons & Direct Submit */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, flexWrap: 'wrap', gap: 10 }}>
+            <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
+              Nhấn gửi để nộp đơn trực tiếp đến nhà tuyển dụng
+            </span>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onClose}
+                disabled={submitting}
+                style={{ padding: '9px 18px', fontSize: 13 }}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={submitting}
+                style={{ padding: '9px 24px', fontSize: 13, gap: 6 }}
+              >
+                <Send size={14} /> {submitting ? 'Đang gửi...' : 'Gửi ứng tuyển'}
+              </Button>
             </div>
           </div>
-        )}
+        </form>
       </div>
     </AnimatedModal>
   );

@@ -4,31 +4,44 @@ import {
   XCircle, AlertCircle, ArrowRight, Save, Trash2, ExternalLink,
   Building2, MapPin, DollarSign, Calendar, UploadCloud, Plus, X,
   GraduationCap, Award, RefreshCw, Send, Check, Bell, Star,
-  ShieldCheck, CheckCheck, Upload, Download, Eye, AlertTriangle
+  ShieldCheck, CheckCheck, Upload, Download, Eye, AlertTriangle, Sparkles,
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '../../components/ui';
 import JobCard from '../../components/common/JobCard';
 import EmptyState from '../../components/common/EmptyState';
+import StatusBadge from '../../components/common/StatusBadge';
 import CompanyLogo from '../../components/CompanyLogo';
 import { API_BASE, formatApiError } from '../../config/api';
 import MyAssignmentsPage from './MyAssignmentsPage';
 import NotificationsPage from './NotificationsPage';
+import AccountSettingsPage from './AccountSettingsPage';
 
 export default function StudentDashboardPage({
   currentUser,
   jobs = [],
   initialTab = 'dashboard',
   onSelectJob,
+  onSelectApplication,
+  onApply,
   onNavigateJobs,
   onNavigateComingSoon,
   showToast
 }) {
-  const [activeTab, setActiveTab] = useState(initialTab); // 'dashboard' | 'profile' | 'cv' | 'saved_jobs' | 'applications' | 'assignments' | 'reviews' | 'notifications'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'dashboard' | 'availability' | 'profile' | 'cv' | 'saved_jobs' | 'applications' | 'assignments' | 'reviews' | 'notifications'
   
   // Dashboard overall loading & error states (WF-S01 Error / Loading / Retry)
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardError, setDashboardError] = useState(null);
+
+  // Availability & Matching Engine State (P0-03, P0-05)
+  const [availabilitySlots, setAvailabilitySlots] = useState([]);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+  const [isSavingAvailability, setIsSavingAvailability] = useState(false);
+  const [recommendedJobs, setRecommendedJobs] = useState([]);
+  const [recommendedLoading, setRecommendedLoading] = useState(false);
+  const [matchingStatus, setMatchingStatus] = useState(null);
 
   // Applications State
   const [applications, setApplications] = useState([]);
@@ -166,6 +179,82 @@ export default function StudentDashboardPage({
     }
   };
 
+  // =========================================================================
+  // 5. FETCH STUDENT AVAILABILITY (GET /api/profile/availability)
+  // =========================================================================
+  const fetchAvailability = async () => {
+    if (!currentUser?.token) return;
+    try {
+      setAvailabilityLoading(true);
+      const res = await fetch(`${API_BASE}/profile/availability`, {
+        headers: { Authorization: `Bearer ${currentUser.token}` }
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setAvailabilitySlots(data.data);
+      }
+    } catch (err) {
+      console.warn('Could not fetch student availability:', err);
+    } finally {
+      setAvailabilityLoading(false);
+    }
+  };
+
+  // =========================================================================
+  // 6. FETCH RECOMMENDED JOBS (GET /api/jobs/recommended)
+  // =========================================================================
+  const fetchRecommendedJobs = async () => {
+    if (!currentUser?.token) return;
+    try {
+      setRecommendedLoading(true);
+      const res = await fetch(`${API_BASE}/jobs/recommended`, {
+        headers: { Authorization: `Bearer ${currentUser.token}` }
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setRecommendedJobs(Array.isArray(data.data.jobs) ? data.data.jobs : []);
+        setMatchingStatus(data.data.status || 'MATCH_FOUND');
+      }
+    } catch (err) {
+      console.warn('Could not fetch recommended jobs:', err);
+    } finally {
+      setRecommendedLoading(false);
+    }
+  };
+
+  // =========================================================================
+  // 7. SAVE AVAILABILITY HANDLER (PUT /api/profile/availability)
+  // =========================================================================
+  const handleSaveAvailability = async (slotsToSave) => {
+    if (!currentUser?.token) {
+      if (showToast) showToast('Vui lòng đăng nhập để lưu lịch rảnh', 'error');
+      return;
+    }
+    try {
+      setIsSavingAvailability(true);
+      const res = await fetch(`${API_BASE}/profile/availability`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${currentUser.token}`
+        },
+        body: JSON.stringify({ slots: slotsToSave })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAvailabilitySlots(data.data || []);
+        if (showToast) showToast('Đã lưu lịch rảnh thành công! Đang tính toán gợi ý việc làm...', 'success');
+        await fetchRecommendedJobs();
+      } else {
+        if (showToast) showToast(data.message || 'Lỗi khi lưu lịch rảnh', 'error');
+      }
+    } catch (err) {
+      if (showToast) showToast(formatApiError(err), 'error');
+    } finally {
+      setIsSavingAvailability(false);
+    }
+  };
+
   // Load Saved Jobs from LocalStorage
   const loadSavedJobs = () => {
     try {
@@ -187,7 +276,9 @@ export default function StudentDashboardPage({
         fetchProfile(),
         fetchApplications(),
         fetchAssignments(),
-        fetchNotifications()
+        fetchNotifications(),
+        fetchAvailability(),
+        fetchRecommendedJobs()
       ]);
     } catch (err) {
       setDashboardError('Không thể tải một số dữ liệu dashboard. Vui lòng thử lại.');
@@ -325,8 +416,8 @@ export default function StudentDashboardPage({
 
       const data = await res.json();
       if (res.status === 409 || data.message?.includes('đã gửi đánh giá')) {
-        setReviewConflictError('409 Conflict: Bạn đã gửi đánh giá cho đối tác này trong công việc này rồi! (G-41, G-42 TBD)');
-        if (showToast) showToast('409 Conflict: Công việc này bạn đã gửi đánh giá rồi', 'error');
+        setReviewConflictError('Bạn đã gửi đánh giá cho đối tác này trong công việc này rồi!');
+        if (showToast) showToast('Công việc này bạn đã gửi đánh giá rồi', 'error');
         const updated = [...new Set([...reviewedAssignmentIds, selectedReviewAssignment.id])];
         setReviewedAssignmentIds(updated);
         localStorage.setItem('jobnest_student_reviewed_assignments', JSON.stringify(updated));
@@ -356,7 +447,7 @@ export default function StudentDashboardPage({
     } catch (err) {
       const msg = err.message || 'Lỗi kết nối';
       if (msg.includes('409') || msg.includes('đã gửi đánh giá')) {
-        setReviewConflictError('409 Conflict: Bạn đã gửi đánh giá cho đối tác này trong công việc này rồi! (G-41, G-42 TBD)');
+        setReviewConflictError('Bạn đã gửi đánh giá cho đối tác này trong công việc này rồi!');
       }
       if (showToast) showToast(formatApiError(err, 'Lỗi gửi đánh giá'), 'error');
     } finally {
@@ -373,10 +464,20 @@ export default function StudentDashboardPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>
-            CỔNG THÔNG TIN SINH VIÊN (WF-S01)
+            CỔNG THÔNG TIN SINH VIÊN
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
-            Quản lý Tài khoản & Hoạt động Sinh viên
+            {activeTab === 'dashboard' ? 'Tổng quan hoạt động sinh viên' :
+             activeTab === 'availability' ? 'Lịch rảnh & So khớp công việc AI' :
+             activeTab === 'profile' ? 'Hồ sơ cá nhân sinh viên' :
+             activeTab === 'cv' ? 'Quản lý CV & Hồ sơ ứng tuyển' :
+             activeTab === 'saved_jobs' ? 'Việc làm đã lưu' :
+             activeTab === 'applications' ? 'Lịch sử ứng tuyển' :
+             activeTab === 'assignments' ? 'Công việc được giao' :
+             activeTab === 'reviews' ? 'Đánh giá & Phản hồi' :
+             activeTab === 'notifications' ? 'Trung tâm thông báo' :
+             activeTab === 'settings' ? 'Cài đặt tài khoản & Bảo mật' :
+             'Quản lý tài khoản & Hoạt động sinh viên'}
           </h1>
         </div>
 
@@ -468,17 +569,19 @@ export default function StudentDashboardPage({
             </span>
           </div>
 
-          {/* Sidebar Menu Items matching WF-S01 */}
+          {/* Sidebar Menu Items */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[
-              { id: 'dashboard', label: 'Tổng quan (Dashboard)', icon: Briefcase, count: null, code: 'WF-S01' },
-              { id: 'profile', label: 'Hồ sơ cá nhân (Profile)', icon: User, count: null, code: 'WF-S02' },
-              { id: 'cv', label: 'Quản lý CV (CV)', icon: GraduationCap, count: null, code: 'WF-S03' },
-              { id: 'saved_jobs', label: 'Việc làm đã lưu (Saved Jobs)', icon: Bookmark, count: savedJobIds.length, code: 'WF-S04' },
-              { id: 'applications', label: 'Lịch sử ứng tuyển (History)', icon: Clock, count: applications.length, code: 'WF-S05' },
-              { id: 'assignments', label: 'Công việc được giao (Assignments)', icon: FileText, count: assignments.length, code: 'WF-S08' },
-              { id: 'reviews', label: 'Đánh giá & Phản hồi (Reviews)', icon: Star, count: null, code: 'WF-S10' },
-              { id: 'notifications', label: 'Thông báo (Notifications)', icon: Bell, count: unreadNotifsCount, code: 'WF-S11' },
+              { id: 'dashboard', label: 'Tổng quan', icon: Briefcase, count: null },
+              { id: 'availability', label: 'Lịch rảnh & Gợi ý AI', icon: Calendar, count: null },
+              { id: 'profile', label: 'Hồ sơ cá nhân', icon: User, count: null },
+              { id: 'cv', label: 'Quản lý CV', icon: GraduationCap, count: null },
+              { id: 'saved_jobs', label: 'Việc làm đã lưu', icon: Bookmark, count: savedJobIds.length },
+              { id: 'applications', label: 'Lịch sử ứng tuyển', icon: Clock, count: applications.length },
+              { id: 'assignments', label: 'Công việc được giao', icon: FileText, count: assignments.length },
+              { id: 'reviews', label: 'Đánh giá & Phản hồi', icon: Star, count: null },
+              { id: 'notifications', label: 'Thông báo', icon: Bell, count: unreadNotifsCount },
+              { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings, count: null },
             ].map((menuItem) => {
               const Icon = menuItem.icon;
               const isActive = activeTab === menuItem.id;
@@ -869,8 +972,506 @@ export default function StudentDashboardPage({
                       )}
                     </div>
                   </div>
+
+                  {/* P0-03 & P0-05: VIỆC LÀM GỢI Ý CÁ NHÂN HÓA (AI MATCHING ENGINE) */}
+                  <div style={{
+                    background: '#ffffff',
+                    borderRadius: 14,
+                    border: '1px solid var(--color-border)',
+                    padding: '24px 26px',
+                    boxShadow: '0 2px 8px rgba(41, 38, 58, 0.03)',
+                    marginTop: 20
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{
+                            background: 'var(--color-primary-light, #ede9fe)',
+                            color: 'var(--color-primary, #7565A8)',
+                            padding: '4px 8px',
+                            borderRadius: 8,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            fontSize: 12,
+                            fontWeight: 800
+                          }}>
+                            <Sparkles size={14} /> AI MATCHING
+                          </span>
+                          <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
+                            Việc làm tương thích với lịch rảnh của bạn
+                          </h3>
+                        </div>
+                        <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '4px 0 0 0' }}>
+                          Thuật toán 2 tầng (Bộ lọc cứng Hard Filter + Chấm điểm tương thích Soft Composite) tự động đề xuất việc làm không trùng lịch học
+                        </p>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <button
+                          onClick={() => setActiveTab('availability')}
+                          style={{
+                            background: '#F8F7FB',
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-primary)',
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            fontSize: 12.5,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6
+                          }}
+                        >
+                          <Calendar size={14} /> Chỉnh sửa lịch rảnh
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Banner nhắc nhở nếu chưa cài đặt lịch rảnh */}
+                    {matchingStatus === 'NO_AVAILABILITY' && (
+                      <div style={{
+                        background: '#FFFBEB',
+                        border: '1px solid #FDE68A',
+                        borderRadius: 10,
+                        padding: '14px 18px',
+                        marginBottom: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 12,
+                        flexWrap: 'wrap'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <span style={{ fontSize: 22 }}>💡</span>
+                          <div>
+                            <div style={{ fontSize: 13.5, fontWeight: 700, color: '#92400E' }}>
+                              Bạn chưa cấu hình thời gian rảnh trong tuần!
+                            </div>
+                            <div style={{ fontSize: 12, color: '#B45309' }}>
+                              Hãy cập nhật các buổi bạn có thể làm việc để nhận danh sách việc làm được AI tối ưu hóa độ khớp 100%.
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setActiveTab('availability')}
+                          style={{
+                            background: '#D97706',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: 6,
+                            padding: '6px 14px',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Khai báo lịch rảnh ngay →
+                        </button>
+                      </div>
+                    )}
+
+                    {recommendedLoading ? (
+                      <div style={{ padding: '36px 0', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: 13.5 }}>
+                        <RefreshCw className="animate-spin" size={20} style={{ margin: '0 auto 8px auto', display: 'block' }} />
+                        Đang phân tích độ tương thích thời gian và chấm điểm gợi ý...
+                      </div>
+                    ) : recommendedJobs.length === 0 ? (
+                      <EmptyState
+                        title="Chưa tìm thấy công việc tương thích"
+                        description="Hiện chưa có công việc nào khớp với thời gian rảnh hiện tại của bạn. Thử mở rộng thêm các buổi rảnh trong tuần nhé!"
+                        actionText="Chỉnh sửa lịch rảnh"
+                        onAction={() => setActiveTab('availability')}
+                      />
+                    ) : (
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                        gap: 16
+                      }}>
+                        {recommendedJobs.slice(0, 6).map((job) => (
+                          <JobCard
+                            key={job.id}
+                            job={job}
+                            isSaved={savedJobIds.includes(job.id)}
+                            onToggleSave={() => {
+                              const next = savedJobIds.includes(job.id)
+                                ? savedJobIds.filter(id => id !== job.id)
+                                : [...savedJobIds, job.id];
+                              setSavedJobIds(next);
+                              localStorage.setItem('jobnest_saved_jobs', JSON.stringify(next));
+                            }}
+                            onSelectJob={onSelectJob}
+                            onApply={onApply}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
+            </div>
+          )}
+
+          {/* ===================================================================
+              TAB: QUẢN LÝ LỊCH RẢNH & SO KHỚP AI (P0-02, P0-03, P0-05)
+              =================================================================== */}
+          {activeTab === 'availability' && (
+            <div style={{
+              background: '#ffffff',
+              borderRadius: 16,
+              border: '1px solid var(--color-border)',
+              padding: '28px 32px',
+              boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)'
+            }}>
+              {/* Header Tab */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #F1F5F9', flexWrap: 'wrap', gap: 12 }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{
+                      background: 'var(--color-primary-light, #ede9fe)',
+                      color: 'var(--color-primary, #7565A8)',
+                      padding: '4px 8px',
+                      borderRadius: 8,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontSize: 12,
+                      fontWeight: 800
+                    }}>
+                      <Calendar size={14} /> THỜI GIAN BIỂU CÁ NHÂN
+                    </span>
+                    <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
+                      Quản lý Lịch rảnh & Tương thích Việc làm
+                    </h2>
+                  </div>
+                  <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '4px 0 0 0' }}>
+                    Chọn các ca hoặc buổi bạn có thể đi làm trong tuần. Matching Engine sẽ dùng dữ liệu này để so khớp thời gian thực với yêu cầu của nhà tuyển dụng.
+                  </p>
+                </div>
+
+                <Button
+                  variant="primary"
+                  onClick={() => handleSaveAvailability(availabilitySlots)}
+                  disabled={isSavingAvailability}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
+                >
+                  <Save size={16} />
+                  {isSavingAvailability ? 'Đang lưu...' : 'Lưu lịch rảnh & Cập nhật gợi ý'}
+                </Button>
+              </div>
+
+              {/* Quick Preset Buttons for Demo */}
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
+                  ⚡ Cấu hình nhanh cho buổi trình bày Demo:
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Student A preset: Thứ 2, 4, 6 sáng 07:30 - 11:30
+                      const presetA = [
+                        { day_of_week: 1, start_time: '07:30:00', end_time: '11:30:00', is_active: true },
+                        { day_of_week: 3, start_time: '07:30:00', end_time: '11:30:00', is_active: true },
+                        { day_of_week: 5, start_time: '07:30:00', end_time: '11:30:00', is_active: true },
+                      ];
+                      setAvailabilitySlots(presetA);
+                      if (showToast) showToast('Đã chọn mẫu Sinh viên A (Rảnh Sáng T2, T4, T6). Bấm "Lưu lịch rảnh" để cập nhật!', 'info');
+                    }}
+                    style={{
+                      background: '#F5F3FF',
+                      border: '1px solid #DDD6FE',
+                      color: '#6D28D9',
+                      padding: '6px 12px',
+                      borderRadius: 8,
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🌅 Sinh viên A: Rảnh Sáng (T2, T4, T6: 07:30 - 11:30)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Student B preset: Thứ 3, 5, 7 tối 18:00 - 22:00
+                      const presetB = [
+                        { day_of_week: 2, start_time: '18:00:00', end_time: '22:00:00', is_active: true },
+                        { day_of_week: 4, start_time: '18:00:00', end_time: '22:00:00', is_active: true },
+                        { day_of_week: 6, start_time: '18:00:00', end_time: '22:00:00', is_active: true },
+                      ];
+                      setAvailabilitySlots(presetB);
+                      if (showToast) showToast('Đã chọn mẫu Sinh viên B (Rảnh Tối T3, T5, T7). Bấm "Lưu lịch rảnh" để cập nhật!', 'info');
+                    }}
+                    style={{
+                      background: '#EFF6FF',
+                      border: '1px solid #BFDBFE',
+                      color: '#1D4ED8',
+                      padding: '6px 12px',
+                      borderRadius: 8,
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🌙 Sinh viên B: Rảnh Tối (T3, T5, T7: 18:00 - 22:00)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Weekend preset
+                      const presetWeekend = [
+                        { day_of_week: 6, start_time: '08:00:00', end_time: '17:00:00', is_active: true },
+                        { day_of_week: 7, start_time: '08:00:00', end_time: '17:00:00', is_active: true },
+                      ];
+                      setAvailabilitySlots(presetWeekend);
+                    }}
+                    style={{
+                      background: '#ECFDF5',
+                      border: '1px solid #A7F3D0',
+                      color: '#047857',
+                      padding: '6px 12px',
+                      borderRadius: 8,
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🏖️ Rảnh Cuối tuần (T7, CN: 08:00 - 17:00)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvailabilitySlots([]);
+                      if (showToast) showToast('Đã xóa trắng lịch rảnh.', 'info');
+                    }}
+                    style={{
+                      background: '#FEF2F2',
+                      border: '1px solid #FECACA',
+                      color: '#DC2626',
+                      padding: '6px 12px',
+                      borderRadius: 8,
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🧹 Xóa toàn bộ lịch
+                  </button>
+                </div>
+              </div>
+
+              {/* 7-Day Weekly Matrix Table */}
+              <div style={{
+                background: '#FAFAFA',
+                border: '1px solid var(--color-border)',
+                borderRadius: 12,
+                overflow: 'hidden',
+                marginBottom: 32
+              }}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '120px 1fr',
+                  background: 'var(--color-primary-light, #ede9fe)',
+                  borderBottom: '1px solid var(--color-border)',
+                  padding: '12px 16px',
+                  fontWeight: 800,
+                  fontSize: 13,
+                  color: 'var(--color-primary, #7565A8)'
+                }}>
+                  <div>THỨ / NGÀY</div>
+                  <div>CÁC CA RẢNH TRONG NGÀY (NHẤN ĐỂ BẬT / TẮT)</div>
+                </div>
+
+                {[
+                  { day: 1, label: 'Thứ Hai', short: 'T2' },
+                  { day: 2, label: 'Thứ Ba', short: 'T3' },
+                  { day: 3, label: 'Thứ Tư', short: 'T4' },
+                  { day: 4, label: 'Thứ Năm', short: 'T5' },
+                  { day: 5, label: 'Thứ Sáu', short: 'T6' },
+                  { day: 6, label: 'Thứ Bảy', short: 'T7' },
+                  { day: 7, label: 'Chủ Nhật', short: 'CN' }
+                ].map(({ day, label }) => {
+                  const daySlots = availabilitySlots.filter(s => s.day_of_week === day);
+
+                  const isMorning = daySlots.some(s => s.start_time.startsWith('07:30') || s.start_time.startsWith('08:00'));
+                  const isAfternoon = daySlots.some(s => s.start_time.startsWith('13:00'));
+                  const isEvening = daySlots.some(s => s.start_time.startsWith('18:00') || s.start_time.startsWith('17:30'));
+
+                  const togglePreset = (startStr, endStr) => {
+                    setAvailabilitySlots(prev => {
+                      const exists = prev.some(s => s.day_of_week === day && s.start_time.startsWith(startStr));
+                      if (exists) {
+                        return prev.filter(s => !(s.day_of_week === day && s.start_time.startsWith(startStr)));
+                      } else {
+                        return [...prev, {
+                          day_of_week: day,
+                          start_time: `${startStr}:00`,
+                          end_time: `${endStr}:00`,
+                          is_active: true
+                        }];
+                      }
+                    });
+                  };
+
+                  return (
+                    <div
+                      key={day}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '120px 1fr',
+                        padding: '12px 16px',
+                        borderBottom: '1px solid #ECECEC',
+                        alignItems: 'center',
+                        background: daySlots.length > 0 ? '#FFFFFF' : '#FAFAFA'
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--color-text)' }}>
+                        {label}
+                      </div>
+
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+                        {/* Ca Sáng */}
+                        <button
+                          type="button"
+                          onClick={() => togglePreset('07:30', '11:30')}
+                          style={{
+                            background: isMorning ? '#7565A8' : '#FFFFFF',
+                            color: isMorning ? '#FFFFFF' : 'var(--color-text)',
+                            border: `1.5px solid ${isMorning ? '#7565A8' : '#D1D5DB'}`,
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <span>🌅</span> Ca Sáng (07:30 - 11:30) {isMorning && '✓'}
+                        </button>
+
+                        {/* Ca Chiều */}
+                        <button
+                          type="button"
+                          onClick={() => togglePreset('13:00', '17:00')}
+                          style={{
+                            background: isAfternoon ? '#7565A8' : '#FFFFFF',
+                            color: isAfternoon ? '#FFFFFF' : 'var(--color-text)',
+                            border: `1.5px solid ${isAfternoon ? '#7565A8' : '#D1D5DB'}`,
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <span>☀️</span> Ca Chiều (13:00 - 17:00) {isAfternoon && '✓'}
+                        </button>
+
+                        {/* Ca Tối */}
+                        <button
+                          type="button"
+                          onClick={() => togglePreset('18:00', '22:00')}
+                          style={{
+                            background: isEvening ? '#7565A8' : '#FFFFFF',
+                            color: isEvening ? '#FFFFFF' : 'var(--color-text)',
+                            border: `1.5px solid ${isEvening ? '#7565A8' : '#D1D5DB'}`,
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <span>🌙</span> Ca Tối (18:00 - 22:00) {isEvening && '✓'}
+                        </button>
+
+                        {daySlots.length === 0 && (
+                          <span style={{ fontSize: 12, color: 'var(--color-text-muted)', fontStyle: 'italic', marginLeft: 8 }}>
+                            Bận / Chưa chọn ca rảnh
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Matching Engine Live Results Preview */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div>
+                    <h3 style={{ fontSize: 17, fontWeight: 800, color: 'var(--color-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Sparkles size={18} color="#7565A8" />
+                      Kết quả việc làm đề xuất dựa trên lịch rảnh của bạn ({recommendedJobs.length} việc làm)
+                    </h3>
+                    <p style={{ fontSize: 12.5, color: 'var(--color-text-secondary)', margin: '4px 0 0 0' }}>
+                      Điểm so khớp được tính toán bởi thuật toán Matching Engine hai tầng từ PostgreSQL thực tế
+                    </p>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    onClick={fetchRecommendedJobs}
+                    disabled={recommendedLoading}
+                    style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                  >
+                    <RefreshCw size={13} className={recommendedLoading ? 'animate-spin' : ''} />
+                    Làm mới gợi ý
+                  </Button>
+                </div>
+
+                {recommendedLoading ? (
+                  <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: 13.5 }}>
+                    <RefreshCw className="animate-spin" size={24} style={{ margin: '0 auto 8px auto', display: 'block' }} />
+                    Đang tính toán lại điểm tương thích...
+                  </div>
+                ) : recommendedJobs.length === 0 ? (
+                  <EmptyState
+                    title="Chưa có việc làm tương thích với lịch này"
+                    description="Hãy thử chọn thêm ca rảnh khác để mở rộng danh sách công việc phù hợp nhé."
+                  />
+                ) : (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                    gap: 16
+                  }}>
+                    {recommendedJobs.map((job) => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        isSaved={savedJobIds.includes(job.id)}
+                        onToggleSave={() => {
+                          const next = savedJobIds.includes(job.id)
+                            ? savedJobIds.filter(id => id !== job.id)
+                            : [...savedJobIds, job.id];
+                          setSavedJobIds(next);
+                          localStorage.setItem('jobnest_saved_jobs', JSON.stringify(next));
+                        }}
+                        onSelectJob={onSelectJob}
+                        onApply={onApply}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -1251,10 +1852,10 @@ export default function StudentDashboardPage({
                   Đang tải danh sách đơn ứng tuyển...
                 </div>
               ) : filteredApplications.length === 0 ? (
-                /* Empty State theo yêu cầu */
+                /* Empty State theo yêu cầu UI-018 */
                 <EmptyState
-                  title="Bạn chưa có đơn ứng tuyển nào"
-                  description="Hiện tại bạn chưa nộp hồ sơ vào công việc nào trong danh mục này. Hãy tìm kiếm các cơ hội việc làm part-time hấp dẫn và ứng tuyển ngay nhé!"
+                  title={appFilter === 'ALL' ? 'Bạn chưa có đơn ứng tuyển nào' : `Không có đơn ứng tuyển ở trạng thái ${appFilter === 'PENDING' ? 'Chờ duyệt' : appFilter === 'ACCEPTED' ? 'Đã duyệt' : 'Bị từ chối'}`}
+                  description={appFilter === 'ALL' ? 'Hiện tại bạn chưa nộp hồ sơ vào công việc nào. Hãy tìm kiếm các cơ hội việc làm part-time hấp dẫn và ứng tuyển ngay nhé!' : 'Bạn có thể chuyển sang bộ lọc khác hoặc tìm kiếm cơ hội việc làm mới.'}
                   actionText="Khám phá việc làm ngay"
                   onAction={onNavigateJobs}
                 />
@@ -1282,18 +1883,8 @@ export default function StudentDashboardPage({
                         }}
                       >
                         <div style={{ minWidth: 260, flex: '1 1 300px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                            <span style={{
-                              padding: '3px 8px',
-                              borderRadius: 6,
-                              fontSize: 11,
-                              fontWeight: 700,
-                              background: isAccepted ? '#ECFDF5' : isRejected ? '#FEE2E2' : '#FEF3C7',
-                              color: isAccepted ? '#047857' : isRejected ? '#DC2626' : '#D97706',
-                              border: `1px solid ${isAccepted ? '#A7F3D0' : isRejected ? '#FECACA' : '#FDE68A'}`
-                            }}>
-                              {isAccepted ? '✓ ĐÃ DUYỆT' : isRejected ? '✕ BỊ TỪ CHỐI' : '⏳ CHỜ DUYỆT'}
-                            </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                            <StatusBadge status={app.status} />
                             <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                               Nộp lúc: {new Date(app.applied_at || app.created_at || Date.now()).toLocaleDateString('vi-VN')}
                             </span>
@@ -1339,6 +1930,26 @@ export default function StudentDashboardPage({
                               onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
                             >
                               Hủy ứng tuyển
+                            </button>
+                          )}
+
+                          {onSelectApplication && (
+                            <button
+                              type="button"
+                              onClick={() => onSelectApplication(app)}
+                              style={{
+                                background: '#ffffff',
+                                border: '1.5px solid var(--color-border)',
+                                color: 'var(--color-primary)',
+                                borderRadius: 8,
+                                padding: '8px 14px',
+                                fontSize: 12.5,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              Chi tiết đơn
                             </button>
                           )}
 
@@ -1460,7 +2071,7 @@ export default function StudentDashboardPage({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
                 <div>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
-                    Quản lý CV & Hồ sơ ứng tuyển (WF-S03)
+                    Quản lý CV & Hồ sơ ứng tuyển
                   </h2>
                   <p style={{ color: 'var(--color-text-secondary)', fontSize: 13, margin: 0 }}>
                     Tải lên và thiết lập CV mặc định để nộp nhanh cho các công việc part-time & freelance
@@ -1575,7 +2186,7 @@ export default function StudentDashboardPage({
 
               {/* CV Tips & Guidance */}
               <div style={{ background: '#F8FAFC', borderRadius: 12, padding: '16px 18px', border: '1px solid #E2E8F0', fontSize: 13, color: '#475569', lineHeight: 1.6 }}>
-                <strong>💡 Mẹo từ JobNest:</strong> Đảm bảo CV của bạn ghi rõ các kỹ năng chuyên môn, kinh nghiệm thực tế hoặc dự án đồ án ở trường để tăng <strong>85% tỉ lệ duyệt đơn</strong> từ doanh nghiệp đối tác!
+                <strong>💡 Mẹo từ JobNest:</strong> Đảm bảo CV của bạn ghi rõ các kỹ năng chuyên môn, kinh nghiệm thực tế hoặc dự án đồ án ở trường để <strong>hồ sơ của bạn nổi bật hơn</strong> trong mắt các doanh nghiệp đối tác.
               </div>
             </div>
           )}
@@ -1607,9 +2218,6 @@ export default function StudentDashboardPage({
               {/* Header Title matching WF-S10 */}
               <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#F1EEF8', color: '#7565A8', padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700, marginBottom: 6 }}>
-                    WF-S10 — REVIEWS
-                  </div>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
                     Đánh giá & Phản hồi Nhà tuyển dụng
                   </h2>
@@ -1848,10 +2456,6 @@ export default function StudentDashboardPage({
                 >
                   {submittingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
                 </Button>
-
-                <div style={{ marginTop: 14, fontSize: 11.5, color: '#64748B', fontStyle: 'italic' }}>
-                  Trạng thái UI / TBD: 409 nếu đã đánh giá. G-41, G-42 TBD.
-                </div>
               </div>
 
               {/* ===============================================================
@@ -1924,6 +2528,17 @@ export default function StudentDashboardPage({
               onSelectNotification={(item) => {
                 if (showToast) showToast(`Đã mở thông báo: ${item.title || 'Thông báo'}`, 'info');
               }}
+            />
+          )}
+
+          {/* ===================================================================
+              TAB 9: CÀI ĐẶT TÀI KHOẢN & BẢO MẬT (ACCOUNT SETTINGS - WF-X03)
+              =================================================================== */}
+          {activeTab === 'settings' && (
+            <AccountSettingsPage
+              currentUser={currentUser}
+              showToast={showToast}
+              embedded={true}
             />
           )}
 

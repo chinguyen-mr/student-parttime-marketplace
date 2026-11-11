@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   ShieldCheck, FileText, Lock, HelpCircle, 
-  CheckCircle2, X, ChevronRight, ExternalLink 
+  CheckCircle2, X, ChevronRight, ExternalLink, Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnimatedModal, Button } from '../ui';
@@ -9,7 +9,7 @@ import { AnimatedModal, Button } from '../ui';
 export default function PolicyModal({
   isOpen,
   onClose,
-  initialTab = 'terms' // 'terms' | 'privacy' | 'regulations' | 'sitemap'
+  initialTab = 'about' // 'about' | 'terms' | 'privacy' | 'regulations' | 'sitemap'
 }) {
   const [activeTab, setActiveTab] = useState(initialTab);
 
@@ -18,6 +18,7 @@ export default function PolicyModal({
   }, [initialTab]);
 
   const tabs = [
+    { id: 'about', label: 'Về JobNest & Nền tảng', icon: Info },
     { id: 'terms', label: 'Điều khoản sử dụng', icon: FileText },
     { id: 'privacy', label: 'Chính sách bảo mật', icon: Lock },
     { id: 'regulations', label: 'Quy chế & Giải quyết tranh chấp', icon: ShieldCheck },
@@ -119,6 +120,59 @@ export default function PolicyModal({
 
         {/* Modal Scrollable Body */}
         <div style={{ padding: '24px 28px', overflowY: 'auto', flex: 1, fontSize: 13.5, color: '#30283A', lineHeight: 1.65 }}>
+          {activeTab === 'about' && (
+            <div>
+              <h4 style={{ fontSize: 16, fontWeight: 800, color: '#594675', marginBottom: 10 }}>
+                VỀ JOBNEST — NỀN TẢNG VIỆC LÀM SINH VIÊN THEO LỊCH RẢNH
+              </h4>
+              <p style={{ marginBottom: 14 }}>
+                <strong>JOBNEST</strong> là nền tảng công nghệ kết nối việc làm bán thời gian (Part-time), việc làm thời vụ (Seasonal) và dự án tự do (Freelance) được thiết kế chuyên biệt dành riêng cho sinh viên tại Việt Nam.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginBottom: 18 }}>
+                <div style={{ background: '#FAF8FC', border: '1px solid #EAE5F0', borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontWeight: 700, color: '#594675', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    🎯 Sứ mệnh cốt lõi
+                  </div>
+                  <div style={{ fontSize: 13, color: '#554E60', lineHeight: 1.6 }}>
+                    Giúp sinh viên tự chủ tài chính và tích lũy kinh nghiệm thực tế mà không phải đánh đổi hay làm gián đoạn lịch học tập trên giảng đường.
+                  </div>
+                </div>
+
+                <div style={{ background: '#FAF8FC', border: '1px solid #EAE5F0', borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontWeight: 700, color: '#594675', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    ⚙️ Thuật toán đối chiếu 2 tầng
+                  </div>
+                  <div style={{ fontSize: 13, color: '#554E60', lineHeight: 1.6 }}>
+                    Hard Filter tự động loại bỏ triệt để các ca làm trùng lịch học; Composite Scoring thông minh gợi ý việc làm gần trường, đúng chuyên ngành và thù lao tối ưu.
+                  </div>
+                </div>
+
+                <div style={{ background: '#FAF8FC', border: '1px solid #EAE5F0', borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontWeight: 700, color: '#594675', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    🛡️ Minh bạch & Bảo vệ sinh viên
+                  </div>
+                  <div style={{ fontSize: 13, color: '#554E60', lineHeight: 1.6 }}>
+                    100% doanh nghiệp được xác thực thông tin; kiểm duyệt tin đăng nghiêm ngặt; không thu bất kỳ khoản phí môi giới nào từ sinh viên.
+                  </div>
+                </div>
+
+                <div style={{ background: '#FAF8FC', border: '1px solid #EAE5F0', borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontWeight: 700, color: '#594675', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    🤝 Đánh giá hai chiều uy tín
+                  </div>
+                  <div style={{ fontSize: 13, color: '#554E60', lineHeight: 1.6 }}>
+                    Cơ chế đánh giá và phản hồi 2 chiều sau mỗi hợp đồng làm việc giúp sinh viên xây dựng hồ sơ năng lực uy tín cho tương lai.
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ background: '#FFF9F6', border: '1px solid #F5DCD0', borderRadius: 10, padding: 14, fontSize: 13, color: '#6A4F44', lineHeight: 1.6 }}>
+                💡 <strong>Cam kết kỹ thuật & bảo mật:</strong> Hệ thống được vận hành trên hạ tầng cơ sở dữ liệu quan hệ PostgreSQL chuẩn mực, đảm bảo tính toàn vẹn dữ liệu, khả năng đáp ứng hàng chục nghìn lượt truy cập và mã hóa bảo mật thông tin tối đa.
+              </div>
+            </div>
+          )}
+
           {activeTab === 'terms' && (
             <div>
               <h4 style={{ fontSize: 16, fontWeight: 800, color: '#594675', marginBottom: 10 }}>

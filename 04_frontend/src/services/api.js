@@ -2,7 +2,13 @@
  * Centralized API configuration and network helper utilities for JobNest Client
  */
 
-export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+export const API_BASE = (() => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return `${window.location.origin}/api/v1`;
+  }
+  return 'http://localhost:5000/api/v1';
+})();
 export const SERVER_BASE = API_BASE.replace(/\/api(\/v1)?\/?$/, '');
 export const HEALTH_ENDPOINT = `${SERVER_BASE}/health`;
 

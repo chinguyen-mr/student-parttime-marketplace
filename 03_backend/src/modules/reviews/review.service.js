@@ -45,7 +45,25 @@ class ReviewService {
             throw new ConflictError('Bạn đã gửi đánh giá cho đối tác này trong công việc này rồi');
         }
 
-        return reviewRepository.create(job_id, reviewerId, reviewee_id, rating, comment);
+        const newReview = await reviewRepository.create(job_id, reviewerId, reviewee_id, rating, comment);
+
+        // Tạo thông báo cho đối tác nhận được đánh giá
+        try {
+            const db = require('../../config/db');
+            await db.query(
+                `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
+                 VALUES ($1, 'REVIEW', 'Bạn nhận được đánh giá mới', $2, 'REVIEW', $3)`,
+                [
+                    reviewee_id,
+                    `Đối tác đã đánh giá ${rating} sao cho bạn trong công việc "${job.title}".`,
+                    newReview.id
+                ]
+            );
+        } catch (notifErr) {
+            console.error('Lỗi gửi notification review:', notifErr.message);
+        }
+
+        return newReview;
     }
 
     async getUserReviews(userId) {

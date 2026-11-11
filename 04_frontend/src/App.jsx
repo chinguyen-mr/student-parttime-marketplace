@@ -3,7 +3,7 @@ import {
   Search, User, Shield, MapPin, DollarSign, Send, LogIn, LogOut, 
   PlusCircle, Building2, Bell, Star, Eye, ArrowLeft, ArrowRight,
   ChevronLeft, ChevronRight, CheckCircle2, Clock, XCircle, FileText, Download, Check, Users, Briefcase, Filter,
-  AlertCircle, RefreshCw, Sparkles, Home, LayoutDashboard
+  AlertCircle, RefreshCw, Sparkles, Home, LayoutDashboard, Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, AnimatedToast, AnimatedModal, CustomDropdown } from './components/ui';
@@ -37,6 +37,15 @@ import EmployerDashboardPage from './pages/employer/EmployerDashboardPage';
 import EmployerPortal from './pages/EmployerPortal';
 import AdminPortal from './pages/admin/AdminPortal';
 import NotificationsPage from './pages/student/NotificationsPage';
+import AboutPage from './pages/guest/AboutPage';
+import EmployerPublicProfilePage from './pages/guest/EmployerPublicProfilePage';
+import StaticContentPage from './pages/guest/StaticContentPage';
+import RegisterSuccessPage from './pages/guest/RegisterSuccessPage';
+import ErrorPage from './pages/common/ErrorPage';
+import ApplicationDetailPage from './pages/student/ApplicationDetailPage';
+import StudentProfileViewPage from './pages/employer/StudentProfileViewPage';
+import ReportViolationModal from './components/forms/ReportViolationModal';
+import AccountSettingsPage from './pages/student/AccountSettingsPage';
 import { API_BASE, checkBackendConnection, formatApiError } from './config/api';
 
 // Wireframe Screen 8: Default 12 Applications matching wireframe tabs
@@ -419,7 +428,10 @@ export default function App() {
     'jobs',
     'categories',
     'search',
-    'featured_jobs'
+    'featured_jobs',
+    'about',
+    'employer_public_profile',
+    'static_content'
   ].includes(activeTab) && !isEmployerWorkspace && !isAdminWorkspace;
 
   const isEmployerOperationalScreen = isEmployerWorkspace || isAdminWorkspace || (
@@ -477,6 +489,43 @@ export default function App() {
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [headerJobsMenuOpen, setHeaderJobsMenuOpen] = useState(false);
   const [headerCategoryMenuOpen, setHeaderCategoryMenuOpen] = useState(false);
+  const [headerIntroMenuOpen, setHeaderIntroMenuOpen] = useState(false);
+  const [aboutSection, setAboutSection] = useState('about');
+  const introMenuRef = useRef(null);
+  const introTimeoutRef = useRef(null);
+
+  const handleNavigateAbout = (section = 'about') => {
+    setActiveTab('about');
+    setAboutSection(section);
+    setHeaderIntroMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleIntroMouseEnter = () => {
+    if (introTimeoutRef.current) clearTimeout(introTimeoutRef.current);
+    setHeaderIntroMenuOpen(true);
+  };
+
+  const handleIntroMouseLeave = () => {
+    if (introTimeoutRef.current) clearTimeout(introTimeoutRef.current);
+    introTimeoutRef.current = setTimeout(() => {
+      setHeaderIntroMenuOpen(false);
+    }, 150);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (introMenuRef.current && !introMenuRef.current.contains(event.target)) {
+        setHeaderIntroMenuOpen(false);
+      }
+    };
+    if (headerIntroMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [headerIntroMenuOpen]);
   const [comingSoonInfo, setComingSoonInfo] = useState({
     title: 'Tính năng đang phát triển',
     desc: 'Tính năng này đang trong quá trình phát triển và sẽ sớm ra mắt trên nền tảng JobNest.',
@@ -495,6 +544,117 @@ export default function App() {
   // Selected entities for modals & pages
   const [selectedJob, setSelectedJob] = useState(null);
   const [viewingJobId, setViewingJobId] = useState(null);
+
+  // 8 Màn hình bổ sung states (WF-G06, WF-G07, WF-G08, WF-X02, WF-S12, WF-E13, WF-X01, WF-X03)
+  const [selectedEmployerId, setSelectedEmployerId] = useState(null);
+  const [selectedApplicationId, setSelectedApplicationId] = useState(null);
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [registeredUser, setRegisteredUser] = useState(null);
+  const [errorPageConfig, setErrorPageConfig] = useState({ type: '404', message: '' });
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportModalTarget, setReportModalTarget] = useState({ type: 'JOB', id: null, title: '' });
+  const [pendingApplyJob, setPendingApplyJob] = useState(null);
+  const [registerSuccessModalOpen, setRegisterSuccessModalOpen] = useState(false);
+
+  // Helper: Kiểm tra xem sinh viên đã hoàn thành hồ sơ cá nhân hay chưa
+  const isStudentProfileComplete = (user) => {
+    if (!user) return false;
+    if (user.role !== 'STUDENT') return true;
+
+    // 1. Tài khoản sinh viên demo sẵn có trong seed DB / hệ thống test
+    const demoStudentEmails = [
+      'student.test@vlu.edu.vn',
+      'student@gmail.com',
+      'student.morning@vlu.edu.vn',
+      'student.evening@vlu.edu.vn',
+    ];
+    if (demoStudentEmails.includes(user.email) || user.id === 4) {
+      return true;
+    }
+
+    // 2. Kiểm tra thuộc tính trên user
+    if (user.is_profile_completed) return true;
+    if ((user.university || user.school) && (user.major || user.faculty)) {
+      return true;
+    }
+
+    // 3. Kiểm tra localStorage theo userId
+    const savedLocal = localStorage.getItem(`jobnest_student_profile_${user.id}`);
+    if (savedLocal) {
+      try {
+        const parsed = JSON.parse(savedLocal);
+        if (parsed.university || parsed.school || parsed.major || parsed.dob || (parsed.skills && parsed.skills.length > 0)) {
+          return true;
+        }
+      } catch {}
+    }
+
+    return false;
+  };
+
+  // Helper xử lý điều hướng sau Đăng nhập / Đăng ký thành công có xét pendingApplyJob
+  const handleAuthSuccess = (user, isRegister = false) => {
+    setCurrentUser(user);
+    if (isRegister) setRegisteredUser(user);
+    setAuthModalOpen(false);
+
+    if (pendingApplyJob) {
+      const target = pendingApplyJob;
+      setPendingApplyJob(null);
+      handleNavigateToJobDetail(target);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(`${isRegister ? 'Đăng ký' : 'Đăng nhập'} thành công! Bạn đang xem lại công việc "${target.title}".`, 'success');
+    } else {
+      if (isRegister) {
+        if (user?.role === 'EMPLOYER') {
+          setActiveTab('employer_dashboard');
+          setEmployerProfileOpen(true);
+          showToast(`Đăng ký thành công! Hãy hoàn thiện thông tin doanh nghiệp để sẵn sàng đăng tin tuyển dụng.`, 'success');
+        } else {
+          setActiveTab('home');
+          setStudentProfileOpen(true);
+          showToast(`Đăng ký thành công! Hãy hoàn thiện hồ sơ sinh viên để sẵn sàng ứng tuyển.`, 'success');
+        }
+      } else {
+        setActiveTab(user.role === 'EMPLOYER' ? 'employer_dashboard' : user.role === 'ADMIN' ? 'admin' : 'home');
+        showToast(`Đăng nhập thành công! Chào mừng ${user.full_name || 'bạn'}`);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleNavigateToEmployerProfile = (employerIdOrJob) => {
+    let id = employerIdOrJob;
+    if (typeof employerIdOrJob === 'object' && employerIdOrJob !== null) {
+      id = employerIdOrJob.employer_id || employerIdOrJob.id;
+    }
+    setSelectedEmployerId(id || 1);
+    setActiveTab('employer_public_profile');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNavigateToApplicationDetail = (appId) => {
+    setSelectedApplicationId(appId);
+    setActiveTab('application_detail');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNavigateToStudentProfile = (studentId) => {
+    setSelectedStudentId(studentId);
+    setActiveTab('student_profile_view');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenReportModal = (type, id, title) => {
+    setReportModalTarget({ type, id, title });
+    setReportModalOpen(true);
+  };
+
+  const handleNavigateErrorPage = (type = '404', message = '') => {
+    setErrorPageConfig({ type, message });
+    setActiveTab('error_page');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Saved Jobs State (Lưu việc làm yêu thích)
   const [savedJobIds, setSavedJobIds] = useState(() => {
@@ -1002,6 +1162,40 @@ export default function App() {
     handleCheckConnection();
     // Fetch initial public jobs in guest mode matching WF-G01
     fetchJobs();
+
+    // Hỗ trợ Deep Linking qua URL Search Params cho các màn hình bổ sung (WF-G06, WF-G07, WF-G08, WF-X02, WF-S12, WF-E13, WF-X03)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlTab = params.get('tab');
+      const urlEmployerId = params.get('employerId');
+      const urlAppId = params.get('applicationId');
+      const urlStudentId = params.get('studentId');
+      const urlErrorType = params.get('errorType');
+
+      if (urlEmployerId) {
+        setSelectedEmployerId(urlEmployerId);
+        setActiveTab('employer_public_profile');
+      } else if (urlAppId) {
+        setSelectedApplicationId(urlAppId);
+        setActiveTab('application_detail');
+      } else if (urlStudentId) {
+        setSelectedStudentId(urlStudentId);
+        setActiveTab('student_profile_view');
+      } else if (urlTab === 'register_success') {
+        setActiveTab('register_success');
+      } else if (urlTab === 'error_page' || urlErrorType) {
+        if (urlErrorType) setErrorPageConfig(prev => ({ ...prev, type: urlErrorType }));
+        setActiveTab('error_page');
+      } else if (urlTab === 'account_settings') {
+        setActiveTab('account_settings');
+      } else if (urlTab === 'static_content') {
+        setActiveTab('static_content');
+      } else if (urlTab === 'employer_public_profile') {
+        setActiveTab('employer_public_profile');
+      }
+    } catch {
+      // quiet fallback
+    }
   }, []);
 
   useEffect(() => {
@@ -1014,9 +1208,10 @@ export default function App() {
   // Handle Submit Application (from JobDetailModal - Screen 7)
   const handleApplyFromModal = async ({ jobId, coverLetter, cvUrl }) => {
     if (!currentUser?.token) {
-      showToast('Vui lòng đăng nhập với tài khoản Sinh viên', 'error');
-      setAuthModalMode('login');
-      setAuthModalOpen(true);
+      if (selectedJob) setPendingApplyJob(selectedJob);
+      showToast('Vui lòng đăng nhập với tài khoản Sinh viên để ứng tuyển', 'info');
+      setActiveTab('login');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     if (currentUser?.role !== 'STUDENT') {
@@ -1053,13 +1248,21 @@ export default function App() {
   // Dispatches to WF-S06 (Application Form for PT/SV) or WF-S07 (Proposal Form for Freelance)
   const handleOpenApplyModal = (jobItem) => {
     if (!currentUser?.token) {
-      showToast('Vui lòng đăng nhập với tài khoản Sinh viên để ứng tuyển', 'error');
-      setAuthModalMode('login');
-      setAuthModalOpen(true);
+      setPendingApplyJob(jobItem);
+      showToast('Vui lòng đăng nhập với tài khoản Sinh viên để ứng tuyển công việc này', 'info');
+      setActiveTab('login');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     if (currentUser?.role === 'EMPLOYER') {
       showToast('Chỉ sinh viên mới có thể nộp đơn ứng tuyển công việc này!', 'error');
+      return;
+    }
+
+    // Yêu cầu: Sinh viên chưa hoàn thành hồ sơ thì CHƯA ĐƯỢC ỨNG TUYỂN
+    if (!isStudentProfileComplete(currentUser)) {
+      showToast('Bạn chưa hoàn thiện hồ sơ sinh viên! Vui lòng cập nhật đầy đủ thông tin (Trường học, Chuyên ngành, Kỹ năng, CV) để nộp đơn ứng tuyển.', 'error');
+      setStudentProfileOpen(true);
       return;
     }
 
@@ -1359,6 +1562,76 @@ export default function App() {
     );
   }
 
+  const navigateToSection = (sectionId) => {
+    if (activeTab === 'home') {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      setActiveTab('home');
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        const el = document.getElementById(sectionId);
+        if (el) {
+          clearInterval(interval);
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 40);
+        } else if (attempts > 35) {
+          clearInterval(interval);
+        }
+      }, 35);
+    }
+  };
+
+  // STANDALONE VIEW: REGISTER SUCCESS (WF-G08 - NO WEBSITE CHROME)
+  if (activeTab === 'register_success') {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+        <AnimatedToast toast={toast} onClose={() => setToast(null)} />
+        <RegisterSuccessPage
+          user={registeredUser || currentUser}
+          role={registeredUser?.role || currentUser?.role || 'STUDENT'}
+          onNavigateLogin={() => {
+            setActiveTab('login');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onNavigateHome={() => {
+            setActiveTab('home');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      </div>
+    );
+  }
+
+  // STANDALONE VIEW: UNIVERSAL ERROR PAGE 404 / 403 / EXPIRED (WF-X02 - NO WEBSITE CHROME)
+  if (activeTab === 'error_page') {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+        <AnimatedToast toast={toast} onClose={() => setToast(null)} />
+        <ErrorPage
+          type={errorPageConfig.type || '404'}
+          customMessage={errorPageConfig.message}
+          onNavigateHome={() => {
+            setActiveTab('home');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onNavigateJobs={() => {
+            setActiveTab('jobs');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onOpenAuth={(mode) => {
+            setAuthModalMode(mode || 'login');
+            setAuthModalOpen(true);
+          }}
+        />
+      </div>
+    );
+  }
+
   // STANDALONE DEDICATED AUTH PAGES (NO HEADER / NO FOOTER — MATCHING WIREFRAME & TOPCV REFERENCE)
   if (activeTab === 'login' || activeTab === 'register') {
     return (
@@ -1366,11 +1639,7 @@ export default function App() {
         <AnimatedToast toast={toast} onClose={() => setToast(null)} />
         {activeTab === 'login' ? (
           <LoginPage 
-            onLoginSuccess={(user) => {
-              setCurrentUser(user);
-              setActiveTab(user.role === 'EMPLOYER' ? 'employer_dashboard' : user.role === 'ADMIN' ? 'admin' : 'jobs');
-              showToast(`Đăng nhập thành công! Chào mừng ${user.full_name}`);
-            }}
+            onLoginSuccess={(user) => handleAuthSuccess(user, false)}
             onCancel={() => {
               setActiveTab('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1388,11 +1657,7 @@ export default function App() {
           />
         ) : (
           <RegisterPage
-            onRegisterSuccess={(user) => {
-              setCurrentUser(user);
-              setActiveTab(user.role === 'EMPLOYER' ? 'employer_dashboard' : 'jobs');
-              showToast(`Đăng ký tài khoản thành công! Chào mừng ${user.full_name}`);
-            }}
+            onRegisterSuccess={(user) => handleAuthSuccess(user, true)}
             onCancel={() => {
               setActiveTab('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1631,187 +1896,233 @@ export default function App() {
               {/* Trang chủ */}
               <button
                 type="button"
-                onClick={() => setActiveTab('home')}
+                onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 style={{
                   background: 'none',
                   border: 'none',
-                  fontSize: 15.5,
-                  fontWeight: activeTab === 'home' ? 700 : 500,
-                  color: '#000000',
+                  fontSize: 15,
+                  fontWeight: activeTab === 'home' ? 800 : 600,
+                  color: activeTab === 'home' ? 'var(--color-primary, #7565A8)' : '#000000',
                   cursor: 'pointer',
-                  padding: '8px 2px',
-                  borderBottom: activeTab === 'home' ? '2.5px solid #000000' : '2.5px solid transparent',
-                  transition: 'all 0.15s ease'
+                  padding: '8px 4px',
+                  borderBottom: activeTab === 'home' ? '2.5px solid var(--color-primary, #7565A8)' : '2.5px solid transparent',
+                  transition: 'color 0.15s ease, border-color 0.15s ease'
                 }}
               >
                 Trang chủ
               </button>
 
-              {/* Việc làm ▼ */}
-              <div style={{ position: 'relative' }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHeaderJobsMenuOpen(!headerJobsMenuOpen);
-                    setHeaderCategoryMenuOpen(false);
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: 15.5,
-                    fontWeight: activeTab === 'jobs' ? 700 : 500,
-                    color: '#000000',
-                    cursor: 'pointer',
-                    padding: '8px 2px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 5
-                  }}
-                >
-                  Việc làm <span style={{ fontSize: 11 }}>▼</span>
-                </button>
+              {/* Tìm việc làm */}
+              <button
+                type="button"
+                onClick={() => { setActiveTab('jobs'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: 15,
+                  fontWeight: activeTab === 'jobs' ? 800 : 600,
+                  color: activeTab === 'jobs' ? 'var(--color-primary, #7565A8)' : '#000000',
+                  cursor: 'pointer',
+                  padding: '8px 4px',
+                  borderBottom: activeTab === 'jobs' ? '2.5px solid var(--color-primary, #7565A8)' : '2.5px solid transparent',
+                  transition: 'color 0.15s ease, border-color 0.15s ease'
+                }}
+              >
+                Tìm việc làm
+              </button>
 
-                {headerJobsMenuOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    background: '#ffffff',
-                    border: '1.5px solid #000000',
-                    borderRadius: 8,
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.12)',
-                    padding: '6px 0',
-                    minWidth: 220,
-                    zIndex: 200
-                  }}>
-                    {[
-                      { label: 'Tất cả việc làm', type: '' },
-                      { label: 'Part-time (Bán thời gian)', type: 'PART_TIME' },
-                      { label: 'Seasonal (Thời vụ / Tết)', type: 'SEASONAL' },
-                      { label: 'Freelance (Dự án tự do)', type: 'FREELANCE' }
-                    ].map((item) => (
-                      <div
-                        key={item.label}
-                        onClick={() => {
-                          setSelectedWorkType(item.type);
-                          setActiveTab('jobs');
-                          setHeaderJobsMenuOpen(false);
-                          fetchJobs();
-                        }}
-                        style={{
-                          padding: '9px 18px',
-                          fontSize: 14,
-                          color: '#111827',
-                          cursor: 'pointer',
-                          transition: 'background 0.15s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#F3F4F6'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                      >
-                        {item.label}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Danh mục ▼ */}
-              <div style={{ position: 'relative' }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHeaderCategoryMenuOpen(!headerCategoryMenuOpen);
-                    setHeaderJobsMenuOpen(false);
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: 15.5,
-                    fontWeight: 500,
-                    color: '#000000',
-                    cursor: 'pointer',
-                    padding: '8px 2px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 5
-                  }}
-                >
-                  Danh mục <span style={{ fontSize: 11 }}>▼</span>
-                </button>
-
-                {headerCategoryMenuOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    background: '#ffffff',
-                    border: '1.5px solid #000000',
-                    borderRadius: 8,
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.12)',
-                    padding: '6px 0',
-                    minWidth: 180,
-                    zIndex: 200
-                  }}>
-                    {['IT', 'Thiết kế', 'Marketing', 'Gia sư', 'Sự kiện', 'Phục vụ'].map((cat) => (
-                      <div
-                        key={cat}
-                        onClick={() => {
-                          setSelectedCategory(cat);
-                          setActiveTab('jobs');
-                          setHeaderCategoryMenuOpen(false);
-                        }}
-                        style={{
-                          padding: '9px 18px',
-                          fontSize: 14,
-                          color: '#111827',
-                          cursor: 'pointer',
-                          transition: 'background 0.15s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#F3F4F6'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                      >
-                        {cat}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Giới thiệu */}
+              {/* Việc làm theo lịch rảnh ✨ (SECTION 01 requirement) */}
               <button
                 type="button"
                 onClick={() => {
-                  setPolicyInitialTab('about');
-                  setPolicyModalOpen(true);
+                  if (currentUser?.role === 'STUDENT') {
+                    setActiveTab('student_dashboard');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    navigateToSection('schedule-matching');
+                  }
                 }}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: 15.5,
-                  fontWeight: 500,
-                  color: '#000000',
+                  background: 'rgba(117, 101, 168, 0.08)',
+                  border: '1px solid rgba(117, 101, 168, 0.25)',
+                  borderRadius: 20,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: 'var(--color-primary, #7565A8)',
                   cursor: 'pointer',
-                  padding: '8px 2px'
+                  padding: '5px 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  transition: 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(117, 101, 168, 0.16)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(117, 101, 168, 0.08)'}
+                title="Khám phá cơ chế gợi ý việc làm theo thời gian rảnh"
               >
-                Giới thiệu
+                <Sparkles size={14} color="#7565A8" />
+                <span>Việc làm theo lịch rảnh</span>
               </button>
 
-              {/* Liên hệ */}
+              {/* Giới thiệu ▼ (Dropdown thông tin & chính sách) */}
+              <div 
+                ref={introMenuRef} 
+                style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+                onMouseEnter={handleIntroMouseEnter}
+                onMouseLeave={handleIntroMouseLeave}
+              >
+                <button
+                  type="button"
+                  onClick={() => handleNavigateAbout('about')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: 15,
+                    fontWeight: activeTab === 'about' ? 800 : (headerIntroMenuOpen ? 700 : 500),
+                    color: (activeTab === 'about' || headerIntroMenuOpen) ? 'var(--color-primary, #7565A8)' : '#000000',
+                    borderBottom: activeTab === 'about' ? '2.5px solid var(--color-primary, #7565A8)' : '2.5px solid transparent',
+                    cursor: 'pointer',
+                    padding: '8px 4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    transition: 'color 0.15s ease, border-color 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary, #7565A8)'}
+                  onMouseLeave={(e) => {
+                    if (!headerIntroMenuOpen && activeTab !== 'about') e.currentTarget.style.color = '#000000';
+                  }}
+                >
+                  <span>Giới thiệu</span>
+                  <span style={{ fontSize: 10, transition: 'transform 0.2s ease', transform: headerIntroMenuOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
+                </button>
+
+                {headerIntroMenuOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    background: '#ffffff',
+                    border: '1.5px solid #111827',
+                    borderRadius: 10,
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
+                    padding: '8px 6px',
+                    minWidth: 260,
+                    zIndex: 250,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2
+                  }}>
+                    {[
+                      { 
+                        label: 'Hướng dẫn sử dụng', 
+                        desc: 'Quy trình 5 bước tìm việc dễ dàng',
+                        action: () => handleNavigateAbout('guide')
+                      },
+                      { 
+                        label: 'Về JobNest', 
+                        desc: 'Sứ mệnh & giá trị cốt lõi',
+                        action: () => handleNavigateAbout('about')
+                      },
+                      { 
+                        label: 'Giới thiệu nền tảng', 
+                        desc: 'Công nghệ & thuật toán khớp lịch',
+                        action: () => handleNavigateAbout('platform')
+                      },
+                      { 
+                        label: 'Liên hệ', 
+                        desc: 'Hỗ trợ sinh viên & đối tác',
+                        action: () => handleNavigateAbout('contact')
+                      },
+                      { 
+                        label: 'Hỏi đáp (FAQ)', 
+                        desc: 'Câu hỏi thường gặp',
+                        action: () => handleNavigateAbout('faq')
+                      },
+                      { 
+                        label: 'Thỏa thuận sử dụng', 
+                        desc: 'Điều khoản dịch vụ',
+                        action: () => handleNavigateAbout('terms')
+                      },
+                      { 
+                        label: 'Quy định bảo mật', 
+                        desc: 'Bảo vệ thông tin cá nhân',
+                        action: () => handleNavigateAbout('privacy')
+                      },
+                      { 
+                        label: 'Quy chế hoạt động sàn giao dịch', 
+                        desc: 'Quy tắc & giải quyết tranh chấp',
+                        action: () => handleNavigateAbout('regulations')
+                      },
+                      { 
+                        label: 'Sơ đồ trang web', 
+                        desc: 'Cấu trúc các tính năng',
+                        action: () => handleNavigateAbout('sitemap')
+                      }
+                    ].map((item) => (
+                      <button
+                        key={item.label}
+                        type="button"
+                        onClick={item.action}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          borderRadius: 8,
+                          padding: '9px 14px',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 2,
+                          transition: 'background-color 0.15s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#F5F2FA';
+                          const title = e.currentTarget.querySelector('.intro-item-title');
+                          if (title) title.style.color = '#7565A8';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          const title = e.currentTarget.querySelector('.intro-item-title');
+                          if (title) title.style.color = '#1F2937';
+                        }}
+                      >
+                        <span className="intro-item-title" style={{ fontSize: 13.5, fontWeight: 700, color: '#1F2937', transition: 'color 0.15s ease' }}>
+                          {item.label}
+                        </span>
+                        <span style={{ fontSize: 11.5, color: '#6B7280' }}>
+                          {item.desc}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Dành cho nhà tuyển dụng */}
               <button
                 type="button"
-                onClick={() => setSupportModalOpen(true)}
+                onClick={() => {
+                  if (currentUser?.role === 'EMPLOYER') {
+                    setActiveTab('employer_dashboard');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    setActiveTab('login');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
                 style={{
                   background: 'none',
                   border: 'none',
-                  fontSize: 15.5,
+                  fontSize: 15,
                   fontWeight: 500,
                   color: '#000000',
                   cursor: 'pointer',
-                  padding: '8px 2px'
+                  padding: '8px 2px',
+                  transition: 'color 0.15s ease'
                 }}
               >
-                Liên hệ
+                Dành cho nhà tuyển dụng
               </button>
             </nav>
           )}
@@ -2195,12 +2506,11 @@ export default function App() {
             {/* ========================================================================= */}
             {activeTab === 'login' && (
               <LoginPage 
-                onLoginSuccess={(user) => {
-                  setCurrentUser(user);
-                  setActiveTab(user.role === 'EMPLOYER' ? 'employer_dashboard' : user.role === 'ADMIN' ? 'admin' : 'jobs');
-                  showToast(`Đăng nhập thành công! Chào mừng ${user.full_name}`);
+                onLoginSuccess={(user) => handleAuthSuccess(user, false)}
+                onCancel={() => {
+                  setActiveTab('home');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                onCancel={() => setActiveTab('jobs')}
                 onNavigateRegister={() => {
                   setActiveTab('register');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2214,16 +2524,15 @@ export default function App() {
             {/* ========================================================================= */}
             {activeTab === 'register' && (
               <RegisterPage
-                onRegisterSuccess={(user) => {
-                  setCurrentUser(user);
-                  setActiveTab(user.role === 'EMPLOYER' ? 'employer_dashboard' : 'jobs');
-                  showToast(`Đăng ký tài khoản thành công! Chào mừng ${user.full_name}`);
-                }}
+                onRegisterSuccess={(user) => handleAuthSuccess(user, true)}
                 onNavigateLogin={() => {
                   setActiveTab('login');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                onCancel={() => setActiveTab('jobs')}
+                onCancel={() => {
+                  setActiveTab('home');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 apiBase={API_BASE}
               />
             )}
@@ -2257,14 +2566,39 @@ export default function App() {
                 onPostJobClick={() => {
                   if (currentUser?.role === 'EMPLOYER') {
                     setActiveTab('create_job');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   } else {
-                    setAuthModalMode('register');
-                    setAuthModalOpen(true);
+                    setActiveTab('login');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }
                 }}
                 onExploreAllJobs={() => setActiveTab('jobs')}
                 onHoverStart={handlePreviewHoverStart}
                 onHoverEnd={handlePreviewHoverEnd}
+                onViewCompany={handleNavigateToEmployerProfile}
+              />
+            )}
+
+            {/* ========================================================================= */}
+            {/* TRUNG TÂM GIỚI THIỆU & QUY CHẾ (TRANG RÕ RÀNG, KHÔNG LÀM POPUP)           */}
+            {/* ========================================================================= */}
+            {activeTab === 'about' && (
+              <AboutPage
+                initialSection={aboutSection}
+                currentUser={currentUser}
+                onNavigateHome={() => {
+                  setActiveTab('home');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onNavigateJobs={() => {
+                  setActiveTab('jobs');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onOpenAuth={(mode) => {
+                  setActiveTab(mode === 'register' ? 'register' : 'login');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                showToast={showToast}
               />
             )}
 
@@ -2587,6 +2921,7 @@ export default function App() {
                         onApply={handleOpenApplyModal}
                         onHoverStart={handlePreviewHoverStart}
                         onHoverEnd={handlePreviewHoverEnd}
+                        onViewCompany={handleNavigateToEmployerProfile}
                       />
                     ))}
                   </div>
@@ -2652,28 +2987,136 @@ export default function App() {
                 onSelectRelatedJob={(relJob) => {
                   handleNavigateToJobDetail(relJob);
                 }}
-                onViewCompany={(companyName) => {
-                  setEmployerProfileOpen(true);
+                onViewCompany={(jobOrEmployer) => {
+                  handleNavigateToEmployerProfile(jobOrEmployer || (selectedJob || jobs[0]));
+                }}
+                onViewEmployerProfile={(jobOrEmployer) => {
+                  handleNavigateToEmployerProfile(jobOrEmployer || (selectedJob || jobs[0]));
+                }}
+                onReportViolation={(targetJob) => {
+                  const jobToReport = targetJob || selectedJob || jobs[0];
+                  handleOpenReportModal('JOB', jobToReport?.id || 1, jobToReport?.title || 'Tin tuyển dụng');
                 }}
                 currentUser={currentUser}
-                onOpenAuth={(mode) => {
-                  setAuthModalMode(mode || 'login');
-                  setAuthModalOpen(true);
+                onOpenAuth={(mode, targetJob) => {
+                  if (targetJob || selectedJob) {
+                    setPendingApplyJob(targetJob || selectedJob);
+                  }
+                  setActiveTab('login');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 showToast={showToast}
               />
             )}
 
             {/* ========================================================================= */}
-                        {/* ========================================================================= */}
+            {/* WF-G06: TRANG CÔNG KHAI CỦA NHÀ TUYỂN DỤNG (EMPLOYER PUBLIC PROFILE)        */}
+            {/* ========================================================================= */}
+            {activeTab === 'employer_public_profile' && (
+              <EmployerPublicProfilePage
+                employerId={selectedEmployerId || 1}
+                currentUser={currentUser}
+                onNavigateHome={() => {
+                  setActiveTab('home');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onNavigateJobs={() => {
+                  setActiveTab('jobs');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onSelectJob={handleNavigateToJobDetail}
+                onOpenAuth={(mode, targetJob) => {
+                  if (targetJob || selectedJob) {
+                    setPendingApplyJob(targetJob || selectedJob);
+                  }
+                  setActiveTab('login');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                showToast={showToast}
+              />
+            )}
+
+            {/* ========================================================================= */}
+            {/* WF-G07: TRANG TĨNH (GIỚI THIỆU / LIÊN HỆ / ĐIỀU KHOẢN)                     */}
+            {/* ========================================================================= */}
+            {activeTab === 'static_content' && (
+              <StaticContentPage
+                initialTab="about"
+                currentUser={currentUser}
+                onNavigateHome={() => {
+                  setActiveTab('home');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onNavigateJobs={() => {
+                  setActiveTab('jobs');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onOpenAuth={(mode, targetJob) => {
+                  if (targetJob || selectedJob) {
+                    setPendingApplyJob(targetJob || selectedJob);
+                  }
+                  setActiveTab('login');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                showToast={showToast}
+              />
+            )}
+
+            {/* ========================================================================= */}
+            {/* WF-S12: CHI TIẾT APPLICATION / PROPOSAL DÀNH CHO SINH VIÊN                 */}
+            {/* ========================================================================= */}
+            {activeTab === 'application_detail' && (
+              <ApplicationDetailPage
+                applicationId={selectedApplicationId || 1}
+                currentUser={currentUser}
+                onNavigateBack={() => {
+                  setActiveTab('student_apps');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onSelectJob={handleNavigateToJobDetail}
+                showToast={showToast}
+              />
+            )}
+
+            {/* ========================================================================= */}
+            {/* WF-E13: XEM HỒ SƠ SINH VIÊN (DÀNH CHO NHÀ TUYỂN DỤNG)                     */}
+            {/* ========================================================================= */}
+            {activeTab === 'student_profile_view' && (
+              <StudentProfileViewPage
+                studentId={selectedStudentId || 1}
+                currentUser={currentUser}
+                onNavigateBack={() => {
+                  setActiveTab('applicants');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                showToast={showToast}
+              />
+            )}
+
+            {/* ========================================================================= */}
+            {/* WF-X03: CÀI ĐẶT TÀI KHOẢN & BẢO MẬT (ACCOUNT SETTINGS)                     */}
+            {/* ========================================================================= */}
+            {activeTab === 'account_settings' && currentUser?.role !== 'STUDENT' && currentUser?.role !== 'EMPLOYER' && (
+              <AccountSettingsPage
+                currentUser={currentUser}
+                onNavigateBack={() => {
+                  setActiveTab('home');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                showToast={showToast}
+              />
+            )}
+
+            {/* ========================================================================= */}
             {/* WF-S01 & WF-S02: STUDENT DASHBOARD & APPLICATIONS (MANAGEMENT)            */}
             {/* ========================================================================= */}
-            {(activeTab === 'student_apps' || activeTab === 'student_dashboard') && (
+            {(activeTab === 'student_apps' || activeTab === 'student_dashboard' || (activeTab === 'account_settings' && currentUser?.role === 'STUDENT')) && (
               <StudentDashboardPage
                 currentUser={currentUser}
                 jobs={jobs}
-                initialTab={activeTab === 'student_dashboard' ? 'dashboard' : 'applications'}
+                initialTab={activeTab === 'account_settings' ? 'settings' : (activeTab === 'student_dashboard' ? 'dashboard' : 'applications')}
                 onSelectJob={handleNavigateToJobDetail}
+                onSelectApplication={(app) => handleNavigateToApplicationDetail(app.id)}
                 onNavigateJobs={() => setActiveTab('jobs')}
                 onNavigateComingSoon={handleNavigateComingSoon}
                 showToast={showToast}
@@ -2756,7 +3199,8 @@ export default function App() {
                 activeTab === 'applicants' ||
                 activeTab === 'employer_proposals' ||
                 activeTab === 'employer_assignments' ||
-                activeTab === 'employer_profile'
+                activeTab === 'employer_profile' ||
+                activeTab === 'account_settings'
               )) ||
               (activeTab === 'employer_jobs' && currentUser?.role !== 'EMPLOYER') ||
               (activeTab === 'create_job' && currentUser?.role !== 'EMPLOYER')
@@ -2769,6 +3213,7 @@ export default function App() {
                   activeTab === 'applicants' || activeTab === 'employer_proposals' ? 'applicants' :
                   activeTab === 'employer_assignments' ? 'assignments' :
                   activeTab === 'employer_profile' ? 'profile' :
+                  activeTab === 'account_settings' ? 'settings' :
                   'dashboard'
                 }
                 initialEditingJob={editingEmployerJob}
@@ -4366,8 +4811,33 @@ export default function App() {
         onClose={() => setStudentProfileOpen(false)}
         currentUser={currentUser}
         onSave={(data) => {
-          setCurrentUser(prev => ({ ...prev, full_name: data.fullName }));
-          showToast('Đã lưu thông tin hồ sơ sinh viên thành công!');
+          if (currentUser?.id) {
+            localStorage.setItem(`jobnest_student_profile_${currentUser.id}`, JSON.stringify(data));
+          }
+          const updatedUser = {
+            ...(currentUser || {}),
+            ...data,
+            is_profile_completed: true,
+            full_name: data.fullName || currentUser?.full_name,
+            phone: data.phone || currentUser?.phone,
+            university: data.university || currentUser?.university,
+            major: data.major || currentUser?.major,
+            location: data.address || currentUser?.location,
+            bio: data.bio || currentUser?.bio,
+            skills: data.skills || currentUser?.skills,
+          };
+          setCurrentUser(updatedUser);
+          setStudentProfileOpen(false);
+
+          if (pendingApplyJob) {
+            const target = pendingApplyJob;
+            setPendingApplyJob(null);
+            handleNavigateToJobDetail(target);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            showToast(`Đã lưu thông tin hồ sơ sinh viên thành công! Bạn đang xem lại công việc "${target.title}".`, 'success');
+          } else {
+            showToast('Đã lưu thông tin hồ sơ sinh viên thành công! Bạn có thể nhấn "Ứng tuyển ngay" khi đã sẵn sàng.', 'success');
+          }
         }}
       />
 
@@ -4377,7 +4847,22 @@ export default function App() {
         onClose={() => setEmployerProfileOpen(false)}
         currentUser={currentUser}
         onSave={(data) => {
-          showToast('Đã cập nhật hồ sơ doanh nghiệp nhà tuyển dụng thành công!');
+          if (currentUser?.id) {
+            localStorage.setItem(`jobnest_employer_profile_${currentUser.id}`, JSON.stringify(data));
+          }
+          const updatedUser = {
+            ...(currentUser || {}),
+            ...data,
+            is_profile_completed: true,
+            company_name: data.companyName || currentUser?.company_name,
+            full_name: data.contactPerson || currentUser?.full_name,
+            phone: data.phone || currentUser?.phone,
+            tax_code: data.taxCode || currentUser?.tax_code,
+            location: data.address || currentUser?.location,
+            bio: data.description || currentUser?.bio,
+          };
+          setCurrentUser(updatedUser);
+          showToast('Đã cập nhật hồ sơ doanh nghiệp thành công!', 'success');
         }}
       />
 
@@ -4395,14 +4880,132 @@ export default function App() {
       <AuthModal 
         isOpen={authModalOpen} 
         onClose={() => setAuthModalOpen(false)} 
-        onLoginSuccess={(user) => {
-          setCurrentUser(user);
-          setActiveTab(user.role === 'EMPLOYER' ? 'employer_dashboard' : user.role === 'ADMIN' ? 'admin' : 'jobs');
-          showToast(`Đăng nhập thành công! Chào mừng ${user.full_name}`);
-        }} 
+        onLoginSuccess={(user) => handleAuthSuccess(user, false)} 
+        onRegisterSuccess={(user) => handleAuthSuccess(user, true)}
         initialMode={authModalMode} 
         apiBase={API_BASE} 
       />
+
+      {/* MODAL POPUP: XÁC NHẬN ĐĂNG KÝ THÀNH CÔNG (THEO YÊU CẦU & WF-G08) */}
+      {registerSuccessModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.65)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: 16
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: 20,
+            border: '2px solid #000000',
+            maxWidth: 480,
+            width: '100%',
+            padding: '32px 28px',
+            textAlign: 'center',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              background: '#DCFCE7',
+              border: '2px solid #16A34A',
+              color: '#16A34A',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px auto',
+              fontSize: 36,
+              fontWeight: 800
+            }}>
+              ✓
+            </div>
+
+            <h3 style={{ fontSize: 22, fontWeight: 800, color: '#0F172A', margin: '0 0 8px 0' }}>
+              Đăng ký thành công!
+            </h3>
+
+            <p style={{ fontSize: 14.5, color: '#475569', lineHeight: 1.5, margin: '0 0 20px 0' }}>
+              Chúc mừng <strong>{registeredUser?.full_name || currentUser?.full_name}</strong>! Tài khoản của bạn đã được khởi tạo và <strong>tự động đăng nhập sẵn</strong> vào hệ thống.
+            </p>
+
+            <div style={{
+              background: '#F8FAFC',
+              borderRadius: 10,
+              border: '1px solid #E2E8F0',
+              padding: '14px 16px',
+              fontSize: 13,
+              color: '#334155',
+              marginBottom: 24,
+              textAlign: 'left',
+              lineHeight: 1.6
+            }}>
+              <div>• <strong>Vai trò:</strong> {registeredUser?.role === 'EMPLOYER' ? 'Nhà tuyển dụng' : 'Sinh viên tìm việc'}</div>
+              <div>• <strong>Email:</strong> {registeredUser?.email || currentUser?.email}</div>
+              <div style={{ marginTop: 8, fontSize: 12, color: '#64748B', borderTop: '1px solid #E2E8F0', paddingTop: 6 }}>
+                💡 <strong>Bước tiếp theo:</strong> {registeredUser?.role === 'EMPLOYER' ? 'Đăng tin tuyển dụng và tìm kiếm ứng viên tiềm năng!' : 'Hoàn thiện hồ sơ & tải CV để sẵn sàng nộp đơn ứng tuyển!'}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setRegisterSuccessModalOpen(false);
+                  const targetTab = (registeredUser?.role === 'EMPLOYER' || currentUser?.role === 'EMPLOYER') ? 'employer_dashboard' : 'home';
+                  setActiveTab(targetTab);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px 20px',
+                  borderRadius: 10,
+                  border: 'none',
+                  background: '#7565A8',
+                  color: '#ffffff',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(117, 101, 168, 0.3)'
+                }}
+              >
+                {(registeredUser?.role === 'EMPLOYER' || currentUser?.role === 'EMPLOYER') ? 'Vào cổng Nhà tuyển dụng ngay' : 'Vào trang chủ ngay (Đã đăng nhập)'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setRegisterSuccessModalOpen(false);
+                  setCurrentUser(null);
+                  setActiveTab('login');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px 18px',
+                  borderRadius: 10,
+                  border: '1px solid #CBD5E1',
+                  background: '#ffffff',
+                  color: '#64748B',
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Chuyển qua Đăng nhập tài khoản khác
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================= COMPREHENSIVE RESTRUCTURED FOOTER ================= */}
       {/* QUY TẮC HIỂN THỊ ROUTE-BASED (FT-01 đến FT-15): CHỈ RENDER TẠI KHÁM PHÁ THỊ TRƯỜNG, TUYỆT ĐỐI ẨN TRONG EMPLOYER PORTAL */}
@@ -4442,6 +5045,7 @@ export default function App() {
             setAuthModalOpen(true);
           }}
           onNavigateComingSoon={handleNavigateComingSoon}
+          onNavigateAbout={handleNavigateAbout}
           currentUser={currentUser}
         />
       )}
@@ -4463,6 +5067,21 @@ export default function App() {
         isOpen={supportModalOpen}
         onClose={() => setSupportModalOpen(false)}
         currentUser={currentUser}
+      />
+
+      {/* WF-X01: MODAL BÁO CÁO VI PHẠM (REPORT VIOLATION MODAL) */}
+      <ReportViolationModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        targetType={reportModalTarget.type}
+        targetId={reportModalTarget.id}
+        targetTitle={reportModalTarget.title}
+        currentUser={currentUser}
+        showToast={showToast}
+        onOpenAuth={(mode) => {
+          setAuthModalMode(mode || 'login');
+          setAuthModalOpen(true);
+        }}
       />
     </div>
   );

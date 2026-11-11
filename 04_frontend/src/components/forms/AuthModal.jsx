@@ -218,9 +218,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
             padding: '12px 16px',
             fontSize: '14px',
             fontWeight: 600,
-            color: mode === 'login' ? '#594675' : '#777080',
+            color: mode === 'login' ? '#7565A8' : '#777080',
             background: mode === 'login' ? '#ffffff' : 'transparent',
-            borderBottom: mode === 'login' ? '2px solid #594675' : '2px solid transparent',
+            borderBottom: mode === 'login' ? '2px solid #7565A8' : '2px solid transparent',
             cursor: 'pointer',
             textAlign: 'center',
             border: 'none',
@@ -238,9 +238,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
             padding: '12px 16px',
             fontSize: '14px',
             fontWeight: 600,
-            color: mode === 'register' ? '#594675' : '#777080',
+            color: mode === 'register' ? '#7565A8' : '#777080',
             background: mode === 'register' ? '#ffffff' : 'transparent',
-            borderBottom: mode === 'register' ? '2px solid #594675' : '2px solid transparent',
+            borderBottom: mode === 'register' ? '2px solid #7565A8' : '2px solid transparent',
             cursor: 'pointer',
             textAlign: 'center',
             border: 'none',
@@ -319,6 +319,56 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
+            {/* Dev-only 1-Click Login Chips (Không bao giờ lộ Admin hoặc kích hoạt trên Production) */}
+            {(import.meta.env.DEV || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))) && (
+              <div style={{
+                marginBottom: '16px',
+                padding: '10px 12px',
+                background: '#F6F4FB',
+                borderRadius: '8px',
+                border: '1px dashed #7565A8'
+              }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#594675', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <KeyRound size={14} />
+                  <span>Đăng nhập nhanh 1-Click (Chỉ dành cho Demo/Dev):</span>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill('student.test@vlu.edu.vn', 'password123')}
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      background: '#FFFFFF',
+                      border: '1px solid #7565A8',
+                      borderRadius: '6px',
+                      color: '#594675',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🎓 Sinh viên Test
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill('employer.test@vlu.edu.vn', 'password123')}
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      background: '#FFFFFF',
+                      border: '1px solid #F4B99D',
+                      borderRadius: '6px',
+                      color: '#8A4A28',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🏢 NTD Test
+                  </button>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleLoginSubmit}>
               {/* Email */}
               <div style={{ marginBottom: '16px' }}>
@@ -421,7 +471,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                   width: '100%',
                   padding: '12px',
                   borderRadius: '8px',
-                  background: loading ? '#A997C5' : '#594675',
+                  background: loading ? '#A997C5' : '#7565A8',
                   color: '#ffffff',
                   fontWeight: 600,
                   fontSize: '14px',
@@ -435,91 +485,6 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                   </>
                 )}
               </Button>
-
-              {/* Divider */}
-              <div style={{
-                position: 'relative',
-                textAlign: 'center',
-                margin: '22px 0 16px',
-                borderBottom: '1px solid #e2e8f0'
-              }}>
-                <span style={{
-                  position: 'relative',
-                  top: '9px',
-                  background: '#ffffff',
-                  padding: '0 12px',
-                  fontSize: '12px',
-                  color: '#94a3b8',
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
-                  letterSpacing: '0.5px'
-                }}>
-                  Hoặc Điền Nhanh Tài Khoản Thử Nghiệm
-                </span>
-              </div>
-
-              {/* Quick Fill Demo Chips with Micro-interactions */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginTop: '16px' }}>
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02, backgroundColor: '#eef2ff', borderColor: '#4f46e5' }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handleQuickFill('nguyen.van.chi@vlu.edu.vn', 'password123')}
-                  style={{
-                    padding: '8px',
-                    borderRadius: '6px',
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    fontSize: '11px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    color: '#334155'
-                  }}
-                >
-                  <div style={{ fontWeight: 700, color: '#4f46e5' }}>🎓 Sinh viên</div>
-                  <div style={{ color: '#64748b', fontSize: '10px' }}>nguyen.van.chi</div>
-                </motion.button>
-
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02, backgroundColor: '#f0f9ff', borderColor: '#0ea5e9' }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handleQuickFill('techcorp@gmail.com', 'password123')}
-                  style={{
-                    padding: '8px',
-                    borderRadius: '6px',
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    fontSize: '11px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    color: '#334155'
-                  }}
-                >
-                  <div style={{ fontWeight: 700, color: '#0ea5e9' }}>🏢 Tuyển dụng</div>
-                  <div style={{ color: '#64748b', fontSize: '10px' }}>techcorp</div>
-                </motion.button>
-
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02, backgroundColor: '#fefce8', borderColor: '#f59e0b' }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handleQuickFill('admin@marketplace.vlu.edu.vn', 'password123')}
-                  style={{
-                    padding: '8px',
-                    borderRadius: '6px',
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    fontSize: '11px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    color: '#334155'
-                  }}
-                >
-                  <div style={{ fontWeight: 700, color: '#b45309' }}>🛡️ Quản trị</div>
-                  <div style={{ color: '#64748b', fontSize: '10px' }}>admin</div>
-                </motion.button>
-              </div>
             </form>
           </motion.div>
         )}
@@ -547,7 +512,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                     style={{
                       padding: '10px',
                       borderRadius: '8px',
-                      border: registerRole === 'STUDENT' ? '2px solid #594675' : '1px solid #EAE5F0',
+                      border: registerRole === 'STUDENT' ? '2px solid #7565A8' : '1px solid #EAE5F0',
                       background: registerRole === 'STUDENT' ? '#F9E5DC' : '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
@@ -556,7 +521,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                       textAlign: 'left'
                     }}
                   >
-                    <User size={18} color={registerRole === 'STUDENT' ? '#594675' : '#777080'} />
+                    <User size={18} color={registerRole === 'STUDENT' ? '#7565A8' : '#777080'} />
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 700, color: registerRole === 'STUDENT' ? '#30283A' : '#777080' }}>
                         Sinh viên
@@ -573,7 +538,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                     style={{
                       padding: '10px',
                       borderRadius: '8px',
-                      border: registerRole === 'EMPLOYER' ? '2px solid #594675' : '1px solid #EAE5F0',
+                      border: registerRole === 'EMPLOYER' ? '2px solid #7565A8' : '1px solid #EAE5F0',
                       background: registerRole === 'EMPLOYER' ? '#F9E5DC' : '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
@@ -582,7 +547,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                       textAlign: 'left'
                     }}
                   >
-                    <Building2 size={18} color={registerRole === 'EMPLOYER' ? '#594675' : '#777080'} />
+                    <Building2 size={18} color={registerRole === 'EMPLOYER' ? '#7565A8' : '#777080'} />
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 700, color: registerRole === 'EMPLOYER' ? '#30283A' : '#777080' }}>
                         Nhà tuyển dụng
@@ -711,7 +676,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                   width: '100%',
                   padding: '12px',
                   borderRadius: '8px',
-                  background: loading ? '#A997C5' : '#594675',
+                  background: loading ? '#A997C5' : '#7565A8',
                   color: '#ffffff',
                   fontWeight: 600,
                   fontSize: '14px',

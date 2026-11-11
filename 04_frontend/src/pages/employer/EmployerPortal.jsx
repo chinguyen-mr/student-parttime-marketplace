@@ -4,14 +4,13 @@ import {
   XCircle, AlertCircle, ArrowRight, Plus, RefreshCw, 
   Eye, Calendar, DollarSign, Building2, User, ChevronRight,
   ShieldCheck, AlertTriangle, ExternalLink, Filter, Search,
-  Bell, LayoutDashboard, Award, Star, GraduationCap
+  Bell, LayoutDashboard, Award, Star, GraduationCap, Settings
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 
-// Import all 12 Wireframe Employer Sub-pages (WF-E01 to WF-E12)
+// Import all 12 Wireframe Employer Sub-pages (WF-E01 to WF-E12) + WF-X03 Settings
 import EmployerDashboardPage from './EmployerDashboardPage';             // WF-E01
 import EmployerPersonalProfilePage from './EmployerPersonalProfilePage'; // WF-E02 (Personal Profile only, no company profile)
-import EmployerVerificationCenterPage from './EmployerVerificationCenterPage'; // WF-E03 (Standalone verification center)
 import EmployerJobsPage from './EmployerJobsPage';                       // WF-E04 (Job list with 7 filters & moderation_reason)
 import EmployerCreateJobPage from './EmployerCreateJobPage';             // WF-E05 (Create/Edit Job with PT/SS/FL variants & verification gate)
 import EmployerApplicantsPage from './EmployerApplicantsPage';           // WF-E06 (Part-time applicants, no Accept button)
@@ -21,6 +20,8 @@ import EmployerAssignmentsPage from './EmployerAssignmentsPage';         // WF-E
 import EmployerDeliverableReviewPage from './EmployerDeliverableReviewPage'; // WF-E10 (Deliverable review v1/v2, mandatory revision reason)
 import EmployerReviewStudentPage from './EmployerReviewStudentPage';     // WF-E11 (5-star rating & review for completed assignments)
 import EmployerNotificationsPage from './EmployerNotificationsPage';     // WF-E12 (Notification list read/unread)
+import AccountSettingsPage from '../student/AccountSettingsPage';         // WF-X03 (Account Settings & Security)
+import { API_BASE } from '../../config/api';
 
 export default function EmployerPortal({
   currentUser,
@@ -48,13 +49,43 @@ export default function EmployerPortal({
   const [editingJob, setEditingJob] = useState(initialEditingJob);
   const [selectedJobForApplicants, setSelectedJobForApplicants] = useState(null);
   const [selectedAssignmentForSubflow, setSelectedAssignmentForSubflow] = useState(null);
+  const [profileData, setProfileData] = useState(null);
 
-  // Sync initialTab & editingJob when changed from outside
+  // Sync profile display name and avatar with /api/profile/me
   useEffect(() => {
-    if (initialTab) {
+    let isMounted = true;
+    const fetchProfile = async () => {
+      if (!currentUser?.token) return;
+      try {
+        const res = await fetch(`${API_BASE}/profile/me`, {
+          headers: { Authorization: `Bearer ${currentUser.token}` }
+        });
+        const data = await res.json();
+        if (isMounted && data.success && data.data) {
+          setProfileData(data.data);
+        }
+      } catch (err) {
+        console.warn('Could not fetch profile in EmployerPortal:', err);
+      }
+    };
+    fetchProfile();
+    return () => { isMounted = false; };
+  }, [currentUser]);
+
+  const displayedName = profileData?.display_name || profileData?.company_name || currentUser?.display_name || currentUser?.company_name || currentUser?.full_name || 'Nhà tuyển dụng';
+  const displayedAvatarLetter = (displayedName.charAt(0) || 'C').toUpperCase();
+
+  const prevInitialTabRef = React.useRef(initialTab);
+  const prevEditingJobRef = React.useRef(initialEditingJob);
+
+  // Sync initialTab & editingJob ONLY when actually changed from outside
+  useEffect(() => {
+    if (initialTab && initialTab !== prevInitialTabRef.current) {
+      prevInitialTabRef.current = initialTab;
       setActiveTab(initialTab);
     }
-    if (initialEditingJob !== undefined) {
+    if (initialEditingJob !== undefined && initialEditingJob !== prevEditingJobRef.current) {
+      prevEditingJobRef.current = initialEditingJob;
       setEditingJob(initialEditingJob);
     }
   }, [initialTab, initialEditingJob]);
@@ -115,12 +146,12 @@ export default function EmployerPortal({
           {currentUser?.token ? (
             <>
               Bạn hiện đang đăng nhập với vai trò <strong style={{ color: '#0F172A' }}>{currentUser.role === 'STUDENT' ? 'Sinh viên' : currentUser.role}</strong>. 
-              Toàn bộ các phân hệ quản lý tuyển dụng từ <strong>WF-E01 đến WF-E12</strong> chỉ cấp quyền cho tài khoản <code>EMPLOYER</code>.
+              Toàn bộ các phân hệ quản lý tuyển dụng chỉ cấp quyền cho tài khoản <code>EMPLOYER</code>.
             </>
           ) : (
             <>
               Bạn đang ở chế độ Khách vãng lai (chưa đăng nhập). 
-              Vui lòng đăng nhập với tài khoản <strong>Nhà tuyển dụng</strong> (ví dụ: <code>employer.test@vlu.edu.vn</code>) để tiếp tục.
+              Vui lòng đăng nhập với tài khoản <strong>Nhà tuyển dụng</strong> để tiếp tục truy cập.
             </>
           )}
         </p>
@@ -161,7 +192,7 @@ export default function EmployerPortal({
       {/* 2-COLUMN FULL-WIDTH LAYOUT: SIDEBAR SÁT MÉP TRÁI + MAIN CONTENT TOÀN BỘ PHẦN CÒN LẠI */}
       <div className="employer-grid-layout" style={{
         display: 'grid',
-        gridTemplateColumns: '260px minmax(0, 1fr)',
+        gridTemplateColumns: '275px minmax(0, 1fr)',
         minHeight: 'calc(100vh - 74px)',
         alignItems: 'stretch',
         width: '100%'
@@ -169,15 +200,17 @@ export default function EmployerPortal({
         
         {/* ================= REUSABLE LEFT SIDEBAR (SÁT MÉP TRÁI VIEWPORT) ================= */}
         <aside className="employer-sidebar-aside" style={{
-          width: 260,
+          width: 275,
           background: '#ffffff',
           borderRight: '1.5px solid #E2E8F0',
-          padding: '24px 16px',
+          padding: '20px 16px',
           boxSizing: 'border-box',
           position: 'sticky',
           top: 74,
           height: 'calc(100vh - 74px)',
-          overflowY: 'auto'
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           {/* ================= PHẦN THÔNG TIN TÀI KHOẢN (REFERENCE IMAGE 1) ================= */}
           <div style={{
@@ -185,43 +218,48 @@ export default function EmployerPortal({
             flexDirection: 'column',
             alignItems: 'center',
             textAlign: 'center',
-            paddingBottom: 16,
-            marginBottom: 16,
+            paddingBottom: 14,
+            marginBottom: 14,
             borderBottom: '1px solid #E2E8F0'
           }}>
             {/* Avatar / Logo doanh nghiệp */}
             <div style={{
-              width: 62,
-              height: 62,
+              width: 58,
+              height: 58,
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: 800,
               marginBottom: 10,
               boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
-              border: '2px solid #ffffff'
+              border: '2px solid #ffffff',
+              overflow: 'hidden'
             }}>
-              {currentUser?.company_name?.charAt(0) || currentUser?.full_name?.charAt(0) || 'C'}
+              {profileData?.avatar_url ? (
+                <img src={profileData.avatar_url} alt={displayedName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                displayedAvatarLetter
+              )}
             </div>
 
             {/* Tên doanh nghiệp */}
             <h3 style={{
-              fontSize: 14.5,
+              fontSize: 15,
               fontWeight: 800,
               color: '#0F172A',
               margin: '0 0 4px 0',
               lineHeight: 1.3
             }}>
-              {currentUser?.company_name || currentUser?.full_name || 'Công Ty Công Nghệ Giáo Dục Văn Lang (VLU Tech)'}
+              {displayedName}
             </h3>
 
             {/* Email */}
             <div style={{
-              fontSize: 12,
+              fontSize: 12.5,
               color: '#64748B',
               marginBottom: 8,
               wordBreak: 'break-all'
@@ -236,7 +274,7 @@ export default function EmployerPortal({
               gap: 4,
               background: '#ECFDF5',
               color: '#059669',
-              fontSize: 11,
+              fontSize: 11.5,
               fontWeight: 700,
               padding: '3px 10px',
               borderRadius: 12,
@@ -246,17 +284,17 @@ export default function EmployerPortal({
             </span>
           </div>
 
-          {/* Sidebar Menu Items: 8 mục chuẩn xác 100% Wireframe WF-E01 draw.io */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {/* Sidebar Menu Items */}
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             {[
-              { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-              { id: 'profile', label: 'Profile', icon: User },
-              { id: 'verification', label: 'Verification', icon: ShieldCheck },
-              { id: 'jobs', label: 'Jobs', icon: Briefcase },
-              { id: 'applicants', label: 'Applicants', icon: Users },
-              { id: 'proposals', label: 'Proposals', icon: FileText },
-              { id: 'assignments', label: 'Assignments', icon: Clock },
-              { id: 'notifications', label: 'Notifications', icon: Bell },
+              { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+              { id: 'profile', label: 'Hồ sơ doanh nghiệp', icon: User },
+              { id: 'jobs', label: 'Tin tuyển dụng', icon: Briefcase },
+              { id: 'applicants', label: 'Hồ sơ ứng viên', icon: Users },
+              { id: 'proposals', label: 'Đề xuất dự án', icon: FileText },
+              { id: 'assignments', label: 'Công việc đang giao', icon: Clock },
+              { id: 'notifications', label: 'Thông báo', icon: Bell },
+              { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings },
             ].map(item => {
               const isActive = activeTab === item.id;
               const IconComp = item.icon;
@@ -270,12 +308,12 @@ export default function EmployerPortal({
                     display: 'flex',
                     alignItems: 'center',
                     gap: 12,
-                    padding: '11px 14px',
-                    borderRadius: 6,
-                    border: '1.5px solid #000000',
-                    background: isActive ? '#94A3B8' : '#ffffff',
-                    color: '#000000',
-                    fontWeight: isActive ? 800 : 600,
+                    padding: '10px 14px',
+                    borderRadius: 8,
+                    border: isActive ? '1px solid #D8B4FE' : '1px solid transparent',
+                    background: isActive ? '#F1EEF8' : 'transparent',
+                    color: isActive ? '#7565A8' : '#334155',
+                    fontWeight: isActive ? 700 : 500,
                     fontSize: 14,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
@@ -283,102 +321,24 @@ export default function EmployerPortal({
                     width: '100%'
                   }}
                   onMouseEnter={(e) => {
-                    if (!isActive) e.currentTarget.style.background = '#F1F5F9';
+                    if (!isActive) {
+                      e.currentTarget.style.background = '#F8F7FB';
+                      e.currentTarget.style.color = '#7565A8';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isActive) e.currentTarget.style.background = '#ffffff';
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = '#334155';
+                    }
                   }}
                 >
-                  <div style={{
-                    width: 18,
-                    height: 18,
-                    border: '1.5px solid #000000',
-                    borderRadius: 3,
-                    background: isActive ? '#000000' : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    {isActive ? (
-                      <span style={{ width: 8, height: 8, background: '#ffffff', borderRadius: 2 }} />
-                    ) : null}
-                  </div>
+                  <IconComp size={17} color={isActive ? '#7565A8' : '#64748B'} style={{ flexShrink: 0 }} />
                   <span style={{ flex: 1 }}>{item.label}</span>
-                  <IconComp size={16} color={isActive ? '#000000' : '#475569'} />
                 </button>
               );
             })}
           </nav>
-
-          {/* Quick Action: Đăng tin mới */}
-          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #E2E8F0' }}>
-            <button
-              type="button"
-              onClick={() => {
-                setEditingJob(null);
-                setActiveTab('create_job');
-              }}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                padding: '10px 14px',
-                borderRadius: 6,
-                border: '1.5px solid #000000',
-                background: activeTab === 'create_job' ? '#94A3B8' : '#ffffff',
-                color: '#000000',
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Plus size={15} />
-              <span>+ Đăng tin mới</span>
-            </button>
-          </div>
-
-          {/* Nút chuyển đổi sang Trường 2: Không gian nghiên cứu thị trường */}
-          <div style={{ marginTop: 10 }}>
-            <button
-              type="button"
-              onClick={() => {
-                if (onNavigateMarketplace) onNavigateMarketplace();
-                else if (onNavigateHome) onNavigateHome();
-              }}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                padding: '9px 12px',
-                borderRadius: 6,
-                border: '1.5px dashed #64748B',
-                background: '#F8FAFC',
-                color: '#334155',
-                fontSize: 12.5,
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#F1F5F9';
-                e.currentTarget.style.borderColor = '#000000';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#F8FAFC';
-                e.currentTarget.style.borderColor = '#64748B';
-              }}
-              title="Chuyển sang Trường 2: Không gian Nghiên cứu thị trường việc làm"
-            >
-              <Search size={14} color="#059669" />
-              <span>Khám phá thị trường</span>
-            </button>
-          </div>
         </aside>
 
         {/* ================= RIGHT MAIN CONTENT AREA (FULL REMAINING WIDTH) ================= */}
@@ -420,21 +380,10 @@ export default function EmployerPortal({
             <EmployerPersonalProfilePage
               currentUser={currentUser}
               showToast={showToast}
-              onNavigateVerification={() => setActiveTab('verification')}
-            />
-          )}
-
-          {/* WF-E03: Verification Center (Separate screen for Email OTP & Phone OTP) */}
-          {activeTab === 'verification' && (
-            <EmployerVerificationCenterPage
-              currentUser={currentUser}
-              showToast={showToast}
-              onNavigateJobs={() => setActiveTab('jobs')}
-              onNavigateCreateJob={() => {
-                setEditingJob(null);
-                setActiveTab('create_job');
+              onNavigateSettings={() => setActiveTab('settings')}
+              onProfileUpdated={(updated) => {
+                setProfileData(prev => ({ ...prev, ...updated }));
               }}
-              onNavigateProfile={() => setActiveTab('profile')}
             />
           )}
 
@@ -558,6 +507,15 @@ export default function EmployerPortal({
                 else if (tab === 'employer_assignments' || tab === 'assignments') setActiveTab('assignments');
                 else setActiveTab(tab);
               }}
+            />
+          )}
+
+          {/* WF-X03: Account Settings & Security for Employer */}
+          {activeTab === 'settings' && (
+            <AccountSettingsPage
+              currentUser={currentUser}
+              showToast={showToast}
+              embedded={true}
             />
           )}
         </main>

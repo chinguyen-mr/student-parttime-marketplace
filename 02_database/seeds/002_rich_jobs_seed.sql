@@ -99,17 +99,13 @@ ON CONFLICT (id) DO UPDATE SET
     work_schedule = EXCLUDED.work_schedule,
     benefits = EXCLUDED.benefits;
 
--- Cập nhật profile TechCorp quy mô & lĩnh vực
-UPDATE profiles SET 
-    company_size = '100 - 499 nhân viên',
-    company_industry = 'Công nghệ phần mềm & Giải pháp Thiết kế số',
+-- Cập nhật profile TechCorp website
+UPDATE employer_profiles SET 
     website = 'https://techcorp.vn'
 WHERE user_id = 2;
 
--- Cập nhật profile Coffee Chill quy mô & lĩnh vực
-UPDATE profiles SET 
-    company_size = '25 - 99 nhân viên',
-    company_industry = 'Chuỗi Nhà hàng, Cà phê & Dịch vụ F&B',
+-- Cập nhật profile Coffee Chill website
+UPDATE employer_profiles SET 
     website = 'https://coffeechill.vn'
 WHERE user_id = 3;
 

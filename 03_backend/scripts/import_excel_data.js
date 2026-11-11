@@ -4,8 +4,8 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const XLSX = require('xlsx');
 const { pool } = require('../src/config/db');
 
-// Path to Excel file (Marketplace_Parttime_TestData_RealLogos.xlsx / Data.xlsx)
-const EXCEL_PATH = path.join(__dirname, '../../Tài Liệu/Data.xlsx');
+// Path to Excel file (Chỉ sử dụng Data_v2.xlsx trong 02_database)
+const EXCEL_PATH = path.join(__dirname, '../../02_database/Data_v2.xlsx');
 
 const DEFAULT_BCRYPT_HASH = '$2b$10$71YiwSCn2zYmMvUwKYoWu.tgrK8Dc/Tquy4JLS6e4OFcvpk1O17Ua'; // '123456'
 
@@ -304,7 +304,7 @@ async function runImport() {
     await client.query(`SELECT setval(pg_get_serial_sequence('reviews', 'id'), COALESCE((SELECT MAX(id) FROM reviews), 1));`);
 
     await client.query('COMMIT');
-    console.log('✅ ALL DATA FROM Marketplace_Parttime_TestData_RealLogos.xlsx (Data.xlsx) SUCCESSFULLY IMPORTED!');
+    console.log('✅ ALL DATA FROM Data_v2.xlsx SUCCESSFULLY IMPORTED!');
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('❌ Import failed, rolled back:', err);

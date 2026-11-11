@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node --test tests/integration/*.test.js",
+    "test": "node --test tests/integration/*.test.js tests/e2e/*.test.js",
     "migrate": "node src/config/migrate.js",
     "seed": "node src/config/seed.js"
   },
@@ -19,6 +19,7 @@
     "dotenv": "^17.3.1",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^10.5.0",
     "pg": "^8.13.1",
     "xlsx": "^0.18.5"
   }

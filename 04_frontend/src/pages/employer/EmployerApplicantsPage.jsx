@@ -201,7 +201,7 @@ export default function EmployerApplicantsPage({
       if (data.success) {
         if (showToast) {
           showToast(
-            'Quy tắc A3 thành công: Đã tuyển ứng viên, tự động từ chối hồ sơ khác và kích hoạt Hợp đồng làm việc!',
+            'Tuyển ứng viên thành công! Đã kích hoạt hợp đồng làm việc.',
             'success'
           );
         }
@@ -231,7 +231,7 @@ export default function EmployerApplicantsPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>
-            QUẢN LÝ ỨNG VIÊN & ĐỀ XUẤT (WF-E06 & WF-E07)
+            QUẢN LÝ ỨNG VIÊN & ĐỀ XUẤT
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
             Hồ sơ Ứng tuyển & Tuyển chọn Ứng viên
@@ -266,7 +266,7 @@ export default function EmployerApplicantsPage({
         </div>
       </div>
 
-      {/* Tabs: WF-E06 (Applications) vs WF-E07 (Proposals) */}
+      {/* Tabs: Applications vs Proposals */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border)', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', gap: 10 }}>
           <button
@@ -285,7 +285,7 @@ export default function EmployerApplicantsPage({
               gap: 8
             }}
           >
-            <Users size={16} /> Đơn ứng tuyển Part-time (WF-E06)
+            <Users size={16} /> Đơn ứng tuyển Part-time
             <span style={{ fontSize: 11, background: '#E2E8F0', padding: '2px 8px', borderRadius: 10, color: '#334155' }}>
               {filteredApplications.length}
             </span>
@@ -307,7 +307,7 @@ export default function EmployerApplicantsPage({
               gap: 8
             }}
           >
-            <FileText size={16} /> Đề xuất Freelance (WF-E07)
+            <FileText size={16} /> Đề xuất Freelance
             <span style={{ fontSize: 11, background: '#E2E8F0', padding: '2px 8px', borderRadius: 10, color: '#334155' }}>
               {filteredProposals.length}
             </span>
@@ -614,10 +614,10 @@ export default function EmployerApplicantsPage({
                   padding: '3px 10px',
                   borderRadius: 12
                 }}>
-                  QUY TẮC A3 — CHỈ ĐƯỢC CHỌN 1 ỨNG VIÊN
+                  QUY TẮC TUYỂN DỤNG — CHỈ ĐƯỢC CHỌN 1 ỨNG VIÊN
                 </span>
                 <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 4px 0' }}>
-                  Tuyển chọn ứng viên chính thức (WF-E08)
+                  Tuyển chọn ứng viên chính thức
                 </h2>
                 <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
                   Công việc: <strong style={{ color: 'var(--color-text)' }}>{targetJobForSelection.title}</strong> • Loại: {targetJobForSelection.work_type}
@@ -664,8 +664,8 @@ export default function EmployerApplicantsPage({
             }}>
               <AlertTriangle size={18} color="#D97706" style={{ flexShrink: 0 }} />
               <div>
-                <strong>LƯU Ý NGHIỆP VỤ A3:</strong> Tuyến này là cổng DUY NHẤT kích hoạt Hợp đồng làm việc (Work Assignment). 
-                Khi bạn bấm xác nhận chọn, ứng viên này sẽ được <code>ACCEPTED</code>, các ứng viên còn lại sẽ tự động chuyển sang <code>REJECTED</code>.
+                <strong>LƯU Ý NGHIỆP VỤ:</strong> Tuyến này sẽ kích hoạt Hợp đồng làm việc (Work Assignment). 
+                Khi bạn bấm xác nhận chọn, ứng viên này sẽ được tiếp nhận và các ứng viên còn lại sẽ được cập nhật trạng thái tương ứng.
               </div>
             </div>
 
@@ -722,20 +722,20 @@ export default function EmployerApplicantsPage({
                 onClick={handleConfirmSelection}
                 style={{ padding: '8px 22px', fontSize: 13.5, fontWeight: 700 }}
               >
-                {submittingSelection ? 'Đang kích hoạt...' : 'Chấp thuận & Khởi tạo Hợp đồng (A3)'}
+                {submittingSelection ? 'Đang kích hoạt...' : 'Chấp thuận & Khởi tạo Hợp đồng'}
               </Button>
             </div>
           </div>
         </AnimatedModal>
       )}
 
-      {/* ================= MODAL: WF-E13 — STUDENT PROFILE VIEW ================= */}
+      {/* ================= MODAL: STUDENT PROFILE VIEW ================= */}
       {viewingStudent && (
         <AnimatedModal isOpen={!!viewingStudent} onClose={() => setViewingStudent(null)} maxWidth={700}>
           <div style={{ padding: '24px 28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase' }}>
-                HỒ SƠ ỨNG VIÊN SINH VIÊN (WF-E13)
+                HỒ SƠ ỨNG VIÊN SINH VIÊN
               </div>
               <Button variant="secondary" onClick={() => setViewingStudent(null)} style={{ padding: '4px 12px', fontSize: 12 }}>
                 Đóng
@@ -828,7 +828,7 @@ export default function EmployerApplicantsPage({
                 }}
                 style={{ padding: '8px 16px', fontSize: 13, fontWeight: 700 }}
               >
-                Chọn ứng viên này (WF-E08)
+                Chọn ứng viên này
               </Button>
             </div>
           </div>

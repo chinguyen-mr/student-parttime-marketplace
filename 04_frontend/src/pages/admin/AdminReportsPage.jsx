@@ -152,23 +152,12 @@ export default function AdminReportsPage({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <span style={{
-                background: '#FEE2E2',
-                color: '#B91C1C',
-                fontSize: 11.5,
-                fontWeight: 800,
-                padding: '2px 8px',
-                borderRadius: 6,
-                textTransform: 'uppercase'
-              }}>
-                WF-A06
-              </span>
               <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>
                 CHI TIẾT BÁO CÁO VI PHẠM
               </span>
             </div>
             <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
-              Xử lý Báo cáo vi phạm: #{selectedReportId}
+              Xử lý báo cáo vi phạm: #{selectedReportId}
             </h1>
           </div>
 
@@ -181,7 +170,7 @@ export default function AdminReportsPage({
             style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
           >
             <ArrowLeft size={15} />
-            <span>Quay lại danh sách (WF-A05)</span>
+            <span>Quay lại danh sách</span>
           </Button>
         </div>
 
@@ -502,25 +491,12 @@ export default function AdminReportsPage({
             </div>
           </div>
         )}
-
-        {/* Note Box matching WF-A06 Wireframe 100% */}
-        <div style={{
-          padding: '14px 18px',
-          borderRadius: 8,
-          border: '1.5px dashed #CBD5E1',
-          background: '#F8FAFC',
-          fontSize: 13,
-          color: '#64748B',
-          lineHeight: 1.5
-        }}>
-          Trạng thái UI / TBD: G-48, G-51, C3 TBD.
-        </div>
       </div>
     );
   }
 
   // =========================================================================
-  // VIEW 1: WF-A05 — REPORTS LIST
+  // VIEW 1: REPORTS LIST
   // =========================================================================
   return (
     <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20, width: '100%' }}>
@@ -528,23 +504,12 @@ export default function AdminReportsPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{
-              background: '#FEE2E2',
-              color: '#B91C1C',
-              fontSize: 11.5,
-              fontWeight: 800,
-              padding: '2px 8px',
-              borderRadius: 6,
-              textTransform: 'uppercase'
-            }}>
-              WF-A05
-            </span>
             <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>
               QUẢN LÝ BÁO CÁO VI PHẠM
             </span>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
-            Báo cáo vi phạm (Reports Management)
+            Báo cáo vi phạm
           </h1>
         </div>
 
@@ -749,19 +714,6 @@ export default function AdminReportsPage({
             </table>
           </div>
         )}
-      </div>
-
-      {/* Note Box matching WF-A05 Wireframe 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: G-48 TBD. API-D10 TBD.
       </div>
     </div>
   );

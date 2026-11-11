@@ -43,3 +43,24 @@ Thumbs.db
 scratch/
 .gitnexus/
 graphify-out/cache/
+
+# Midterm Project (Quản lý theo Git repo riêng)
+JOBNEST_BaoCao_GiuaKy/
+JOBNEST/
+
+# Exclude markdown documentation in docs/ as requested by user
+docs/*.md
+docs/**/*.md
+01_docs/AI_TOOLING_REORGANIZATION_REPORT.md
+
+# Temporary, audit archives and large binary archives
+*.zip
+scratch_gap8.xml
+.doc-work/
+JOBNEST_AUDIT_BASELINE/
+JOBNEST_AUDIT_REPORT/
+JOBNEST_AUDIT_VALIDATION/
+JOBNEST_REMEDIATION/
+Dự án/
+Tài Liệu/
+

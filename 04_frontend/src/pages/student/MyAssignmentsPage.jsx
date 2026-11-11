@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, AnimatedModal } from '../../components/ui';
+import StatusBadge from '../../components/common/StatusBadge';
 import { API_BASE, formatApiError } from '../../config/api';
 
 /**
@@ -68,61 +69,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
   }, [currentUser]);
 
   const getStatusBadge = (status) => {
-    switch (status) {
-      case 'NOT_STARTED':
-        return (
-          <span style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#B45309',
-            background: '#FEF3C7',
-            border: '1px solid #FDE68A',
-            padding: '4px 10px',
-            borderRadius: 6,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4
-          }}>
-            <Clock size={13} /> Chưa bắt đầu (NOT_STARTED)
-          </span>
-        );
-      case 'IN_PROGRESS':
-        return (
-          <span style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#1D4ED8',
-            background: '#EFF6FF',
-            border: '1px solid #BFDBFE',
-            padding: '4px 10px',
-            borderRadius: 6,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4
-          }}>
-            <PlayCircle size={13} /> Đang thực hiện (IN_PROGRESS)
-          </span>
-        );
-      case 'COMPLETED':
-        return (
-          <span style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#059669',
-            background: '#ECFDF5',
-            border: '1px solid #A7F3D0',
-            padding: '4px 10px',
-            borderRadius: 6,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4
-          }}>
-            <CheckCircle2 size={13} /> Đã hoàn thành (COMPLETED)
-          </span>
-        );
-      default:
-        return <span className="badge badge-secondary">{status}</span>;
-    }
+    return <StatusBadge status={status} />;
   };
 
   // WF-S08: Handle add progress note
@@ -222,29 +169,26 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
     <div>
       {/* Hero Header */}
       <div style={{
-        background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%)',
+        background: '#ffffff',
+        border: '1px solid var(--color-border)',
         borderRadius: 14,
-        padding: '28px 30px',
-        color: '#ffffff',
+        padding: '24px 28px',
         marginBottom: 24,
-        boxShadow: 'var(--shadow-md)',
+        boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 6, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>
-              ✨ WORK ASSIGNMENTS • WF-S08 & WF-S09
-            </div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 6px 0', letterSpacing: '-0.3px' }}>
-              CÔNG VIỆC CỦA TÔI (ASSIGNMENTS)
+            <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 6px 0', color: 'var(--color-text)' }}>
+              Công việc được giao
             </h2>
-            <p style={{ margin: 0, fontSize: 13.5, color: '#E0E7FF', maxWidth: 640 }}>
-              Theo dõi chi tiết hợp đồng, cập nhật tiến độ (WF-S08) và nộp sản phẩm bàn giao (WF-S09) cho Nhà tuyển dụng.
+            <p style={{ margin: 0, fontSize: 13.5, color: 'var(--color-text-secondary)', maxWidth: 640 }}>
+              Theo dõi chi tiết hợp đồng, cập nhật tiến độ công việc và nộp sản phẩm bàn giao cho Nhà tuyển dụng.
             </p>
           </div>
           <Button
             variant="secondary"
             onClick={fetchAssignments}
-            style={{ background: '#ffffff', color: '#312E81', border: 'none', padding: '8px 16px', fontSize: 13, gap: 6, fontWeight: 700 }}
+            style={{ padding: '8px 16px', fontSize: 13, gap: 6, fontWeight: 700 }}
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Làm mới
           </Button>
@@ -606,10 +550,10 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                   </div>
                 </div>
 
-                {/* 3. Form Cập nhật tiến độ (WF-S08 specification) */}
+                {/* 3. Form Cập nhật tiến độ */}
                 <div style={{ background: '#FAF8FD', border: '1.5px solid #EDE9FE', borderRadius: 12, padding: '18px 20px', marginBottom: 20 }}>
                   <div style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--color-primary)', marginBottom: 4 }}>
-                    Cập nhật tiến độ công việc (G-06 TBD)
+                    Cập nhật tiến độ công việc
                   </div>
                   <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 10px 0' }}>
                     Ghi lại các mốc hoàn thành công việc định kỳ để Nhà tuyển dụng theo dõi.
@@ -632,10 +576,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                         marginBottom: 10
                       }}
                     />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: '#64748B' }}>
-                        Trạng thái UI: Không đổi trạng thái Assignment trực tiếp; không có SUBMITTED (G-58 TBD).
-                      </span>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                       <Button
                         type="submit"
                         variant="primary"
@@ -658,22 +599,19 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                     onClick={() => setModalActiveTab('deliverables')}
                     style={{ padding: '8px 20px', fontSize: 13, gap: 6, background: '#7565A8' }}
                   >
-                    Nộp sản phẩm bàn giao (WF-S09) →
+                    Nộp sản phẩm bàn giao →
                   </Button>
                 </div>
               </div>
             )}
 
             {/* =================================================================
-                TAB 2: WF-S09 — DELIVERABLE SUBMISSION & VERSION HISTORY
+                TAB 2: DELIVERABLE SUBMISSION & VERSION HISTORY
                 ================================================================= */}
             {modalActiveTab === 'deliverables' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <div>
-                    <span style={{ background: '#F1EEF8', color: '#7565A8', border: '1px solid #D8B4FE', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>
-                      WF-S09 — DELIVERABLE SUBMISSION
-                    </span>
                     <h4 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>
                       Nộp sản phẩm bàn giao (Deliverables)
                     </h4>
@@ -781,15 +719,12 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                   </div>
                 </form>
 
-                {/* Version History Table (WF-S09 specification) */}
+                {/* Version History Table */}
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)' }}>
-                      Lịch sử các phiên bản bàn giao (Version History)
+                      Lịch sử các phiên bản bàn giao
                     </div>
-                    <span style={{ fontSize: 11.5, color: '#64748B' }}>
-                      Chuẩn wireframe WF-S09
-                    </span>
                   </div>
 
                   <div style={{ border: '1px solid var(--color-border)', borderRadius: 10, overflow: 'hidden' }}>
@@ -860,7 +795,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                 {/* Actions bottom */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20 }}>
                   <Button variant="secondary" onClick={() => setModalActiveTab('detail_timeline')} style={{ padding: '8px 18px', fontSize: 13, gap: 6 }}>
-                    ← Xem lại WF-S08 Timeline
+                    ← Quay lại tiến độ công việc
                   </Button>
                   <Button variant="secondary" onClick={() => setSelectedAssignment(null)} style={{ padding: '8px 18px', fontSize: 13 }}>
                     Đóng

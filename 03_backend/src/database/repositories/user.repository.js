@@ -6,6 +6,13 @@ class UserRepository {
         return res.rows[0] || null;
     }
 
+    async findByPhone(phone) {
+        if (!phone) return null;
+        const clean = String(phone).trim();
+        const res = await db.query('SELECT * FROM users WHERE phone = $1', [clean]);
+        return res.rows[0] || null;
+    }
+
     async findById(id) {
         const res = await db.query(
             'SELECT id, email, full_name, phone, role, status, created_at FROM users WHERE id = $1',

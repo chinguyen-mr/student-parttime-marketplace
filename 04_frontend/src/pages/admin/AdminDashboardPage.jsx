@@ -87,23 +87,12 @@ export default function AdminDashboardPage({
       }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{
-              background: '#FEE2E2',
-              color: '#B91C1C',
-              fontSize: 11.5,
-              fontWeight: 800,
-              padding: '2px 8px',
-              borderRadius: 6,
-              textTransform: 'uppercase'
-            }}>
-              WF-A01
-            </span>
             <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>
               CỔNG QUẢN TRỊ VIÊN HỆ THỐNG
             </span>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
-            Bảng điều khiển Quản trị (Admin Dashboard)
+            Tổng quan quản trị
           </h1>
         </div>
 
@@ -355,22 +344,22 @@ export default function AdminDashboardPage({
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                Người dùng (Users Distribution)
+                Phân bố người dùng
               </h3>
               <button
                 type="button"
                 onClick={() => onNavigateTab && onNavigateTab('users')}
-                style={{ fontSize: 12.5, fontWeight: 700, color: '#4F46E5', cursor: 'pointer', background: 'none', border: 'none' }}
+                style={{ fontSize: 12.5, fontWeight: 700, color: '#7565A8', cursor: 'pointer', background: 'none', border: 'none' }}
               >
-                Quản lý Users →
+                Quản lý người dùng →
               </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { label: 'Sinh viên (STUDENT)', count: studentCount, color: '#4F46E5', bg: '#EEF2FF' },
-                { label: 'Nhà tuyển dụng (EMPLOYER)', count: employerCount, color: '#059669', bg: '#ECFDF5' },
-                { label: 'Quản trị viên (ADMIN)', count: statsData.users.filter(u => u.role === 'ADMIN').reduce((acc, cur) => acc + parseInt(cur.count, 10), 0), color: '#DC2626', bg: '#FEF2F2' }
+                { label: 'Sinh viên', count: studentCount, color: '#7565A8', bg: '#F1EEF8' },
+                { label: 'Nhà tuyển dụng', count: employerCount, color: '#059669', bg: '#ECFDF5' },
+                { label: 'Quản trị viên', count: statsData.users.filter(u => u.role === 'ADMIN').reduce((acc, cur) => acc + parseInt(cur.count, 10), 0), color: '#DC2626', bg: '#FEF2F2' }
               ].map(item => (
                 <div key={item.label} style={{
                   display: 'flex',
@@ -407,12 +396,12 @@ export default function AdminDashboardPage({
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                Job theo loại (Jobs by Type)
+                Tin tuyển dụng theo loại
               </h3>
               <button
                 type="button"
                 onClick={() => onNavigateTab && onNavigateTab('moderation')}
-                style={{ fontSize: 12.5, fontWeight: 700, color: '#4F46E5', cursor: 'pointer', background: 'none', border: 'none' }}
+                style={{ fontSize: 12.5, fontWeight: 700, color: '#7565A8', cursor: 'pointer', background: 'none', border: 'none' }}
               >
                 Hàng đợi duyệt →
               </button>
@@ -420,9 +409,9 @@ export default function AdminDashboardPage({
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { type: 'PART_TIME', label: 'Part-time (Bán thời gian)', count: statsData.jobs_by_type.find(j => j.work_type === 'PART_TIME')?.count || 0, color: '#7565A8' },
-                { type: 'SEASONAL', label: 'Seasonal (Thời vụ / Sự kiện)', count: statsData.jobs_by_type.find(j => j.work_type === 'SEASONAL')?.count || 0, color: '#E5A34C' },
-                { type: 'FREELANCE', label: 'Freelance (Dự án tự do)', count: statsData.jobs_by_type.find(j => j.work_type === 'FREELANCE')?.count || 0, color: '#0284C7' }
+                { type: 'PART_TIME', label: 'Bán thời gian (Part-time)', count: statsData.jobs_by_type.find(j => j.work_type === 'PART_TIME')?.count || 0, color: '#7565A8' },
+                { type: 'SEASONAL', label: 'Thời vụ (Seasonal)', count: statsData.jobs_by_type.find(j => j.work_type === 'SEASONAL')?.count || 0, color: '#E5A34C' },
+                { type: 'FREELANCE', label: 'Dự án (Freelance)', count: statsData.jobs_by_type.find(j => j.work_type === 'FREELANCE')?.count || 0, color: '#0284C7' }
               ].map(item => (
                 <div key={item.type} style={{
                   display: 'flex',
@@ -444,7 +433,7 @@ export default function AdminDashboardPage({
         </div>
       </div>
 
-      {/* ================= 3. HOẠT ĐỘNG GẦN ĐÂY (RECENT ACTIVITIES) ================= */}
+      {/* ================= 3. HOẠT ĐỘNG GẦN ĐÂY ================= */}
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
@@ -454,7 +443,7 @@ export default function AdminDashboardPage({
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
-            Hoạt động Quản trị gần đây (Recent Audit Logs)
+            Hoạt động quản trị gần đây
           </h3>
           <button
             onClick={() => onNavigateTab && onNavigateTab('logs')}
@@ -516,19 +505,6 @@ export default function AdminDashboardPage({
             </table>
           </div>
         )}
-      </div>
-
-      {/* Note Box matching WF-A01 Wireframe 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: G-49, G-50, G-51 TBD (không có UC riêng).
       </div>
     </div>
   );

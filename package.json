@@ -18,7 +18,18 @@
     "test": "npm --prefix 03_backend test",
     "migrate": "npm --prefix 03_backend run migrate",
     "seed": "npm --prefix 03_backend run seed",
-    "build:frontend": "npm --prefix 04_frontend run build"
+    "build:frontend": "npm --prefix 04_frontend run build",
+    "build": "npm --prefix 04_frontend run build"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^10.5.0",
+    "pg": "^8.13.1",
+    "xlsx": "^0.18.5"
   },
   "keywords": [
     "marketplace",

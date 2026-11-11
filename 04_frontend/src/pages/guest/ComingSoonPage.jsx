@@ -23,7 +23,7 @@ export default function ComingSoonPage({
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
       {/* Top Left Floating Back Button to where user came from */}

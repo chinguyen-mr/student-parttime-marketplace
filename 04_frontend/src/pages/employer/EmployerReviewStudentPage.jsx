@@ -101,7 +101,7 @@ export default function EmployerReviewStudentPage({
       <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
         <div>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-            WF-E11 — REVIEW STUDENT
+            ĐÁNH GIÁ SINH VIÊN
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>
             Đánh giá & Nhận xét Sinh viên sau hoàn thành
@@ -209,7 +209,7 @@ export default function EmployerReviewStudentPage({
             {/* 5 Star Interactive Rating */}
             <div>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>
-                Số sao (C10 TBD)
+                Đánh giá mức độ hài lòng (Số sao)
               </label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {[1, 2, 3, 4, 5].map((star) => {
@@ -272,9 +272,9 @@ export default function EmployerReviewStudentPage({
                 type="submit"
                 disabled={submitting}
                 style={{
-                  background: '#000000',
+                  background: '#7565A8',
                   color: '#ffffff',
-                  border: '1.5px solid #000000',
+                  border: 'none',
                   borderRadius: 8,
                   padding: '11px 26px',
                   fontSize: 14,
@@ -283,7 +283,7 @@ export default function EmployerReviewStudentPage({
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
-                  boxShadow: 'var(--shadow-sm)'
+                  boxShadow: '0 4px 12px rgba(117, 101, 168, 0.25)'
                 }}
               >
                 <Send size={16} />
@@ -292,19 +292,6 @@ export default function EmployerReviewStudentPage({
             </div>
           </form>
         </div>
-      </div>
-
-      {/* Wireframe Note Box matching WF-E11 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: G-41, G-42 TBD.
       </div>
     </div>
   );

@@ -1,0 +1,21 @@
+# ==============================================================================
+# JOBNEST — Crawler Directives (RFC 9309 / Google Search Central)
+# Domain: https://jobnest.edu.vn
+# ==============================================================================
+
+User-agent: *
+Allow: /
+
+# Disallow Private Dashboards & Operational Surfaces (Protected by JWT/RBAC)
+Disallow: /admin/
+Disallow: /employer/
+Disallow: /candidate/
+Disallow: /api/
+
+# Explicitly Allow Public Dynamic XML Sitemap under /api/
+Allow: /api/jobs/sitemap.xml
+
+# XML Sitemaps
+Sitemap: https://jobnest.edu.vn/sitemap.xml
+Sitemap: https://jobnest.edu.vn/api/jobs/sitemap.xml
+

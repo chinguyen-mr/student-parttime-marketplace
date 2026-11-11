@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Building2, Mail, Phone, MapPin, Globe, ShieldCheck, 
-  FileCheck, Upload, Trash2, KeyRound, X, CheckCircle 
+  FileCheck, Upload, Trash2, KeyRound, X, CheckCircle, CheckCircle2, AlertTriangle
 } from 'lucide-react';
 import { AnimatedModal, Button } from '../ui';
 
@@ -11,34 +11,84 @@ export default function EmployerProfileModal({
   currentUser,
   onSave,
 }) {
+  const savedProfile = (() => {
+    if (!currentUser?.id) return null;
+    try {
+      const cached = localStorage.getItem(`jobnest_employer_profile_${currentUser.id}`);
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const isDemoEmployer = currentUser?.email === 'employer.test@vlu.edu.vn' || currentUser?.id === 2 || !currentUser;
+
   const [accountType, setAccountType] = useState('ENTERPRISE'); // 'ENTERPRISE' | 'INDIVIDUAL'
-  const [companyName, setCompanyName] = useState('TechCorp Vietnam / ABC Retail');
-  const [taxCode, setTaxCode] = useState('0312345678');
-  const [contactPerson, setContactPerson] = useState(currentUser?.full_name || 'Nguyễn Tuyển Dụng');
-  const [phone, setPhone] = useState('0909123456');
-  const [email, setEmail] = useState(currentUser?.email || 'techcorp@gmail.com');
-  const [address, setAddress] = useState('Tầng 8, Tòa nhà Landmark, Quận 1, TP. Hồ Chí Minh');
-  const [website, setWebsite] = useState('https://techcorp.vn');
-  const [description, setDescription] = useState('Tập đoàn công nghệ và bán lẻ hàng đầu với hệ thống chi nhánh phủ rộng TP.HCM, thường xuyên tạo điều kiện việc làm thực tế cho sinh viên Văn Lang.');
-  const [licenseFileName, setLicenseFileName] = useState('Giay_Phep_Kinh_Doanh_TechCorp.pdf');
+  const [companyName, setCompanyName] = useState(
+    currentUser?.company_name || currentUser?.company || savedProfile?.companyName || (isDemoEmployer ? 'TechCorp Vietnam / ABC Retail' : '')
+  );
+  const [taxCode, setTaxCode] = useState(
+    currentUser?.tax_code || savedProfile?.taxCode || (isDemoEmployer ? '0312345678' : '')
+  );
+  const [contactPerson, setContactPerson] = useState(
+    currentUser?.full_name || savedProfile?.contactPerson || (isDemoEmployer ? 'Nguyễn Tuyển Dụng' : '')
+  );
+  const [phone, setPhone] = useState(
+    currentUser?.phone || savedProfile?.phone || (isDemoEmployer ? '0909123456' : '')
+  );
+  const [email, setEmail] = useState(
+    currentUser?.email || savedProfile?.email || (isDemoEmployer ? 'techcorp@gmail.com' : '')
+  );
+  const [address, setAddress] = useState(
+    currentUser?.location || currentUser?.address || savedProfile?.address || (isDemoEmployer ? 'Tầng 8, Tòa nhà Landmark, Quận 1, TP. Hồ Chí Minh' : '')
+  );
+  const [website, setWebsite] = useState(
+    currentUser?.website || savedProfile?.website || (isDemoEmployer ? 'https://techcorp.vn' : '')
+  );
+  const [description, setDescription] = useState(
+    currentUser?.bio || currentUser?.description || savedProfile?.description || (isDemoEmployer ? 'Tập đoàn công nghệ và bán lẻ hàng đầu với hệ thống chi nhánh phủ rộng TP.HCM, thường xuyên tạo điều kiện việc làm thực tế cho sinh viên Văn Lang.' : '')
+  );
+  const [licenseFileName, setLicenseFileName] = useState(
+    savedProfile?.licenseFileName || (isDemoEmployer ? 'Giay_Phep_Kinh_Doanh_TechCorp.pdf' : '')
+  );
   const [isSaving, setIsSaving] = useState(false);
+
+  // Tính toán các trường còn thiếu để thông báo cho nhà tuyển dụng
+  const missingFields = [];
+  if (!companyName?.trim()) missingFields.push('Tên doanh nghiệp');
+  if (!contactPerson?.trim()) missingFields.push('Người đại diện');
+  if (!phone?.trim()) missingFields.push('Số điện thoại');
+  if (!taxCode?.trim()) missingFields.push('Mã số thuế');
+  if (!address?.trim()) missingFields.push('Địa chỉ trụ sở');
+  if (!description?.trim()) missingFields.push('Mô tả doanh nghiệp');
+
+  const totalRequired = 6;
+  const completedCount = totalRequired - missingFields.length;
+  const percentComplete = Math.round((completedCount / totalRequired) * 100);
+  const isProfileComplete = missingFields.length === 0;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);
+      const dataToSave = {
+        companyName,
+        taxCode,
+        contactPerson,
+        phone,
+        email,
+        address,
+        website,
+        description,
+        licenseFileName,
+        is_profile_completed: true,
+      };
+      if (currentUser?.id) {
+        localStorage.setItem(`jobnest_employer_profile_${currentUser.id}`, JSON.stringify(dataToSave));
+      }
       if (onSave) {
-        onSave({
-          companyName,
-          taxCode,
-          contactPerson,
-          phone,
-          email,
-          address,
-          website,
-          description,
-        });
+        onSave(dataToSave);
       }
       onClose();
     }, 400);
@@ -85,6 +135,53 @@ export default function EmployerProfileModal({
 
         {/* Scrollable Form Body */}
         <form onSubmit={handleSubmit} style={{ padding: '24px 28px', overflowY: 'auto', flex: 1 }}>
+          {/* ================= BANNER KIỂM TRA ĐỘ HOÀN THIỆN HỒ SƠ ================= */}
+          {isProfileComplete ? (
+            <div style={{
+              background: '#ECFDF5',
+              border: '1.5px solid #10B981',
+              borderRadius: 12,
+              padding: '14px 18px',
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.12)',
+            }}>
+              <CheckCircle2 size={24} color="#10B981" style={{ flexShrink: 0 }} />
+              <div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#065F46' }}>
+                  Trạng thái: Hồ sơ doanh nghiệp đã đầy đủ thông tin (100%)
+                </div>
+                <div style={{ fontSize: 12, color: '#047857', marginTop: 2 }}>
+                  Thông tin doanh nghiệp đã hoàn thiện. Bạn có thể đăng tin tuyển dụng và nhận hồ sơ từ sinh viên ngay!
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div style={{
+              background: '#FFFBEB',
+              border: '1.5px solid #F59E0B',
+              borderRadius: 12,
+              padding: '14px 18px',
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 12,
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.12)',
+            }}>
+              <AlertTriangle size={24} color="#D97706" style={{ flexShrink: 0, marginTop: 2 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#92400E' }}>
+                  Trạng thái: Hồ sơ doanh nghiệp chưa đầy đủ ({percentComplete}%)
+                </div>
+                <div style={{ fontSize: 12.5, color: '#B45309', marginTop: 4, lineHeight: 1.5 }}>
+                  Còn thiếu: <strong>{missingFields.join(', ')}</strong>. Vui lòng bổ sung đầy đủ thông tin để nâng cao uy tín khi đăng tin tuyển dụng!
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Logo & Account Status Top Section */}
           <div style={{
             display: 'grid',

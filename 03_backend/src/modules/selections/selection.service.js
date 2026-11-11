@@ -126,6 +126,14 @@ class SelectionService {
                 createdAssignments.push(assignRes.rows[0]);
             }
 
+            // Tự động chuyển trạng thái tin tuyển dụng sang FILLED khi tuyển đủ chỉ tiêu
+            if (currentAcceptedCount + validProposals.length >= maxQuantity) {
+                await client.query(
+                    `UPDATE jobs SET status = 'FILLED', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+                    [jobId]
+                );
+            }
+
             await client.query('COMMIT');
         } catch (err) {
             await client.query('ROLLBACK');
@@ -223,6 +231,14 @@ class SelectionService {
                     [jobId, app.student_id, app.id]
                 );
                 createdAssignments.push(assignRes.rows[0]);
+            }
+
+            // Tự động chuyển trạng thái tin tuyển dụng sang FILLED khi tuyển đủ chỉ tiêu
+            if (currentAcceptedCount + validApplications.length >= maxQuantity) {
+                await client.query(
+                    `UPDATE jobs SET status = 'FILLED', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+                    [jobId]
+                );
             }
 
             await client.query('COMMIT');

@@ -65,8 +65,8 @@ export default function EmployerAssignmentsPage({
   // Update Assignment Status (PATCH /api/assignments/:id/status)
   const handleUpdateStatus = async (assignmentId, newStatus) => {
     const actionLabel = newStatus === 'IN_PROGRESS' 
-      ? 'Bắt đầu làm việc (IN_PROGRESS)' 
-      : 'Xác nhận hoàn thành công việc (COMPLETED)';
+      ? 'Bắt đầu làm việc' 
+      : 'Xác nhận hoàn thành công việc';
 
     if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái hợp đồng sang "${actionLabel}"?`)) {
       return;
@@ -190,10 +190,10 @@ export default function EmployerAssignmentsPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>
-            TIẾN ĐỘ & NGHIỆM THU (WF-E09, WF-E10, WF-E11)
+            TIẾN ĐỘ & NGHIỆM THU
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
-            Quản lý Hợp đồng & Tiến độ Công việc
+            Quản lý hợp đồng & Tiến độ công việc
           </h1>
         </div>
 
@@ -255,7 +255,7 @@ export default function EmployerAssignmentsPage({
       ) : filteredAssignments.length === 0 ? (
         <EmptyState
           title="Chưa có hợp đồng công việc nào"
-          description="Hợp đồng làm việc sẽ tự động được khởi tạo khi bạn tuyển chọn ứng viên qua cổng WF-E08 (A3 Rule)."
+          description="Hợp đồng làm việc sẽ tự động được khởi tạo khi bạn tuyển chọn ứng viên trúng tuyển."
         />
       ) : (
         <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
@@ -359,18 +359,18 @@ export default function EmployerAssignmentsPage({
                           gap: 4
                         }}
                       >
-                        <Eye size={13} /> Nghiệm thu (WF-E10)
+                        <Eye size={13} /> Nghiệm thu
                       </button>
                     </td>
 
-                    {/* Actions: Start, Complete, Review (WF-E11) */}
+                    {/* Actions: Start, Complete, Review */}
                     <td style={{ padding: '16px', textAlign: 'right' }}>
                       <div style={{ display: 'inline-flex', gap: 6 }}>
                         {assign.status === 'NOT_STARTED' && (
                           <button
                             onClick={() => handleUpdateStatus(assign.id, 'IN_PROGRESS')}
                             disabled={actionLoading}
-                            style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#047857', padding: '5px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                            style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#047857', padding: '5px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
                           >
                             Bắt đầu
                           </button>
@@ -380,7 +380,7 @@ export default function EmployerAssignmentsPage({
                           <button
                             onClick={() => handleUpdateStatus(assign.id, 'COMPLETED')}
                             disabled={actionLoading}
-                            style={{ background: '#F0FDF4', border: '1px solid #86EFAC', color: '#16A34A', padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 800, cursor: 'pointer' }}
+                            style={{ background: '#F0FDF4', border: '1px solid #86EFAC', color: '#16A34A', padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}
                           >
                             Xác nhận hoàn thành
                           </button>
@@ -400,10 +400,11 @@ export default function EmployerAssignmentsPage({
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: 4
+                              gap: 4,
+                              whiteSpace: 'nowrap'
                             }}
                           >
-                            <Star size={13} /> {isReviewed ? 'Đã đánh giá' : 'Đánh giá (WF-E11)'}
+                            <Star size={13} /> {isReviewed ? 'Đã đánh giá' : 'Đánh giá'}
                           </button>
                         )}
                       </div>
@@ -423,7 +424,7 @@ export default function EmployerAssignmentsPage({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
                 <span style={{ fontSize: 11.5, fontWeight: 800, background: '#EEF2FF', color: '#4F46E5', padding: '3px 10px', borderRadius: 12 }}>
-                  NGHIỆM THU SẢN PHẨM BÀN GIAO (WF-E10)
+                  NGHIỆM THU SẢN PHẨM BÀN GIAO
                 </span>
                 <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>
                   Kiểm tra & Quyết định bàn giao
@@ -542,7 +543,7 @@ export default function EmployerAssignmentsPage({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
                 <span style={{ fontSize: 11.5, fontWeight: 800, background: '#FEF3C7', color: '#B45309', padding: '3px 10px', borderRadius: 12 }}>
-                  ĐÁNH GIÁ SINH VIÊN (WF-E11)
+                  ĐÁNH GIÁ SINH VIÊN
                 </span>
                 <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>
                   Đánh giá sau hoàn thành công việc

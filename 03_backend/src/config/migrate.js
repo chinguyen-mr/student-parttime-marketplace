@@ -45,11 +45,84 @@ async function runMigration() {
 
     try {
         const migrationsDir = path.resolve(__dirname, '../../../02_database/migrations');
-        const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql'));
-        console.log(`Applying ${files.length} migrations from: ${migrationsDir}`);
+        // Define deterministic order for base tables and dependent migrations
+        const orderedTableFiles = [
+            'users.sql',
+            'categories.sql',
+            'employer_profiles.sql',
+            'student_profiles.sql',
+            'jobs.sql',
+            'part_time_details.sql',
+            'freelance_details.sql',
+            'seasonal_details.sql',
+            'job_skills.sql',
+            'job_saved.sql',
+            'job_views.sql',
+            'applications.sql',
+            'application_histories.sql',
+            'freelance_proposals.sql',
+            'proposal_histories.sql',
+            'work_assignments.sql',
+            'work_progress.sql',
+            'work_deliverables.sql',
+            'deliverable_reviews.sql',
+            'reviews.sql',
+            'reports.sql',
+            'report_actions.sql',
+            'notifications.sql',
+            'admin_logs.sql',
+            'student_cvs.sql',
+            'student_educations.sql',
+            'student_experiences.sql',
+            'student_skills.sql',
+            'verification_tokens.sql',
+            'password_reset_tokens.sql',
+            'update_columns_for_data_v2.sql',
+            '003_create_schedules_and_availability.sql'
+        ];
+
+        // Ensure schema_migrations table exists for version tracking
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS schema_migrations (
+                id SERIAL PRIMARY KEY,
+                version VARCHAR(255) NOT NULL UNIQUE,
+                applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        const allSqlFiles = fs.readdirSync(migrationsDir)
+            .filter(f => f.endsWith('.sql') && !f.toLowerCase().includes('rollback'));
+
+        // Sort files according to orderedTableFiles, placing unlisted new migrations at the end
+        const files = allSqlFiles.sort((a, b) => {
+            const idxA = orderedTableFiles.indexOf(a);
+            const idxB = orderedTableFiles.indexOf(b);
+            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+            if (idxA !== -1) return -1;
+            if (idxB !== -1) return 1;
+            return a.localeCompare(b);
+        });
+
+        console.log(`Found ${files.length} forward migration files (rollback scripts excluded).`);
+
         for (const file of files) {
+            const alreadyApplied = await pool.query(
+                `SELECT 1 FROM schema_migrations WHERE version = $1`,
+                [file]
+            );
+
+            if (alreadyApplied.rowCount > 0) {
+                console.log(`- Skipping ${file} (already applied)`);
+                continue;
+            }
+
+            console.log(`+ Applying migration: ${file}...`);
             const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
             await pool.query(sql);
+            await pool.query(
+                `INSERT INTO schema_migrations (version) VALUES ($1) ON CONFLICT (version) DO NOTHING`,
+                [file]
+            );
         }
         console.log('All migrations applied successfully!');
     } catch (err) {

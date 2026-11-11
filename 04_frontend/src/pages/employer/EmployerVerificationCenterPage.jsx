@@ -11,9 +11,9 @@ export default function EmployerVerificationCenterPage({
   const [email, setEmail] = useState(currentUser?.email || 'employer.test@vlu.edu.vn');
   const [phone, setPhone] = useState(currentUser?.phone || '0901234567');
 
-  // Verification statuses
+  // Verification statuses (Đã bỏ xác thực OTP theo yêu cầu đơn giản hóa)
   const [emailVerified, setEmailVerified] = useState(true);
-  const [phoneVerified, setPhoneVerified] = useState(Boolean(currentUser?.phone_verified || currentUser?.verification_status === 'VERIFIED'));
+  const [phoneVerified, setPhoneVerified] = useState(true);
 
   // OTP form states
   const [emailOtp, setEmailOtp] = useState('');
@@ -40,32 +40,46 @@ export default function EmployerVerificationCenterPage({
 
   const handleSendEmailOtp = () => {
     setEmailCountdown(60);
-    if (showToast) showToast('Đã gửi mã OTP 6 số đến email của bạn!', 'success');
+    if (showToast) showToast('Mã OTP Email thử nghiệm (Demo): 123456. Vui lòng nhập để xác minh!', 'success');
   };
 
   const handleVerifyEmailOtp = () => {
-    if (!emailOtp.trim() || emailOtp.trim().length < 4) {
-      if (showToast) showToast('Vui lòng nhập mã OTP hợp lệ', 'error');
+    if (!emailOtp.trim()) {
+      if (showToast) showToast('Vui lòng nhập mã OTP', 'error');
       return;
     }
-    setEmailVerified(true);
-    setEmailOtp('');
-    if (showToast) showToast('Xác minh Email thành công!', 'success');
+    if (emailOtp.trim() === '123456' || emailOtp.trim().length === 6) {
+      setEmailVerified(true);
+      setEmailOtp('');
+      if (showToast) showToast('Xác minh Email thành công!', 'success');
+    } else {
+      if (showToast) showToast('Mã OTP không đúng! Vui lòng nhập mã thử nghiệm: 123456', 'error');
+    }
   };
 
   const handleSendPhoneOtp = () => {
     setPhoneCountdown(60);
-    if (showToast) showToast(`Đã gửi tin nhắn OTP 6 số đến số điện thoại ${phone}!`, 'success');
+    if (showToast) showToast(`Mã OTP SMS thử nghiệm gửi đến ${phone}: 123456 (Bấm "Điền nhanh" để nhập)`, 'success');
   };
 
   const handleVerifyPhoneOtp = () => {
-    if (!phoneOtp.trim() || phoneOtp.trim().length < 4) {
-      if (showToast) showToast('Vui lòng nhập mã OTP hợp lệ', 'error');
+    if (!phoneOtp.trim()) {
+      if (showToast) showToast('Vui lòng nhập mã OTP', 'error');
       return;
     }
-    setPhoneVerified(true);
-    setPhoneOtp('');
-    if (showToast) showToast('Xác minh Số điện thoại thành công!', 'success');
+    if (phoneOtp.trim() === '123456' || phoneOtp.trim().length === 6) {
+      setPhoneVerified(true);
+      setPhoneOtp('');
+      if (currentUser) {
+        currentUser.phone_verified = true;
+        if (currentUser.id) {
+          localStorage.setItem(`jobnest_employer_phone_verified_${currentUser.id}`, 'true');
+        }
+      }
+      if (showToast) showToast('Xác minh Số điện thoại thành công! Tài khoản Nhà tuyển dụng đã đủ điều kiện đăng tin.', 'success');
+    } else {
+      if (showToast) showToast('Mã OTP không đúng! Vui lòng nhập mã thử nghiệm: 123456', 'error');
+    }
   };
 
   const isFullyVerified = emailVerified && phoneVerified;
@@ -75,7 +89,7 @@ export default function EmployerVerificationCenterPage({
       {/* Page Title */}
       <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-          WF-E03 — VERIFICATION CENTER
+          XÁC THỰC TÀI KHOẢN
         </div>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>
           Trung tâm Xác thực Tài khoản Nhà tuyển dụng
@@ -302,7 +316,7 @@ export default function EmployerVerificationCenterPage({
                 type="text"
                 value={phoneOtp}
                 onChange={(e) => setPhoneOtp(e.target.value)}
-                placeholder="Nhập 6 số mã OTP gửi tới SĐT"
+                placeholder="Nhập 6 số mã OTP gửi tới SĐT (VD: 123456)"
                 disabled={phoneVerified}
                 style={{
                   width: '100%',
@@ -315,6 +329,44 @@ export default function EmployerVerificationCenterPage({
                   background: phoneVerified ? '#F8FAFC' : '#ffffff'
                 }}
               />
+
+              {!phoneVerified && (
+                <div style={{
+                  marginTop: 8,
+                  padding: '8px 12px',
+                  background: '#EFF6FF',
+                  borderRadius: 8,
+                  border: '1px solid #BFDBFE',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: 12.5,
+                  color: '#1E40AF',
+                  flexWrap: 'wrap',
+                  gap: 8
+                }}>
+                  <span>💡 <strong>Môi trường thử nghiệm:</strong> Mã OTP SMS là <strong>123456</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPhoneOtp('123456');
+                      if (showToast) showToast('Đã tự động điền mã OTP 123456!', 'info');
+                    }}
+                    style={{
+                      border: 'none',
+                      background: '#2563EB',
+                      color: '#ffffff',
+                      borderRadius: 6,
+                      padding: '4px 10px',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Điền nhanh 123456
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -380,11 +432,11 @@ export default function EmployerVerificationCenterPage({
             <AlertTriangle size={24} color="#D97706" />
           )}
           <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: isFullyVerified ? '#065F46' : '#92400E' }}>
-              Điều kiện đăng tin tuyển dụng
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#065F46' }}>
+              Trạng thái: Đủ điều kiện đăng tin tuyển dụng ngay
             </div>
-            <div style={{ fontSize: 13.5, color: isFullyVerified ? '#047857' : '#B45309', marginTop: 2 }}>
-              • Phải xác minh cả Email và Phone trước khi đăng Job
+            <div style={{ fontSize: 13.5, color: '#047857', marginTop: 2 }}>
+              • Hệ thống JobNest đã tối giản quy trình: Không cần xác thực mã OTP/SMS để tạo điều kiện thuận lợi nhất cho Nhà tuyển dụng!
             </div>
           </div>
         </div>
@@ -412,19 +464,6 @@ export default function EmployerVerificationCenterPage({
             <ArrowRight size={15} />
           </button>
         )}
-      </div>
-
-      {/* Wireframe Note Box matching WF-E03 100% */}
-      <div style={{
-        padding: '14px 18px',
-        borderRadius: 8,
-        border: '1.5px dashed #CBD5E1',
-        background: '#F8FAFC',
-        fontSize: 13,
-        color: '#64748B',
-        lineHeight: 1.5
-      }}>
-        Trạng thái UI / TBD: Provider, G-15 OTP expiry, G-16 rate limit TBD.
       </div>
     </div>
   );

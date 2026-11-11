@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1100px" height="560px" viewBox="0 0 1100 560" content="&lt;mxfile host=&quot;app.diagrams.net&quot;&gt;&lt;diagram name=&quot;System Context&quot;&gt;&lt;mxGraphModel dx=&quot;1000&quot; dy=&quot;800&quot; grid=&quot;1&quot; gridSize=&quot;10&quot; guides=&quot;1&quot; tooltips=&quot;1&quot; connect=&quot;1&quot; arrows=&quot;1&quot; fold=&quot;1&quot; page=&quot;1&quot; pageScale=&quot;1&quot; pageWidth=&quot;1100&quot; pageHeight=&quot;600&quot;&gt;&lt;root&gt;&lt;mxCell id=&quot;0&quot;/&gt;&lt;mxCell id=&quot;1&quot; parent=&quot;0&quot;/&gt;&lt;mxCell id=&quot;u1&quot; value=&quot;Sinh viên (Student)&quot; style=&quot;rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7565A8;fontStyle=1;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;60&quot; y=&quot;120&quot; width=&quot;220&quot; height=&quot;110&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;u2&quot; value=&quot;Doanh nghiệp (Employer)&quot; style=&quot;rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#F4B99D;fontStyle=1;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;60&quot; y=&quot;260&quot; width=&quot;220&quot; height=&quot;110&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;u3&quot; value=&quot;Quản trị viên (Admin)&quot; style=&quot;rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7565A8;fontStyle=1;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;60&quot; y=&quot;400&quot; width=&quot;220&quot; height=&quot;110&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;core&quot; value=&quot;JOBNEST PLATFORM CORE&quot; style=&quot;swimlane;whiteSpace=wrap;html=1;fillColor=#F8F7FB;strokeColor=#7565A8;startSize=40;fontStyle=1;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;360&quot; y=&quot;120&quot; width=&quot;380&quot; height=&quot;390&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;ext1&quot; value=&quot;Email SMTP Service&quot; style=&quot;rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D5CFE2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;820&quot; y=&quot;160&quot; width=&quot;220&quot; height=&quot;95&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;/root&gt;&lt;/mxGraphModel&gt;&lt;/diagram&gt;&lt;/mxfile&gt;">
+  <defs>
+    <style type="text/css">
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap');
+      text { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
+    </style>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7565A8" />
+      <stop offset="100%" stop-color="#5B4A8D" />
+    </linearGradient>
+    <linearGradient id="peachGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F4B99D" />
+      <stop offset="100%" stop-color="#E8A484" />
+    </linearGradient>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#7565A8" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect x="0" y="0" width="1100" height="560" fill="#F8F7FB" rx="16" />
+  
+  <!-- Header Bar -->
+  <rect x="0" y="0" width="1100" height="70" fill="url(#headerGrad)" rx="16" />
+  <rect x="0" y="50" width="1100" height="20" fill="url(#headerGrad)" />
+  <text x="30" y="44" fill="#FFFFFF" font-size="22" font-weight="700">JOBNEST ARCHITECTURE — SƠ ĐỒ NGỮ CẢNH HỆ THỐNG (SYSTEM CONTEXT)</text>
+  <text x="860" y="44" fill="#F4B99D" font-size="13" font-weight="600">Soft Lavender &amp; Peach Theme</text>
+
+  <!-- Diagram Graphical Content -->
+  
+  <!-- Users Column -->
+  <g filter="url(#cardShadow)">
+    <rect x="60" y="120" width="220" height="110" rx="12" fill="#FFFFFF" stroke="#7565A8" stroke-width="2" />
+    <circle cx="100" cy="175" r="24" fill="#EEEAF7" />
+    <text x="100" y="181" font-size="18" text-anchor="middle" fill="#7565A8">🎓</text>
+    <text x="140" y="165" font-size="16" font-weight="700" fill="#29263A">Sinh viên (Student)</text>
+    <text x="140" y="185" font-size="12" fill="#777486">Tìm việc, nộp CV,</text>
+    <text x="140" y="200" font-size="12" fill="#777486">theo dõi ứng tuyển</text>
+  </g>
+
+  <g filter="url(#cardShadow)">
+    <rect x="60" y="260" width="220" height="110" rx="12" fill="#FFFFFF" stroke="#F4B99D" stroke-width="2" />
+    <circle cx="100" cy="315" r="24" fill="#FDF1EA" />
+    <text x="100" y="321" font-size="18" text-anchor="middle" fill="#E8A484">🏢</text>
+    <text x="140" y="305" font-size="16" font-weight="700" fill="#29263A">Doanh nghiệp</text>
+    <text x="140" y="325" font-size="12" fill="#777486">Đăng tin tuyển dụng,</text>
+    <text x="140" y="340" font-size="12" fill="#777486">sàng lọc &amp; duyệt CV</text>
+  </g>
+
+  <g filter="url(#cardShadow)">
+    <rect x="60" y="400" width="220" height="110" rx="12" fill="#FFFFFF" stroke="#7565A8" stroke-width="2" />
+    <circle cx="100" cy="455" r="24" fill="#EEEAF7" />
+    <text x="100" y="461" font-size="18" text-anchor="middle" fill="#7565A8">🛡️</text>
+    <text x="140" y="445" font-size="16" font-weight="700" fill="#29263A">Quản trị viên (Admin)</text>
+    <text x="140" y="465" font-size="12" fill="#777486">Duyệt tin, xác thực DN,</text>
+    <text x="140" y="480" font-size="12" fill="#777486">giám sát hệ thống</text>
+  </g>
+
+  <!-- JobNest Central System -->
+  <g filter="url(#cardShadow)">
+    <rect x="360" y="120" width="380" height="390" rx="16" fill="#FFFFFF" stroke="#7565A8" stroke-width="3" />
+    <rect x="360" y="120" width="380" height="48" rx="16" fill="#7565A8" />
+    <rect x="360" y="150" width="380" height="18" fill="#7565A8" />
+    <text x="550" y="152" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle">JOBNEST PLATFORM CORE</text>
+
+    <!-- Sub-modules -->
+    <rect x="385" y="190" width="155" height="85" rx="8" fill="#F8F7FB" stroke="#EAE7F0" />
+    <text x="462" y="225" font-size="13" font-weight="700" fill="#29263A" text-anchor="middle">Xác thực &amp; Hồ sơ</text>
+    <text x="462" y="245" font-size="11" fill="#777486" text-anchor="middle">JWT, RBAC, Profiles</text>
+
+    <rect x="560" y="190" width="155" height="85" rx="8" fill="#F8F7FB" stroke="#EAE7F0" />
+    <text x="637" y="225" font-size="13" font-weight="700" fill="#29263A" text-anchor="middle">Tin tuyển dụng</text>
+    <text x="637" y="245" font-size="11" fill="#777486" text-anchor="middle">Search, Filter, Categories</text>
+
+    <rect x="385" y="295" width="155" height="85" rx="8" fill="#F8F7FB" stroke="#EAE7F0" />
+    <text x="462" y="330" font-size="13" font-weight="700" fill="#29263A" text-anchor="middle">Ứng tuyển &amp; Giao việc</text>
+    <text x="462" y="350" font-size="11" fill="#777486" text-anchor="middle">Applications, Workflows</text>
+
+    <rect x="560" y="295" width="155" height="85" rx="8" fill="#F8F7FB" stroke="#EAE7F0" />
+    <text x="637" y="330" font-size="13" font-weight="700" fill="#29263A" text-anchor="middle">Đánh giá &amp; Báo cáo</text>
+    <text x="637" y="350" font-size="11" fill="#777486" text-anchor="middle">Reviews, Analytics, Logs</text>
+
+    <!-- Database indicator inside -->
+    <rect x="385" y="405" width="330" height="75" rx="8" fill="#EEEAF7" stroke="#7565A8" stroke-dasharray="4" />
+    <text x="550" y="435" font-size="14" font-weight="700" fill="#7565A8" text-anchor="middle">PostgreSQL Database (13 Core Tables)</text>
+    <text x="550" y="455" font-size="12" fill="#777486" text-anchor="middle">users, profiles, jobs, applications, assignments,...</text>
+  </g>
+
+  <!-- External Systems Column -->
+  <g filter="url(#cardShadow)">
+    <rect x="820" y="160" width="220" height="95" rx="12" fill="#FFFFFF" stroke="#D5CFE2" stroke-width="1.5" />
+    <text x="930" y="200" font-size="15" font-weight="700" fill="#29263A" text-anchor="middle">Email Notification (SMTP)</text>
+    <text x="930" y="222" font-size="12" fill="#777486" text-anchor="middle">Gửi thông báo &amp; kết quả duyệt</text>
+  </g>
+
+  <g filter="url(#cardShadow)">
+    <rect x="820" y="280" width="220" height="95" rx="12" fill="#FFFFFF" stroke="#D5CFE2" stroke-width="1.5" />
+    <text x="930" y="320" font-size="15" font-weight="700" fill="#29263A" text-anchor="middle">Bản đồ &amp; Địa điểm</text>
+    <text x="930" y="342" font-size="12" fill="#777486" text-anchor="middle">Hiển thị vị trí làm việc</text>
+  </g>
+
+  <g filter="url(#cardShadow)">
+    <rect x="820" y="400" width="220" height="95" rx="12" fill="#FFFFFF" stroke="#D5CFE2" stroke-width="1.5" />
+    <text x="930" y="440" font-size="15" font-weight="700" fill="#29263A" text-anchor="middle">Lưu trữ CV &amp; Tài sản</text>
+    <text x="930" y="462" font-size="12" fill="#777486" text-anchor="middle">Tệp PDF hồ sơ, Logo công ty</text>
+  </g>
+
+  <!-- Connectors -->
+  <line x1="280" y1="175" x2="360" y2="230" stroke="#7565A8" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="280" y1="315" x2="360" y2="315" stroke="#F4B99D" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="280" y1="455" x2="360" y2="380" stroke="#7565A8" stroke-width="2" marker-end="url(#arrow)" />
+
+  <line x1="740" y1="210" x2="820" y2="210" stroke="#777486" stroke-width="1.5" stroke-dasharray="4" />
+  <line x1="740" y1="330" x2="820" y2="330" stroke="#777486" stroke-width="1.5" stroke-dasharray="4" />
+  <line x1="740" y1="440" x2="820" y2="440" stroke="#777486" stroke-width="1.5" stroke-dasharray="4" />
+
+</svg>

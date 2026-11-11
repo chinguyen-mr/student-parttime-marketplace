@@ -93,12 +93,12 @@ export default function AdminPortal({
           {currentUser?.token ? (
             <>
               Bạn hiện đang đăng nhập với vai trò <strong style={{ color: '#0F172A' }}>{currentUser.role}</strong>. 
-              Toàn bộ các phân hệ giám sát kiểm duyệt từ <strong>WF-A01 đến WF-A08</strong> chỉ cấp quyền cho tài khoản <code>ADMIN</code>.
+              Toàn bộ các phân hệ giám sát kiểm duyệt của hệ thống quản trị chỉ cấp quyền cho tài khoản <code>ADMIN</code>.
             </>
           ) : (
             <>
               Bạn đang ở chế độ Khách vãng lai (chưa đăng nhập). 
-              Vui lòng đăng nhập với tài khoản <strong>Quản trị viên</strong> (ví dụ: <code>admin.test@vlu.edu.vn</code>) để tiếp tục.
+              Vui lòng đăng nhập với tài khoản <strong>Quản trị viên</strong> để tiếp tục truy cập.
             </>
           )}
         </p>
@@ -205,7 +205,7 @@ export default function AdminPortal({
               width: 58,
               height: 58,
               borderRadius: '50%',
-              background: '#0F172A',
+              background: '#7565A8',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
@@ -213,10 +213,10 @@ export default function AdminPortal({
               fontSize: 24,
               fontWeight: 800,
               marginBottom: 10,
-              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)',
-              border: '2px solid #000000'
+              boxShadow: '0 4px 12px rgba(117, 101, 168, 0.25)',
+              border: '2px solid #D8B4FE'
             }}>
-              A
+              {currentUser?.full_name ? currentUser.full_name.trim().charAt(0).toUpperCase() : 'Q'}
             </div>
 
             <h3 style={{
@@ -254,15 +254,15 @@ export default function AdminPortal({
             </span>
           </div>
 
-          {/* Sidebar Menu Items: 6 mục chuẩn xác 100% Wireframe ADMIN (8) draw.io */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {/* Sidebar Menu Items */}
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[
-              { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-              { id: 'users', label: 'Users', icon: Users },
-              { id: 'moderation', label: 'Moderation', icon: ShieldCheck },
-              { id: 'reports', label: 'Reports', icon: AlertTriangle },
-              { id: 'categories', label: 'Categories', icon: Tag },
-              { id: 'logs', label: 'Logs', icon: History },
+              { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+              { id: 'users', label: 'Người dùng', icon: Users },
+              { id: 'moderation', label: 'Kiểm duyệt tin', icon: ShieldCheck },
+              { id: 'reports', label: 'Báo cáo', icon: AlertTriangle },
+              { id: 'categories', label: 'Danh mục', icon: Tag },
+              { id: 'logs', label: 'Nhật ký hệ thống', icon: History },
             ].map(item => {
               const isActive = activeTab === item.id;
               const IconComp = item.icon;
@@ -277,13 +277,13 @@ export default function AdminPortal({
                     display: 'flex',
                     alignItems: 'center',
                     gap: 12,
-                    padding: '11px 14px',
+                    padding: '10px 14px',
                     borderRadius: 8,
-                    border: '1.5px solid #000000',
-                    background: isActive ? '#0F172A' : '#ffffff',
-                    color: isActive ? '#ffffff' : '#0F172A',
-                    fontWeight: isActive ? 800 : 600,
-                    fontSize: 14,
+                    border: isActive ? '1px solid #D8B4FE' : '1px solid transparent',
+                    background: isActive ? '#F1EEF8' : 'transparent',
+                    color: isActive ? '#7565A8' : '#334155',
+                    fontWeight: isActive ? 700 : 500,
+                    fontSize: 13.5,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
                     textAlign: 'left',
@@ -291,29 +291,20 @@ export default function AdminPortal({
                     boxSizing: 'border-box'
                   }}
                   onMouseEnter={(e) => {
-                    if (!isActive) e.currentTarget.style.background = '#F1F5F9';
+                    if (!isActive) {
+                      e.currentTarget.style.background = '#F8F7FB';
+                      e.currentTarget.style.color = '#7565A8';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isActive) e.currentTarget.style.background = '#ffffff';
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = '#334155';
+                    }
                   }}
                 >
-                  <div style={{
-                    width: 18,
-                    height: 18,
-                    border: isActive ? '1.5px solid #ffffff' : '1.5px solid #000000',
-                    borderRadius: 3,
-                    background: isActive ? '#ffffff' : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    {isActive ? (
-                      <span style={{ width: 8, height: 8, background: '#0F172A', borderRadius: 2 }} />
-                    ) : null}
-                  </div>
+                  <IconComp size={18} color={isActive ? '#7565A8' : '#64748B'} style={{ flexShrink: 0 }} />
                   <span style={{ flex: 1, whiteSpace: 'nowrap' }}>{item.label}</span>
-                  <IconComp size={16} color={isActive ? '#ffffff' : '#64748B'} style={{ flexShrink: 0, marginLeft: 'auto' }} />
                 </button>
               );
             })}

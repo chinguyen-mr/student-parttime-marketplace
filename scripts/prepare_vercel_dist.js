@@ -25,3 +25,4 @@ fs.writeFileSync(path.join(destDir, 'index.js'), serverContent, 'utf8');
 fs.writeFileSync(path.join(destDir, 'app.js'), serverContent, 'utf8');
 
 console.log('2. Created entrypoints (server.js, index.js, app.js) in dist successfully!');
+

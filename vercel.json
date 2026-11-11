@@ -1,7 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd 04_frontend && npm install && npm run build",
-  "outputDirectory": "04_frontend/dist",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/api/(.*)",

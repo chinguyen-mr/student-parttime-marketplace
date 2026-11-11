@@ -19,7 +19,8 @@
     "migrate": "npm --prefix 03_backend run migrate",
     "seed": "npm --prefix 03_backend run seed",
     "build:frontend": "npm --prefix 04_frontend run build",
-    "build": "npm --prefix 04_frontend run build"
+    "build": "npm --prefix 04_frontend install && npm --prefix 04_frontend run build && node -e \"const fs = require('fs'); fs.cpSync('04_frontend/dist', 'dist', {recursive: true});\"",
+    "vercel-build": "npm --prefix 04_frontend install && npm --prefix 04_frontend run build && node -e \"const fs = require('fs'); fs.cpSync('04_frontend/dist', 'dist', {recursive: true});\""
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

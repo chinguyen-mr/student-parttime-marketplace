@@ -35,8 +35,11 @@ Thư mục `.ai/` được thiết kế nhằm:
 │   ├── backend/                  # gitnexus-cli, gitnexus-exploring, gitnexus-guide, gitnexus-refactoring
 │   ├── ui-ux/                    # better-web-ui, no-slop-ui, impeccable
 │   ├── security/                 # security-audit
-│   ├── testing/                  # gitnexus-debugging, gitnexus-impact-analysis, graphify
-│   └── documentation/            # ppt-master
+│   ├── testing/                  # gitnexus-debugging, gitnexus-impact-analysis, graphify, playwright-cli
+│   ├── documentation/            # ppt-master
+│   ├── ponytail/                 # ponytail, ponytail-review/-audit/-debt/-gain/-help (DietrichGebert/ponytail)
+│   ├── agent-skills/             # 25 skill quy trình kế hoạch → code → kiểm thử (addyosmani/agent-skills)
+│   └── SOURCES.md                # Nguồn, commit và giấy phép của các skill bên thứ ba
 │
 ├── prompts/                      # Kho lưu trữ các mẫu prompt và master prompts chuẩn hóa
 │   ├── master-agent-integration.md

@@ -11,6 +11,17 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # Tự động import schema + data lần đầu (khi volume chưa tồn tại)
       - ./02_database/cd2_marketplace_full_dump.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+      # Migration áp dụng sau dump (idempotent): hồ sơ đăng ký mới + chuẩn hóa loại hình PART_TIME/FULL_TIME
+      - ./02_database/migrations/005_registration_redesign_profiles.sql:/docker-entrypoint-initdb.d/02_005.sql:ro
+      - ./02_database/migrations/006_normalize_work_type.sql:/docker-entrypoint-initdb.d/03_006.sql:ro
+      - ./02_database/migrations/007_file_uploads.sql:/docker-entrypoint-initdb.d/04_007.sql:ro
+      - ./02_database/migrations/008_student_profile_details.sql:/docker-entrypoint-initdb.d/05_008.sql:ro
+      - ./02_database/migrations/009_student_ward.sql:/docker-entrypoint-initdb.d/06_009.sql:ro
+      - ./02_database/migrations/010_avatar_source.sql:/docker-entrypoint-initdb.d/07_010.sql:ro
+      - ./02_database/migrations/011_application_snapshot_withdraw.sql:/docker-entrypoint-initdb.d/08_011.sql:ro
+      - ./02_database/migrations/012_employer_public_profile.sql:/docker-entrypoint-initdb.d/09_012.sql:ro
+      - ./02_database/migrations/013_employer_location.sql:/docker-entrypoint-initdb.d/10_013.sql:ro
+      - ./02_database/migrations/014_company_job_reviews.sql:/docker-entrypoint-initdb.d/11_014.sql:ro
     ports:
       # Chỉ expose ra host để debug bằng psql. Xoá dòng này nếu không cần.
       - "5432:5432"

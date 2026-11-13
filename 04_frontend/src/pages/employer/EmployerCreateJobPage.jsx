@@ -15,7 +15,7 @@ export default function EmployerCreateJobPage({
   onNavigateVerification,
   showToast
 }) {
-  // Form Type: 'PART_TIME' | 'SEASONAL' | 'FREELANCE' (WF-E05 dynamic columns)
+  // Form Type: 'PART_TIME' | 'FULL_TIME' (WF-E05 dynamic columns)
   const [workType, setWorkType] = useState(editingJob?.work_type || 'PART_TIME');
 
   // Form Fields
@@ -198,16 +198,15 @@ export default function EmployerCreateJobPage({
 
       <form onSubmit={handleSubmit} style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', padding: '28px', boxShadow: 'var(--shadow-sm)' }}>
         
-        {/* Dynamic Job Type Selector matching WF-E05: Part-time | Seasonal | Freelance */}
+        {/* Dynamic Job Type Selector matching WF-E05: Part-time | Full-time */}
         <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid var(--color-border)' }}>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
             Chọn hình thức tuyển dụng <span style={{ color: 'var(--color-danger)' }}>*</span>
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
             {[
               { id: 'PART_TIME', label: 'Bán thời gian (Part-time)', desc: 'Làm việc theo ca/giờ, linh hoạt lịch học' },
-              { id: 'SEASONAL', label: 'Thời vụ (Seasonal)', desc: 'Sự kiện, chiến dịch, lễ tết ngắn hạn' },
-              { id: 'FREELANCE', label: 'Dự án (Freelance)', desc: 'Nhận khoán sản phẩm, làm việc từ xa' },
+              { id: 'FULL_TIME', label: 'Toàn thời gian (Full-time)', desc: 'Làm việc giờ hành chính, phù hợp sinh viên năm cuối' },
             ].map(type => (
               <div
                 key={type.id}
@@ -290,7 +289,7 @@ export default function EmployerCreateJobPage({
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Quận Bình Thạnh, TP.HCM hoặc Từ xa (Remote)"
+              placeholder="VD: Quận Bình Thạnh, TP.HCM"
               style={{
                 width: '100%',
                 padding: '10px 14px',
@@ -362,7 +361,6 @@ export default function EmployerCreateJobPage({
               <option value="HOURLY">Theo giờ (HOURLY)</option>
               <option value="DAILY">Theo ngày / ca (DAILY)</option>
               <option value="MONTHLY">Theo tháng (MONTHLY)</option>
-              <option value="FIXED">Trọn gói dự án (FIXED)</option>
             </select>
           </div>
         </div>

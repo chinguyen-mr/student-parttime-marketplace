@@ -119,7 +119,7 @@ export default function RegisterSuccessPage({
                   <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#7565A8', color: '#ffffff', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>3</span>
                   <div>
                     <h4 style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A', margin: '0 0 2px 0' }}>Đăng tin tuyển dụng đầu tiên</h4>
-                    <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Tạo tin tuyển dụng ca part-time hoặc dự án freelance chỉ trong 3 phút.</p>
+                    <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Tạo tin tuyển dụng ca part-time hoặc full-time chỉ trong 3 phút.</p>
                   </div>
                 </div>
               </div>

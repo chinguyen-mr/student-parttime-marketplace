@@ -20,13 +20,13 @@ UPDATE jobs SET
     experience = '1 - 2 năm kinh nghiệm',
     education = 'Không yêu cầu bằng cấp, đánh giá theo Portfolio',
     headcount = 1,
-    level = 'Cộng tác viên (Freelancer)',
+    level = 'Cộng tác viên bán thời gian',
     deadline = '2026-12-10',
-    work_schedule = 'Làm việc từ xa (Remote 100%), chủ động sắp xếp thời gian miễn đảm bảo tiến độ bàn giao thiết kế (Deadline theo tuần)',
-    benefits = '• Thù lao hấp dẫn: 2.500.000đ/dự án/gói thiết kế, thanh toán đúng hạn qua tài khoản ngân hàng.
+    work_schedule = 'Thứ 2 - Thứ 6: chọn 3 buổi/tuần (08:00 - 12:00 hoặc 13:30 - 17:30) tại văn phòng, đăng ký ca theo lịch học sinh viên',
+    benefits = '• Mức lương: 2.500.000đ/tháng cho 3 buổi/tuần, thanh toán đúng hạn qua tài khoản ngân hàng.
 • Thưởng nóng nếu sản phẩm đạt tương tác cao trong chiến dịch.
 • Cung cấp tài khoản bản quyền Figma, Envato Elements, Freepik Premium.
-• Tự do sáng tạo và làm việc linh hoạt tại bất kỳ đâu.'
+• Được Senior Designer hướng dẫn trực tiếp, môi trường làm việc sáng tạo.'
 WHERE id = 2;
 
 -- Cập nhật dữ liệu chi tiết cho Job 3

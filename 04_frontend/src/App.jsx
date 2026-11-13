@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
-  Search, User, Shield, MapPin, DollarSign, Send, LogIn, LogOut, 
+  Search, User, Shield, MapPin, DollarSign, Send, LogIn, 
   PlusCircle, Building2, Bell, Star, Eye, ArrowLeft, ArrowRight,
   ChevronLeft, ChevronRight, CheckCircle2, Clock, XCircle, FileText, Download, Check, Users, Briefcase, Filter,
   AlertCircle, RefreshCw, Sparkles, Home, LayoutDashboard, Settings
@@ -19,6 +19,8 @@ import StudentProfileModal, { StudentProfileCard } from './components/StudentPro
 import EmployerProfileModal from './components/EmployerProfileModal';
 import ForgotPasswordModal from './components/ForgotPasswordModal';
 import Footer from './components/Footer';
+import AccountMenu from './components/layout/AccountMenu';
+import { applyBlockReason, salaryOptionsFor, matchesSalaryFilter } from './utils/jobDisplay';
 import FloatingActions from './components/FloatingActions';
 import PolicyModal from './components/PolicyModal';
 import SupportModal from './components/SupportModal';
@@ -286,7 +288,7 @@ export const DEFAULT_EMPLOYER_JOBS = [
     location: 'Quận 7, TP.HCM',
     salary: 350000,
     salary_type: 'DAILY',
-    work_type: 'SEASONAL',
+    work_type: 'PART_TIME',
     description: 'Hỗ trợ check-in khách mời sự kiện, hướng dẫn tham quan booth trải nghiệm game, phát quà lưu niệm.',
     requirements: 'Năng động, nhiệt tình, ngoại hình sáng, giao tiếp tốt.',
     work_days: 'Thứ 7 & Chủ Nhật',
@@ -378,6 +380,8 @@ export default function App() {
   // 'home' (WF-G01), 'jobs' (WF-G02), 'student_apps' (Screen 8), 'employer_jobs' (Screen 10),
   // 'create_job' (Screen 11), 'applicants' (Screen 12), 'admin' (Screen 5), 'login' (Screen 1 & 2)
   const [activeTab, setActiveTab] = useState('home');
+  // Tab con muốn mở trong trang Sinh viên; n tăng mỗi lần chọn để mở lại cả khi trùng tab
+  const [studentDashNav, setStudentDashNav] = useState({ tab: 'dashboard', n: 0 });
   const [editingEmployerJob, setEditingEmployerJob] = useState(null);
   const [adminSubTab, setAdminSubTab] = useState('users'); // 'users' (User Management) | 'moderation' (Job Moderation)
 
@@ -392,6 +396,7 @@ export default function App() {
     dbOk: true,
     message: ''
   });
+  const [retryingBackend, setRetryingBackend] = useState(false);
 
   // Authentication state (null when not logged in)
   const [currentUser, setCurrentUser] = useState(null);
@@ -418,6 +423,12 @@ export default function App() {
 
   const isAdminWorkspace = Boolean(
     currentUser?.token && currentUser?.role === 'ADMIN' && activeTab === 'admin'
+  );
+
+  // Trang Sinh viên dùng toàn bộ chiều rộng, sidebar dính sát mép trái
+  const isStudentWorkspace = Boolean(
+    currentUser?.token && currentUser?.role === 'STUDENT' &&
+    ['student_apps', 'student_dashboard', 'account_settings', 'profile'].includes(activeTab)
   );
 
   // QUY TẮC FOOTER BẮT BUỘC (FT-01 đến FT-15):
@@ -626,9 +637,10 @@ export default function App() {
   const handleNavigateToEmployerProfile = (employerIdOrJob) => {
     let id = employerIdOrJob;
     if (typeof employerIdOrJob === 'object' && employerIdOrJob !== null) {
-      id = employerIdOrJob.employer_id || employerIdOrJob.id;
+      // Tin tuyển dụng → lấy employer_id; không dùng job.id làm mã nhà tuyển dụng
+      id = employerIdOrJob.employer_id || ('title' in employerIdOrJob ? null : employerIdOrJob.id);
     }
-    setSelectedEmployerId(id || 1);
+    setSelectedEmployerId(id || null);
     setActiveTab('employer_public_profile');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -772,8 +784,62 @@ export default function App() {
     isScrollingRef.current = false;
   }, [activeTab, closeQuickPreviewImmediate]);
 
+  // Lấy ảnh đại diện khi đăng nhập để header hiển thị đúng (currentUser từ API login không có avatar)
+  useEffect(() => {
+    const token = currentUser?.token;
+    if (!token) return undefined;
+    let cancelled = false;
+    fetch(`${API_BASE}/profile/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => res.json())
+      .then(data => {
+        const url = data?.data?.avatar_url || null;
+        if (!cancelled && url) setCurrentUser(prev => (prev?.token === token ? { ...prev, avatar_url: url } : prev));
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [currentUser?.token]);
+
+  // Chiều cao header → biến CSS --app-header-h cho các sidebar dính (sticky) bên dưới header
+  useEffect(() => {
+    const header = document.querySelector('.app-header');
+    if (!header || typeof ResizeObserver === 'undefined') return undefined;
+    const update = () => document.documentElement.style.setProperty('--app-header-h', `${header.offsetHeight}px`);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, [currentUser?.token]);
+
+  // Rời trang Sinh viên thì lần sau vào lại mặc định mở Tổng quan
+  useEffect(() => {
+    if (activeTab !== 'student_dashboard') {
+      setStudentDashNav(prev => (prev.tab === 'dashboard' ? prev : { tab: 'dashboard', n: prev.n }));
+    }
+  }, [activeTab]);
+
+  // Đồng bộ activeTab với lịch sử trình duyệt để nút Back/Forward hoạt động
+  const historyInitRef = useRef(false);
+  useEffect(() => {
+    if (!historyInitRef.current) {
+      historyInitRef.current = true;
+      window.history.replaceState({ ...window.history.state, tab: activeTab }, '');
+      return;
+    }
+    if (window.history.state?.tab === activeTab) return; // vừa Back/Forward tới đây
+    window.history.pushState({ ...window.history.state, tab: activeTab }, '');
+  }, [activeTab]);
+
+  useEffect(() => {
+    const handlePopState = (e) => {
+      if (e.state?.tab) setActiveTab(e.state.tab);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Trả về false nếu chưa mở được (vừa cuộn) để thẻ thử lại khi chuột di chuyển
   const handlePreviewHoverStart = useCallback((jobItem, rect) => {
-    if (!jobItem) return;
+    if (!jobItem) return false;
 
     // Rule 3: Tuyệt đối không mở lại nếu vừa cuộn hoặc đang trong trạng thái suppress do cuộn
     if (
@@ -781,7 +847,7 @@ export default function App() {
       scrollSuppressActiveRef.current || 
       (Date.now() - lastScrollTimeRef.current < 350)
     ) {
-      return;
+      return false;
     }
 
     if (previewCloseTimerRef.current) {
@@ -807,6 +873,7 @@ export default function App() {
       setPreviewAnchorRect(rect);
       setIsPreviewOpen(true);
     }, 140);
+    return true;
   }, []);
 
   const handlePreviewHoverEnd = useCallback((jobItem) => {
@@ -883,6 +950,47 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Mở một mục trong trang Sinh viên (Tổng quan, Hồ sơ, Lịch sử ứng tuyển, Thông báo...)
+  const openStudentTab = (tab) => {
+    setStudentDashNav(prev => ({ tab, n: prev.n + 1 }));
+    setActiveTab('student_dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Bấm vào thông báo → chuyển tới đúng nơi liên quan dựa trên target_type / target_id
+  const handleOpenNotification = (item) => {
+    setNotificationsOpen(false);
+    if (currentUser?.role !== 'STUDENT') {
+      showToast(`Đã mở thông báo: ${item?.title || ''}`);
+      return;
+    }
+    const id = item?.target_id;
+    switch (item?.target_type) {
+      case 'APPLICATION':
+        if (id) handleNavigateToApplicationDetail(id);
+        else openStudentTab('applications');
+        return;
+      case 'JOB':
+        if (id) handleNavigateToJobDetail(jobs.find(j => j.id === id) || { id });
+        else openStudentTab('saved_jobs');
+        return;
+      case 'REVIEW':
+      case 'COMPANY_REVIEW': // đánh giá doanh nghiệp / công việc: trạng thái kiểm duyệt, phản hồi của doanh nghiệp
+      case 'JOB_REVIEW':
+        openStudentTab('reviews');
+        return;
+      case 'ASSIGNMENT': // mục "Công việc được giao" đã ẩn → xem trong lịch sử ứng tuyển
+      case 'PROPOSAL':
+        openStudentTab('applications');
+        return;
+      case 'USER': // cảnh báo vi phạm / kết quả khiếu nại liên quan tài khoản
+        openStudentTab('settings');
+        return;
+      default:
+        openStudentTab('notifications');
+    }
+  };
+
   const [reviewTarget, setReviewTarget] = useState({
     targetName: 'TechCorp Vietnam',
     targetRole: 'Nhà tuyển dụng đối tác',
@@ -897,6 +1005,7 @@ export default function App() {
   const [selectedSalary, setSelectedSalary] = useState('');
   const [selectedExperience, setSelectedExperience] = useState('');
   const [selectedWorkType, setSelectedWorkType] = useState('');
+  const [jobsPage, setJobsPage] = useState(1); // trang hiện tại của danh sách Tìm việc
 
   // Student state (Screen 8)
   const [myApplications, setMyApplications] = useState(DEFAULT_STUDENT_APPLICATIONS);
@@ -968,7 +1077,7 @@ export default function App() {
       });
       if (res.ok) {
         if (showToastFeedback) {
-          showToast('Đã kết nối máy chủ Backend thành công (Port 5000)!', 'success');
+          showToast('Đã kết nối lại hệ thống thành công!', 'success');
         }
         fetchJobs();
       } else {
@@ -982,10 +1091,10 @@ export default function App() {
         checked: true,
         online: false,
         dbOk: false,
-        message: 'Không thể kết nối máy chủ Backend.'
+        message: 'Không kết nối được tới máy chủ.'
       });
       if (showToastFeedback) {
-        showToast('Không thể kết nối đến máy chủ Backend (Port 5000).', 'error');
+        showToast('Không kết nối được tới máy chủ.', 'error');
       }
       return { ok: false };
     }
@@ -1028,6 +1137,8 @@ export default function App() {
       if (searchKeyword) params.append('keyword', searchKeyword);
       if (selectedCategory) params.append('category', selectedCategory);
       if (selectedLocation) params.append('location', selectedLocation);
+      // Lọc & phân trang làm ở phía giao diện → cần tải đủ tin (API mặc định chỉ trả 20)
+      params.append('limit', '500');
 
       const res = await fetch(`${API_BASE}/jobs?${params.toString()}`);
       const data = await res.json();
@@ -1247,6 +1358,12 @@ export default function App() {
 
   // Dispatches to WF-S06 (Application Form for PT/SV) or WF-S07 (Proposal Form for Freelance)
   const handleOpenApplyModal = (jobItem) => {
+    // Tin đã đóng hoặc hết hạn nhận hồ sơ → không cho ứng tuyển
+    const blockReason = applyBlockReason(jobItem);
+    if (blockReason) {
+      showToast(blockReason, 'error');
+      return;
+    }
     if (!currentUser?.token) {
       setPendingApplyJob(jobItem);
       showToast('Vui lòng đăng nhập với tài khoản Sinh viên để ứng tuyển công việc này', 'info');
@@ -1254,7 +1371,7 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    if (currentUser?.role === 'EMPLOYER') {
+    if (currentUser?.role !== 'STUDENT') {
       showToast('Chỉ sinh viên mới có thể nộp đơn ứng tuyển công việc này!', 'error');
       return;
     }
@@ -1460,18 +1577,8 @@ export default function App() {
     const matchLoc = !selectedLocation || (job.location || '').toLowerCase().includes(selectedLocation.toLowerCase());
     const matchSaved = !showSavedOnly || savedJobIds.includes(job.id);
 
-    // Mức lương filter (Section 4 specs)
-    const matchSalary = !selectedSalary || (() => {
-      const sal = Number(job.salary) || 0;
-      const normalizedMonthly = job.salary_type === 'HOURLY' ? sal * 160 : sal;
-      if (selectedSalary === 'UNDER_5M') return normalizedMonthly > 0 && normalizedMonthly < 5000000;
-      if (selectedSalary === '5M_10M') return normalizedMonthly >= 5000000 && normalizedMonthly <= 10000000;
-      if (selectedSalary === '10M_15M') return normalizedMonthly >= 10000000 && normalizedMonthly <= 15000000;
-      if (selectedSalary === '15M_20M') return normalizedMonthly >= 15000000 && normalizedMonthly <= 20000000;
-      if (selectedSalary === 'ABOVE_20M') return normalizedMonthly > 20000000;
-      if (selectedSalary === 'NEGOTIABLE') return sal === 0;
-      return true;
-    })();
+    // Mức lương: mỗi lựa chọn thuộc 1 loại hình (Part-time theo giờ/tháng, Full-time theo tháng)
+    const matchSalary = matchesSalaryFilter(job, selectedSalary);
 
     // Kinh nghiệm filter (Section 4 specs)
     const matchExp = !selectedExperience || (() => {
@@ -1488,6 +1595,21 @@ export default function App() {
 
     return matchKeyword && matchCat && matchLoc && matchSaved && matchSalary && matchExp && matchWorkType;
   });
+
+  // Phân trang danh sách Tìm việc: 12 tin/trang, tổng số trang theo số tin sau khi lọc (ít nhất 1)
+  const JOBS_PER_PAGE = 12;
+  const jobsTotalPages = Math.max(1, Math.ceil(filteredJobs.length / JOBS_PER_PAGE));
+  const jobsCurrentPage = Math.min(jobsPage, jobsTotalPages);
+  const pagedJobs = filteredJobs.slice((jobsCurrentPage - 1) * JOBS_PER_PAGE, jobsCurrentPage * JOBS_PER_PAGE);
+  const goToJobsPage = (page) => {
+    setJobsPage(Math.min(Math.max(1, page), jobsTotalPages));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Đổi bộ lọc → quay về trang 1
+  useEffect(() => {
+    setJobsPage(1);
+  }, [searchKeyword, selectedCategory, selectedLocation, selectedSalary, selectedExperience, selectedWorkType, showSavedOnly]);
 
   // Dynamic application counts for Screen 8 tabs (Tất cả (12), Chờ duyệt (3), Đã duyệt (4), Bị từ chối (2), Hoàn thành (3))
   const studentAppCounts = {
@@ -1601,6 +1723,25 @@ export default function App() {
           onNavigateHome={() => {
             setActiveTab('home');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      </div>
+    );
+  }
+
+  // STANDALONE VIEW: MẤT KẾT NỐI BACKEND → trang lỗi riêng thay vì banner trong trang chủ
+  if (backendStatus.checked && !backendStatus.online) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+        <AnimatedToast toast={toast} onClose={() => setToast(null)} />
+        <ErrorPage
+          type="server"
+          customMessage={backendStatus.message}
+          retrying={retryingBackend}
+          onRetry={async () => {
+            setRetryingBackend(true);
+            await handleCheckConnection(true);
+            setRetryingBackend(false);
           }}
         />
       </div>
@@ -1797,7 +1938,7 @@ export default function App() {
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
                   }}
-                  title="Bấm để mở Bảng điều khiển Nhà tuyển dụng (WF-E01)"
+                  title="Mở Bảng điều khiển Nhà tuyển dụng"
                 >
                   Nhà tuyển dụng
                 </button>
@@ -2266,74 +2407,27 @@ export default function App() {
                     isOpen={notificationsOpen}
                     onClose={() => setNotificationsOpen(false)}
                     currentUser={currentUser}
-                    onSelectNotification={(item) => {
-                      showToast(`Đã mở thông báo: ${item.title}`);
-                      setNotificationsOpen(false);
-                    }}
-                    onViewAll={() => setActiveTab('notifications')}
+                    onSelectNotification={handleOpenNotification}
+                    onViewAll={() => (currentUser?.role === 'STUDENT' ? openStudentTab('notifications') : setActiveTab('notifications'))}
                   />
                 </div>
 
-                {/* Profile Avatar Button: chỉ hiện logo avatar tròn, khi nhấn vào mới chuyển qua trang quản lý tài khoản & hoạt động của sinh viên */}
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  type="button"
-                  onClick={() => {
+                {/* Menu tài khoản: rê chuột vào avatar để mở, Đăng xuất nằm cuối menu */}
+                <AccountMenu
+                  currentUser={currentUser}
+                  onLogout={handleLogout}
+                  onNavigate={(tab) => {
                     if (currentUser?.role === 'STUDENT') {
+                      setStudentDashNav(prev => ({ tab, n: prev.n + 1 }));
                       setActiveTab('student_dashboard');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     } else if (currentUser?.role === 'EMPLOYER') {
                       setActiveTab('employer_dashboard');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     } else {
                       setActiveTab('admin');
                     }
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: '50%',
-                    background: currentUser?.role === 'STUDENT' ? '#7565A8' : '#000000',
-                    color: '#ffffff',
-                    border: '1.5px solid #000000',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 16,
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    padding: 0,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                  }}
-                  title={`Tài khoản: ${currentUser?.full_name || 'Người dùng'} (Bấm để xem Quản lý tài khoản & Hoạt động)`}
-                >
-                  {currentUser?.full_name?.charAt(0) || 'U'}
-                </motion.button>
-
-                {/* Logout Button */}
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  style={{
-                    background: '#ffffff',
-                    border: '1.5px solid #000000',
-                    color: '#000000',
-                    borderRadius: 8,
-                    height: 42,
-                    padding: '0 14px',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6
-                  }}
-                  title="Đăng xuất"
-                >
-                  <LogOut size={15} />
-                  <span>Đăng xuất</span>
-                </button>
+                />
               </div>
             ) : (
               /* When GUEST (WF-G01 Screen): [Đăng nhập] (trắng viền đen) & [Đăng ký] (đen chữ trắng) - Kích thước tăng lên height 42px, font 14.5px */
@@ -2441,57 +2535,11 @@ export default function App() {
       <main style={{
         flex: 1,
         width: '100%',
-        maxWidth: (isEmployerWorkspace || isAdminWorkspace) ? 'none' : 1240,
-        margin: (isEmployerWorkspace || isAdminWorkspace) ? 0 : '0 auto',
-        padding: (isEmployerWorkspace || isAdminWorkspace) ? 0 : '28px 24px',
+        maxWidth: (isEmployerWorkspace || isAdminWorkspace || isStudentWorkspace) ? 'none' : 1240,
+        margin: (isEmployerWorkspace || isAdminWorkspace || isStudentWorkspace) ? 0 : '0 auto',
+        padding: (isEmployerWorkspace || isAdminWorkspace || isStudentWorkspace) ? 0 : '28px 24px',
         boxSizing: 'border-box'
       }}>
-        {/* Backend Disconnection Banner */}
-        {backendStatus.checked && !backendStatus.online && (
-          <div style={{
-            background: '#FFF1F2',
-            border: '1px solid #FECDD3',
-            borderRadius: 12,
-            padding: '14px 20px',
-            marginBottom: 24,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 12,
-            color: '#9F1239',
-            fontSize: 14,
-            boxShadow: 'var(--shadow-sm)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <AlertCircle size={20} color="#E11D48" style={{ flexShrink: 0 }} />
-              <div>
-                <strong>Không thể kết nối đến máy chủ Backend (Port 5000).</strong>
-                <span style={{ marginLeft: 8, opacity: 0.9 }}>
-                  Vui lòng đảm bảo máy chủ Express đang chạy. Dữ liệu đang hiển thị có thể là dữ liệu cục bộ.
-                </span>
-              </div>
-            </div>
-            <Button 
-              size="sm" 
-              variant="secondary"
-              onClick={() => handleCheckConnection(true)}
-              style={{
-                borderColor: '#FDA4AF',
-                color: '#9F1239',
-                background: '#FFFFFF',
-                whiteSpace: 'nowrap',
-                fontWeight: 600,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6
-              }}
-            >
-              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Thử kết nối lại
-            </Button>
-          </div>
-        )}
-
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -2544,6 +2592,8 @@ export default function App() {
               <HomePage
                 jobs={jobs}
                 loading={loading}
+                currentUser={currentUser}
+                onOpenStudentTab={openStudentTab}
                 onSelectJob={handleNavigateToJobDetail}
                 onApply={handleOpenApplyModal}
                 isSaved={(id) => savedJobIds.includes(id)}
@@ -2632,13 +2682,13 @@ export default function App() {
                         marginBottom: 10,
                         border: '1px solid var(--color-secondary)'
                       }}>
-                        ✨ JobNest • Việc làm Part-time & Freelance Tin cậy
+                        ✨ JobNest • Việc làm Part-time & Full-time Tin cậy
                       </span>
                       <h2 style={{ fontSize: 24, fontWeight: 800, color: '#ffffff', margin: '0 0 6px 0', letterSpacing: '-0.3px' }}>
-                        TÌM KIẾM VIỆC LÀM PART-TIME & FREELANCE
+                        TÌM KIẾM VIỆC LÀM PART-TIME & FULL-TIME
                       </h2>
                       <p style={{ color: 'var(--color-lavender-light)', fontSize: 13.5, margin: 0, maxWidth: 640, lineHeight: 1.5 }}>
-                        Khám phá việc làm bán thời gian và dự án freelance chất lượng dành riêng cho sinh viên trên hệ thống JobNest. Minh bạch thù lao, hợp đồng rõ ràng và bảo vệ quyền lợi sinh viên tối đa.
+                        Khám phá việc làm bán thời gian và toàn thời gian chất lượng dành riêng cho sinh viên trên hệ thống JobNest. Minh bạch thù lao, hợp đồng rõ ràng và bảo vệ quyền lợi sinh viên tối đa.
                       </p>
                     </div>
 
@@ -2650,6 +2700,7 @@ export default function App() {
                           setSelectedLocation(''); 
                           setSelectedSalary('');
                           setSelectedExperience('');
+                          setSelectedWorkType('');
                           fetchJobs(); 
                         }}
                         style={{
@@ -2726,7 +2777,6 @@ export default function App() {
                         { value: 'Hải Phòng', label: 'Hải Phòng' },
                         { value: 'Bà Rịa - Vũng Tàu', label: 'Bà Rịa - Vũng Tàu' },
                         { value: 'Thanh Hóa', label: 'Thanh Hóa' },
-                        { value: 'Remote', label: 'Từ xa (Remote)' },
                       ]}
                     />
 
@@ -2737,34 +2787,55 @@ export default function App() {
 
                   {/* Secondary Quick Filters: Mức lương & Kinh nghiệm (Section 4 specs) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--color-border)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Filter size={13} color="var(--color-secondary)" /> Bộ lọc nhanh:
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Filter size={14} color="#FFFFFF" /> Bộ lọc nhanh:
                     </span>
 
-                    {/* Mức lương Filter */}
-                    <div style={{ width: 185 }}>
+                    {/* Loại hình: Part-time / Full-time — quyết định các mức lương bên cạnh */}
+                    <div style={{ width: 170 }}>
+                      <CustomDropdown
+                        size="sm"
+                        value={selectedWorkType}
+                        onChange={(e) => {
+                          const next = e.target.value;
+                          setSelectedWorkType(next);
+                          // Mức lương đang chọn không thuộc loại hình mới → bỏ chọn
+                          if (selectedSalary && selectedSalary !== 'NEGOTIABLE' && !salaryOptionsFor(next).some(o => o.value === selectedSalary)) {
+                            setSelectedSalary('');
+                          }
+                        }}
+                        placeholder="Tất cả loại hình"
+                        icon={Briefcase}
+                        triggerStyle={{
+                          background: '#FFFFFF',
+                          border: selectedWorkType ? '2px solid var(--color-secondary)' : '1px solid #FFFFFF',
+                          boxShadow: '0 2px 8px rgba(41, 38, 58, 0.15)',
+                          fontWeight: selectedWorkType ? 700 : 600,
+                        }}
+                        options={[
+                          { value: '', label: 'Tất cả loại hình' },
+                          { value: 'PART_TIME', label: 'Part-time (bán thời gian)' },
+                          { value: 'FULL_TIME', label: 'Full-time (toàn thời gian)' },
+                        ]}
+                      />
+                    </div>
+
+                    {/* Mức lương Filter (đổi theo loại hình) */}
+                    <div style={{ width: selectedWorkType ? 215 : 265 }}>
                       <CustomDropdown
                         size="sm"
                         value={selectedSalary}
                         onChange={(e) => setSelectedSalary(e.target.value)}
                         placeholder="Tất cả mức lương"
                         icon={DollarSign}
+                        // Nền trắng đặc để nổi trên khung tím; viền cam khi đang lọc
                         triggerStyle={{
-                          background: selectedSalary ? '#FFFFFF' : 'rgba(255, 255, 255, 0.16)',
-                          color: selectedSalary ? 'var(--color-primary)' : '#FFFFFF',
-                          borderColor: selectedSalary ? 'var(--color-secondary)' : 'rgba(255, 255, 255, 0.3)',
-                          backdropFilter: 'blur(6px)',
-                          fontWeight: selectedSalary ? 700 : 500,
+                          background: '#FFFFFF',
+                          border: selectedSalary ? '2px solid var(--color-secondary)' : '1px solid #FFFFFF',
+                          boxShadow: '0 2px 8px rgba(41, 38, 58, 0.15)',
+                          fontWeight: selectedSalary ? 700 : 600,
                         }}
-                        options={[
-                          { value: '', label: 'Tất cả mức lương' },
-                          { value: 'UNDER_5M', label: 'Dưới 5 triệu' },
-                          { value: '5M_10M', label: '5 – 10 triệu' },
-                          { value: '10M_15M', label: '10 – 15 triệu' },
-                          { value: '15M_20M', label: '15 – 20 triệu' },
-                          { value: 'ABOVE_20M', label: 'Trên 20 triệu' },
-                          { value: 'NEGOTIABLE', label: 'Thỏa thuận' },
-                        ]}
+                        options={salaryOptionsFor(selectedWorkType)}
                       />
                     </div>
 
@@ -2776,11 +2847,10 @@ export default function App() {
                         onChange={(e) => setSelectedExperience(e.target.value)}
                         placeholder="Tất cả kinh nghiệm"
                         triggerStyle={{
-                          background: selectedExperience ? '#FFFFFF' : 'rgba(255, 255, 255, 0.16)',
-                          color: selectedExperience ? 'var(--color-primary)' : '#FFFFFF',
-                          borderColor: selectedExperience ? 'var(--color-secondary)' : 'rgba(255, 255, 255, 0.3)',
-                          backdropFilter: 'blur(6px)',
-                          fontWeight: selectedExperience ? 700 : 500,
+                          background: '#FFFFFF',
+                          border: selectedExperience ? '2px solid var(--color-secondary)' : '1px solid #FFFFFF',
+                          boxShadow: '0 2px 8px rgba(41, 38, 58, 0.15)',
+                          fontWeight: selectedExperience ? 700 : 600,
                         }}
                         options={[
                           { value: '', label: 'Tất cả kinh nghiệm' },
@@ -2792,7 +2862,7 @@ export default function App() {
                       />
                     </div>
 
-                    {(selectedCategory || selectedLocation || selectedSalary || selectedExperience || searchKeyword) && (
+                    {(selectedCategory || selectedLocation || selectedSalary || selectedExperience || selectedWorkType || searchKeyword) && (
                       <button
                         onClick={() => {
                           setSearchKeyword('');
@@ -2800,6 +2870,7 @@ export default function App() {
                           setSelectedLocation('');
                           setSelectedSalary('');
                           setSelectedExperience('');
+                          setSelectedWorkType('');
                         }}
                         style={{
                           background: 'rgba(244, 185, 157, 0.22)',
@@ -2884,7 +2955,7 @@ export default function App() {
                   </div>
 
                   <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
-                    Hiển thị <strong>{filteredJobs.length}</strong> vị trí phù hợp từ PostgreSQL 18
+                    Hiển thị <strong>{filteredJobs.length}</strong> vị trí phù hợp
                   </span>
                 </div>
 
@@ -2902,6 +2973,7 @@ export default function App() {
                       setSelectedLocation('');
                       setSelectedSalary('');
                       setSelectedExperience('');
+                      setSelectedWorkType('');
                       setShowSavedOnly(false);
                     }}
                   />
@@ -2911,7 +2983,7 @@ export default function App() {
                     gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
                     gap: 16,
                   }}>
-                    {filteredJobs.map((job) => (
+                    {pagedJobs.map((job) => (
                       <JobCard
                         key={job.id}
                         job={job}
@@ -2942,7 +3014,7 @@ export default function App() {
                   }}
                 />
 
-                {/* Wireframe Screen 6 Pagination: "Trang 1 / 12" */}
+                {/* Phân trang: số trang tính theo số tin sau khi lọc */}
                 <div style={{
                   display: 'flex',
                   justifyContent: 'center',
@@ -2952,13 +3024,15 @@ export default function App() {
                   paddingTop: 16,
                   borderTop: '1px solid var(--color-border)',
                 }}>
-                  <Button variant="secondary" style={{ padding: '6px 12px', fontSize: 12 }}>
+                  <Button variant="secondary" style={{ padding: '6px 12px', fontSize: 12 }}
+                    disabled={jobsCurrentPage <= 1} onClick={() => goToJobsPage(jobsCurrentPage - 1)}>
                     <ArrowLeft size={14} /> Trang trước
                   </Button>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}>
-                    Trang 1 / 12
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }} aria-live="polite">
+                    Trang {jobsCurrentPage} / {jobsTotalPages}
                   </span>
-                  <Button variant="secondary" style={{ padding: '6px 12px', fontSize: 12 }}>
+                  <Button variant="secondary" style={{ padding: '6px 12px', fontSize: 12 }}
+                    disabled={jobsCurrentPage >= jobsTotalPages} onClick={() => goToJobsPage(jobsCurrentPage + 1)}>
                     Trang sau <ArrowRight size={14} />
                   </Button>
                 </div>
@@ -3014,8 +3088,10 @@ export default function App() {
             {/* ========================================================================= */}
             {activeTab === 'employer_public_profile' && (
               <EmployerPublicProfilePage
-                employerId={selectedEmployerId || 1}
+                employerId={selectedEmployerId}
                 currentUser={currentUser}
+                savedJobIds={savedJobIds}
+                onToggleSave={handleToggleSaveJob}
                 onNavigateHome={() => {
                   setActiveTab('home');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3114,7 +3190,10 @@ export default function App() {
               <StudentDashboardPage
                 currentUser={currentUser}
                 jobs={jobs}
-                initialTab={activeTab === 'account_settings' ? 'settings' : (activeTab === 'student_dashboard' ? 'dashboard' : 'applications')}
+                initialTab={activeTab === 'account_settings' ? 'settings' : (activeTab === 'student_dashboard' ? studentDashNav.tab : 'applications')}
+                onUserUpdate={(patch) => setCurrentUser(prev => (prev ? { ...prev, ...patch } : prev))}
+                onOpenNotification={handleOpenNotification}
+                navNonce={studentDashNav.n}
                 onSelectJob={handleNavigateToJobDetail}
                 onSelectApplication={(app) => handleNavigateToApplicationDetail(app.id)}
                 onNavigateJobs={() => setActiveTab('jobs')}
@@ -3157,6 +3236,8 @@ export default function App() {
                   currentUser={currentUser}
                   jobs={jobs}
                   initialTab="profile"
+                  onUserUpdate={(patch) => setCurrentUser(prev => (prev ? { ...prev, ...patch } : prev))}
+                onOpenNotification={handleOpenNotification}
                   onSelectJob={handleNavigateToJobDetail}
                   onNavigateJobs={() => setActiveTab('jobs')}
                   onNavigateComingSoon={handleNavigateComingSoon}
@@ -3981,7 +4062,7 @@ export default function App() {
                           onChange={(e) => setNewJobForm({ ...newJobForm, work_type: e.target.value })}
                           options={[
                             { value: 'PART_TIME', label: 'Part-time' },
-                            { value: 'FREELANCE', label: 'Freelance' },
+                            { value: 'FULL_TIME', label: 'Full-time' },
                           ]}
                         />
                       </div>
@@ -4549,7 +4630,7 @@ export default function App() {
                 <NotificationsPage
                   currentUser={currentUser}
                   showToast={showToast}
-                  onSelectNotification={(item) => showToast(`Đã mở: ${item.title}`)}
+                  onSelectNotification={handleOpenNotification}
                 />
               )
             )}
@@ -4587,7 +4668,7 @@ export default function App() {
       {/* MODAL DIALOGS MATCHING WIREFRAME SCREENS                                  */}
       {/* ========================================================================= */}
 
-      {/* WF-S06: ĐƠN ỨNG TUYỂN PART-TIME / THỜI VỤ (APPLICATION FORM) */}
+      {/* WF-S06: ĐƠN ỨNG TUYỂN PART-TIME / FULL-TIME (APPLICATION FORM) */}
       <ApplicationModal
         isOpen={applicationModalOpen}
         onClose={() => setApplicationModalOpen(false)}
@@ -5023,7 +5104,7 @@ export default function App() {
           }}
           onSelectWorkType={(workType) => {
             setActiveTab('jobs');
-            showToast(`Đã lọc danh sách theo: ${workType === 'PART_TIME' ? 'Việc làm bán thời gian' : 'Dự án Freelance'}`);
+            showToast(`Đã lọc danh sách theo: ${workType === 'PART_TIME' ? 'Việc làm bán thời gian' : 'Việc làm toàn thời gian'}`);
           }}
           onNavigateTab={(tab) => {
             if (tab === 'create_job' && currentUser?.role !== 'EMPLOYER') {

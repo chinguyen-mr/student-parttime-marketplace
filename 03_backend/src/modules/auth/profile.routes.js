@@ -1,14 +1,38 @@
 const express = require('express');
 const router = express.Router();
 const profileService = require('./profile.service');
+const studentProfileService = require('./student-profile.service');
+const employerPublicService = require('./employer-public.service');
+const db = require('../../config/db');
+
+// Đăng nhập không bắt buộc: có token thì xác thực, không có thì đi tiếp với req.user = undefined
+const optionalAuth = (req, res, next) => (req.headers.authorization ? verifyToken(req, res, next) : next());
 const { verifyToken, requireRoles } = require('../../middleware/auth.middleware');
 
 // GET /api/profile/me (UC-03: Xem hồ sơ cá nhân)
 router.get('/me', verifyToken, async (req, res, next) => {
     try {
-        const profile = await profileService.getProfile(req.user.id);
+        // Sinh viên: kèm danh sách kinh nghiệm và ngày sinh dạng YYYY-MM-DD
+        const studentProfile = req.user.role === 'STUDENT'
+            ? await studentProfileService.getMyProfile(req.user.id)
+            : null;
+        const profile = studentProfile || await profileService.getProfile(req.user.id);
         res.status(200).json({
             success: true,
+            data: profile,
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// PUT /api/profile/me/student (Lưu toàn bộ hồ sơ xin việc của sinh viên — ghi đè, cho phép xóa trường)
+router.put('/me/student', verifyToken, requireRoles('STUDENT'), async (req, res, next) => {
+    try {
+        const profile = await studentProfileService.update(req.user.id, req.body);
+        res.status(200).json({
+            success: true,
+            message: 'Đã lưu hồ sơ',
             data: profile,
         });
     } catch (err) {
@@ -92,13 +116,49 @@ router.put('/availability', verifyToken, requireRoles('STUDENT'), async (req, re
 });
 
 // GET /api/profile/:userId (Xem hồ sơ công khai của người dùng khác)
-router.get('/:userId', async (req, res, next) => {
+// GET /api/profile/:userId — xem hồ sơ người khác
+// - Nhà tuyển dụng: chỉ dữ liệu công khai (không lộ email/SĐT đăng nhập, MST, giấy phép, người đại diện)
+// - Sinh viên: chỉ chính chủ, admin, hoặc nhà tuyển dụng đã nhận đơn ứng tuyển của sinh viên đó
+router.get('/:userId(\\d+)', optionalAuth, async (req, res, next) => {
     try {
-        const profile = await profileService.getProfile(parseInt(req.params.userId, 10));
-        res.status(200).json({
-            success: true,
-            data: profile,
-        });
+        const targetId = parseInt(req.params.userId, 10);
+        const target = (await db.query('SELECT role FROM users WHERE id = $1', [targetId])).rows[0];
+        if (!target) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy hồ sơ' });
+        }
+        // Không phải sinh viên → hồ sơ doanh nghiệp công khai (404 nếu tài khoản không có hồ sơ doanh nghiệp)
+        if (target.role !== 'STUDENT') {
+            const data = await employerPublicService.getPublicProfile(targetId);
+            return res.status(200).json({ success: true, data });
+        }
+        // Hồ sơ sinh viên chứa thông tin cá nhân
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để xem hồ sơ ứng viên' });
+        }
+        let allowed = req.user.id === targetId || req.user.role === 'ADMIN';
+        if (!allowed && req.user.role === 'EMPLOYER') {
+            const rel = await db.query(
+                `SELECT 1 FROM applications a JOIN jobs j ON j.id = a.job_id
+                 WHERE a.student_id = $1 AND j.employer_id = $2 LIMIT 1`,
+                [targetId, req.user.id]
+            );
+            allowed = rel.rowCount > 0;
+        }
+        if (!allowed) {
+            return res.status(403).json({ success: false, message: 'Bạn chỉ xem được hồ sơ của ứng viên đã nộp đơn vào tin của mình' });
+        }
+        const profile = await profileService.getProfile(targetId);
+        res.status(200).json({ success: true, data: profile });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// PUT /api/profile/me/employer-public — nhà tuyển dụng cập nhật thông tin hiển thị trên trang công ty
+router.put('/me/employer-public', verifyToken, requireRoles('EMPLOYER'), async (req, res, next) => {
+    try {
+        const data = await employerPublicService.updatePublicInfo(req.user.id, req.body);
+        res.status(200).json({ success: true, message: 'Đã lưu thông tin công khai', data });
     } catch (err) {
         next(err);
     }

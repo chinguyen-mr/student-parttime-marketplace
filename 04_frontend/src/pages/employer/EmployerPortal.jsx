@@ -20,6 +20,7 @@ import EmployerAssignmentsPage from './EmployerAssignmentsPage';         // WF-E
 import EmployerDeliverableReviewPage from './EmployerDeliverableReviewPage'; // WF-E10 (Deliverable review v1/v2, mandatory revision reason)
 import EmployerReviewStudentPage from './EmployerReviewStudentPage';     // WF-E11 (5-star rating & review for completed assignments)
 import EmployerNotificationsPage from './EmployerNotificationsPage';     // WF-E12 (Notification list read/unread)
+import EmployerReviewsPage from './EmployerReviewsPage';                 // Đánh giá doanh nghiệp & công việc (phản hồi / báo cáo)
 import AccountSettingsPage from '../student/AccountSettingsPage';         // WF-X03 (Account Settings & Security)
 import { API_BASE } from '../../config/api';
 
@@ -291,8 +292,8 @@ export default function EmployerPortal({
               { id: 'profile', label: 'Hồ sơ doanh nghiệp', icon: User },
               { id: 'jobs', label: 'Tin tuyển dụng', icon: Briefcase },
               { id: 'applicants', label: 'Hồ sơ ứng viên', icon: Users },
-              { id: 'proposals', label: 'Đề xuất dự án', icon: FileText },
               { id: 'assignments', label: 'Công việc đang giao', icon: Clock },
+              { id: 'reviews', label: 'Đánh giá', icon: Star },
               { id: 'notifications', label: 'Thông báo', icon: Bell },
               { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings },
             ].map(item => {
@@ -496,6 +497,11 @@ export default function EmployerPortal({
             />
           )}
 
+          {/* Đánh giá từ ứng viên: chỉ xem, phản hồi, báo cáo */}
+          {activeTab === 'reviews' && (
+            <EmployerReviewsPage currentUser={currentUser} showToast={showToast} />
+          )}
+
           {/* WF-E12: Notifications (Read / Unread filter & navigation) */}
           {activeTab === 'notifications' && (
             <EmployerNotificationsPage
@@ -516,6 +522,7 @@ export default function EmployerPortal({
               currentUser={currentUser}
               showToast={showToast}
               embedded={true}
+              onNavigateProfile={() => setActiveTab('profile')}
             />
           )}
         </main>

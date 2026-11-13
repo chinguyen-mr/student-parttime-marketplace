@@ -121,7 +121,7 @@ class JobRepository {
                     COALESCE(p.display_name, u.full_name) AS company_name, 
                     p.location AS company_address,
                     p.avatar_url AS employer_avatar,
-                    p.avatar_url AS company_logo_url,
+                    p.avatar_url AS company_logo_url, p.verification_status AS employer_verification_status,
                     p.bio AS company_bio,
                     '25 - 99 nhân viên' AS company_size,
                     'Công nghệ & Dịch vụ' AS company_industry
@@ -152,7 +152,7 @@ class JobRepository {
             SELECT j.*, u.full_name AS employer_name, 
                    COALESCE(p.display_name, u.full_name) AS company_name,
                    p.avatar_url AS employer_avatar,
-                   p.avatar_url AS company_logo_url, 
+                   p.avatar_url AS company_logo_url, p.verification_status AS employer_verification_status, 
                    p.location AS company_address,
                    '25 - 99 nhân viên' AS company_size, 
                    'Công nghệ & Dịch vụ' AS company_industry
@@ -254,7 +254,7 @@ class JobRepository {
             `SELECT j.*, u.full_name AS employer_name, 
                     COALESCE(p.display_name, u.full_name) AS company_name,
                     p.avatar_url AS employer_avatar,
-                    p.avatar_url AS company_logo_url
+                    p.avatar_url AS company_logo_url, p.verification_status AS employer_verification_status
              FROM jobs j
              JOIN users u ON u.id = j.employer_id
              LEFT JOIN employer_profiles p ON p.user_id = u.id
@@ -291,7 +291,7 @@ class JobRepository {
             `SELECT j.*, u.full_name AS employer_name, 
                     COALESCE(p.display_name, u.full_name) AS company_name,
                     p.avatar_url AS employer_avatar,
-                    p.avatar_url AS company_logo_url
+                    p.avatar_url AS company_logo_url, p.verification_status AS employer_verification_status
              FROM job_saved s
              JOIN jobs j ON j.id = s.job_id
              JOIN users u ON u.id = j.employer_id

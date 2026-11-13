@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Users, ShieldCheck, AlertTriangle, 
-  Tag, History, Search, Shield, LogOut, ArrowRight
+  Tag, History, Search, Shield, LogOut, ArrowRight, Star
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 
@@ -12,6 +12,7 @@ import AdminModerationPage from './AdminModerationPage'; // WF-A03 & WF-A04
 import AdminReportsPage from './AdminReportsPage';       // WF-A05 & WF-A06
 import AdminCategoriesPage from './AdminCategoriesPage'; // WF-A07
 import AdminLogsPage from './AdminLogsPage';             // WF-A08
+import AdminReviewsPage from './AdminReviewsPage';       // Kiểm duyệt đánh giá doanh nghiệp / công việc
 
 export default function AdminPortal({
   currentUser,
@@ -261,6 +262,7 @@ export default function AdminPortal({
               { id: 'users', label: 'Người dùng', icon: Users },
               { id: 'moderation', label: 'Kiểm duyệt tin', icon: ShieldCheck },
               { id: 'reports', label: 'Báo cáo', icon: AlertTriangle },
+              { id: 'reviews', label: 'Kiểm duyệt đánh giá', icon: Star },
               { id: 'categories', label: 'Danh mục', icon: Tag },
               { id: 'logs', label: 'Nhật ký hệ thống', icon: History },
             ].map(item => {
@@ -397,6 +399,11 @@ export default function AdminPortal({
               currentUser={currentUser}
               showToast={showToast}
             />
+          )}
+
+          {/* Kiểm duyệt đánh giá doanh nghiệp / công việc */}
+          {activeTab === 'reviews' && (
+            <AdminReviewsPage currentUser={currentUser} showToast={showToast} />
           )}
 
           {/* WF-A08: Admin System Logs */}

@@ -9,7 +9,7 @@ import { API_BASE, formatApiError } from '../../config/api';
 
 /**
  * WF-S06 — Application Form (PT/SV)
- * Dành riêng cho công việc PART_TIME và SEASONAL.
+ * Dành cho công việc PART_TIME và FULL_TIME.
  * Bao gồm:
  * - Thông tin Job (Tên Job — Part-time / Seasonal)
  * - Chọn CV từ danh sách CV của sinh viên
@@ -90,7 +90,7 @@ export default function ApplicationModal({
     }
   };
 
-  const jobTypeBadge = job.work_type === 'SEASONAL' ? 'Thời vụ / Mùa vụ' : 'Bán thời gian (Part-time)';
+  const jobTypeBadge = job.work_type === 'FULL_TIME' ? 'Toàn thời gian (Full-time)' : 'Bán thời gian (Part-time)';
 
   return (
     <AnimatedModal isOpen={isOpen} onClose={onClose} maxWidth="600px">

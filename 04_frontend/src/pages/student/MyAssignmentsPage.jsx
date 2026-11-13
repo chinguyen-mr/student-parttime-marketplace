@@ -285,7 +285,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                   <div>
                     <span style={{ color: '#64748B', display: 'block', marginBottom: 2 }}>Hình thức</span>
                     <strong style={{ color: '#1E293B' }}>
-                      {assignment.work_type === 'FREELANCE' ? 'Dự án Freelance' : 'Part-time Bán thời gian'}
+                      {assignment.work_type === 'FULL_TIME' ? 'Full-time Toàn thời gian' : 'Part-time Bán thời gian'}
                     </strong>
                   </div>
                   <div>
@@ -413,7 +413,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                   <div>
                     <div style={{ fontSize: 11.5, color: '#64748B', marginBottom: 2 }}>Hình thức công việc</div>
                     <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--color-text)' }}>
-                      {selectedAssignment.work_type === 'FREELANCE' ? 'Dự án Freelance' : 'Part-time Bán thời gian'}
+                      {selectedAssignment.work_type === 'FULL_TIME' ? 'Full-time Toàn thời gian' : 'Part-time Bán thời gian'}
                     </div>
                   </div>
                   <div>

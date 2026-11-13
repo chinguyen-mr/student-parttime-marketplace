@@ -1,4 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { resolveFileUrl } from '../../config/api';
+
+// Chỉ link web thật (http/https) hoặc file tải lên JobNest (/api/files/..) mới có ảnh;
+// đường dẫn tương đối khác (vd "uploads/logos/x.png" không tồn tại) → dùng chữ cái đầu
+const usableSrc = (src) => {
+  if (!src) return '';
+  if (/^https?:\/\//i.test(src)) return src;
+  if (src.startsWith('/api/')) return resolveFileUrl(src);
+  return '';
+};
+
+// Chữ cái đại diện: bỏ các tiền tố loại hình doanh nghiệp ("Công ty Cổ phần ...")
+const initialOf = (name) => {
+  const cleaned = String(name || '')
+    .replace(/^(công ty|cty|tập đoàn)\s+/i, '')
+    .replace(/^(cổ phần|tnhh|trách nhiệm hữu hạn)\s+/i, '')
+    .replace(/^(một thành viên|mtv)\s+/i, '')
+    .trim();
+  return (cleaned || name || 'C').charAt(0).toUpperCase();
+};
 
 // Extract domain from a URL string (e.g., "https://logo.clearbit.com/fpt.com.vn" -> "fpt.com.vn")
 export function extractDomain(url) {
@@ -31,18 +51,19 @@ export default function CompanyLogo({
   style = {},
   className = '',
 }) {
-  const [currentSrc, setCurrentSrc] = useState(src || '');
+  const [currentSrc, setCurrentSrc] = useState(usableSrc(src));
   const [fallbackStep, setFallbackStep] = useState(0); // 0: primary, 1: gstatic, 2: unavatar, 3: initial
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setCurrentSrc(src || '');
+    setCurrentSrc(usableSrc(src));
     setFallbackStep(0);
     setIsLoaded(false);
   }, [src]);
 
-  const domain = extractDomain(src);
-  const initial = (alt || 'C').charAt(0).toUpperCase();
+  // Chỉ tra favicon theo tên miền với link web thật
+  const domain = /^https?:\/\//i.test(src || '') ? extractDomain(src) : '';
+  const initial = initialOf(alt);
 
   const handleImageError = () => {
     if (fallbackStep === 0 && domain) {

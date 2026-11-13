@@ -410,8 +410,7 @@ export default function AdminDashboardPage({
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
                 { type: 'PART_TIME', label: 'Bán thời gian (Part-time)', count: statsData.jobs_by_type.find(j => j.work_type === 'PART_TIME')?.count || 0, color: '#7565A8' },
-                { type: 'SEASONAL', label: 'Thời vụ (Seasonal)', count: statsData.jobs_by_type.find(j => j.work_type === 'SEASONAL')?.count || 0, color: '#E5A34C' },
-                { type: 'FREELANCE', label: 'Dự án (Freelance)', count: statsData.jobs_by_type.find(j => j.work_type === 'FREELANCE')?.count || 0, color: '#0284C7' }
+                { type: 'FULL_TIME', label: 'Toàn thời gian (Full-time)', count: statsData.jobs_by_type.find(j => j.work_type === 'FULL_TIME')?.count || 0, color: '#E5A34C' }
               ].map(item => (
                 <div key={item.type} style={{
                   display: 'flex',

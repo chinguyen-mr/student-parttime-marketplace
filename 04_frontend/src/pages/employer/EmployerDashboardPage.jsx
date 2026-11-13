@@ -145,21 +145,8 @@ export default function EmployerDashboardPage({
         }));
       }
 
-      // Merge Proposals as candidates into recent applicants list
-      const proposalCandidates = fetchedProposals.map(p => ({
-        id: `prop-${p.id}`,
-        student_name: p.student_name || 'Sinh viên Freelancer',
-        student_email: p.student_email || 'student@vlu.edu.vn',
-        university: p.university || 'Đại học Văn Lang',
-        job_title: p.job_title || 'Dự án Freelance',
-        status: p.status || 'PENDING',
-        applied_at: p.created_at || new Date().toISOString(),
-        type: 'PROPOSAL',
-        cover_letter: p.cover_letter || p.proposal_text,
-        price: p.price
-      }));
-
-      const mergedCandidates = [...compiledApplicants, ...proposalCandidates].sort((a, b) => {
+      // JobNest chỉ có Part-time/Full-time: danh sách ứng viên chỉ gồm hồ sơ ứng tuyển
+      const mergedCandidates = [...compiledApplicants].sort((a, b) => {
         return new Date(b.applied_at || 0) - new Date(a.applied_at || 0);
       });
 
@@ -527,47 +514,6 @@ export default function EmployerDashboardPage({
               </div>
             </div>
 
-            {/* KPI 3: Proposal chờ xử lý */}
-            <div style={{
-              background: '#ffffff',
-              borderRadius: 14,
-              border: '1px solid var(--color-border)',
-              padding: '18px 20px',
-              boxShadow: 'var(--shadow-sm)',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
-                  Proposal chờ xử lý
-                </span>
-                <div style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: '#EEF2FF',
-                  color: '#4F46E5',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <FileText size={18} />
-                </div>
-              </div>
-
-              {loading ? (
-                <div style={{ height: 38, width: 70, background: '#F1F5F9', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
-              ) : (
-                <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.2, marginBottom: 6 }}>
-                  {kpiStats.pendingProposals}
-                </div>
-              )}
-
-              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-                Tổng số {kpiStats.totalProposals} báo giá Freelance
-              </div>
-            </div>
-
             {/* KPI 4: Assignment đang thực hiện */}
             <div style={{
               background: '#ffffff',
@@ -641,8 +587,6 @@ export default function EmployerDashboardPage({
                   { id: 'ALL', label: 'Tất cả' },
                   { id: 'PENDING', label: 'Chờ duyệt' },
                   { id: 'ACCEPTED', label: 'Đã duyệt' },
-                  { id: 'APPLICATION', label: 'Part-time' },
-                  { id: 'PROPOSAL', label: 'Freelance' },
                 ].map(tab => (
                   <button
                     key={tab.id}
@@ -936,8 +880,8 @@ export default function EmployerDashboardPage({
                             fontWeight: 700,
                             padding: '3px 8px',
                             borderRadius: 6,
-                            background: job.type === 'FREELANCE' ? '#EEF2FF' : 'var(--color-primary-light)',
-                            color: job.type === 'FREELANCE' ? '#4F46E5' : 'var(--color-primary)'
+                            background: job.type === 'FULL_TIME' ? '#FEF7EE' : 'var(--color-primary-light)',
+                            color: job.type === 'FULL_TIME' ? '#B45309' : 'var(--color-primary)'
                           }}>
                             {job.type || 'PART_TIME'}
                           </span>

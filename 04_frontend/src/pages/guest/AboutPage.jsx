@@ -245,7 +245,7 @@ export default function AboutPage({
                 </h2>
 
                 <p style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 20 }}>
-                  <strong>JOBNEST</strong> là sàn thương mại dịch vụ việc làm bán thời gian (Part-time), việc làm thời vụ (Seasonal) và dự án tự do (Freelance) tiên phong tại Việt Nam, ra đời từ đề tài tốt nghiệp chuyên sâu nhằm giải quyết triệt để bài toán: <em>Làm sao để sinh viên có thu nhập trang trải cuộc sống mà không bị xung đột, gián đoạn hay trễ nải việc học trên giảng đường?</em>
+                  <strong>JOBNEST</strong> là sàn thương mại dịch vụ việc làm bán thời gian (Part-time) và toàn thời gian (Full-time) tiên phong tại Việt Nam, ra đời từ đề tài tốt nghiệp chuyên sâu nhằm giải quyết triệt để bài toán: <em>Làm sao để sinh viên có thu nhập trang trải cuộc sống mà không bị xung đột, gián đoạn hay trễ nải việc học trên giảng đường?</em>
                 </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16, marginBottom: 28 }}>
@@ -319,7 +319,7 @@ export default function AboutPage({
                 </h2>
 
                 <p style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 20 }}>
-                  Khác với các website tuyển dụng thông thường chỉ lọc theo từ khóa đơn giản, <strong>JobNest</strong> xây dựng giải pháp công nghệ độc quyền dựa trên mô hình đối chiếu hai tầng kết hợp giữa bộ lọc bắt buộc (Hard Filter) và thuật toán chấm điểm tương thích đa trọng số (Soft Composite Scoring).
+                  Khác với các website tuyển dụng thông thường chỉ lọc theo từ khóa đơn giản, <strong>JobNest</strong> đối chiếu lịch rảnh của bạn với ca làm của từng công việc: trước tiên loại bỏ mọi việc trùng giờ học, sau đó chấm điểm mức độ phù hợp theo thời gian, chuyên ngành, khu vực và mức lương.
                 </p>
 
                 {/* Diagram Box */}
@@ -368,13 +368,13 @@ export default function AboutPage({
                 </div>
 
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: '#111827', margin: '24px 0 14px 0' }}>
-                  Tiêu Chuẩn Công Nghệ & An Ninh Mạng
+                  An Toàn & Bảo Mật Thông Tin
                 </h3>
 
                 <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, color: '#374151', lineHeight: 1.6 }}>
-                  <li><strong>Cơ sở dữ liệu quan hệ PostgreSQL:</strong> Quản lý 13 bảng dữ liệu chuẩn hóa, khóa ngoại ràng buộc toàn vẹn, cam kết hiệu năng truy vấn dưới 50ms.</li>
-                  <li><strong>Bảo mật mật khẩu chuẩn quân sự:</strong> Mật khẩu người dùng được băm 100% bằng thuật toán <code>bcrypt</code> với salt rounds an toàn, không bao giờ lưu văn bản thuần.</li>
-                  <li><strong>Kiểm soát truy cập dựa trên vai trò (RBAC):</strong> Phân quyền chặt chẽ giữa Khách vãng lai, Sinh viên, Nhà tuyển dụng và Quản trị viên hệ thống qua token JWT.</li>
+                  <li><strong>Mật khẩu được mã hóa:</strong> JobNest không lưu mật khẩu của bạn ở dạng có thể đọc được, kể cả quản trị viên cũng không xem được.</li>
+                  <li><strong>Phân quyền rõ ràng:</strong> Sinh viên, nhà tuyển dụng và quản trị viên chỉ xem được những thông tin thuộc quyền của mình.</li>
+                  <li><strong>Kiểm duyệt tin tuyển dụng:</strong> Mọi tin đăng đều được kiểm duyệt trước khi hiển thị để hạn chế tin giả, lừa đảo.</li>
                 </ul>
               </div>
             )}
@@ -403,7 +403,7 @@ export default function AboutPage({
                     { step: 'Bước 1', title: 'Đăng ký tài khoản sinh viên', desc: 'Sử dụng email cá nhân hoặc email trường (.edu.vn) để xác thực danh tính sinh viên.' },
                     { step: 'Bước 2', title: 'Cài đặt thời khóa biểu & lịch rảnh', desc: 'Vào mục "Lịch rảnh", chọn các buổi sáng/chiều/tối bạn có thể đi làm từ Thứ 2 đến Chủ nhật.' },
                     { step: 'Bước 3', title: 'Xem danh sách việc làm gợi ý thông minh', desc: 'Hệ thống tự động sắp xếp các công việc có điểm phù hợp từ cao xuống thấp (Top 1: 95% - 98%).' },
-                    { step: 'Bước 4', title: 'Ứng tuyển 1-chạm hoặc Nộp bản đề xuất', desc: 'Chọn ứng tuyển cho việc Part-time hoặc viết bản báo giá & kế hoạch (Proposal) cho dự án Freelance.' },
+                    { step: 'Bước 4', title: 'Ứng tuyển 1-chạm', desc: 'Nộp hồ sơ ứng tuyển bằng CV mặc định cho việc làm Part-time hoặc Full-time chỉ với một lần bấm.' },
                     { step: 'Bước 5', title: 'Nhận việc, làm việc an toàn & tích lũy uy tín', desc: 'Ký kết hợp đồng phân công công việc điện tử, nhận thù lao đầy đủ và nhận đánh giá sao từ NTD.' }
                   ].map((s, i) => (
                     <div key={i} style={{ display: 'flex', gap: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
@@ -438,7 +438,7 @@ export default function AboutPage({
                   {[
                     { step: 'Bước 1', title: 'Đăng ký hồ sơ doanh nghiệp', desc: 'Cung cấp tên công ty, mã số thuế, địa chỉ trụ sở và số điện thoại liên hệ đại diện.' },
                     { step: 'Bước 2', title: 'Tạo tin tuyển dụng ghi rõ ca làm việc', desc: 'Bắt buộc ghi rõ ngày làm trong tuần, khung giờ bắt đầu - kết thúc, mức thù lao minh bạch.' },
-                    { step: 'Bước 3', title: 'Tiếp nhận hồ sơ & Duyệt ứng viên (A3 Workflow)', desc: 'Xem hồ sơ ứng viên, kỹ năng và lịch rảnh. Bấm "Chấp nhận" để tự động khởi tạo Work Assignment.' },
+                    { step: 'Bước 3', title: 'Tiếp nhận hồ sơ & Duyệt ứng viên', desc: 'Xem hồ sơ ứng viên, kỹ năng và lịch rảnh, sau đó chấp nhận hoặc từ chối kèm lý do.' },
                     { step: 'Bước 4', title: 'Nghiệm thu sản phẩm & Đánh giá sinh viên', desc: 'Kiểm tra chất lượng công việc, thanh toán thù lao và gửi đánh giá năng lực cho sinh viên.' }
                   ].map((s, i) => (
                     <div key={i} style={{ display: 'flex', gap: 14, background: '#FFF9F6', border: '1px solid #F5DCD0', borderRadius: 10, padding: 14 }}>
@@ -685,15 +685,15 @@ export default function AboutPage({
                     },
                     {
                       q: '2. Cơ chế so khớp lịch học của JobNest hoạt động như thế nào?',
-                      a: 'Khi bạn cập nhật các buổi rảnh trong tuần vào mục "Lịch rảnh", hệ thống sẽ kích hoạt thuật toán Hard Filter để loại bỏ toàn bộ các công việc có ca làm trùng với giờ học. Sau đó, hệ thống tính toán điểm tương thích (Composite Scoring) dựa trên khoảng cách, chuyên ngành và mức lương để đưa công việc phù hợp nhất lên hàng đầu.'
+                      a: 'Khi bạn cập nhật các buổi rảnh trong tuần vào mục "Lịch rảnh", JobNest sẽ loại bỏ toàn bộ công việc có ca làm trùng với giờ học. Sau đó hệ thống chấm điểm mức độ phù hợp dựa trên thời gian, chuyên ngành, khu vực và mức lương để đưa công việc phù hợp nhất lên đầu.'
                     },
                     {
                       q: '3. Làm sao tôi biết công việc nào là an toàn và đáng tin cậy?',
                       a: 'Tất cả các tin đăng trên JobNest đều trải qua quy trình kiểm duyệt tự động và thủ công của Ban quản trị. Những nhà tuyển dụng đã xác minh giấy phép kinh doanh/mã số thuế sẽ có huy hiệu kiểm duyệt màu xanh. Ngoài ra, bạn có thể xem điểm đánh giá sao từ các sinh viên đã từng làm việc trước đó.'
                     },
                     {
-                      q: '4. Sự khác biệt giữa việc làm Part-time và dự án Freelance là gì?',
-                      a: 'Việc làm Part-time là các ca làm cố định theo giờ (như phục vụ cafe, thu ngân, trực page), tính lương theo giờ (HOURLY). Còn Freelance là các dự án tự do theo kết quả đầu ra (như thiết kế banner, viết bài content, lập trình web), sinh viên sẽ nộp bản đề xuất báo giá (Proposal) và nhận thù lao theo mốc bàn giao.'
+                      q: '4. Sự khác biệt giữa việc làm Part-time và Full-time là gì?',
+                      a: 'Việc làm Part-time là các ca làm theo giờ, linh hoạt theo thời khóa biểu (như phục vụ cafe, thu ngân, trợ lý văn phòng), thường tính lương theo giờ (HOURLY). Việc làm Full-time là làm việc giờ hành chính cả tuần, tính lương theo tháng (MONTHLY), phù hợp sinh viên năm cuối hoặc đã tốt nghiệp.'
                     },
                     {
                       q: '5. Nếu nhà tuyển dụng không thanh toán thù lao đúng hẹn thì xử lý như thế nào?',
@@ -920,7 +920,7 @@ export default function AboutPage({
                     <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13, color: '#4B5563', display: 'flex', flexDirection: 'column', gap: 6 }}>
                       <li>Quản lý lịch học & lịch rảnh</li>
                       <li>Gợi ý việc làm theo điểm so khớp</li>
-                      <li>Theo dõi hồ sơ ứng tuyển (Màn 8)</li>
+                      <li>Theo dõi hồ sơ ứng tuyển</li>
                       <li>Hồ sơ năng lực & CV cá nhân</li>
                       <li>Đánh giá doanh nghiệp & hợp đồng</li>
                     </ul>
@@ -933,8 +933,7 @@ export default function AboutPage({
                     <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13, color: '#4B5563', display: 'flex', flexDirection: 'column', gap: 6 }}>
                       <li>Đăng tin tuyển dụng ca làm</li>
                       <li>Quản lý danh sách tin đăng</li>
-                      <li>Duyệt hồ sơ & chọn ứng viên (A3)</li>
-                      <li>Quản lý phân công (Assignment)</li>
+                      <li>Duyệt hồ sơ & chọn ứng viên</li>
                       <li>Đánh giá sinh viên sau dự án</li>
                     </ul>
                   </div>

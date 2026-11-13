@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Flag, X, AlertCircle, CheckCircle2, ShieldAlert, Loader2 } from 'lucide-react';
 import { API_BASE } from '../../config/api';
+import { REPORT_REASONS } from '../../utils/reviewDisplay';
 
 export default function ReportViolationModal({
   isOpen,
   onClose,
-  targetType = 'JOB', // 'JOB' | 'USER'
+  targetType = 'JOB', // 'JOB' | 'USER' | 'COMPANY_REVIEW' | 'JOB_REVIEW'
   targetId,
   targetTitle = '',
   currentUser,
   showToast,
-  onOpenAuth
+  onOpenAuth,
+  onSubmitted, // tùy chọn: gọi sau khi gửi thành công
 }) {
   const [reason, setReason] = useState('');
   const [description, setDescription] = useState('');
@@ -46,7 +48,11 @@ export default function ReportViolationModal({
     'Khác'
   ];
 
-  const reasonList = targetType === 'JOB' ? jobReasons : userReasons;
+  // Đánh giá: gửi mã lý do (value) tới API /reviews/:type/:id/reports
+  const isReview = targetType === 'COMPANY_REVIEW' || targetType === 'JOB_REVIEW';
+  const reasonOptions = isReview
+    ? REPORT_REASONS.map(([value, label]) => ({ value, label }))
+    : (targetType === 'JOB' ? jobReasons : userReasons).map(r => ({ value: r, label: r }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,13 +76,16 @@ export default function ReportViolationModal({
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE}/reports`, {
+      const url = isReview
+        ? `${API_BASE}/reviews/${targetType === 'JOB_REVIEW' ? 'job' : 'company'}/${targetId}/reports`
+        : `${API_BASE}/reports`;
+      const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${currentUser.token}`
         },
-        body: JSON.stringify({
+        body: JSON.stringify(isReview ? { reason, description: description.trim() } : {
           target_type: targetType,
           target_id: targetId,
           reason,
@@ -92,6 +101,7 @@ export default function ReportViolationModal({
       if (showToast) {
         showToast(data.message || 'Báo cáo vi phạm đã được gửi tới Quản trị viên xử lý', 'success');
       }
+      onSubmitted?.();
       onClose();
     } catch (err) {
       setErrorMsg(err.message || 'Có lỗi xảy ra khi gửi báo cáo');
@@ -163,7 +173,7 @@ export default function ReportViolationModal({
                 Báo cáo vi phạm
               </h2>
               <span style={{ fontSize: 12, color: '#64748B' }}>
-                {targetType === 'JOB' ? 'Tin tuyển dụng: ' : 'Người dùng / Nhà tuyển dụng: '}
+                {isReview ? 'Đánh giá: ' : targetType === 'JOB' ? 'Tin tuyển dụng: ' : 'Người dùng / Nhà tuyển dụng: '}
                 <strong style={{ color: '#334155' }}>{targetTitle || `#${targetId}`}</strong>
               </span>
             </div>
@@ -233,8 +243,8 @@ export default function ReportViolationModal({
               }}
             >
               <option value="">-- Chọn lý do phù hợp --</option>
-              {reasonList.map((r, i) => (
-                <option key={i} value={r}>{r}</option>
+              {reasonOptions.map((r) => (
+                <option key={r.value} value={r.value}>{r.label}</option>
               ))}
             </select>
           </div>

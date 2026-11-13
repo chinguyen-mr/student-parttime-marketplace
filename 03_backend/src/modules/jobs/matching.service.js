@@ -328,7 +328,7 @@ class MatchingService {
             matchReasons.push(scheduleLabel);
             matchReasonDetails.push({ type: 'schedule', label: scheduleLabel, score: scheduleScore });
         } else if (overlapResult.is_flexible) {
-            const label = 'Thời gian làm việc linh hoạt / Freelance: Phù hợp với mọi lịch học';
+            const label = 'Giờ làm linh hoạt: Phù hợp với mọi lịch học';
             matchReasons.push(label);
             matchReasonDetails.push({ type: 'schedule', label, score: scheduleScore });
         } else {
@@ -406,13 +406,16 @@ class MatchingService {
      * @param {Object} [params]
      * @returns {Promise<Object>}
      */
-    async getRecommendedJobs(studentId, { limit = 20, offset = 0, mandatoryPolicy = 'AT_LEAST_ONE' } = {}) {
-        // 1. Lấy lịch rảnh hiện tại của sinh viên
-        const availRes = await db.query(
-            'SELECT * FROM student_availabilities WHERE student_id = $1 AND is_active = TRUE ORDER BY day_of_week, start_time',
-            [studentId]
-        );
-        const studentSlots = availRes.rows;
+    async getRecommendedJobs(studentId, { limit = 20, offset = 0, mandatoryPolicy = 'AT_LEAST_ONE', slots = null } = {}) {
+        // 1. Lịch rảnh: dùng `slots` truyền vào (xem trước, chưa lưu) hoặc lịch đã lưu của sinh viên
+        let studentSlots = slots;
+        if (!studentSlots) {
+            const availRes = await db.query(
+                'SELECT * FROM student_availabilities WHERE student_id = $1 AND is_active = TRUE ORDER BY day_of_week, start_time',
+                [studentId]
+            );
+            studentSlots = availRes.rows;
+        }
 
         // 2. Lấy hồ sơ sinh viên
         const profileRes = await db.query('SELECT * FROM student_profiles WHERE user_id = $1', [studentId]);
@@ -423,7 +426,9 @@ class MatchingService {
             SELECT j.*, 
                    COALESCE(ep.display_name, 'Doanh nghiệp') AS employer_name, 
                    ep.location AS employer_location,
-                   ep.avatar_url AS employer_avatar
+                   ep.avatar_url AS employer_avatar,
+                   ep.avatar_url AS company_logo_url,
+                   ep.verification_status AS employer_verification_status
             FROM jobs j
             LEFT JOIN employer_profiles ep ON ep.user_id = j.employer_id
             WHERE j.status = 'OPEN' 

@@ -10,6 +10,7 @@ import { Button } from '../../components/ui';
 import CompanyLogo from '../../components/CompanyLogo';
 import { getJobBannerUrl } from '../../utils/bannerHelper';
 import JobLocationMap from '../../components/JobLocationMap';
+import JobReviewsSection from '../../components/reviews/JobReviewsSection';
 import ProposalModal from '../../components/forms/ProposalModal';
 import { API_BASE } from '../../config/api';
 import { updateSEO, cleanupSEO } from '../../utils/seoHelper';
@@ -176,14 +177,10 @@ export default function JobDetailPage({
     switch (currentJob.work_type) {
       case 'PART_TIME':
         return 'Bán thời gian (Part-time)';
-      case 'FREELANCE':
-        return 'Freelance / Dự án';
       case 'FULL_TIME':
         return 'Toàn thời gian (Full-time)';
-      case 'SEASONAL':
-        return 'Thời vụ / Sự kiện';
       default:
-        return 'Linh hoạt ca';
+        return 'Bán thời gian (Part-time)';
     }
   };
 
@@ -626,7 +623,7 @@ export default function JobDetailPage({
             </div>
           </div>
 
-          {/* THÔNG TIN CHI TIẾT THEO LOẠI VIỆC (k169: Part-time / k170: Seasonal / k171: Freelance) */}
+          {/* THÔNG TIN CHI TIẾT THEO LOẠI VIỆC (Part-time / Full-time) */}
           <div
             style={{
               background: '#ffffff',
@@ -650,60 +647,39 @@ export default function JobDetailPage({
               }}
             >
               <Clock size={18} color="var(--color-primary)" /> 
-              {currentJob.work_type === 'FREELANCE' 
-                ? 'Quy cách & Sản phẩm bàn giao (Freelance)'
-                : currentJob.work_type === 'SEASONAL'
-                ? 'Thời gian & Lịch trình làm việc (Thời vụ)'
+              {currentJob.work_type === 'FULL_TIME'
+                ? 'Thời gian & Lịch làm việc (Full-time)'
                 : 'Thời gian & Lịch làm việc (Part-time)'}
             </h3>
 
-            {currentJob.work_type === 'FREELANCE' ? (
-              /* Freelance details (k171: phạm vi, sản phẩm bàn giao, deadline, ngân sách) */
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: '#475569' }}>
-                <div>
-                  <strong style={{ color: 'var(--color-text)' }}>Phạm vi công việc:</strong> Thực hiện theo đề cương dự án đã thỏa thuận.
-                </div>
-                <div>
-                  <strong style={{ color: 'var(--color-text)' }}>Sản phẩm bàn giao:</strong> Source code / File thiết kế gốc / Báo cáo hoàn thành.
-                </div>
-                <div>
-                  <strong style={{ color: 'var(--color-text)' }}>Thời hạn hoàn thành:</strong> {deadlineDate ? deadlineDate.toLocaleDateString('vi-VN') : 'Theo thỏa thuận'}
-                </div>
-                <div>
-                  <strong style={{ color: 'var(--color-text)' }}>Ngân sách dự kiến:</strong> <span style={{ color: '#047857', fontWeight: 700 }}>{formatSalary()}</span>
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: '#475569' }}>
+              <div>
+                <strong style={{ color: 'var(--color-text)' }}>Lịch làm việc trong tuần:</strong> {currentJob.work_days || currentJob.work_schedule || 'Thứ 2 đến Thứ 7 (Linh hoạt chọn ca)'}
               </div>
-            ) : currentJob.work_type === 'SEASONAL' ? (
-              /* Seasonal details (k170: ngày bắt đầu, kết thúc, lịch làm) */
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: '#475569' }}>
-                <div>
-                  <strong style={{ color: 'var(--color-text)' }}>Đợt làm việc:</strong> Thời vụ cao điểm / Sự kiện ngắn hạn
-                </div>
-                <div>
-                  <strong style={{ color: 'var(--color-text)' }}>Thời hạn kết thúc đợt:</strong> {deadlineDate ? deadlineDate.toLocaleDateString('vi-VN') : 'Khi đủ số lượng ứng viên'}
-                </div>
-                <div>
-                  <strong style={{ color: 'var(--color-text)' }}>Ca làm việc:</strong> {currentJob.work_shift || currentJob.work_schedule || 'Linh hoạt ca theo ngày (Sáng / Chiều / Tối)'}
-                </div>
-              </div>
-            ) : (
-              /* Part-time details (k169: lịch làm việc, số giờ/tuần) */
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: '#475569' }}>
-                <div>
-                  <strong style={{ color: 'var(--color-text)' }}>Lịch làm việc trong tuần:</strong> {currentJob.work_days || currentJob.work_schedule || 'Thứ 2 đến Thứ 7 (Linh hoạt chọn ca)'}
-                </div>
+              {currentJob.work_type !== 'FULL_TIME' && (
                 <div>
                   <strong style={{ color: 'var(--color-text)' }}>Số giờ yêu cầu:</strong> Tối thiểu 16 - 24 giờ / tuần, phù hợp thời khóa biểu sinh viên.
                 </div>
+              )}
+              {currentJob.work_shift && (
                 <div>
-                  <strong style={{ color: 'var(--color-text)' }}>Ca làm:</strong> {currentJob.work_shift || 'Ca sáng (08:00 - 12:00) hoặc Ca chiều (13:30 - 17:30)'}
+                  <strong style={{ color: 'var(--color-text)' }}>Ca làm:</strong> {currentJob.work_shift}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* VỊ TRÍ BẢN ĐỒ LÀM VIỆC (LEAFLET / OPENSTREETMAP) */}
           <JobLocationMap job={currentJob} />
+
+          {/* ĐÁNH GIÁ CÔNG VIỆC (chỉ hiện khi có đánh giá đã duyệt hoặc người xem đủ điều kiện viết) */}
+          <JobReviewsSection
+            jobId={currentJob?.id}
+            jobTitle={currentJob?.title}
+            currentUser={currentUser}
+            onOpenAuth={onOpenAuth}
+            showToast={showToast}
+          />
         </div>
 
         {/* =====================================================================
@@ -1118,7 +1094,7 @@ export default function JobDetailPage({
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {[
                 currentJob.category,
-                currentJob.work_type === 'PART_TIME' ? 'Part-time' : currentJob.work_type === 'SEASONAL' ? 'Thời vụ' : 'Freelance',
+                currentJob.work_type === 'FULL_TIME' ? 'Full-time' : 'Part-time',
                 'Sinh viên',
                 'Linh hoạt ca',
                 currentJob.location?.split(',')[0],

@@ -100,7 +100,7 @@ export default function NotificationsPage({ currentUser, showToast, onSelectNoti
               TẤT CẢ THÔNG BÁO ({notifications.length})
             </h2>
             <p style={{ margin: 0, fontSize: 13.5, color: '#CBD5E1', maxWidth: 640 }}>
-              Cập nhật tức thời về tình trạng nộp đơn ứng tuyển, xét duyệt đề xuất Freelance và phân công hợp đồng công việc.
+              Cập nhật tức thời về tình trạng nộp đơn ứng tuyển, kết quả xét duyệt và phân công hợp đồng công việc.
             </p>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
@@ -130,7 +130,6 @@ export default function NotificationsPage({ currentUser, showToast, onSelectNoti
           { key: 'ALL', label: `Tất cả (${notifications.length})` },
           { key: 'UNREAD', label: `Chưa đọc (${unreadCount})` },
           { key: 'APPLICATION', label: 'Ứng tuyển Part-time' },
-          { key: 'PROPOSAL', label: 'Đề xuất Freelance' },
           { key: 'ASSIGNMENT', label: 'Hợp đồng công việc' },
         ].map(tab => (
           <button

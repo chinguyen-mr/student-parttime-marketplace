@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, ShieldCheck, AlertCircle, ArrowRight, Save, Camera, CheckCircle2, Settings } from 'lucide-react';
 import { Button } from '../../components/ui';
+import EmployerPublicInfoForm from '../../components/employer/EmployerPublicInfoForm';
 import { API_BASE, formatApiError } from '../../config/api';
 
 export default function EmployerPersonalProfilePage({
@@ -20,16 +21,13 @@ export default function EmployerPersonalProfilePage({
   });
 
   // Read-only account credentials
-  const email = currentUser?.email || 'employer.test@vlu.edu.vn';
-  const phone = currentUser?.phone || '0901234567';
+  const [contact, setContact] = useState({ email: currentUser?.email || '', phone: currentUser?.phone || '' });
+  const { email, phone } = contact;
 
-  // Verification states
-  const emailVerified = currentUser?.status === 'ACTIVE' || currentUser?.verification_status === 'VERIFIED';
-  const phoneVerified = Boolean(
-    currentUser?.phone_verified || 
-    currentUser?.verification_status === 'VERIFIED' ||
-    (currentUser?.id && localStorage.getItem(`jobnest_employer_phone_verified_${currentUser.id}`) === 'true')
-  );
+  // Trạng thái xác minh lấy từ database (thời điểm xác minh OTP thật), mặc định là chưa xác minh
+  const [verified, setVerified] = useState({ email: false, phone: false });
+  const emailVerified = verified.email;
+  const phoneVerified = verified.phone;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -45,9 +43,11 @@ export default function EmployerPersonalProfilePage({
           setFormData({
             displayName: p.display_name || p.full_name || currentUser.full_name || '',
             bio: p.bio || '',
-            location: p.location || p.company_address || 'TP. Hồ Chí Minh',
+            location: p.location || p.company_address || '',
             avatarUrl: p.avatar_url || ''
           });
+          setContact({ email: p.email || currentUser.email || '', phone: p.phone || currentUser.phone || '' });
+          setVerified({ email: Boolean(p.email_verified_at), phone: Boolean(p.phone_verified_at) });
         }
       } catch (err) {
         console.warn('Could not load profile from API, using local state:', err);
@@ -455,6 +455,9 @@ export default function EmployerPersonalProfilePage({
           )}
         </div>
       </div>
+
+      {/* Thông tin hiển thị trên trang công ty công khai */}
+      <EmployerPublicInfoForm currentUser={currentUser} showToast={showToast} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   Clock, XCircle, AlertCircle, RefreshCw, ChevronRight, User, AlertTriangle
 } from 'lucide-react';
 import { API_BASE, formatApiError } from '../../config/api';
+import ProfileSnapshotView from '../../components/student/ProfileSnapshotView';
 
 export default function ApplicationDetailPage({
   applicationId,
@@ -16,6 +17,26 @@ export default function ApplicationDetailPage({
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [withdrawing, setWithdrawing] = useState(false);
+
+  const handleWithdraw = async () => {
+    if (!window.confirm('Rút đơn ứng tuyển này? Nhà tuyển dụng sẽ không xét hồ sơ của bạn cho vị trí này nữa.')) return;
+    setWithdrawing(true);
+    try {
+      const res = await fetch(`${API_BASE}/applications/${applicationId}/withdraw`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${currentUser.token}` }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) throw new Error(data.message || 'Không rút được đơn.');
+      if (showToast) showToast('Đã rút đơn ứng tuyển.', 'success');
+      await fetchApplicationDetail();
+    } catch (err) {
+      if (showToast) showToast(err.message || 'Không rút được đơn.', 'error');
+    } finally {
+      setWithdrawing(false);
+    }
+  };
 
   const fetchApplicationDetail = async () => {
     if (!applicationId) {
@@ -90,6 +111,8 @@ export default function ApplicationDetailPage({
 
   const getStatusBadge = (status) => {
     switch (status) {
+      case 'WITHDRAWN':
+        return { label: 'ĐÃ RÚT ĐƠN', bg: '#F1F5F9', color: '#475569', border: '#CBD5E1', icon: XCircle };
       case 'ACCEPTED':
         return { label: 'ĐÃ TIẾP NHẬN / TRÚNG TUYỂN', bg: '#DCFCE7', color: '#166534', border: '#86EFAC', icon: CheckCircle2 };
       case 'SHORTLISTED':
@@ -213,7 +236,7 @@ export default function ApplicationDetailPage({
                       <StatusIcon size={14} /> {badge.label}
                     </span>
                     <span style={{ fontSize: 12, fontWeight: 600, padding: '3px 8px', borderRadius: 4, background: '#F1F5F9', color: '#475569' }}>
-                      {application.work_type === 'FREELANCE' ? 'DỰ ÁN FREELANCE' : 'VIỆC BÁN THỜI GIAN'}
+                      {application.work_type === 'FULL_TIME' ? 'VIỆC TOÀN THỜI GIAN' : 'VIỆC BÁN THỜI GIAN'}
                     </span>
                   </div>
 
@@ -276,21 +299,21 @@ export default function ApplicationDetailPage({
                   <div style={{ 
                     padding: 14, 
                     borderRadius: 10, 
-                    background: application.status !== 'PENDING' ? '#DCFCE7' : '#FEF3C7', 
-                    border: application.status !== 'PENDING' ? '1px solid #86EFAC' : '1px solid #FCD34D' 
+                    background: ['ACCEPTED', 'REJECTED'].includes(application.status) ? '#DCFCE7' : '#FEF3C7', 
+                    border: ['ACCEPTED', 'REJECTED'].includes(application.status) ? '1px solid #86EFAC' : '1px solid #FCD34D' 
                   }}>
                     <div style={{ 
                       display: 'flex', 
                       alignItems: 'center', 
                       gap: 6, 
-                      color: application.status !== 'PENDING' ? '#166534' : '#92400E', 
+                      color: ['ACCEPTED', 'REJECTED'].includes(application.status) ? '#166534' : '#92400E', 
                       fontWeight: 700, 
                       fontSize: 13.5, 
                       marginBottom: 4 
                     }}>
                       <Clock size={16} /> 2. Đang xem xét
                     </div>
-                    <span style={{ fontSize: 12, color: application.status !== 'PENDING' ? '#15803D' : '#B45309' }}>
+                    <span style={{ fontSize: 12, color: ['ACCEPTED', 'REJECTED'].includes(application.status) ? '#15803D' : '#B45309' }}>
                       {application.status === 'SHORTLISTED' ? 'Đã vào vòng rút gọn' : 'Nhà tuyển dụng đã nhận'}
                     </span>
                   </div>
@@ -314,7 +337,7 @@ export default function ApplicationDetailPage({
                       3. Kết quả tuyển dụng
                     </div>
                     <span style={{ fontSize: 12, color: application.status === 'ACCEPTED' ? '#15803D' : application.status === 'REJECTED' ? '#B91C1C' : '#94A3B8' }}>
-                      {application.status === 'ACCEPTED' ? 'Trúng tuyển nhận việc' : application.status === 'REJECTED' ? 'Chưa phù hợp' : 'Đang chờ quyết định'}
+                      {application.status === 'ACCEPTED' ? 'Trúng tuyển nhận việc' : application.status === 'REJECTED' ? 'Chưa phù hợp' : application.status === 'WITHDRAWN' ? 'Bạn đã rút đơn' : 'Đang chờ quyết định'}
                     </span>
                   </div>
                 </div>
@@ -356,9 +379,20 @@ export default function ApplicationDetailPage({
                 padding: '24px 28px'
               }}
             >
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 20 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>
                 Nội dung hồ sơ bạn đã gửi
               </h2>
+              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 12px 0' }}>
+                {application.profile_snapshot_is_current
+                  ? 'Đơn này được nộp trước khi JobNest lưu bản chụp hồ sơ, nên đang hiển thị hồ sơ hiện tại của bạn.'
+                  : application.profile_snapshot?.captured_at
+                    ? `Hồ sơ tại thời điểm nộp đơn (${formatDate(application.profile_snapshot.captured_at)}). Nhà tuyển dụng xem đúng nội dung này.`
+                    : 'Thông tin hồ sơ gửi kèm đơn ứng tuyển.'}
+              </p>
+
+              <ProfileSnapshotView profile={application.profile_snapshot} />
+
+              <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: 16 }} />
 
               {/* CV File */}
               <div style={{ marginBottom: 20 }}>
@@ -411,42 +445,35 @@ export default function ApplicationDetailPage({
                 </div>
               </div>
 
-              {/* Actions with TBD annotation according to Wireframe */}
+              {/* Thao tác: rút đơn khi còn chờ duyệt */}
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 14, paddingTop: 18, borderTop: '1px solid #F1F5F9' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <button
-                    type="button"
-                    disabled
-                    title="Tính năng đang được phát triển theo lộ trình Sprint 2"
-                    style={{
-                      padding: '9px 18px',
-                      borderRadius: 8,
-                      background: '#F1F5F9',
-                      border: '1.5px solid #CBD5E1',
-                      color: '#94A3B8',
-                      fontSize: 13.5,
-                      fontWeight: 600,
-                      cursor: 'not-allowed',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6
-                    }}
-                  >
-                    Rút đơn ứng tuyển
-                  </button>
-                  <span 
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: 700,
-                      background: '#FEF3C7',
-                      color: '#92400E',
-                      padding: '3px 8px',
-                      borderRadius: 4,
-                      border: '1px solid #FCD34D'
-                    }}
-                  >
-                    S2 — TBD (Tính năng rút đơn đang hoàn thiện)
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#64748B' }}>
+                  {application.status === 'PENDING' ? (
+                    <button
+                      type="button"
+                      onClick={handleWithdraw}
+                      disabled={withdrawing}
+                      style={{
+                        padding: '9px 18px',
+                        borderRadius: 8,
+                        background: '#ffffff',
+                        border: '1.5px solid #FCA5A5',
+                        color: '#B91C1C',
+                        fontSize: 13.5,
+                        fontWeight: 600,
+                        cursor: withdrawing ? 'wait' : 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6
+                      }}
+                    >
+                      <XCircle size={15} /> {withdrawing ? 'Đang rút đơn...' : 'Rút đơn ứng tuyển'}
+                    </button>
+                  ) : application.status === 'WITHDRAWN' ? (
+                    <span>Bạn đã rút đơn này{application.withdrawn_at ? ` ngày ${formatDate(application.withdrawn_at)}` : ''}.</span>
+                  ) : (
+                    <span>Đơn đã có kết quả nên không thể rút.</span>
+                  )}
                 </div>
 
                 <button

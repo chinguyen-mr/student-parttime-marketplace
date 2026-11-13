@@ -9,22 +9,22 @@
 export const BASE_CANONICAL_HOST = 'https://jobnest.edu.vn';
 
 export const DEFAULT_SEO = {
-  title: 'JobNest - Nền tảng Việc làm Part-time & Freelance cho Sinh viên',
-  description: 'JobNest là nền tảng kết nối sinh viên với các công việc freelance và part-time uy tín, minh bạch thù lao, tích lũy kinh nghiệm và phát triển nghề nghiệp.',
+  title: 'JobNest - Nền tảng Việc làm Part-time & Full-time cho Sinh viên',
+  description: 'JobNest là nền tảng kết nối sinh viên với các công việc part-time và full-time uy tín, minh bạch thù lao, tích lũy kinh nghiệm và phát triển nghề nghiệp.',
   canonical: `${BASE_CANONICAL_HOST}/`,
   robots: 'index, follow'
 };
 
 export const PAGE_SEO_CONFIGS = {
   home: {
-    title: 'JobNest - Nền tảng Việc làm Part-time & Freelance cho Sinh viên',
-    description: 'JobNest là nền tảng kết nối sinh viên với các công việc freelance và part-time uy tín, minh bạch thù lao, tích lũy kinh nghiệm và phát triển nghề nghiệp.',
+    title: 'JobNest - Nền tảng Việc làm Part-time & Full-time cho Sinh viên',
+    description: 'JobNest là nền tảng kết nối sinh viên với các công việc part-time và full-time uy tín, minh bạch thù lao, tích lũy kinh nghiệm và phát triển nghề nghiệp.',
     canonical: `${BASE_CANONICAL_HOST}/`,
     robots: 'index, follow'
   },
   jobs: {
-    title: 'Tìm kiếm việc làm Part-time & Freelance | JobNest',
-    description: 'Khám phá hàng trăm tin tuyển dụng part-time và dự án freelance phù hợp với lịch học sinh viên. Đăng ký ứng tuyển ngay trên JobNest.',
+    title: 'Tìm kiếm việc làm Part-time & Full-time | JobNest',
+    description: 'Khám phá hàng trăm tin tuyển dụng part-time và full-time phù hợp với lịch học sinh viên. Đăng ký ứng tuyển ngay trên JobNest.',
     canonical: `${BASE_CANONICAL_HOST}/?tab=jobs`,
     robots: 'index, follow'
   },

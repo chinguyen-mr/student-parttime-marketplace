@@ -1,4 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { API_BASE } from '../../config/api';
+import { SHIFTS, normalizeSlots } from '../../components/student/AvailabilityEditor';
+import { DAY_SHORT, WEEK_ORDER } from '../../utils/jobDisplay';
+
+/** Tóm tắt lịch rảnh: "Sáng T2, T4 · Tối T5" */
+function summarizeSlots(slots) {
+  return SHIFTS.map(sh => {
+    const days = slots.filter(s => s.start_time.startsWith(sh.start))
+      .map(s => s.day_of_week).sort((a, b) => WEEK_ORDER.indexOf(a) - WEEK_ORDER.indexOf(b))
+      .map(d => DAY_SHORT[d]);
+    return days.length ? `${sh.label} ${days.join(', ')}` : null;
+  }).filter(Boolean).join(' · ');
+}
 import { 
   Search, MapPin, Briefcase, Filter, Sparkles, X, 
   ChevronDown, DollarSign, Clock, Calendar, Check, ArrowRight,
@@ -38,10 +51,39 @@ export default function HomePage({
   onOpenAuth,
   onHoverStart,
   onHoverEnd,
-  onViewCompany
+  onViewCompany,
+  onOpenStudentTab
 }) {
-  // Featured Jobs Tab Filter: 'ALL' | 'PART_TIME' | 'FREELANCE' | 'SEASONAL'
+  // Featured Jobs Tab Filter: 'ALL' | 'PART_TIME' | 'FULL_TIME'
   const [featuredTab, setFeaturedTab] = useState('ALL');
+
+  // Đề xuất thật cho sinh viên đang đăng nhập, dựa trên lịch rảnh đã lưu trong hồ sơ
+  // (null = chưa có dữ liệu → hiển thị ví dụ A/B)
+  const [personalMatches, setPersonalMatches] = useState(null);
+  const [mySlots, setMySlots] = useState([]);
+  useEffect(() => {
+    setPersonalMatches(null);
+    setMySlots([]);
+    if (currentUser?.role !== 'STUDENT' || !currentUser?.token) return undefined;
+    let cancelled = false;
+    const headers = { Authorization: `Bearer ${currentUser.token}` };
+    fetch(`${API_BASE}/jobs/recommended?limit=2`, { headers })
+      .then(res => res.json())
+      .then(data => {
+        if (cancelled || !data?.success) return;
+        const list = Array.isArray(data.data?.jobs) ? data.data.jobs : [];
+        if (data.data?.student_has_availability && list.length > 0) setPersonalMatches(list);
+      })
+      .catch(() => {}); // Lỗi mạng → giữ ví dụ A/B
+    fetch(`${API_BASE}/profile/availability`, { headers })
+      .then(res => res.json())
+      .then(data => { if (!cancelled && data?.success && Array.isArray(data.data)) setMySlots(normalizeSlots(data.data)); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [currentUser?.role, currentUser?.token]);
+
+  const isStudent = currentUser?.role === 'STUDENT';
+  const openAvailability = () => (onOpenStudentTab ? onOpenStudentTab('availability') : onNavigateTab && onNavigateTab('student_dashboard'));
 
   // 6 Featured Open Jobs
   const featuredJobs = useMemo(() => {
@@ -381,7 +423,7 @@ export default function HomePage({
             Tìm việc theo lịch rảnh — Không chỉ tìm việc theo từ khóa
           </h2>
           <p style={{ fontSize: '15px', color: '#374151', lineHeight: 1.6, margin: '0 auto', maxWidth: '52ch' }}>
-            Các website tuyển dụng thông thường chỉ lọc theo từ khóa, khiến sinh viên dễ gặp tình trạng trùng giờ lên lớp hoặc trễ giờ thi. JOBNEST xây dựng thuật toán đối chiếu hai tầng (Hard Filter + Soft Composite Scoring) để bạn hoàn toàn an tâm đi làm.
+            Các website tuyển dụng thông thường chỉ lọc theo từ khóa, khiến sinh viên dễ gặp tình trạng trùng giờ lên lớp hoặc trễ giờ thi. JOBNEST tự loại bỏ những việc trùng lịch học của bạn, rồi gợi ý việc phù hợp nhất để bạn an tâm vừa học vừa làm.
           </p>
         </div>
 
@@ -478,7 +520,7 @@ export default function HomePage({
               Đối chiếu & Gợi ý chính xác
             </h3>
             <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.55, margin: 0 }}>
-              Bộ lọc cứng loại bỏ ngay việc làm xung đột giờ học. Sau đó hệ thống chấm điểm tương thích thời gian (50%), ngành học (20%), địa điểm (15%), lương (15%).
+              Bộ lọc cứng loại bỏ ngay việc làm xung đột giờ học.
             </p>
           </div>
         </div>
@@ -490,11 +532,26 @@ export default function HomePage({
           borderRadius: 16,
           padding: '24px 28px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            <span style={{ fontSize: 18 }}>🎯</span>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#4C1D95' }}>
-              Minh họa so khớp thực tế từ Matching Engine của JOBNEST
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 18 }}>🎯</span>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#4C1D95' }}>
+                  {personalMatches ? 'JOBNEST đề xuất cho bạn' : 'Ví dụ: JOBNEST gợi ý việc làm theo lịch rảnh của từng sinh viên'}
+                </div>
+              </div>
+              {personalMatches && mySlots.length > 0 && (
+                <div style={{ fontSize: 12.5, color: '#59477B', marginTop: 6 }}>
+                  Theo lịch rảnh trong hồ sơ của bạn: <strong>{summarizeSlots(mySlots)}</strong>
+                </div>
+              )}
             </div>
+            {personalMatches && (
+              <button type="button" onClick={openAvailability}
+                style={{ background: '#ffffff', border: '1.5px solid #C4B5FD', color: '#594675', borderRadius: 8, padding: '6px 12px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' }}>
+                Chỉnh lịch rảnh
+              </button>
+            )}
           </div>
 
           <div style={{
@@ -502,6 +559,29 @@ export default function HomePage({
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: 20
           }}>
+            {personalMatches ? personalMatches.map((job, idx) => (
+              <button
+                key={job.id}
+                type="button"
+                onClick={() => onSelectJob && onSelectJob(job)}
+                style={{ textAlign: 'left', cursor: 'pointer', font: 'inherit', background: '#ffffff', borderRadius: 12, padding: '16px 18px', border: '1px solid #EAE7F0' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontWeight: 800, fontSize: 13.5, color: '#29263A' }}>{job.employer_name}</span>
+                  <span style={{ background: '#DCFCE7', color: '#14532D', fontSize: 12, fontWeight: 800, padding: '2px 8px', borderRadius: 10, whiteSpace: 'nowrap' }}>
+                    Top {idx + 1} Gợi ý: {job.matching_score}%
+                  </span>
+                </div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#5B21B6' }}>
+                  → {job.title}
+                </div>
+                {(job.match_reasons || []).slice(0, 3).map(reason => (
+                  <div key={reason} style={{ fontSize: 12.5, color: '#15803D', fontWeight: 600, marginTop: 4 }}>
+                    ✓ {reason}
+                  </div>
+                ))}
+              </button>
+            )) : (<>
             {/* Case A: Student A */}
             <div style={{ background: '#ffffff', borderRadius: 12, padding: '16px 18px', border: '1px solid #EAE7F0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -539,6 +619,7 @@ export default function HomePage({
                 ✕ Việc làm quán cafe Ca sáng bị loại bỏ vì bạn bận lên lớp
               </div>
             </div>
+            </>)}
           </div>
 
           {/* Action callout */}
@@ -553,12 +634,14 @@ export default function HomePage({
             flexWrap: 'wrap'
           }}>
             <span style={{ fontSize: 13, color: '#59477B', fontWeight: 600 }}>
-              Cơ chế gợi ý cá nhân hóa đã được kích hoạt trên hệ thống máy chủ PostgreSQL.
+              {personalMatches
+                ? 'Đề xuất tự cập nhật mỗi khi bạn lưu lịch rảnh hoặc hồ sơ.'
+                : 'Khai báo lịch rảnh để nhận gợi ý việc làm dành riêng cho bạn.'}
             </span>
-            {currentUser?.role === 'STUDENT' ? (
+            {isStudent ? (
               <button
                 type="button"
-                onClick={() => onNavigateTab && onNavigateTab('student_dashboard')}
+                onClick={openAvailability}
                 style={{
                   background: '#7565A8',
                   color: '#ffffff',
@@ -570,7 +653,7 @@ export default function HomePage({
                   cursor: 'pointer'
                 }}
               >
-                Cài đặt lịch rảnh của bạn ngay →
+                {personalMatches ? 'Xem tất cả đề xuất →' : 'Khai báo lịch rảnh ngay →'}
               </button>
             ) : (
               <button
@@ -626,8 +709,7 @@ export default function HomePage({
             {[
               { id: 'ALL', label: 'Tất cả' },
               { id: 'PART_TIME', label: 'Part-time' },
-              { id: 'FREELANCE', label: 'Freelance' },
-              { id: 'SEASONAL', label: 'Thời vụ' }
+              { id: 'FULL_TIME', label: 'Full-time' }
             ].map(tab => (
               <button
                 key={tab.id}

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  AlertTriangle, Lock, Clock, Home, Search, 
-  ArrowLeft, LogIn, RefreshCw, HelpCircle, ChevronRight 
+import {
+  AlertTriangle, Lock, Clock, Home, Search,
+  ArrowLeft, LogIn, RefreshCw, HelpCircle, ChevronRight, ServerCrash
 } from 'lucide-react';
 
 export default function ErrorPage({
-  type = '404', // '404' | '403' | 'expired'
+  type = '404', // '404' | '403' | 'expired' | 'server'
   customMessage = '',
   onNavigateHome,
   onNavigateJobs,
-  onOpenAuth
+  onOpenAuth,
+  onRetry,
+  retrying = false
 }) {
   const [activeType, setActiveType] = useState(type);
 
@@ -52,11 +54,26 @@ export default function ErrorPage({
       primaryAction: onNavigateJobs,
       secondaryBtnText: 'Về trang chủ',
       secondaryAction: onNavigateHome
+    },
+    'server': {
+      code: 'MẤT KẾT NỐI',
+      icon: ServerCrash,
+      iconColor: '#DC2626',
+      bgColor: '#FEF2F2',
+      borderColor: '#FCA5A5',
+      title: 'Hệ thống tạm thời không khả dụng',
+      description: 'JobNest chưa kết nối được tới máy chủ. Vui lòng thử lại sau ít phút.',
+      detail: customMessage,
+      primaryBtnText: retrying ? 'Đang kết nối lại...' : 'Thử kết nối lại',
+      primaryIcon: RefreshCw,
+      primaryAction: onRetry
     }
   };
 
   const currentConfig = errorConfigs[activeType] || errorConfigs['404'];
   const IconComponent = currentConfig.icon;
+  const PrimaryIcon = currentConfig.primaryIcon || Home;
+  const isServerError = activeType === 'server';
 
   return (
     <div 
@@ -82,8 +99,8 @@ export default function ErrorPage({
           textAlign: 'center'
         }}
       >
-        {/* Variant Selector (Matching Draw.io WF-X02 annotation) */}
-        <div 
+        {/* Variant Selector (Matching Draw.io WF-X02 annotation) — ẩn khi mất kết nối máy chủ */}
+        {!isServerError && <div
           style={{
             display: 'flex',
             borderBottom: '1px solid #E2E8F0',
@@ -142,7 +159,7 @@ export default function ErrorPage({
           >
             Tin hết hạn / Đóng
           </button>
-        </div>
+        </div>}
 
         {/* Card Body */}
         <div style={{ padding: '40px 32px' }}>
@@ -182,15 +199,21 @@ export default function ErrorPage({
             {currentConfig.title}
           </h1>
 
-          <p style={{ fontSize: 14.5, color: '#64748B', lineHeight: 1.6, maxWidth: 460, margin: '0 auto 28px auto' }}>
+          <p style={{ fontSize: 14.5, color: '#64748B', lineHeight: 1.6, maxWidth: 460, margin: currentConfig.detail ? '0 auto 12px auto' : '0 auto 28px auto' }}>
             {currentConfig.description}
           </p>
+          {currentConfig.detail && (
+            <p style={{ fontSize: 12.5, color: '#94A3B8', margin: '0 auto 28px auto' }}>
+              Chi tiết: {currentConfig.detail}
+            </p>
+          )}
 
           {/* Action Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <button
               type="button"
               onClick={currentConfig.primaryAction}
+              disabled={isServerError && retrying}
               style={{
                 width: '100%',
                 padding: '12px 20px',
@@ -208,7 +231,7 @@ export default function ErrorPage({
                 boxShadow: '0 4px 12px rgba(117, 101, 168, 0.25)'
               }}
             >
-              <Home size={17} /> {currentConfig.primaryBtnText}
+              <PrimaryIcon size={17} className={isServerError && retrying ? 'animate-spin' : ''} /> {currentConfig.primaryBtnText}
             </button>
 
             {currentConfig.secondaryBtnText && (

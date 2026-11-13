@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Lock, KeyRound, Mail, Phone, ShieldCheck, 
+  Lock, KeyRound, Mail, ShieldCheck, 
   AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, 
   Sparkles, ArrowLeft, RefreshCw 
 } from 'lucide-react';
@@ -10,10 +10,9 @@ export default function AccountSettingsPage({
   currentUser,
   onNavigateBack,
   showToast,
-  embedded = false
+  embedded = false,
+  onNavigateProfile
 }) {
-  const [activeTab, setActiveTab] = useState('password'); // 'password' | 'contact'
-
   // Change Password Form State
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -23,10 +22,6 @@ export default function AccountSettingsPage({
   const [submittingPassword, setSubmittingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
-
-  // Update Email/Phone Form State
-  const [newEmail, setNewEmail] = useState('');
-  const [newPhone, setNewPhone] = useState('');
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -93,74 +88,15 @@ export default function AccountSettingsPage({
       {embedded && (
         <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #F1F5F9' }}>
           <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text, #0F172A)', margin: '0 0 4px 0' }}>
-            Cài đặt tài khoản & Bảo mật (WF-X03)
+            Cài đặt tài khoản & Bảo mật
           </h2>
           <p style={{ color: 'var(--color-text-secondary, #64748B)', fontSize: 13, margin: 0 }}>
-            Quản lý mật khẩu đăng nhập, bảo mật 2 lớp và cập nhật thông tin liên hệ
+            Đổi mật khẩu đăng nhập và xem thông tin tài khoản
           </p>
         </div>
       )}
 
-      {/* Subtabs switcher (WF-X03) */}
-      <div 
-        style={{
-          display: 'flex',
-          gap: 12,
-          borderBottom: '2px solid #E2E8F0',
-          marginBottom: 24
-        }}
-      >
-          <button
-            onClick={() => {
-              setActiveTab('password');
-              setPasswordError('');
-              setPasswordSuccess('');
-            }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '12px 18px',
-              border: 'none',
-              background: 'transparent',
-              fontSize: 14.5,
-              fontWeight: activeTab === 'password' ? 700 : 500,
-              color: activeTab === 'password' ? '#7565A8' : '#64748B',
-              borderBottom: activeTab === 'password' ? '3px solid #7565A8' : '3px solid transparent',
-              cursor: 'pointer',
-              marginBottom: -2
-            }}
-          >
-            <KeyRound size={17} /> Đổi mật khẩu
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveTab('contact');
-              setPasswordError('');
-              setPasswordSuccess('');
-            }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '12px 18px',
-              border: 'none',
-              background: 'transparent',
-              fontSize: 14.5,
-              fontWeight: activeTab === 'contact' ? 700 : 500,
-              color: activeTab === 'contact' ? '#7565A8' : '#64748B',
-              borderBottom: activeTab === 'contact' ? '3px solid #7565A8' : '3px solid transparent',
-              cursor: 'pointer',
-              marginBottom: -2
-            }}
-          >
-            <Mail size={17} /> Cập nhật Email / Số điện thoại
-          </button>
-        </div>
-
         {/* TAB 1: ĐỔI MẬT KHẨU (WF-X03) */}
-        {activeTab === 'password' && (
           <div 
             style={{
               background: '#ffffff',
@@ -339,51 +275,53 @@ export default function AccountSettingsPage({
               </div>
             </form>
           </div>
-        )}
 
-        {/* TAB 2: CẬP NHẬT EMAIL / SỐ ĐIỆN THOẠI (WF-X03 ANNOTATION TBD) */}
-        {activeTab === 'contact' && (
-          <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: 16,
-              border: '1.5px solid #000000',
-              padding: '32px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
-            }}
-          >
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>
-              Thông tin liên lạc tài khoản
-            </h2>
-            <p style={{ fontSize: 13.5, color: '#64748B', marginBottom: 24 }}>
-              Thông tin địa chỉ email và số điện thoại dùng để nhận thông báo công việc từ Nhà tuyển dụng và hệ thống.
-            </p>
-
-            {/* Current Badges */}
-            <div style={{ background: '#F8FAFC', padding: '16px 20px', borderRadius: 12, border: '1px solid #E2E8F0', marginBottom: 20 }}>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: 12 }}>
-                Thông tin hiện tại
-              </h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, fontSize: 13.5 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Mail size={16} color="#7565A8" />
-                  <span>Email: <strong>{currentUser?.email || 'chua_cap_nhat@jobnest.vn'}</strong></span>
-                  <span style={{ fontSize: 11, background: '#DCFCE7', color: '#166534', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
-                    Hoạt động
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Phone size={16} color="#7565A8" />
-                  <span>SĐT: <strong>{currentUser?.phone || '0987654321'}</strong></span>
-                  <span style={{ fontSize: 11, background: '#DCFCE7', color: '#166534', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
-                    Hoạt động
-                  </span>
-                </div>
+        {/* Thông tin đăng nhập (chỉ xem). SĐT & liên hệ được sửa trong Hồ sơ */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: 16,
+            border: '1px solid #E2E8F0',
+            padding: '24px 32px',
+            marginTop: 20,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+            flexWrap: 'wrap'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#EDE9FE', color: '#7565A8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Mail size={18} />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 12.5, color: '#64748B', fontWeight: 600 }}>Email đăng nhập</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentUser?.email || '—'}</div>
+              <div style={{ fontSize: 12.5, color: '#64748B', marginTop: 4 }}>
+                Số điện thoại và thông tin liên hệ được cập nhật trong trang Hồ sơ.
               </div>
             </div>
           </div>
-        )}
+          {onNavigateProfile && (
+            <button
+              type="button"
+              onClick={onNavigateProfile}
+              style={{
+                padding: '9px 16px',
+                borderRadius: 8,
+                border: '1.5px solid #7565A8',
+                background: '#ffffff',
+                color: '#7565A8',
+                fontSize: 13.5,
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              Đi tới Hồ sơ
+            </button>
+          )}
+        </div>
       </div>
   );
 

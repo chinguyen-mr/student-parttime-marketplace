@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Mail, Lock, Eye, EyeOff, User, Building2, Shield, 
-  CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, KeyRound, Clock, Award
+  CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, Clock, Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { API_BASE, formatApiError } from '../../config/api';
@@ -281,55 +281,6 @@ export default function LoginPage({
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.18 }}
           >
-            {/* Dev-only 1-Click Login Chips (Không bao giờ lộ Admin hoặc kích hoạt trên Production) */}
-            {(import.meta.env.DEV || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))) && (
-              <div style={{
-                marginBottom: '16px',
-                padding: '10px 12px',
-                background: '#F6F4FB',
-                borderRadius: '8px',
-                border: '1px dashed #7565A8'
-              }}>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: '#594675', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <KeyRound size={14} />
-                  <span>Đăng nhập nhanh 1-Click (Chỉ dành cho Demo/Dev):</span>
-                </div>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => { setLoginEmail('student.test@vlu.edu.vn'); setLoginPassword('password123'); if (loginError) setLoginError(''); }}
-                    style={{
-                      padding: '4px 10px',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      background: '#FFFFFF',
-                      border: '1px solid #7565A8',
-                      borderRadius: '6px',
-                      color: '#594675',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    🎓 Sinh viên Test
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setLoginEmail('employer.test@vlu.edu.vn'); setLoginPassword('password123'); if (loginError) setLoginError(''); }}
-                    style={{
-                      padding: '4px 10px',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      background: '#FFFFFF',
-                      border: '1px solid #F4B99D',
-                      borderRadius: '6px',
-                      color: '#8A4A28',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    🏢 NTD Test
-                  </button>
-                </div>
-              </div>
-            )}
 
             <form onSubmit={handleLoginSubmit}>
               {/* Email (k213, k214) */}

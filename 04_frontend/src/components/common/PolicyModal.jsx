@@ -126,7 +126,7 @@ export default function PolicyModal({
                 VỀ JOBNEST — NỀN TẢNG VIỆC LÀM SINH VIÊN THEO LỊCH RẢNH
               </h4>
               <p style={{ marginBottom: 14 }}>
-                <strong>JOBNEST</strong> là nền tảng công nghệ kết nối việc làm bán thời gian (Part-time), việc làm thời vụ (Seasonal) và dự án tự do (Freelance) được thiết kế chuyên biệt dành riêng cho sinh viên tại Việt Nam.
+                <strong>JOBNEST</strong> là nền tảng công nghệ kết nối việc làm bán thời gian (Part-time) và toàn thời gian (Full-time) được thiết kế chuyên biệt dành riêng cho sinh viên tại Việt Nam.
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginBottom: 18 }}>
@@ -144,7 +144,7 @@ export default function PolicyModal({
                     ⚙️ Thuật toán đối chiếu 2 tầng
                   </div>
                   <div style={{ fontSize: 13, color: '#554E60', lineHeight: 1.6 }}>
-                    Hard Filter tự động loại bỏ triệt để các ca làm trùng lịch học; Composite Scoring thông minh gợi ý việc làm gần trường, đúng chuyên ngành và thù lao tối ưu.
+                    Tự động loại bỏ các ca làm trùng lịch học, rồi gợi ý việc làm gần trường, đúng chuyên ngành và mức thù lao phù hợp.
                   </div>
                 </div>
 
@@ -168,7 +168,7 @@ export default function PolicyModal({
               </div>
 
               <div style={{ background: '#FFF9F6', border: '1px solid #F5DCD0', borderRadius: 10, padding: 14, fontSize: 13, color: '#6A4F44', lineHeight: 1.6 }}>
-                💡 <strong>Cam kết kỹ thuật & bảo mật:</strong> Hệ thống được vận hành trên hạ tầng cơ sở dữ liệu quan hệ PostgreSQL chuẩn mực, đảm bảo tính toàn vẹn dữ liệu, khả năng đáp ứng hàng chục nghìn lượt truy cập và mã hóa bảo mật thông tin tối đa.
+                💡 <strong>Cam kết bảo mật:</strong> Thông tin cá nhân của bạn được lưu trữ an toàn, mật khẩu được mã hóa và chỉ những người có quyền mới xem được hồ sơ của bạn.
               </div>
             </div>
           )}
@@ -179,7 +179,7 @@ export default function PolicyModal({
                 1. ĐIỀU KHOẢN DỊCH VỤ DÀNH CHO NGƯỜI DÙNG JOBNEST
               </h4>
               <p style={{ marginBottom: 12 }}>
-                Chào mừng bạn đến với <strong>JobNest</strong> — Nền tảng việc làm Part-time & Freelance kết nối sinh viên và nhà tuyển dụng. Bằng việc truy cập hoặc sử dụng hệ thống, bạn đồng ý tuân thủ các điều khoản sau:
+                Chào mừng bạn đến với <strong>JobNest</strong> — Nền tảng việc làm Part-time & Full-time kết nối sinh viên và nhà tuyển dụng. Bằng việc truy cập hoặc sử dụng hệ thống, bạn đồng ý tuân thủ các điều khoản sau:
               </p>
               <ul style={{ paddingLeft: 20, marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <li><strong>Tài khoản sinh viên:</strong> Sinh viên cam kết cung cấp thông tin học vấn, kỹ năng và hồ sơ CV trung thực. Không sử dụng tài khoản để nhận công việc thay cho người khác.</li>
@@ -233,29 +233,29 @@ export default function PolicyModal({
                   <div style={{ fontWeight: 700, color: '#594675', marginBottom: 6 }}>🎓 Dành cho Sinh viên</div>
                   <div style={{ fontSize: 12.5, color: '#777080', display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <div>• Tìm kiếm việc làm part-time</div>
-                    <div>• Quản lý đơn ứng tuyển (Màn 8)</div>
-                    <div>• Hồ sơ năng lực & CV (Màn 9)</div>
-                    <div>• Đánh giá nhà tuyển dụng (Màn 13)</div>
+                    <div>• Quản lý đơn ứng tuyển</div>
+                    <div>• Hồ sơ năng lực & CV</div>
+                    <div>• Đánh giá nhà tuyển dụng</div>
                   </div>
                 </div>
 
                 <div style={{ background: '#FBFAFD', border: '1px solid #EAE5F0', borderRadius: 8, padding: 12 }}>
                   <div style={{ fontWeight: 700, color: '#594675', marginBottom: 6 }}>🏢 Nhà tuyển dụng</div>
                   <div style={{ fontSize: 12.5, color: '#777080', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div>• Đăng tin tuyển dụng (Màn 11)</div>
-                    <div>• Quản lý tin đăng (Màn 10)</div>
-                    <div>• Duyệt hồ sơ ứng viên (Màn 12)</div>
-                    <div>• Hồ sơ doanh nghiệp (Màn 14)</div>
+                    <div>• Đăng tin tuyển dụng</div>
+                    <div>• Quản lý tin đăng</div>
+                    <div>• Duyệt hồ sơ ứng viên</div>
+                    <div>• Hồ sơ doanh nghiệp</div>
                   </div>
                 </div>
 
                 <div style={{ background: '#FBFAFD', border: '1px solid #EAE5F0', borderRadius: 8, padding: 12 }}>
                   <div style={{ fontWeight: 700, color: '#594675', marginBottom: 6 }}>🛡️ Quản trị hệ thống</div>
                   <div style={{ fontSize: 12.5, color: '#777080', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div>• Quản lý người dùng (Màn 5)</div>
+                    <div>• Quản lý người dùng</div>
                     <div>• Phê duyệt tin tuyển dụng</div>
-                    <div>• Quản trị thông báo (Màn 4)</div>
-                    <div>• Thống kê việc làm PostgreSQL 18</div>
+                    <div>• Quản trị thông báo</div>
+                    <div>• Thống kê việc làm</div>
                   </div>
                 </div>
               </div>

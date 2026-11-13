@@ -291,7 +291,8 @@ export default function EmployerApplicantsPage({
             </span>
           </button>
 
-          <button
+          {/* Tab Đề xuất Freelance đã tắt: JobNest chỉ có Part-time/Full-time */}
+          {false && <button
             onClick={() => setActiveTab('proposals')}
             style={{
               padding: '10px 18px',
@@ -311,7 +312,7 @@ export default function EmployerApplicantsPage({
             <span style={{ fontSize: 11, background: '#E2E8F0', padding: '2px 8px', borderRadius: 10, color: '#334155' }}>
               {filteredProposals.length}
             </span>
-          </button>
+          </button>}
         </div>
 
         {/* CTA to WF-E08 Candidate Selection */}

@@ -12,6 +12,9 @@ export const API_BASE = (() => {
 export const SERVER_BASE = API_BASE.replace(/\/api(\/v1)?\/?$/, '');
 export const HEALTH_ENDPOINT = `${SERVER_BASE}/health`;
 
+/** File tải lên được lưu dạng đường dẫn tương đối "/api/files/:id" → ghép với địa chỉ backend. */
+export const resolveFileUrl = (url) => (url && url.startsWith('/api/') ? `${SERVER_BASE}${url}` : url || null);
+
 /**
  * Checks if the backend server is reachable and database is healthy
  * @param {number} timeoutMs 
@@ -33,20 +36,20 @@ export async function checkBackendConnection(timeoutMs = 4000) {
       return {
         ok: true,
         dbOk: data.db === 'ok',
-        message: 'Kết nối máy chủ Backend thành công.'
+        message: 'Kết nối hệ thống thành công.'
       };
     }
 
     return {
       ok: false,
       dbOk: false,
-      message: `Máy chủ phản hồi với mã trạng thái ${res.status}`
+      message: `Máy chủ đang gặp sự cố (mã ${res.status}).`
     };
   } catch (err) {
     if (err.name === 'AbortError') {
-      return { ok: false, dbOk: false, message: 'Kết nối máy chủ Backend bị quá thời gian chờ (Timeout).' };
+      return { ok: false, dbOk: false, message: 'Máy chủ phản hồi quá chậm.' };
     }
-    return { ok: false, dbOk: false, message: 'Không thể kết nối đến máy chủ Backend (Port 5000).' };
+    return { ok: false, dbOk: false, message: 'Không kết nối được tới máy chủ.' };
   }
 }
 
@@ -61,11 +64,11 @@ export function formatApiError(err, res = null) {
     if (res.status === 401) return 'Phiên đăng nhập hết hạn hoặc thông tin xác thực không chính xác.';
     if (res.status === 403) return 'Bạn không có quyền thực hiện hành động này.';
     if (res.status === 404) return 'Không tìm thấy dữ liệu yêu cầu trên hệ thống.';
-    if (res.status >= 500) return 'Máy chủ Backend đang gặp sự cố nội bộ. Vui lòng thử lại sau.';
+    if (res.status >= 500) return 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.';
   }
 
   if (err?.name === 'TypeError' && err?.message?.includes('fetch')) {
-    return 'Không thể kết nối đến máy chủ Backend (Port 5000). Vui lòng kiểm tra dịch vụ.';
+    return 'Không kết nối được tới máy chủ. Vui lòng thử lại sau.';
   }
 
   return err?.message || 'Đã có lỗi xảy ra trong quá trình xử lý yêu cầu.';

@@ -9,7 +9,10 @@ import {
  * Hiển thị vị trí làm việc của tin tuyển dụng trên Google Maps Embed chuẩn quốc tế.
  * Tự động đồng bộ với địa chỉ thực tế và tọa độ GPS của từng tin tuyển dụng.
  */
-export default function JobLocationMap({ job }) {
+// title / exactLabel / mapHeight: mặc định giữ nguyên hiển thị ở trang chi tiết việc làm;
+// trang hồ sơ công ty truyền giá trị riêng.
+// strictPrecision: chỉ coi là chính xác khi có tọa độ thật (không dựa vào việc địa chỉ có chữ số)
+export default function JobLocationMap({ job, title = 'Vị trí làm việc', exactLabel = 'Địa chỉ xác thực', approxLabel = 'Vị trí khu vực (Ước lượng)', mapHeight = 280, strictPrecision = false }) {
   const [iframeLoaded, setIframeLoaded] = useState(false);
 
   if (!job) return null;
@@ -46,7 +49,7 @@ export default function JobLocationMap({ job }) {
               gap: 8,
             }}
           >
-            <MapPin size={16} color="#594675" /> Vị trí làm việc
+            <MapPin size={16} color="#594675" /> {title}
           </h4>
           <span
             style={{
@@ -158,7 +161,7 @@ export default function JobLocationMap({ job }) {
   const lng = Number(job.longitude);
 
   // Kiểm tra xem địa chỉ có phải là địa chỉ chi tiết (có số nhà / đường) hay chỉ là khu vực quận/huyện
-  const isApproximate = !hasCoordinates && !(/\d+/.test(displayAddress));
+  const isApproximate = strictPrecision ? !hasCoordinates : (!hasCoordinates && !(/\d+/.test(displayAddress)));
 
   // Query cho Google Maps Embed:
   // Nếu có tọa độ GPS chính xác (như Job 3 The Coffee Chill: 10.827725, 106.699712) -> ghim đúng vị trí!
@@ -197,7 +200,7 @@ export default function JobLocationMap({ job }) {
             gap: 8,
           }}
         >
-          <MapPin size={16} color="#EA4335" /> Vị trí làm việc
+          <MapPin size={16} color="#EA4335" /> {title}
         </h4>
 
         {isApproximate ? (
@@ -212,7 +215,7 @@ export default function JobLocationMap({ job }) {
               border: '1px solid #FDE68A',
             }}
           >
-            Vị trí khu vực (Ước lượng)
+            {approxLabel}
           </span>
         ) : (
           <span
@@ -229,7 +232,7 @@ export default function JobLocationMap({ job }) {
               gap: 3,
             }}
           >
-            <CheckCircle2 size={11} /> Địa chỉ xác thực
+            <CheckCircle2 size={11} /> {exactLabel}
           </span>
         )}
       </div>
@@ -252,7 +255,7 @@ export default function JobLocationMap({ job }) {
         style={{
           position: 'relative',
           width: '100%',
-          height: 280,
+          height: mapHeight,
           borderRadius: 10,
           overflow: 'hidden',
           border: '1px solid #EAE5F0',

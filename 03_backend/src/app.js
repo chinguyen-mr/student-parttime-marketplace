@@ -7,6 +7,8 @@ const profileRoutes = require('./modules/auth/profile.routes');
 const jobRoutes = require('./modules/jobs/job.routes');
 const applicationRoutes = require('./modules/applications/application.routes');
 const reviewRoutes = require('./modules/reviews/review.routes');
+const experienceReviewRoutes = require('./modules/reviews/experience-review.routes');
+const experienceReviewAdminRoutes = require('./modules/reviews/experience-review.admin.routes');
 const adminRoutes = require('./modules/reports/admin.routes');
 const reportRoutes = require('./modules/reports/report.routes');
 const selectionRoutes = require('./modules/selections/selection.routes');
@@ -14,6 +16,7 @@ const notificationRoutes = require('./modules/notifications/notification.routes'
 const proposalRoutes = require('./modules/proposals/proposal.routes');
 const assignmentRoutes = require('./modules/assignments/assignment.routes');
 const webhookRoutes = require('./modules/webhooks/webhook.routes');
+const fileRoutes = require('./modules/files/file.routes');
 const errorHandler = require('./middleware/error.middleware');
 const { NotFoundError } = require('./utils/app-error');
 const db = require('./config/db');
@@ -62,6 +65,8 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
+// Ảnh tải lên gửi dạng base64 nên cần giới hạn lớn hơn mặc định 100kb (phải đứng trước parser chung)
+app.use(['/api/files', '/api/v1/files'], express.json({ limit: '8mb' }));
 app.use(express.json());
 
 // Root Endpoint & Favicon (Phản hồi thân thiện khi mở cổng 5000 trên trình duyệt)
@@ -105,6 +110,11 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/v1/applications', applicationRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
+// Đánh giá doanh nghiệp & công việc của ứng viên (migration 014)
+app.use('/api/reviews', experienceReviewRoutes);
+app.use('/api/v1/reviews', experienceReviewRoutes);
+app.use('/api/admin/reviews', experienceReviewAdminRoutes);
+app.use('/api/v1/admin/reviews', experienceReviewAdminRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/reports', reportRoutes);
@@ -115,6 +125,8 @@ app.use('/api/proposals', proposalRoutes);
 app.use('/api/v1/proposals', proposalRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/v1/assignments', assignmentRoutes);
+app.use('/api/files', fileRoutes);
+app.use('/api/v1/files', fileRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/v1/webhooks', webhookRoutes);
 

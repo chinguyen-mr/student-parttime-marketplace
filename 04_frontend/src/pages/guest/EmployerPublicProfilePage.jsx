@@ -1,705 +1,539 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Building2, User, MapPin, Mail, Phone, Calendar, 
-  CheckCircle2, Flag, ArrowLeft, Briefcase, Clock, 
-  DollarSign, Sparkles, AlertCircle, RefreshCw, ChevronRight,
-  ExternalLink, ShieldCheck
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Building2, MapPin, Users, Calendar, Briefcase, Globe, Mail, Phone, Flag, ArrowLeft, RefreshCw,
+  ShieldCheck, ShieldAlert, Clock3, CheckCircle2, CircleDashed, X, ChevronLeft, ChevronRight, Search, Award
 } from 'lucide-react';
-import { API_BASE, formatApiError } from '../../config/api';
+import { API_BASE, resolveFileUrl } from '../../config/api';
+import CompanyLogo from '../../components/common/CompanyLogo';
+import JobCard from '../../components/common/JobCard';
+import JobLocationMap from '../../components/common/JobLocationMap';
 import ReportViolationModal from '../../components/forms/ReportViolationModal';
+import CompanyReviewsSection from '../../components/reviews/CompanyReviewsSection';
+import { applyBlockReason, salaryOptionsFor, matchesSalaryFilter, shortLocation } from '../../utils/jobDisplay';
 
+const ACCOUNT_LABEL = { BUSINESS: 'Doanh nghiệp', INDIVIDUAL: 'Nhà tuyển dụng cá nhân / Hộ kinh doanh' };
+const SOCIAL_LABEL = { facebook: 'Facebook', linkedin: 'LinkedIn', tiktok: 'TikTok', youtube: 'YouTube', instagram: 'Instagram' };
+const JOBS_STEP = 6;
+
+const monthYear = (d) => {
+  if (!d) return null;
+  const t = new Date(d);
+  return Number.isNaN(t.getTime()) ? null : `${String(t.getMonth() + 1).padStart(2, '0')}/${t.getFullYear()}`;
+};
+const hostOf = (url) => { try { return new URL(url).host.replace(/^www\./, ''); } catch { return url; } };
+// Khu vực: bỏ phần số nhà/tên đường, giữ quận/khu vực + tỉnh/thành
+const areaOf = (loc) => {
+  const parts = String(loc || '').split(',').map(x => x.trim()).filter(x => x && !/^(số\s*)?[0-9]/i.test(x));
+  return parts.length ? parts.slice(-2).join(', ') : null;
+};
+const cityOf = (job) => { const s = shortLocation(job); return s ? s.split(',').pop().trim() : null; };
+
+const card = { background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', padding: '22px 24px', boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)' };
+const h2 = { fontSize: 19, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 16px 0' };
+const h3 = { fontSize: 15, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 6px 0' };
+const para = { fontSize: 14.5, color: '#334155', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-line', overflowWrap: 'anywhere', maxWidth: '75ch' };
+const chip = (bg, color, border) => ({ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: bg, color, border: `1px solid ${border}` });
+const btnPrimary = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: 'none', background: '#7565A8', color: '#ffffff', fontSize: 13.5, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' };
+const btnOutline = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 14px', borderRadius: 10, border: '1.5px solid #CBD5E1', background: '#ffffff', color: '#334155', fontSize: 13.5, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' };
+const btnLink = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 4px', border: 'none', background: 'none', color: '#7565A8', fontSize: 13, fontWeight: 700, cursor: 'pointer' };
+const control = { padding: '8px 12px', borderRadius: 10, border: '1.5px solid #E2E8F0', fontSize: 13, fontWeight: 600, color: '#334155', background: '#ffffff', minWidth: 0 };
+const lbBtn = { position: 'absolute', width: 42, height: 42, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.15)', color: '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+
+function TextBlock({ title, text }) {
+  if (!text) return null;
+  return <div className="company-block"><h3 style={h3}>{title}</h3><p style={para}>{text}</p></div>;
+}
+
+function VerifyRow({ label, state, hint }) {
+  const s = {
+    ok: { icon: CheckCircle2, color: '#047857', text: 'Đã xác minh' },
+    pending: { icon: Clock3, color: '#B45309', text: 'Đang chờ duyệt' },
+    no: { icon: CircleDashed, color: '#94A3B8', text: 'Chưa xác minh' },
+  }[state];
+  const Icon = s.icon;
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, padding: '10px 0', borderTop: '1px solid #F1F5F9' }}>
+      <div>
+        <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--color-text)' }}>{label}</div>
+        {hint && <div style={{ fontSize: 11.5, color: '#94A3B8', marginTop: 2 }}>{hint}</div>}
+      </div>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12.5, fontWeight: 700, color: s.color, whiteSpace: 'nowrap' }}>
+        <Icon size={14} /> {s.text}
+      </span>
+    </div>
+  );
+}
+
+function ContactRow({ icon: Icon, label, children }) {
+  if (!children) return null;
+  return (
+    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 0', borderTop: '1px solid #F1F5F9' }}>
+      <Icon size={16} color="#7565A8" style={{ flexShrink: 0, marginTop: 2 }} />
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontSize: 12, color: '#64748B' }}>{label}</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', overflowWrap: 'anywhere' }}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/** Trang hồ sơ công khai của nhà tuyển dụng (4 mục: Tổng quan, Giới thiệu, Tin tuyển dụng, Liên hệ). Chỉ dữ liệu thật. */
 export default function EmployerPublicProfilePage({
   employerId,
   currentUser = null,
-  onNavigateHome,
   onNavigateJobs,
   onSelectJob,
   onOpenAuth,
-  showToast
+  showToast,
+  savedJobIds = [],
+  onToggleSave,
 }) {
-  const FALLBACK_PROFILE = {
-    id: employerId || 1,
-    full_name: 'Nguyễn Văn A',
-    company_name: 'Nguyễn Văn A',
-    display_name: 'Nguyễn Văn A',
-    business_license: false,
-    avatar_url: null,
-    company_logo_url: null,
-    bio: 'Giới thiệu ngắn về nhà tuyển dụng (Bio). Nhà tuyển dụng cá nhân uy tín, hỗ trợ sinh viên các công việc bán thời gian và linh hoạt.',
-    location: 'TP. Hồ Chí Minh',
-    company_address: 'TP. Hồ Chí Minh',
-    email: 'nguyenvana@jobnest.vn',
-    phone: '0901234567',
-    created_at: '2026-01-15T08:00:00Z',
-  };
-
-  const FALLBACK_JOBS = [
-    {
-      id: 1,
-      title: 'Phục vụ quán cà phê',
-      employer_name: 'Quán ABC',
-      company_name: 'Quán ABC',
-      salary: 25000,
-      salary_type: 'HOURLY',
-      location: 'Quận 1',
-      work_type: 'PART_TIME',
-      created_at: '2026-10-12T00:00:00Z',
-    },
-    {
-      id: 2,
-      title: 'Nhân viên sự kiện Tết',
-      employer_name: 'Cá nhân',
-      company_name: 'Cá nhân',
-      salary: 300000,
-      salary_type: 'DAILY',
-      location: 'Quận 7',
-      work_type: 'SEASONAL',
-      created_at: '2026-10-10T00:00:00Z',
-    },
-    {
-      id: 3,
-      title: 'Thiết kế logo thương hiệu',
-      employer_name: 'Cá nhân',
-      company_name: 'Cá nhân',
-      salary: 2000000,
-      salary_type: 'PROJECT',
-      location: 'Từ xa',
-      work_type: 'FREELANCE',
-      created_at: '2026-10-09T00:00:00Z',
-    }
-  ];
-
   const [profile, setProfile] = useState(null);
   const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeFilter, setActiveFilter] = useState('ALL'); // 'ALL' | 'PART_TIME' | 'FREELANCE' | 'SEASONAL'
-  const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [status, setStatus] = useState('loading'); // loading | ready | notfound | error
+  const [keyword, setKeyword] = useState('');
+  const [workFilter, setWorkFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [cityFilter, setCityFilter] = useState('');
+  const [salaryFilter, setSalaryFilter] = useState('');
+  const [visibleJobs, setVisibleJobs] = useState(JOBS_STEP);
+  const [bioExpanded, setBioExpanded] = useState(false);
+  const [lightbox, setLightbox] = useState(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reviewToReport, setReviewToReport] = useState(null);
+  const [activeSection, setActiveSection] = useState('overview');
+  const navRef = useRef(null);
+  const clickLockRef = useRef(null); // khi bấm tab: giữ tab đó cho tới khi cuộn xong
 
-  const fetchProfileAndJobs = async () => {
-    setLoading(true);
-    setError(null);
-
+  const load = useCallback(async () => {
+    if (!employerId) { setStatus('notfound'); return; }
+    setStatus('loading');
     try {
-      // 1. Fetch Employer Public Profile
-      let profLoaded = null;
-      try {
-        const profRes = await fetch(`${API_BASE}/profile/${employerId || 1}`);
-        if (profRes.ok) {
-          const profData = await profRes.json();
-          profLoaded = profData.data || profData;
-        }
-      } catch {
-        // quiet fallback
-      }
-
-      setProfile(profLoaded || FALLBACK_PROFILE);
-
-      // 2. Fetch Public Jobs published by this Employer
-      let jobsLoaded = [];
-      try {
-        const jobsRes = await fetch(`${API_BASE}/jobs?employerId=${employerId || 1}&limit=50`);
-        if (jobsRes.ok) {
-          const jobsData = await jobsRes.json();
-          jobsLoaded = jobsData.data || [];
-        }
-      } catch {
-        // quiet fallback
-      }
-
-      setJobs(jobsLoaded && jobsLoaded.length > 0 ? jobsLoaded : FALLBACK_JOBS);
+      const [pRes, jRes] = await Promise.all([
+        fetch(`${API_BASE}/profile/${employerId}`),
+        fetch(`${API_BASE}/jobs?employerId=${employerId}&limit=200`),
+      ]);
+      if (pRes.status === 404) { setStatus('notfound'); return; }
+      const pData = await pRes.json();
+      if (!pRes.ok || !pData.success) throw new Error(pData.message);
+      const jData = jRes.ok ? await jRes.json() : { data: [] };
+      setProfile(pData.data);
+      setJobs(Array.isArray(jData.data) ? jData.data : []);
+      setStatus('ready');
     } catch {
-      setProfile(FALLBACK_PROFILE);
-      setJobs(FALLBACK_JOBS);
-    } finally {
-      setLoading(false);
+      setStatus('error');
     }
-  };
-
-  useEffect(() => {
-    fetchProfileAndJobs();
   }, [employerId]);
 
-  // Filter jobs by work type
-  const filteredJobs = jobs.filter(job => {
-    if (activeFilter === 'ALL') return true;
-    return job.work_type === activeFilter;
-  });
+  useEffect(() => { load(); }, [load]);
 
-  // Format currency
-  const formatSalary = (amount, type) => {
-    if (!amount) return 'Thỏa thuận';
-    const num = Number(amount).toLocaleString('vi-VN');
-    if (type === 'HOURLY') return `${num} đ/giờ`;
-    if (type === 'DAILY') return `${num} đ/ngày`;
-    if (type === 'MONTHLY') return `${num} đ/tháng`;
-    return `${num} đ/dự án`;
+  // API chỉ trả tin OPEN + đã duyệt; loại thêm tin đã quá hạn nhận hồ sơ
+  const openJobs = useMemo(() => jobs.filter(j => !applyBlockReason(j)), [jobs]);
+  const categories = useMemo(() => [...new Set(openJobs.map(j => j.category).filter(Boolean))].sort(), [openJobs]);
+  const cities = useMemo(() => [...new Set(openJobs.map(cityOf).filter(Boolean))].sort(), [openJobs]);
+  const filteredJobs = useMemo(() => {
+    const q = keyword.trim().toLowerCase();
+    return openJobs
+      .filter(j => !q || (j.title || '').toLowerCase().includes(q))
+      .filter(j => !workFilter || j.work_type === workFilter)
+      .filter(j => !categoryFilter || j.category === categoryFilter)
+      .filter(j => !cityFilter || cityOf(j) === cityFilter)
+      .filter(j => matchesSalaryFilter(j, salaryFilter));
+  }, [openJobs, keyword, workFilter, categoryFilter, cityFilter, salaryFilter]);
+  useEffect(() => { setVisibleJobs(JOBS_STEP); }, [keyword, workFilter, categoryFilter, cityFilter, salaryFilter]);
+  const filtersActive = Boolean(keyword || workFilter || categoryFilter || cityFilter || salaryFilter);
+  const clearFilters = () => { setKeyword(''); setWorkFilter(''); setCategoryFilter(''); setCityFilter(''); setSalaryFilter(''); };
+
+  const p = profile;
+  const hasAbout = Boolean(p && ([p.bio, p.industry, p.company_type, p.products_services, p.mission, p.core_values, p.achievements,
+    p.work_environment_desc, p.benefits, p.hr_policies].some(Boolean) || p.office_images?.length));
+  const mapAddress = p ? (p.headquarters || p.location || p.province) : null;
+  const hasContact = Boolean(p && (p.website || p.public_email || p.public_phone || mapAddress || p.branches?.length || Object.keys(p.social_links || {}).length));
+
+  // Luôn giữ đủ 5 mục; mục chưa có dữ liệu hiển thị 1 dòng thông báo thay vì khung rỗng
+  const sections = useMemo(() => [
+    ['overview', 'Tổng quan'],
+    ['about', 'Giới thiệu'],
+    ['jobs', 'Tin tuyển dụng'],
+    ['reviews', 'Đánh giá'],
+    ['contact', 'Liên hệ'],
+  ], []);
+
+  // Vị trí đặt tiêu đề khi bấm tab = ngay dưới header trang + thanh tab (đo thật) + khoảng thở
+  const stickyOffset = () => {
+    const headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--app-header-h'), 10) || 84;
+    return headerH + (navRef.current?.offsetHeight || 48) + 16;
   };
+  // Vạch nhận diện mục đang xem: thấp hơn vị trí trên một chút để tiêu đề vừa hiện dưới thanh tab là đổi tab
+  const spyLine = () => stickyOffset() + Math.min(140, window.innerHeight * 0.2);
 
-  // Format date
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    try {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    } catch {
-      return dateStr;
-    }
+  // Scroll-spy: mục cuối cùng có tiêu đề đã qua vạch nhận diện; chạm đáy trang → mục cuối
+  useEffect(() => {
+    if (status !== 'ready') return undefined;
+    const update = () => {
+      if (clickLockRef.current) return;
+      const line = spyLine();
+      let current = sections[0][0];
+      for (const [id] of sections) {
+        const el = document.getElementById(`company-${id}`);
+        if (el && el.getBoundingClientRect().top <= line) current = id;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = sections[sections.length - 1][0];
+      setActiveSection(current);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => { window.removeEventListener('scroll', update); window.removeEventListener('resize', update); };
+  }, [status, sections]);
+
+  const goTo = (id) => {
+    const el = document.getElementById(`company-${id}`);
+    if (!el) return;
+    setActiveSection(id);
+    const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset();
+    // Giữ tab vừa bấm cho tới khi cuộn mượt dừng hẳn (không nhảy qua các tab ở giữa)
+    clearTimeout(clickLockRef.current);
+    let last = -1;
+    const waitStop = () => {
+      if (Math.abs(window.scrollY - last) < 1) { clickLockRef.current = null; return; }
+      last = window.scrollY;
+      clickLockRef.current = setTimeout(waitStop, 120);
+    };
+    clickLockRef.current = setTimeout(waitStop, 150);
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
   };
+  useEffect(() => () => clearTimeout(clickLockRef.current), []);
 
-  return (
-    <div style={{ background: '#F8FAFC', minHeight: '100vh', paddingBottom: 60 }}>
-      {/* Top Breadcrumb & Navigation */}
-      <div style={{ background: '#ffffff', borderBottom: '1.5px solid #000000', padding: '12px 24px' }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: '#64748B' }}>
-            <span style={{ background: '#7565A8', color: '#ffffff', padding: '2px 8px', borderRadius: 4, fontWeight: 700, fontSize: 11.5 }}>
-              WF-G06
-            </span>
-            <span style={{ color: '#0F172A', fontWeight: 700 }}>
-              Trang công khai của Nhà tuyển dụng
-            </span>
-          </div>
+  // Màn hình hẹp: thanh tab cuộn ngang → luôn đưa tab đang chọn vào tầm nhìn
+  useEffect(() => {
+    const nav = navRef.current;
+    const b = nav?.querySelector('.is-active');
+    if (!nav || !b || nav.scrollWidth <= nav.clientWidth) return;
+    const left = b.offsetLeft - 16;
+    const right = b.offsetLeft + b.offsetWidth + 16 - nav.clientWidth;
+    if (nav.scrollLeft > left) nav.scrollLeft = left;
+    else if (nav.scrollLeft < right) nav.scrollLeft = right;
+  }, [activeSection]);
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button 
-              onClick={onNavigateHome}
-              style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', fontSize: 13 }}
-            >
-              Trang chủ
-            </button>
-            <ChevronRight size={14} color="#CBD5E1" />
-            <button 
-              onClick={onNavigateJobs}
-              style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', fontSize: 13 }}
-            >
-              Việc làm
-            </button>
-            <ChevronRight size={14} color="#CBD5E1" />
-            <button
-              onClick={onNavigateJobs}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 5,
-                background: '#F1F5F9',
-                border: '1px solid #CBD5E1',
-                borderRadius: 6,
-                padding: '4px 12px',
-                fontSize: 12.5,
-                fontWeight: 600,
-                color: '#334155',
-                cursor: 'pointer'
-              }}
-            >
-              <ArrowLeft size={13} /> Về danh sách việc làm
-            </button>
-          </div>
+  // Phím tắt trình xem ảnh
+  useEffect(() => {
+    if (lightbox === null) return undefined;
+    const n = p?.office_images?.length || 0;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightbox(null);
+      if (e.key === 'ArrowRight') setLightbox(i => (i + 1) % n);
+      if (e.key === 'ArrowLeft') setLightbox(i => (i - 1 + n) % n);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [lightbox, p]);
+
+  if (status === 'loading') {
+    return (
+      <div className="company-page" aria-busy="true">
+        <div style={{ height: 96, borderRadius: 18, background: 'linear-gradient(90deg,#F1EEF8,#F8F7FB,#F1EEF8)' }} />
+        <div style={{ height: 140, marginTop: 14, borderRadius: 16, background: '#F8F7FB' }} />
+        <div style={{ textAlign: 'center', color: '#94A3B8', marginTop: 14, fontSize: 13 }}>Đang tải hồ sơ doanh nghiệp…</div>
+      </div>
+    );
+  }
+
+  if (status === 'notfound' || status === 'error') {
+    const notFound = status === 'notfound';
+    return (
+      <div style={{ ...card, maxWidth: 560, margin: '40px auto', textAlign: 'center' }} role="alert">
+        <ShieldAlert size={36} color={notFound ? '#94A3B8' : '#DC2626'} style={{ margin: '0 auto 10px' }} />
+        <h2 style={{ ...h2, marginBottom: 6 }}>{notFound ? 'Không tìm thấy nhà tuyển dụng' : 'Không tải được hồ sơ doanh nghiệp'}</h2>
+        <p style={{ ...para, color: '#64748B', margin: '0 auto 18px' }}>
+          {notFound ? 'Hồ sơ này không tồn tại hoặc đã ngừng hoạt động.' : 'Vui lòng kiểm tra kết nối và thử lại.'}
+        </p>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {!notFound && <button type="button" onClick={load} style={btnPrimary}><RefreshCw size={15} /> Thử lại</button>}
+          {onNavigateJobs && <button type="button" onClick={onNavigateJobs} style={btnOutline}><Briefcase size={15} /> Xem việc làm khác</button>}
         </div>
       </div>
+    );
+  }
 
-      <div style={{ maxWidth: 1160, margin: '24px auto', padding: '0 20px' }}>
-        {/* ================= STATE 1: LOADING SKELETON ================= */}
-        {loading && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div style={{ background: '#ffffff', borderRadius: 16, padding: 32, border: '1px solid #E2E8F0' }}>
-              <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-                <div style={{ width: 96, height: 96, borderRadius: '50%', background: '#E2E8F0' }} className="animate-pulse" />
-                <div style={{ flex: 1 }}>
-                  <div style={{ height: 28, width: '40%', background: '#E2E8F0', borderRadius: 6, marginBottom: 12 }} className="animate-pulse" />
-                  <div style={{ height: 16, width: '25%', background: '#E2E8F0', borderRadius: 4, marginBottom: 8 }} className="animate-pulse" />
-                  <div style={{ height: 16, width: '60%', background: '#E2E8F0', borderRadius: 4 }} className="animate-pulse" />
+  const cover = resolveFileUrl(p.cover_url);
+  const legalState = p.verification.legal ? 'ok' : p.verification.legal_status === 'PENDING' ? 'pending' : 'no';
+  const joined = monthYear(p.joined_at);
+  const place = p.province || areaOf(p.location);
+  const stats = [
+    ['Lĩnh vực hoạt động', p.industry, Briefcase],
+    ['Quy mô nhân sự', p.company_size, Users],
+    ['Năm thành lập', p.founded_year, Calendar],
+    ['Địa điểm', place, MapPin],
+    ['Tham gia JobNest', joined, Award],
+    ['Tin đang tuyển', `${p.open_jobs_count} vị trí`, Briefcase],
+  ].filter(([, v]) => v !== null && v !== undefined && v !== '');
+  const socials = Object.entries(p.social_links || {});
+  const longBio = (p.bio || '').length > 320;
+
+  return (
+    <div className="company-page">
+      {onNavigateJobs && (
+        <button type="button" onClick={onNavigateJobs} style={{ ...btnLink, marginBottom: 10 }}><ArrowLeft size={15} /> Quay lại danh sách việc làm</button>
+      )}
+
+      {/* ===== Company Header ===== */}
+      <header style={{ ...card, padding: 0, overflow: 'hidden' }}>
+        <div
+          className={cover ? 'company-cover has-image' : 'company-cover'}
+          style={{ background: cover ? `#E2E8F0 url("${cover}") center / cover no-repeat` : 'linear-gradient(120deg, #7565A8 0%, #A997C5 55%, #F4B99D 100%)' }}
+          role={cover ? 'img' : undefined}
+          aria-label={cover ? `Ảnh bìa ${p.display_name}` : undefined}
+        />
+        <div className="company-header-body">
+          <div className="company-logo-wrap">
+            <CompanyLogo src={p.logo_url} alt={p.display_name} size={88} borderRadius={14} />
+          </div>
+          <div className="company-header-info">
+            <h1 title={p.display_name} style={{
+              fontSize: 23, fontWeight: 800, color: 'var(--color-text)', margin: 0, lineHeight: 1.3, overflowWrap: 'anywhere',
+              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
+            }}>{p.display_name}</h1>
+            {p.brand_name && p.brand_name !== p.display_name && (
+              <div style={{ fontSize: 13.5, color: '#64748B', marginTop: 2 }}>Thương hiệu: <strong>{p.brand_name}</strong></div>
+            )}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+              {p.verification.legal && <span style={chip('#ECFDF5', '#047857', '#A7F3D0')}><ShieldCheck size={13} /> Đã xác minh pháp lý</span>}
+              {ACCOUNT_LABEL[p.account_type] && <span style={chip('#F1EEF8', '#594675', '#DDD6FE')}><Building2 size={13} /> {ACCOUNT_LABEL[p.account_type]}</span>}
+              {p.industry && <span style={chip('#F8FAFC', '#334155', '#E2E8F0')}>{p.industry}</span>}
+            </div>
+            <div style={{ fontSize: 13, color: '#64748B', marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: '4px 14px' }}>
+              {place && <span><MapPin size={13} style={{ verticalAlign: -2 }} /> {place}</span>}
+              {joined && <span><Calendar size={13} style={{ verticalAlign: -2 }} /> Tham gia JobNest từ {joined}</span>}
+              <span><Briefcase size={13} style={{ verticalAlign: -2 }} /> {p.open_jobs_count} vị trí đang tuyển</span>
+            </div>
+          </div>
+          <div className="company-header-actions">
+            <button type="button" onClick={() => goTo('jobs')} style={btnPrimary}><Briefcase size={15} /> Xem việc làm</button>
+            <button type="button" onClick={() => setReportOpen(true)} style={btnOutline}><Flag size={15} /> Báo cáo vi phạm</button>
+          </div>
+        </div>
+      </header>
+
+      {/* ===== Điều hướng 4 mục (dính dưới header trang) ===== */}
+      <nav ref={navRef} aria-label="Mục trong hồ sơ công ty" className="company-nav">
+        {sections.map(([id, label]) => (
+          <button key={id} type="button" onClick={() => goTo(id)} aria-current={activeSection === id ? 'location' : undefined}
+            className={activeSection === id ? 'is-active' : ''}>
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 16 }}>
+        {/* ===== Tổng quan ===== */}
+        <section id="company-overview" style={card} aria-labelledby="h-overview">
+          <h2 id="h-overview" style={h2}>Tổng quan</h2>
+          {p.bio && (
+            <div style={{ marginBottom: 16 }}>
+              <p style={{ ...para, ...(longBio && !bioExpanded ? { display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' } : {}) }}>{p.bio}</p>
+              {longBio && <button type="button" style={btnLink} onClick={() => setBioExpanded(v => !v)}>{bioExpanded ? 'Thu gọn' : 'Xem thêm'}</button>}
+            </div>
+          )}
+          <div className="company-stats">
+            {stats.map(([label, value, Icon]) => (
+              <div key={label} className="company-stat">
+                <div style={{ fontSize: 12, color: '#64748B', display: 'flex', alignItems: 'center', gap: 5 }}><Icon size={13} /> {label}</div>
+                <div style={{ fontSize: 15.5, fontWeight: 800, color: 'var(--color-text)', marginTop: 4, overflowWrap: 'anywhere' }}>{value}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 18 }}>
+            <h3 style={{ ...h3, marginBottom: 2 }}>Xác minh & độ tin cậy</h3>
+            <VerifyRow label="Pháp lý doanh nghiệp" state={legalState} hint="JobNest đối chiếu giấy phép kinh doanh" />
+            <VerifyRow label="Email" state={p.verification.email ? 'ok' : 'no'} />
+            <VerifyRow label="Số điện thoại" state={p.verification.phone ? 'ok' : 'no'} />
+            <p style={{ fontSize: 12, color: '#94A3B8', margin: '8px 0 0 0' }}>Xác minh email/số điện thoại chỉ xác nhận kênh liên lạc, không thay cho xác minh pháp lý.</p>
+          </div>
+        </section>
+
+        {/* ===== Giới thiệu ===== */}
+        {(
+          <section id="company-about" style={{ ...card, display: 'flex', flexDirection: 'column', gap: 20 }} aria-labelledby="h-about">
+            <h2 id="h-about" style={{ ...h2, marginBottom: 0 }}>Giới thiệu</h2>
+            {!hasAbout && <p style={{ ...para, color: '#94A3B8' }}>Doanh nghiệp chưa cập nhật phần giới thiệu.</p>}
+            <TextBlock title="Giới thiệu doanh nghiệp" text={p.bio} />
+            {(p.industry || p.company_type) && (
+              <TextBlock title="Lĩnh vực hoạt động" text={[p.industry, p.company_type].filter(Boolean).join(' · ')} />
+            )}
+            <TextBlock title="Sản phẩm & dịch vụ" text={p.products_services} />
+            <TextBlock title="Sứ mệnh & tầm nhìn" text={p.mission} />
+            <TextBlock title="Giá trị cốt lõi" text={p.core_values} />
+            <TextBlock title="Thành tựu nổi bật" text={p.achievements} />
+            <TextBlock title="Văn hóa & môi trường làm việc" text={p.work_environment_desc} />
+            {p.office_images?.length > 0 && (
+              <div className="company-block">
+                <h3 style={{ ...h3, marginBottom: 10 }}>Hình ảnh văn phòng</h3>
+                <div className="company-gallery">
+                  {p.office_images.map((url, i) => (
+                    <button key={url} type="button" onClick={() => setLightbox(i)} aria-label={`Xem ảnh văn phòng ${i + 1}`}>
+                      <img src={resolveFileUrl(url)} alt="" loading="lazy" />
+                    </button>
+                  ))}
                 </div>
               </div>
+            )}
+            {(p.benefits || p.hr_policies) && (
+              <div className="company-block" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <TextBlock title="Phúc lợi" text={p.benefits} />
+                <TextBlock title="Chính sách nhân sự" text={p.hr_policies} />
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ===== Tin tuyển dụng ===== */}
+        <section id="company-jobs" style={card} aria-labelledby="h-jobs">
+          <h2 id="h-jobs" style={{ ...h2, marginBottom: 12 }}>Tin tuyển dụng đang nhận hồ sơ ({openJobs.length})</h2>
+          {openJobs.length > 0 && (
+            <div className="company-job-filters">
+              <label className="company-search">
+                <Search size={15} color="#94A3B8" />
+                <input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Tìm theo tên công việc" aria-label="Tìm theo tên công việc" />
+              </label>
+              <select style={control} value={workFilter} aria-label="Hình thức làm việc"
+                onChange={(e) => { setWorkFilter(e.target.value); setSalaryFilter(''); }}>
+                <option value="">Mọi hình thức</option>
+                <option value="PART_TIME">Part-time ({openJobs.filter(j => j.work_type === 'PART_TIME').length})</option>
+                <option value="FULL_TIME">Full-time ({openJobs.filter(j => j.work_type === 'FULL_TIME').length})</option>
+              </select>
+              {categories.length > 1 && (
+                <select style={control} value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} aria-label="Ngành nghề">
+                  <option value="">Mọi ngành nghề</option>
+                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              )}
+              {cities.length > 1 && (
+                <select style={control} value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} aria-label="Địa điểm">
+                  <option value="">Mọi địa điểm</option>
+                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              )}
+              <select style={control} value={salaryFilter} onChange={(e) => setSalaryFilter(e.target.value)} aria-label="Mức lương">
+                {salaryOptionsFor(workFilter).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              {filtersActive && <button type="button" style={btnLink} onClick={clearFilters}><X size={14} /> Xóa lọc</button>}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
-              {[1, 2, 3].map(n => (
-                <div key={n} style={{ height: 180, background: '#ffffff', borderRadius: 12, border: '1px solid #E2E8F0' }} className="animate-pulse" />
+          )}
+
+          {filteredJobs.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '26px 12px', border: '1px dashed #E2E8F0', borderRadius: 12, color: '#64748B', fontSize: 14 }}>
+              {openJobs.length === 0 ? 'Doanh nghiệp hiện chưa có tin tuyển dụng đang nhận hồ sơ.' : 'Không có tin phù hợp với bộ lọc.'}
+              {filtersActive && openJobs.length > 0 && <div><button type="button" style={btnLink} onClick={clearFilters}>Xóa bộ lọc</button></div>}
+            </div>
+          ) : (
+            <div className="company-jobs-grid">
+              {filteredJobs.slice(0, visibleJobs).map(job => (
+                <JobCard key={job.id} job={job} isSaved={savedJobIds.includes(job.id)} onToggleSave={onToggleSave} onSelectJob={onSelectJob} />
               ))}
             </div>
-          </div>
-        )}
-
-        {/* ================= STATE 2: ERROR ================= */}
-        {!loading && error && (
-          <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: 16,
-              padding: '48px 24px',
-              textAlign: 'center',
-              border: '1px solid #FCA5A5'
-            }}
-          >
-            <div 
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: '50%',
-                background: '#FEF2F2',
-                color: '#DC2626',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 16
-              }}
-            >
-              <AlertCircle size={28} />
+          )}
+          {filteredJobs.length > visibleJobs && (
+            <div style={{ textAlign: 'center', marginTop: 14 }}>
+              <button type="button" onClick={() => setVisibleJobs(v => v + JOBS_STEP)} style={btnOutline}>
+                Xem thêm ({filteredJobs.length - visibleJobs} tin)
+              </button>
             </div>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', margin: '0 0 8px 0' }}>
-              Không thể tải hồ sơ Nhà tuyển dụng
-            </h3>
-            <p style={{ color: '#64748B', fontSize: 14, maxWidth: 460, margin: '0 auto 20px auto' }}>
-              {error}
-            </p>
-            <button
-              onClick={fetchProfileAndJobs}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '9px 20px',
-                borderRadius: 8,
-                background: '#7565A8',
-                color: '#ffffff',
-                border: 'none',
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: 'pointer'
-              }}
-            >
-              <RefreshCw size={16} /> Thử lại
-            </button>
-          </div>
-        )}
+          )}
+        </section>
 
-        {/* ================= STATE 3: SUCCESS & CONTENT ================= */}
-        {!loading && !error && profile && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            {/* Top Employer Card (Matching WF-G06) */}
-            <div 
-              style={{
-                background: '#ffffff',
-                borderRadius: 16,
-                border: '1.5px solid #000000',
-                padding: '28px 32px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
-                position: 'relative'
-              }}
-            >
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
-                  {/* Avatar / Logo */}
-                  <div 
-                    style={{
-                      width: 96,
-                      height: 96,
-                      borderRadius: '50%',
-                      border: '2px solid #000000',
-                      background: '#F1F5F9',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      overflow: 'hidden',
-                      flexShrink: 0
-                    }}
-                  >
-                    {profile.avatar_url || profile.company_logo_url ? (
-                      <img 
-                        src={profile.avatar_url || profile.company_logo_url} 
-                        alt={profile.full_name || profile.company_name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <Building2 size={42} color="#7565A8" />
-                    )}
-                  </div>
+        {/* ===== Đánh giá ===== */}
+        <section id="company-reviews" style={card} aria-labelledby="h-reviews">
+          <CompanyReviewsSection
+            employerId={employerId}
+            employerName={p.display_name}
+            currentUser={currentUser}
+            onOpenAuth={onOpenAuth}
+            onSelectJob={onSelectJob}
+            onReport={setReviewToReport}
+            showToast={showToast}
+          />
+        </section>
 
-                  {/* Profile info */}
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
-                      <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                        {profile.company_name || profile.display_name || profile.full_name || 'Nhà tuyển dụng'}
-                      </h1>
-                      <span 
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          padding: '3px 10px',
-                          borderRadius: 999,
-                          background: profile.business_license ? '#EDE9FE' : '#FEF3C7',
-                          color: profile.business_license ? '#6B21A8' : '#92400E',
-                          border: '1px solid rgba(0,0,0,0.1)'
-                        }}
-                      >
-                        {profile.business_license ? 'Doanh nghiệp / Tổ chức' : 'Nhà tuyển dụng cá nhân'}
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, color: '#475569', fontSize: 13, marginBottom: 8 }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                        <MapPin size={15} color="#7565A8" />
-                        {profile.company_address || profile.location || 'TP. Hồ Chí Minh'}
-                      </span>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                        <Calendar size={15} color="#7565A8" />
-                        Thành viên từ: {formatDate(profile.created_at) || '2024'}
-                      </span>
-                    </div>
-
-                    {/* Verified Badges */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      <span 
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          fontSize: 11.5,
-                          fontWeight: 600,
-                          color: '#166534',
-                          background: '#DCFCE7',
-                          padding: '2px 8px',
-                          borderRadius: 6,
-                          border: '1px solid #86EFAC'
-                        }}
-                      >
-                        <ShieldCheck size={13} /> Đã xác thực Email
-                      </span>
-                      {profile.phone && (
-                        <span 
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 4,
-                            fontSize: 11.5,
-                            fontWeight: 600,
-                            color: '#166534',
-                            background: '#DCFCE7',
-                            padding: '2px 8px',
-                            borderRadius: 6,
-                            border: '1px solid #86EFAC'
-                          }}
-                        >
-                          <ShieldCheck size={13} /> Đã xác thực SĐT
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Report Action Button (opens WF-X01) */}
-                <button
-                  type="button"
-                  onClick={() => setReportModalOpen(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '8px 14px',
-                    borderRadius: 8,
-                    background: '#ffffff',
-                    border: '1.5px solid #E2E8F0',
-                    color: '#64748B',
-                    fontSize: 12.5,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#FCA5A5';
-                    e.currentTarget.style.color = '#DC2626';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#E2E8F0';
-                    e.currentTarget.style.color = '#64748B';
-                  }}
-                >
-                  <Flag size={14} /> Báo cáo vi phạm
-                </button>
-              </div>
-
-              {/* Bio / Giới thiệu */}
-              {profile.bio && (
-                <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid #F1F5F9' }}>
-                  <h4 style={{ fontSize: 13, fontWeight: 700, color: '#334155', textTransform: 'uppercase', margin: '0 0 6px 0' }}>
-                    Giới thiệu
-                  </h4>
-                  <p style={{ color: '#475569', fontSize: 13.5, lineHeight: 1.6, margin: 0 }}>
-                    {profile.bio}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Section: Published Jobs (WF-G06) */}
-            <div style={{ background: '#ffffff', borderRadius: 16, border: '1.5px solid #000000', padding: '24px 28px' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 14, marginBottom: 20 }}>
-                <div>
-                  <h2 style={{ fontSize: 19, fontWeight: 800, color: '#0F172A', margin: '0 0 4px 0' }}>
-                    Tin tuyển dụng đang mở
-                  </h2>
-                  <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>
-                    Hiện có <strong style={{ color: '#7565A8' }}>{jobs.length}</strong> vị trí đang nhận hồ sơ ứng tuyển
-                  </p>
-                </div>
-
-                {/* Filter Pills */}
-                <div style={{ display: 'flex', gap: 8, background: '#F1F5F9', padding: 4, borderRadius: 10 }}>
-                  <button
-                    onClick={() => setActiveFilter('ALL')}
-                    style={{
-                      padding: '6px 14px',
-                      borderRadius: 7,
-                      border: 'none',
-                      background: activeFilter === 'ALL' ? '#7565A8' : 'transparent',
-                      color: activeFilter === 'ALL' ? '#ffffff' : '#475569',
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Tất cả ({jobs.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter('PART_TIME')}
-                    style={{
-                      padding: '6px 14px',
-                      borderRadius: 7,
-                      border: 'none',
-                      background: activeFilter === 'PART_TIME' ? '#7565A8' : 'transparent',
-                      color: activeFilter === 'PART_TIME' ? '#ffffff' : '#475569',
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Bán thời gian
-                  </button>
-                  <button
-                    onClick={() => setActiveFilter('FREELANCE')}
-                    style={{
-                      padding: '6px 14px',
-                      borderRadius: 7,
-                      border: 'none',
-                      background: activeFilter === 'FREELANCE' ? '#7565A8' : 'transparent',
-                      color: activeFilter === 'FREELANCE' ? '#ffffff' : '#475569',
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Linh hoạt / Freelance
-                  </button>
-                </div>
-              </div>
-
-              {/* Jobs Grid or Empty State */}
-              {filteredJobs.length === 0 ? (
-                <div 
-                  style={{
-                    padding: '48px 20px',
-                    textAlign: 'center',
-                    background: '#F8FAFC',
-                    borderRadius: 12,
-                    border: '1px dashed #CBD5E1'
-                  }}
-                >
-                  <Briefcase size={36} color="#94A3B8" style={{ marginBottom: 12 }} />
-                  <h4 style={{ fontSize: 16, fontWeight: 700, color: '#334155', margin: '0 0 6px 0' }}>
-                    Chưa có tin tuyển dụng nào phù hợp
-                  </h4>
-                  <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>
-                    Nhà tuyển dụng hiện chưa đăng bài tuyển dụng mới trong danh mục này.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 16 }}>
-                    {filteredJobs.map(job => (
-                      <div
-                        key={job.id}
-                        style={{
-                          background: '#ffffff',
-                          border: '1.5px solid #000000',
-                          borderRadius: 12,
-                          padding: '16px 18px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
-                          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-                          minHeight: 160
-                        }}
-                      >
-                        <div>
-                          {/* Layout matching wireframe: thumbnail + title + details */}
-                          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 10 }}>
-                            <div 
-                              style={{
-                                width: 52,
-                                height: 52,
-                                borderRadius: 8,
-                                border: '1.5px solid #000000',
-                                background: '#F1F5F9',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexShrink: 0,
-                                fontSize: 12,
-                                fontWeight: 700,
-                                color: '#64748B'
-                              }}
-                            >
-                              Ảnh
-                            </div>
-
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <h3 
-                                style={{
-                                  fontSize: 15,
-                                  fontWeight: 700,
-                                  color: '#0F172A',
-                                  margin: '0 0 4px 0',
-                                  lineHeight: 1.35,
-                                  cursor: 'pointer'
-                                }}
-                                onClick={() => onSelectJob && onSelectJob(job)}
-                              >
-                                {job.title}
-                              </h3>
-                              <p style={{ fontSize: 12.5, color: '#475569', margin: 0 }}>
-                                {job.company_name || job.employer_name || 'Nhà tuyển dụng'} · <strong style={{ color: '#16A34A' }}>{formatSalary(job.salary, job.salary_type)}</strong> · {job.location ? job.location.split(',')[0].trim() : 'TP.HCM'}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 11.5, color: '#64748B', marginBottom: 8 }}>
-                            <span>
-                              {job.work_type === 'FREELANCE' ? 'Tự do (Freelance)' : job.work_type === 'SEASONAL' ? 'Thời vụ' : 'Bán thời gian'}
-                            </span>
-                            <span>·</span>
-                            <span>{formatDate(job.created_at)}</span>
-                          </div>
-                        </div>
-
-                        <div style={{ paddingTop: 10, borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end' }}>
-                          <button
-                            type="button"
-                            onClick={() => onSelectJob && onSelectJob(job)}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 5,
-                              padding: '6px 14px',
-                              borderRadius: 6,
-                              background: '#7565A8',
-                              color: '#ffffff',
-                              border: 'none',
-                              fontSize: 12.5,
-                              fontWeight: 600,
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Xem chi tiết <ExternalLink size={13} />
-                          </button>
-                        </div>
-                      </div>
+        {/* ===== Liên hệ ===== */}
+        {(
+          <section id="company-contact" style={card} aria-labelledby="h-contact">
+            <h2 id="h-contact" style={{ ...h2, marginBottom: 6 }}>Liên hệ</h2>
+            {!hasContact && <p style={{ ...para, color: '#94A3B8' }}>Doanh nghiệp chưa công khai thông tin liên hệ và địa chỉ.</p>}
+            <div className="company-contact-grid">
+              <div style={{ minWidth: 0 }}>
+                <ContactRow icon={Globe} label="Website chính thức">
+                  {p.website && <a href={p.website} target="_blank" rel="noopener noreferrer nofollow" style={{ color: '#7565A8' }}>{hostOf(p.website)}</a>}
+                </ContactRow>
+                <ContactRow icon={Mail} label="Email liên hệ">
+                  {p.public_email && <a href={`mailto:${p.public_email}`} style={{ color: '#7565A8' }}>{p.public_email}</a>}
+                </ContactRow>
+                <ContactRow icon={Phone} label="Điện thoại">
+                  {p.public_phone && <a href={`tel:${p.public_phone}`} style={{ color: '#7565A8' }}>{p.public_phone}</a>}
+                </ContactRow>
+                <ContactRow icon={MapPin} label={p.headquarters ? 'Địa chỉ trụ sở' : 'Khu vực'}>{mapAddress}</ContactRow>
+                {p.branches?.length > 0 && (
+                  <ContactRow icon={MapPin} label="Chi nhánh">
+                    <ul style={{ margin: 0, paddingLeft: 16, fontWeight: 500 }}>{p.branches.map(b => <li key={b}>{b}</li>)}</ul>
+                  </ContactRow>
+                )}
+                {socials.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, paddingTop: 10, borderTop: '1px solid #F1F5F9' }}>
+                    {socials.map(([k, url]) => (
+                      <a key={k} href={url} target="_blank" rel="noopener noreferrer nofollow" style={{ ...chip('#F8FAFC', '#475569', '#E2E8F0'), textDecoration: 'none' }}>{SOCIAL_LABEL[k] || k}</a>
                     ))}
                   </div>
-
-                  {/* Pagination matching wireframe: < [1] [2] [3] >  Tổng số kết quả: N */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginTop: 24,
-                    paddingTop: 16,
-                    borderTop: '1px solid #E2E8F0',
-                    flexWrap: 'wrap',
-                    gap: 12
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <button 
-                        type="button"
-                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                        style={{ padding: '5px 12px', border: '1px solid #CBD5E1', borderRadius: 6, background: '#ffffff', cursor: 'pointer', fontSize: 13 }}
-                      >
-                        &lt;
-                      </button>
-                      {[1, 2, 3].map(page => (
-                        <button
-                          key={page}
-                          type="button"
-                          onClick={() => setCurrentPage(page)}
-                          style={{
-                            padding: '5px 12px',
-                            border: currentPage === page ? '1.5px solid #7565A8' : '1px solid #CBD5E1',
-                            borderRadius: 6,
-                            background: currentPage === page ? '#7565A8' : '#ffffff',
-                            color: currentPage === page ? '#ffffff' : '#334155',
-                            fontWeight: currentPage === page ? 700 : 500,
-                            cursor: 'pointer',
-                            fontSize: 13
-                          }}
-                        >
-                          {page}
-                        </button>
-                      ))}
-                      <button 
-                        type="button"
-                        onClick={() => setCurrentPage(prev => Math.min(3, prev + 1))}
-                        style={{ padding: '5px 12px', border: '1px solid #CBD5E1', borderRadius: 6, background: '#ffffff', cursor: 'pointer', fontSize: 13 }}
-                      >
-                        &gt;
-                      </button>
-                    </div>
-
-                    <span style={{ fontSize: 13, color: '#64748B' }}>
-                      Tổng số kết quả: <strong style={{ color: '#0F172A' }}>{filteredJobs.length}</strong>
-                    </span>
-                  </div>
-                </>
+                )}
+                {hasContact && !p.website && !p.public_email && !p.public_phone && (
+                  <p style={{ fontSize: 12.5, color: '#94A3B8', margin: '10px 0 0 0' }}>Doanh nghiệp chưa công khai website, email hoặc số điện thoại liên hệ.</p>
+                )}
+              </div>
+              {mapAddress && (
+                <JobLocationMap
+                  job={{ title: p.display_name, work_address: p.headquarters, location: p.location || p.province, latitude: p.latitude, longitude: p.longitude }}
+                  title="Vị trí doanh nghiệp"
+                  exactLabel="Vị trí do doanh nghiệp ghim"
+                  approxLabel="Ước lượng theo địa chỉ"
+                  mapHeight={260}
+                  strictPrecision
+                />
               )}
             </div>
-
-            {/* Footer Bar matching wireframe */}
-            <div style={{
-              background: '#ffffff',
-              border: '1.5px solid #000000',
-              borderRadius: 12,
-              padding: '16px 20px',
-              textAlign: 'center',
-              fontSize: 13,
-              color: '#475569'
-            }}>
-              <span>Giới thiệu</span> · <span>Liên hệ</span> · <span>Điều khoản</span> · <span>© 2026 JOBNEST</span>
-            </div>
-
-            {/* Wireframe Annotation matching Draw.io */}
-            <div style={{
-              background: '#F8FAFC',
-              border: '1.5px dashed #64748B',
-              borderRadius: 8,
-              padding: '12px 18px',
-              fontSize: 12,
-              color: '#475569',
-              lineHeight: 1.6
-            }}>
-              <strong style={{ color: '#0F172A' }}>Annotation — </strong>
-              Trạng thái UI: Đang tải (skeleton) / Trống (chưa có tin đăng tuyển) / Lỗi (kèm nút Thử lại) / Thành công. Lưu ý: chỉ hiển thị Job đã PUBLISHED. Màn hình này chưa có trong File 05 — TBD, cần nhóm duyệt. Nút Báo cáo &rarr; WF-X01.
-            </div>
-          </div>
+          </section>
         )}
       </div>
 
-      {/* Modal Báo cáo vi phạm (WF-X01) */}
+      {lightbox !== null && p.office_images?.length > 0 && (
+        <div role="dialog" aria-modal="true" aria-label="Ảnh văn phòng" onClick={() => setLightbox(null)}
+          style={{ position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(15,23,42,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <img src={resolveFileUrl(p.office_images[lightbox])} alt={`Ảnh văn phòng ${lightbox + 1}`} onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '92vw', maxHeight: '86vh', borderRadius: 12, objectFit: 'contain' }} />
+          <button type="button" aria-label="Đóng" onClick={() => setLightbox(null)} style={{ ...lbBtn, top: 16, right: 16 }}><X size={20} /></button>
+          {p.office_images.length > 1 && (
+            <>
+              <button type="button" aria-label="Ảnh trước" onClick={(e) => { e.stopPropagation(); setLightbox(i => (i - 1 + p.office_images.length) % p.office_images.length); }} style={{ ...lbBtn, left: 16, top: '50%' }}><ChevronLeft size={22} /></button>
+              <button type="button" aria-label="Ảnh sau" onClick={(e) => { e.stopPropagation(); setLightbox(i => (i + 1) % p.office_images.length); }} style={{ ...lbBtn, right: 16, top: '50%' }}><ChevronRight size={22} /></button>
+            </>
+          )}
+        </div>
+      )}
+
       <ReportViolationModal
-        isOpen={reportModalOpen}
-        onClose={() => setReportModalOpen(false)}
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
         targetType="USER"
         targetId={employerId}
-        targetTitle={profile?.company_name || profile?.full_name || `Nhà tuyển dụng #${employerId}`}
+        targetTitle={p.display_name}
+        currentUser={currentUser}
+        showToast={showToast}
+        onOpenAuth={onOpenAuth}
+      />
+      <ReportViolationModal
+        isOpen={Boolean(reviewToReport)}
+        onClose={() => setReviewToReport(null)}
+        targetType={reviewToReport?.type === 'job' ? 'JOB_REVIEW' : 'COMPANY_REVIEW'}
+        targetId={reviewToReport?.id}
+        targetTitle={reviewToReport ? (reviewToReport.title || reviewToReport.job_title || `#${reviewToReport.id}`) : ''}
         currentUser={currentUser}
         showToast={showToast}
         onOpenAuth={onOpenAuth}
@@ -707,4 +541,3 @@ export default function EmployerPublicProfilePage({
     </div>
   );
 }
-

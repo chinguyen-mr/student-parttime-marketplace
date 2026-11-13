@@ -214,7 +214,7 @@ export default function StaticContentPage({
                   </div>
                   <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px 0', color: '#0F172A' }}>So khớp thông minh</h3>
                   <p style={{ fontSize: 13.5, color: '#64748B', margin: 0, lineHeight: 1.5 }}>
-                    Tìm kiếm việc làm bán thời gian và dự án freelance theo đúng khung giờ rảnh và chuyên ngành sinh viên.
+                    Tìm kiếm việc làm bán thời gian và toàn thời gian theo đúng khung giờ rảnh và chuyên ngành sinh viên.
                   </p>
                 </div>
 

@@ -177,8 +177,8 @@ export default function AdminModerationPage({
                 borderRadius: 6,
                 fontSize: 12,
                 fontWeight: 800,
-                background: selectedJob.work_type === 'FREELANCE' ? '#EEF2FF' : '#F1EEF8',
-                color: selectedJob.work_type === 'FREELANCE' ? '#4F46E5' : '#7565A8',
+                background: selectedJob.work_type === 'FULL_TIME' ? '#FEF7EE' : '#F1EEF8',
+                color: selectedJob.work_type === 'FULL_TIME' ? '#B45309' : '#7565A8',
                 border: '1px solid #CBD5E1'
               }}>
                 {selectedJob.work_type || 'PART_TIME'}
@@ -437,8 +437,7 @@ export default function AdminModerationPage({
             {[
               { id: 'ALL', label: 'Tất cả loại tin' },
               { id: 'PART_TIME', label: 'Part-time' },
-              { id: 'SEASONAL', label: 'Seasonal' },
-              { id: 'FREELANCE', label: 'Freelance' }
+              { id: 'FULL_TIME', label: 'Full-time' }
             ].map(tab => (
               <button
                 key={tab.id}

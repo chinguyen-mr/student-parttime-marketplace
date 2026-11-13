@@ -285,10 +285,10 @@ export default function EmployerJobsPage({
                             borderRadius: 6,
                             fontSize: 11.5,
                             fontWeight: 700,
-                            background: job.work_type === 'FREELANCE' ? '#EEF2FF' : 'var(--color-primary-light)',
-                            color: job.work_type === 'FREELANCE' ? '#4F46E5' : 'var(--color-primary)'
+                            background: job.work_type === 'FULL_TIME' ? '#FEF7EE' : 'var(--color-primary-light)',
+                            color: job.work_type === 'FULL_TIME' ? '#B45309' : 'var(--color-primary)'
                           }}>
-                            {job.work_type === 'FREELANCE' ? 'Freelance' : job.work_type === 'SEASONAL' ? 'Thời vụ' : 'Part-time'}
+                            {job.work_type === 'FULL_TIME' ? 'Full-time' : 'Part-time'}
                           </span>
                         </td>
 

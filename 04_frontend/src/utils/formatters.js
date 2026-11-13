@@ -27,10 +27,9 @@ export const STATUS_MAP = {
   CLOSED: { label: 'Đã đóng', color: '#B91C1C', bg: '#FEE2E2', border: '#FECACA' },
   EXPIRED: { label: 'Hết hạn', color: '#B45309', bg: '#FEF3C7', border: '#FDE68A' },
 
-  // Job Types (Part-time, Freelance, Seasonal)
+  // Job Types (chỉ Part-time và Full-time)
   PART_TIME: { label: 'Part-time', color: '#7565A8', bg: '#F1EEF8', border: '#D8B4FE' },
-  FREELANCE: { label: 'Freelance', color: '#047857', bg: '#EAF7F2', border: '#A7E3CE' },
-  SEASONAL: { label: 'Thời vụ', color: '#B45309', bg: '#FEF7EE', border: '#F9DAA8' },
+  FULL_TIME: { label: 'Full-time', color: '#B45309', bg: '#FEF7EE', border: '#F9DAA8' },
 
   // User Accounts
   ACTIVE: { label: 'Hoạt động', color: '#047857', bg: '#D1FAE5', border: '#A7F3D0' },

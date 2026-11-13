@@ -209,7 +209,7 @@ export default function EmployerCandidateSelectionPage({
             • {activeJob.title}
           </div>
           <div style={{ fontSize: 13, color: '#059669', fontWeight: 700 }}>
-            Loại hình: {activeJob.work_type === 'FREELANCE' ? 'Dự án Freelance' : 'Part-time / Bán thời gian'}
+            Loại hình: {activeJob.work_type === 'FULL_TIME' ? 'Full-time / Toàn thời gian' : 'Part-time / Bán thời gian'}
           </div>
         </div>
 

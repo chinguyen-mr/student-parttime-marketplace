@@ -18,8 +18,8 @@ function validateCreateJob(req, res, next) {
         errors.push('Loại lương không hợp lệ (chấp nhận: HOURLY, FIXED, MONTHLY)');
     }
 
-    if (work_type && !['PART_TIME', 'FREELANCE'].includes(work_type)) {
-        errors.push('Hình thức công việc không hợp lệ (chấp nhận: PART_TIME, FREELANCE)');
+    if (work_type && !['PART_TIME', 'FULL_TIME'].includes(work_type)) {
+        errors.push('Hình thức công việc không hợp lệ (chấp nhận: PART_TIME, FULL_TIME)');
     }
 
     const { application_deadline } = req.body;

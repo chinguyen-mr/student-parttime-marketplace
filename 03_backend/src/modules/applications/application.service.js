@@ -2,6 +2,7 @@ const db = require('../../config/db');
 const applicationRepository = require('../../database/repositories/application.repository');
 const jobRepository = require('../../database/repositories/job.repository');
 const profileRepository = require('../../database/repositories/profile.repository');
+const studentProfileService = require('../auth/student-profile.service');
 const { NotFoundError, ForbiddenError, ConflictError, AppError, StateTransitionInvalidError } = require('../../utils/app-error');
 
 class ApplicationService {
@@ -42,7 +43,15 @@ class ApplicationService {
             throw new ConflictError('Bạn đã nộp đơn ứng tuyển cho công việc này rồi. Không thể nộp đơn trùng.');
         }
 
-        const newApp = await applicationRepository.create(job_id, studentId, { cover_letter, cv_url });
+        // Chụp lại hồ sơ tại thời điểm nộp; lỗi chụp không chặn việc nộp đơn
+        let profile_snapshot = null;
+        try {
+            profile_snapshot = await studentProfileService.buildSnapshot(studentId);
+        } catch (snapErr) {
+            console.error('Lỗi chụp hồ sơ khi nộp đơn:', snapErr.message);
+        }
+
+        const newApp = await applicationRepository.create(job_id, studentId, { cover_letter, cv_url, profile_snapshot });
 
         // Tự động tạo thông báo cho Nhà tuyển dụng (Event: Student nộp đơn ứng tuyển)
         try {
@@ -91,7 +100,42 @@ class ApplicationService {
         if (user.role !== 'ADMIN' && app.student_id !== user.id && app.employer_id !== user.id) {
             throw new ForbiddenError('Bạn không có quyền xem thông tin chi tiết đơn ứng tuyển này');
         }
+        // Đơn nộp trước khi có bản chụp → dùng hồ sơ hiện tại, đánh dấu để giao diện ghi chú
+        if (!app.profile_snapshot) {
+            try {
+                app.profile_snapshot = await studentProfileService.buildSnapshot(app.student_id);
+                app.profile_snapshot_is_current = Boolean(app.profile_snapshot);
+            } catch (snapErr) {
+                console.error('Lỗi lấy hồ sơ cho đơn ứng tuyển:', snapErr.message);
+            }
+        }
         return app;
+    }
+
+    /** Sinh viên rút đơn — chỉ khi đơn còn chờ duyệt. Báo cho nhà tuyển dụng. */
+    async withdraw(applicationId, studentId) {
+        const app = await applicationRepository.findById(applicationId);
+        if (!app) throw new NotFoundError('Không tìm thấy đơn ứng tuyển');
+        if (app.student_id !== studentId) throw new ForbiddenError('Bạn không thể rút đơn của người khác');
+        if (app.status !== 'PENDING') throw new AppError('Chỉ rút được đơn đang chờ duyệt', 400);
+
+        const res = await db.query(
+            `UPDATE applications SET status = 'WITHDRAWN', withdrawn_at = NOW(), updated_at = NOW()
+             WHERE id = $1 AND status = 'PENDING' RETURNING *`,
+            [applicationId]
+        );
+        if (!res.rows[0]) throw new AppError('Đơn đã được nhà tuyển dụng xử lý, không thể rút', 409);
+
+        try {
+            await db.query(
+                `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
+                 VALUES ($1, 'APPLICATION_WITHDRAWN', $2, $3, 'APPLICATION', $4)`,
+                [app.employer_id, 'Ứng viên đã rút đơn', `${app.student_name} đã rút đơn ứng tuyển vị trí "${app.job_title}".`, applicationId]
+            );
+        } catch (notifErr) {
+            console.error('Lỗi tạo notification rút đơn:', notifErr.message);
+        }
+        return res.rows[0];
     }
 
     async updateStatus(applicationId, employerId, status, note = null) {

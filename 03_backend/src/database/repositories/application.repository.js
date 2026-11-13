@@ -1,12 +1,12 @@
 const db = require('../../config/db');
 
 class ApplicationRepository {
-    async create(jobId, studentId, { cover_letter, cv_url }) {
+    async create(jobId, studentId, { cover_letter, cv_url, profile_snapshot }) {
         const res = await db.query(
-            `INSERT INTO applications (job_id, student_id, cover_letter, cv_url)
-             VALUES ($1, $2, $3, $4)
+            `INSERT INTO applications (job_id, student_id, cover_letter, cv_url, profile_snapshot)
+             VALUES ($1, $2, $3, $4, $5)
              RETURNING *`,
-            [jobId, studentId, cover_letter || null, cv_url || null]
+            [jobId, studentId, cover_letter || null, cv_url || null, profile_snapshot ? JSON.stringify(profile_snapshot) : null]
         );
         return res.rows[0];
     }

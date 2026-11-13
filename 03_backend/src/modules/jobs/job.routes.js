@@ -83,6 +83,24 @@ router.get('/recommended', verifyToken, requireRoles('STUDENT'), async (req, res
     }
 });
 
+// POST /api/jobs/recommended/preview — gợi ý theo lịch rảnh đang chọn (chưa lưu). Body: { slots: [...] }
+router.post('/recommended/preview', verifyToken, requireRoles('STUDENT'), async (req, res, next) => {
+    try {
+        const raw = Array.isArray(req.body?.slots) ? req.body.slots : null;
+        const TIME = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/;
+        if (!raw || raw.length > 50 || !raw.every(s => Number.isInteger(s?.day_of_week) && s.day_of_week >= 1 && s.day_of_week <= 7
+            && TIME.test(s.start_time) && TIME.test(s.end_time) && s.start_time < s.end_time)) {
+            return res.status(400).json({ success: false, message: 'Lịch rảnh không hợp lệ' });
+        }
+        const slots = raw.map(s => ({ day_of_week: s.day_of_week, start_time: s.start_time, end_time: s.end_time, is_active: true }));
+        const matchingService = require('./matching.service');
+        const result = await matchingService.getRecommendedJobs(req.user.id, { limit: 20, offset: 0, slots });
+        res.status(200).json({ success: true, data: result });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // Helpers cho SEO-05: Dynamic XML Sitemap
 function escapeXml(unsafe) {
     if (unsafe === null || unsafe === undefined) return '';

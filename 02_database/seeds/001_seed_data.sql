@@ -37,8 +37,8 @@ ON CONFLICT (user_id) DO NOTHING;
 -- 6. Tin tuyển dụng mẫu
 INSERT INTO jobs (id, employer_id, title, description, requirements, category, location, salary_type, salary, work_type, status, moderation_status)
 VALUES 
-(1, 2, 'Lập trình viên Frontend React.js Part-time', 'Hỗ trợ phát triển giao diện người dùng cho hệ thống nội bộ công ty. Làm việc linh hoạt 20h/tuần.', 'Biết React.js cơ bản, Tailwind CSS, ham học hỏi và có trách nhiệm.', 'Công nghệ thông tin', 'Quận 1, TP.HCM (Hỗ trợ Hybrid)', 'HOURLY', 45000, 'PART_TIME', 'OPEN', 'APPROVED'),
-(2, 2, 'Cộng tác viên Thiết kế Banner UI/UX Freelance', 'Thiết kế ấn phẩm truyền thông và landing page quảng bá chiến dịch tháng.', 'Sử dụng thành thạo Figma hoặc Photoshop/Illustrator.', 'Thiết kế đồ họa', 'Làm việc từ xa (Remote)', 'FIXED', 2500000, 'FREELANCE', 'OPEN', 'APPROVED'),
+(1, 2, 'Lập trình viên Frontend React.js Part-time', 'Hỗ trợ phát triển giao diện người dùng cho hệ thống nội bộ công ty. Làm việc linh hoạt 20h/tuần.', 'Biết React.js cơ bản, Tailwind CSS, ham học hỏi và có trách nhiệm.', 'Công nghệ thông tin', 'Quận 1, TP.HCM', 'HOURLY', 45000, 'PART_TIME', 'OPEN', 'APPROVED'),
+(2, 2, 'Cộng tác viên Thiết kế Banner UI/UX Part-time', 'Thiết kế ấn phẩm truyền thông và landing page quảng bá chiến dịch tháng.', 'Sử dụng thành thạo Figma hoặc Photoshop/Illustrator.', 'Thiết kế đồ họa', 'Tòa nhà A, Quận 1, TP.HCM', 'MONTHLY', 2500000, 'PART_TIME', 'OPEN', 'APPROVED'),
 (3, 3, 'Nhân viên Phục vụ ca tối The Coffee Chill', 'Tiếp đón khách hàng, order đồ uống và giữ gìn vệ sinh khu vực phục vụ.', 'Nhanh nhẹn, trung thực, có thái độ phục vụ tốt.', 'Dịch vụ & F&B', 'Bình Thạnh, TP.HCM', 'HOURLY', 30000, 'PART_TIME', 'OPEN', 'APPROVED')
 ON CONFLICT (id) DO NOTHING;
 

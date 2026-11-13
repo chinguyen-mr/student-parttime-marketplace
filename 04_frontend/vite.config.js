@@ -31,8 +31,11 @@ export default defineConfig({
       },
     },
   },
+  // Cổng cố định: Vite dev = 5173, Docker frontend = 8080, backend = 5000.
+  // strictPort: báo lỗi nếu cổng bận thay vì tự nhảy sang cổng khác (8081, 8082...).
   server: {
-    port: 8080,
+    port: 5173,
+    strictPort: true,
     host: true,
     proxy: {
       '/api': {
@@ -47,7 +50,8 @@ export default defineConfig({
     },
   },
   preview: {
-    port: 8080,
+    port: 4173,
+    strictPort: true,
     host: true,
   },
 })

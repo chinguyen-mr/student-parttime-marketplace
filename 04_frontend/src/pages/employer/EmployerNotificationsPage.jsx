@@ -77,7 +77,9 @@ export default function EmployerNotificationsPage({
 
     // Navigate according to type
     if (onNavigateTab) {
-      if (item.type === 'APPLICATION' || item.title?.includes('ứng tuyển') || item.body?.includes('ứng tuyển')) {
+      if (item.target_type === 'COMPANY_REVIEW' || item.target_type === 'JOB_REVIEW') {
+        onNavigateTab('reviews');
+      } else if (item.type === 'APPLICATION' || item.title?.includes('ứng tuyển') || item.body?.includes('ứng tuyển')) {
         onNavigateTab('applicants');
       } else if (item.type === 'PROPOSAL' || item.title?.includes('đề xuất') || item.body?.includes('chào giá')) {
         onNavigateTab('employer_proposals');
@@ -157,7 +159,6 @@ export default function EmployerNotificationsPage({
           { id: 'UNREAD', label: `Chưa đọc (${unreadCount})` },
           { id: 'READ', label: 'Đã đọc' },
           { id: 'APPLICATION', label: 'Ứng tuyển' },
-          { id: 'PROPOSAL', label: 'Đề xuất Freelance' },
           { id: 'JOB', label: 'Tin đăng' },
           { id: 'ASSIGNMENT', label: 'Hợp đồng' },
           { id: 'DELIVERABLE', label: 'Nghiệm thu' },
@@ -197,7 +198,7 @@ export default function EmployerNotificationsPage({
           title="Không tìm thấy thông báo phù hợp"
           description={
             notifications.length === 0
-              ? "Các cập nhật hồ sơ ứng tuyển, đề xuất freelance và tiến độ công việc sẽ xuất hiện ở đây."
+              ? "Các cập nhật hồ sơ ứng tuyển và tiến độ công việc sẽ xuất hiện ở đây."
               : "Không có thông báo nào trong bộ lọc này."
           }
         />

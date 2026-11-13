@@ -17,11 +17,29 @@ import { API_BASE, formatApiError } from '../../config/api';
 import MyAssignmentsPage from './MyAssignmentsPage';
 import NotificationsPage from './NotificationsPage';
 import AccountSettingsPage from './AccountSettingsPage';
+import AvailabilityEditor, { normalizeSlots } from '../../components/student/AvailabilityEditor';
+import AvatarUploader from '../../components/common/AvatarUploader';
+import StudentProfileForm from '../../components/student/StudentProfileForm';
+import MyExperienceReviews from '../../components/reviews/MyExperienceReviews';
+
+// Nhãn tiếng Việt cho trạng thái đơn ứng tuyển
+const APPLICATION_STATUS_LABEL = {
+  PENDING: 'Chờ duyệt',
+  REVIEWING: 'Đang xem xét',
+  SHORTLISTED: 'Vào vòng trong',
+  ACCEPTED: 'Đã nhận',
+  REJECTED: 'Bị từ chối',
+  WITHDRAWN: 'Đã rút',
+  COMPLETED: 'Hoàn thành'
+};
 
 export default function StudentDashboardPage({
   currentUser,
   jobs = [],
   initialTab = 'dashboard',
+  navNonce = 0,
+  onUserUpdate,
+  onOpenNotification,
   onSelectJob,
   onSelectApplication,
   onApply,
@@ -37,6 +55,7 @@ export default function StudentDashboardPage({
 
   // Availability & Matching Engine State (P0-03, P0-05)
   const [availabilitySlots, setAvailabilitySlots] = useState([]);
+  const [savedAvailability, setSavedAvailability] = useState([]); // bản đã lưu trên server, để biết có thay đổi chưa lưu
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [isSavingAvailability, setIsSavingAvailability] = useState(false);
   const [recommendedJobs, setRecommendedJobs] = useState([]);
@@ -48,19 +67,13 @@ export default function StudentDashboardPage({
   const [appsLoading, setAppsLoading] = useState(false);
   const [appFilter, setAppFilter] = useState('ALL');
 
-  // Profile Form State (student_code, university, major, experience, bio, default_cv_url, skills)
+  // Thông tin hiển thị ở sidebar (form đầy đủ nằm trong StudentProfileForm)
   const [profileLoading, setProfileLoading] = useState(false);
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [fullName, setFullName] = useState(currentUser?.full_name || 'Nguyễn Văn Chí');
-  const [studentCode, setStudentCode] = useState('20110001');
-  const [university, setUniversity] = useState('Trường Đại học Văn Lang (VLU)');
-  const [major, setMajor] = useState('Công nghệ Thông tin');
-  const [experience, setExperience] = useState('Đã hoàn thành dự án Web bán hàng ReactJS, có kinh nghiệm phục vụ cafe 6 tháng.');
-  const [bio, setBio] = useState('Sinh viên năm 4 đam mê lập trình và phát triển kỹ năng mềm. Năng động, cầu tiến, có thể linh hoạt sắp xếp thời gian làm việc.');
-  const [defaultCvUrl, setDefaultCvUrl] = useState('https://jobnest.vn/uploads/cv/CV_NguyenVanChi_Default.pdf');
-  const [skills, setSkills] = useState(['Giao tiếp', 'Làm việc nhóm', 'Tin học văn phòng', 'Java', 'SQL', 'React.js']);
-  const [newSkill, setNewSkill] = useState('');
-  const [isAddingSkill, setIsAddingSkill] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatar_url || null);
+  const [fullName, setFullName] = useState(currentUser?.full_name || '');
+  const [university, setUniversity] = useState('');
+  const [major, setMajor] = useState('');
+  const [defaultCvUrl, setDefaultCvUrl] = useState('');
 
   // Saved Jobs State from LocalStorage
   const [savedJobIds, setSavedJobIds] = useState([]);
@@ -102,13 +115,10 @@ export default function StudentDashboardPage({
       if (data.success && data.data) {
         const p = data.data;
         if (p.full_name) setFullName(p.full_name);
-        if (p.student_code) setStudentCode(p.student_code);
+        setAvatarUrl(p.avatar_url || null);
         if (p.school || p.university) setUniversity(p.school || p.university);
         if (p.major) setMajor(p.major);
-        if (p.experience) setExperience(p.experience);
-        if (p.bio) setBio(p.bio);
         if (p.default_cv_url) setDefaultCvUrl(p.default_cv_url);
-        if (Array.isArray(p.skills) && p.skills.length > 0) setSkills(p.skills);
       }
     } catch (err) {
       console.warn('Could not fetch student profile from API:', err);
@@ -191,7 +201,9 @@ export default function StudentDashboardPage({
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        setAvailabilitySlots(data.data);
+        const slots = normalizeSlots(data.data);
+        setAvailabilitySlots(slots);
+        setSavedAvailability(slots);
       }
     } catch (err) {
       console.warn('Could not fetch student availability:', err);
@@ -203,6 +215,39 @@ export default function StudentDashboardPage({
   // =========================================================================
   // 6. FETCH RECOMMENDED JOBS (GET /api/jobs/recommended)
   // =========================================================================
+  // Xem trước gợi ý theo lịch đang chọn (chưa lưu). null = đang dùng lịch đã lưu
+  const [previewJobs, setPreviewJobs] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const availabilityDirty = useMemo(() => {
+    const key = (list) => list.map(s => `${s.day_of_week}-${String(s.start_time).slice(0, 5)}`).sort().join('|');
+    return key(availabilitySlots) !== key(savedAvailability);
+  }, [availabilitySlots, savedAvailability]);
+
+  useEffect(() => {
+    if (!currentUser?.token || !availabilityDirty) {
+      setPreviewJobs(null);
+      return undefined;
+    }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setPreviewLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/jobs/recommended/preview`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${currentUser.token}` },
+          body: JSON.stringify({ slots: availabilitySlots })
+        });
+        const data = await res.json();
+        if (!cancelled && data.success) setPreviewJobs(Array.isArray(data.data?.jobs) ? data.data.jobs : []);
+      } catch (err) {
+        console.warn('Could not preview recommended jobs:', err);
+      } finally {
+        if (!cancelled) setPreviewLoading(false);
+      }
+    }, 400);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [availabilitySlots, availabilityDirty, currentUser?.token]);
+
   const fetchRecommendedJobs = async () => {
     if (!currentUser?.token) return;
     try {
@@ -242,7 +287,9 @@ export default function StudentDashboardPage({
       });
       const data = await res.json();
       if (data.success) {
-        setAvailabilitySlots(data.data || []);
+        const slots = normalizeSlots(data.data || []);
+        setAvailabilitySlots(slots);
+        setSavedAvailability(slots);
         if (showToast) showToast('Đã lưu lịch rảnh thành công! Đang tính toán gợi ý việc làm...', 'success');
         await fetchRecommendedJobs();
       } else {
@@ -296,67 +343,7 @@ export default function StudentDashboardPage({
     if (initialTab) {
       setActiveTab(initialTab);
     }
-  }, [initialTab]);
-
-  // =========================================================================
-  // 4. SAVE PROFILE HANDLER (PUT /api/profile/me)
-  // =========================================================================
-  const handleSaveProfile = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    if (!currentUser?.token) {
-      if (showToast) showToast('Vui lòng đăng nhập để lưu hồ sơ', 'error');
-      return;
-    }
-
-    try {
-      setIsSavingProfile(true);
-      const res = await fetch(`${API_BASE}/profile/me`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${currentUser.token}`
-        },
-        body: JSON.stringify({
-          student_code: studentCode,
-          school: university,
-          university,
-          major,
-          experience,
-          bio,
-          default_cv_url: defaultCvUrl,
-          skills
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        if (showToast) {
-          showToast('Cập nhật hồ sơ cá nhân thành công!', 'success');
-        }
-      } else {
-        throw new Error(data.message || 'Lỗi lưu hồ sơ');
-      }
-    } catch (err) {
-      if (showToast) {
-        showToast(formatApiError(err, 'Lỗi cập nhật hồ sơ'), 'error');
-      }
-    } finally {
-      setIsSavingProfile(false);
-    }
-  };
-
-  // Skill Add/Remove Handlers
-  const handleAddSkill = () => {
-    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
-      setSkills([...skills, newSkill.trim()]);
-      setNewSkill('');
-      setIsAddingSkill(false);
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove) => {
-    setSkills(skills.filter(s => s !== skillToRemove));
-  };
+  }, [initialTab, navNonce]);
 
   // Filtered Applications
   const filteredApplications = useMemo(() => {
@@ -371,8 +358,7 @@ export default function StudentDashboardPage({
 
   // Dashboard Metrics
   const pendingCount = applications.filter(a => a.status === 'PENDING').length;
-  const inProgressAssignmentsCount = assignments.filter(a => a.status === 'IN_PROGRESS').length;
-  const completedAssignmentsCount = assignments.filter(a => a.status === 'COMPLETED').length;
+  const acceptedCount = applications.filter(a => a.status === 'ACCEPTED').length;
 
   // Completed assignments for WF-S10
   const completedAssignments = useMemo(() => {
@@ -457,116 +443,55 @@ export default function StudentDashboardPage({
 
 
   return (
-    <div className="student-dashboard-container" style={{ maxWidth: 1240, margin: '0 auto', paddingBottom: 60 }}>
-      {/* =========================================================================
-          PAGE HEADER TITLE & BREADCRUMB
-          ========================================================================= */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>
-            CỔNG THÔNG TIN SINH VIÊN
-          </div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
-            {activeTab === 'dashboard' ? 'Tổng quan hoạt động sinh viên' :
-             activeTab === 'availability' ? 'Lịch rảnh & So khớp công việc AI' :
-             activeTab === 'profile' ? 'Hồ sơ cá nhân sinh viên' :
-             activeTab === 'cv' ? 'Quản lý CV & Hồ sơ ứng tuyển' :
-             activeTab === 'saved_jobs' ? 'Việc làm đã lưu' :
-             activeTab === 'applications' ? 'Lịch sử ứng tuyển' :
-             activeTab === 'assignments' ? 'Công việc được giao' :
-             activeTab === 'reviews' ? 'Đánh giá & Phản hồi' :
-             activeTab === 'notifications' ? 'Trung tâm thông báo' :
-             activeTab === 'settings' ? 'Cài đặt tài khoản & Bảo mật' :
-             'Quản lý tài khoản & Hoạt động sinh viên'}
-          </h1>
-        </div>
-
-        <button
-          onClick={onNavigateJobs}
-          style={{
-            background: '#ffffff',
-            border: '1.5px solid var(--color-border)',
-            color: 'var(--color-primary)',
-            padding: '8px 16px',
-            borderRadius: 8,
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            transition: 'all 0.15s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'var(--color-primary-light)';
-            e.currentTarget.style.borderColor = '#A997C5';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#ffffff';
-            e.currentTarget.style.borderColor = 'var(--color-border)';
-          }}
-        >
-          Khám phá việc làm mới <ArrowRight size={14} />
-        </button>
-      </div>
-
+    <div className="student-dashboard-container">
       {/* =========================================================================
           MAIN 2-COLUMN LAYOUT: SIDEBAR (LEFT) + TAB CONTENT (RIGHT)
           ========================================================================= */}
-      <div style={{ display: 'grid', gridTemplateColumns: '270px minmax(0, 1fr)', gap: 24, alignItems: 'flex-start' }} className="student-layout-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: '300px minmax(0, 1fr)', alignItems: 'flex-start' }} className="student-layout-grid">
         
         {/* =====================================================================
             LEFT SIDEBAR (AVATAR + MENU ĐIỀU HƯỚNG THEO CHUẨN WF-S01)
             ===================================================================== */}
-        <aside style={{
+        <aside className="student-sidebar" style={{
           background: '#ffffff',
-          borderRadius: 16,
-          border: '1px solid var(--color-border)',
-          padding: '24px 18px',
-          boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)',
+          borderRight: '1px solid var(--color-border)',
+          padding: '24px 20px',
+          boxSizing: 'border-box',
+          // Thanh điều hướng dính sát mép trái, cao bằng phần màn hình dưới header, tự cuộn nếu dài
           position: 'sticky',
-          top: 80
+          top: 'var(--app-header-h, 84px)',
+          height: 'calc(100vh - var(--app-header-h, 84px))',
+          overflowY: 'auto'
         }}>
           {/* Avatar & Student Info Card */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingBottom: 20, borderBottom: '1px solid #F1F5F9', marginBottom: 18 }}>
-            <div style={{
-              width: 72,
-              height: 72,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #7565A8 0%, #A997C5 100%)',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 28,
-              fontWeight: 800,
-              marginBottom: 12,
-              boxShadow: '0 6px 16px rgba(117, 101, 168, 0.25)',
-              border: '3px solid #ffffff'
-            }}>
-              {fullName?.charAt(0) || 'S'}
+            <div style={{ marginBottom: 10 }}>
+              {/* Chỉ hiển thị; đổi/chỉnh ảnh trong trang Hồ sơ */}
+              <AvatarUploader
+                readOnly
+                avatarUrl={avatarUrl}
+                fallbackText={fullName?.charAt(0) || 'S'}
+                size={84}
+                title="Xem hồ sơ xin việc"
+                onClick={() => setActiveTab('profile')}
+              />
             </div>
 
             <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
               {fullName}
             </h3>
 
-            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
-              MSSV: <strong>{studentCode}</strong>
-            </div>
-
-            <span style={{
-              display: 'inline-block',
-              background: 'var(--color-accent-bg)',
-              color: 'var(--color-primary)',
-              fontSize: 11,
-              fontWeight: 700,
-              padding: '3px 10px',
-              borderRadius: 12,
-              border: '1px solid var(--color-secondary)'
-            }}>
-              Sinh viên Văn Lang
-            </span>
+            {(major || university) ? (
+              <div style={{ fontSize: 12.5, color: 'var(--color-text-secondary)', lineHeight: 1.45 }}>
+                {major && <div style={{ fontWeight: 600, color: '#594675' }}>{major}</div>}
+                {university && <div>{university}</div>}
+              </div>
+            ) : (
+              <button type="button" onClick={() => setActiveTab('profile')}
+                style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', padding: 0 }}>
+                + Cập nhật trường & chuyên ngành
+              </button>
+            )}
           </div>
 
           {/* Sidebar Menu Items */}
@@ -574,11 +499,10 @@ export default function StudentDashboardPage({
             {[
               { id: 'dashboard', label: 'Tổng quan', icon: Briefcase, count: null },
               { id: 'availability', label: 'Lịch rảnh & Gợi ý AI', icon: Calendar, count: null },
-              { id: 'profile', label: 'Hồ sơ cá nhân', icon: User, count: null },
+              { id: 'profile', label: 'Hồ sơ xin việc', icon: User, count: null },
               { id: 'cv', label: 'Quản lý CV', icon: GraduationCap, count: null },
               { id: 'saved_jobs', label: 'Việc làm đã lưu', icon: Bookmark, count: savedJobIds.length },
               { id: 'applications', label: 'Lịch sử ứng tuyển', icon: Clock, count: applications.length },
-              { id: 'assignments', label: 'Công việc được giao', icon: FileText, count: assignments.length },
               { id: 'reviews', label: 'Đánh giá & Phản hồi', icon: Star, count: null },
               { id: 'notifications', label: 'Thông báo', icon: Bell, count: unreadNotifsCount },
               { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings, count: null },
@@ -639,7 +563,7 @@ export default function StudentDashboardPage({
         {/* =====================================================================
             RIGHT MAIN CONTENT: DỰA THEO ACTIVE TAB
             ===================================================================== */}
-        <main style={{ minWidth: 0 }}>
+        <main style={{ minWidth: 0, padding: '28px 32px 60px', maxWidth: 1320, boxSizing: 'border-box' }}>
           
           {/* ===================================================================
               TAB 1: TỔNG QUAN (DASHBOARD - WF-S01)
@@ -695,7 +619,7 @@ export default function StudentDashboardPage({
                 <>
                   {/* 4 Metric Stat Cards matching WF-S01 exactly */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 16, marginBottom: 24 }}>
-                    {/* 1. Application đang chờ (WF-S01: Application đang chờ [ N ]) */}
+                    {/* 1. Đơn đang chờ duyệt */}
                     <div 
                       onClick={() => setActiveTab('applications')}
                       style={{
@@ -717,7 +641,7 @@ export default function StudentDashboardPage({
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#D97706' }}>Application đang chờ</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#D97706' }}>Đơn đang chờ duyệt</span>
                         <div style={{ width: 34, height: 34, borderRadius: 8, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <Clock size={18} color="#D97706" />
                         </div>
@@ -730,9 +654,44 @@ export default function StudentDashboardPage({
                       </div>
                     </div>
 
-                    {/* 2. Assignment đang thực hiện (WF-S01: Assignment đang thực hiện [ N ]) */}
+                    {/* 2. Đơn đã được nhận */}
                     <div 
-                      onClick={() => setActiveTab('assignments')}
+                      onClick={() => setActiveTab('applications')}
+                      style={{
+                        background: '#ffffff',
+                        borderRadius: 14,
+                        border: '1px solid var(--color-border)',
+                        padding: '20px 18px',
+                        boxShadow: '0 2px 8px rgba(41, 38, 58, 0.03)',
+                        cursor: 'pointer',
+                        transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 6px 16px rgba(4, 120, 87, 0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'none';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(41, 38, 58, 0.03)';
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#047857' }}>Đã được nhận</span>
+                        <div style={{ width: 34, height: 34, borderRadius: 8, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <CheckCircle2 size={18} color="#047857" />
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)' }}>
+                        {acceptedCount}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
+                        Đơn được nhà tuyển dụng chấp nhận
+                      </div>
+                    </div>
+
+                    {/* 3. Việc làm đã lưu */}
+                    <div 
+                      onClick={() => setActiveTab('saved_jobs')}
                       style={{
                         background: '#ffffff',
                         borderRadius: 14,
@@ -752,38 +711,16 @@ export default function StudentDashboardPage({
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#2563EB' }}>Assignment đang thực hiện</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#2563EB' }}>Việc làm đã lưu</span>
                         <div style={{ width: 34, height: 34, borderRadius: 8, background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Briefcase size={18} color="#2563EB" />
+                          <Bookmark size={18} color="#2563EB" />
                         </div>
                       </div>
                       <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)' }}>
-                        {inProgressAssignmentsCount}
+                        {savedJobIds.length}
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
-                        Công việc / Ca làm đang diễn ra
-                      </div>
-                    </div>
-
-                    {/* 3. Việc đã hoàn thành (WF-S01: Việc đã hoàn thành [ N ]) */}
-                    <div style={{
-                      background: '#ffffff',
-                      borderRadius: 14,
-                      border: '1px solid var(--color-border)',
-                      padding: '20px 18px',
-                      boxShadow: '0 2px 8px rgba(41, 38, 58, 0.03)'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#047857' }}>Việc đã hoàn thành</span>
-                        <div style={{ width: 34, height: 34, borderRadius: 8, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <CheckCircle2 size={18} color="#047857" />
-                        </div>
-                      </div>
-                      <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)' }}>
-                        {completedAssignmentsCount}
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
-                        Dự án & Ca làm đã kết thúc
+                        Việc làm bạn đang quan tâm
                       </div>
                     </div>
 
@@ -823,80 +760,8 @@ export default function StudentDashboardPage({
                     </div>
                   </div>
 
-                  {/* 2 Bảng danh sách gần đây theo WF-S01: Assignment gần đây & Application gần đây */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 20 }}>
-                    {/* 1. Assignment gần đây (WF-S01: [ Công việc | Trạng thái ]) */}
-                    <div style={{
-                      background: '#ffffff',
-                      borderRadius: 14,
-                      border: '1px solid var(--color-border)',
-                      padding: '22px 24px',
-                      boxShadow: '0 2px 8px rgba(41, 38, 58, 0.03)'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                        <div>
-                          <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
-                            Assignment gần đây
-                          </h3>
-                          <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
-                            Công việc & Hợp đồng nhận làm
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => setActiveTab('assignments')}
-                          style={{ background: 'transparent', border: 'none', color: 'var(--color-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
-                        >
-                          Xem tất cả →
-                        </button>
-                      </div>
-
-                      {/* Header row: Công việc | Trạng thái */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#F8FAFC', borderRadius: 8, fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 10 }}>
-                        <span>CÔNG VIỆC</span>
-                        <span>TRẠNG THÁI</span>
-                      </div>
-
-                      {assignments.length === 0 ? (
-                        <EmptyState
-                          title="Chưa có Assignment nào"
-                          description="Bạn chưa có công việc nhận làm nào. Khám phá các công việc part-time & freelance phù hợp ngay!"
-                          actionText="Tìm việc làm ngay"
-                          onAction={onNavigateJobs}
-                        />
-                      ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                          {assignments.slice(0, 4).map((ass) => {
-                            const isCompleted = ass.status === 'COMPLETED';
-                            const isInProgress = ass.status === 'IN_PROGRESS';
-                            return (
-                              <div key={ass.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: 10, background: '#F8F7FB', border: '1px solid #EAE7F0' }}>
-                                <div style={{ minWidth: 0, flex: 1, marginRight: 12 }}>
-                                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {ass.job_title}
-                                  </div>
-                                  <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}>
-                                    {ass.company_name || 'Doanh nghiệp'}
-                                  </div>
-                                </div>
-
-                                <span style={{
-                                  padding: '4px 10px',
-                                  borderRadius: 6,
-                                  fontSize: 11.5,
-                                  fontWeight: 700,
-                                  background: isCompleted ? '#ECFDF5' : isInProgress ? '#EFF6FF' : '#F1F5F9',
-                                  color: isCompleted ? '#047857' : isInProgress ? '#2563EB' : '#64748B',
-                                  border: `1px solid ${isCompleted ? '#A7F3D0' : isInProgress ? '#BFDBFE' : '#E2E8F0'}`
-                                }}>
-                                  {isCompleted ? 'COMPLETED' : isInProgress ? 'IN_PROGRESS' : 'NOT_STARTED'}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-
+                  {/* Đơn ứng tuyển gần đây */}
+                  <div>
                     {/* 2. Application gần đây (WF-S01: [ Job | Trạng thái ]) */}
                     <div style={{
                       background: '#ffffff',
@@ -908,7 +773,7 @@ export default function StudentDashboardPage({
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                         <div>
                           <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
-                            Application gần đây
+                            Đơn ứng tuyển gần đây
                           </h3>
                           <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                             Đơn ứng tuyển gửi đi gần nhất
@@ -924,13 +789,13 @@ export default function StudentDashboardPage({
 
                       {/* Header row: Job | Trạng thái */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#F8FAFC', borderRadius: 8, fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 10 }}>
-                        <span>JOB / VỊ TRÍ</span>
+                        <span>VỊ TRÍ</span>
                         <span>TRẠNG THÁI</span>
                       </div>
 
                       {applications.length === 0 ? (
                         <EmptyState
-                          title="Chưa có Application nào"
+                          title="Chưa có đơn ứng tuyển nào"
                           description="Bạn chưa nộp đơn ứng tuyển nào. Hãy tìm việc làm phù hợp và nộp hồ sơ ngay nhé!"
                           actionText="Tìm việc làm ngay"
                           onAction={onNavigateJobs}
@@ -963,7 +828,7 @@ export default function StudentDashboardPage({
                                   color: isAccepted ? '#047857' : isRejected ? '#DC2626' : isShortlisted ? '#1D4ED8' : isReviewing ? '#6D28D9' : '#D97706',
                                   border: `1px solid ${isAccepted ? '#A7F3D0' : isRejected ? '#FECACA' : isShortlisted ? '#BFDBFE' : isReviewing ? '#DDD6FE' : '#FDE68A'}`
                                 }}>
-                                  {app.status || 'PENDING'}
+                                  {APPLICATION_STATUS_LABEL[app.status] || 'Chờ duyệt'}
                                 </span>
                               </div>
                             );
@@ -1003,7 +868,7 @@ export default function StudentDashboardPage({
                           </h3>
                         </div>
                         <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '4px 0 0 0' }}>
-                          Thuật toán 2 tầng (Bộ lọc cứng Hard Filter + Chấm điểm tương thích Soft Composite) tự động đề xuất việc làm không trùng lịch học
+                          Những việc không trùng giờ học, phù hợp với chuyên ngành và khu vực của bạn
                         </p>
                       </div>
 
@@ -1118,311 +983,37 @@ export default function StudentDashboardPage({
               TAB: QUẢN LÝ LỊCH RẢNH & SO KHỚP AI (P0-02, P0-03, P0-05)
               =================================================================== */}
           {activeTab === 'availability' && (
-            <div style={{
-              background: '#ffffff',
-              borderRadius: 16,
-              border: '1px solid var(--color-border)',
-              padding: '28px 32px',
-              boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)'
-            }}>
-              {/* Header Tab */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #F1F5F9', flexWrap: 'wrap', gap: 12 }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{
-                      background: 'var(--color-primary-light, #ede9fe)',
-                      color: 'var(--color-primary, #7565A8)',
-                      padding: '4px 8px',
-                      borderRadius: 8,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      fontSize: 12,
-                      fontWeight: 800
-                    }}>
-                      <Calendar size={14} /> THỜI GIAN BIỂU CÁ NHÂN
-                    </span>
-                    <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
-                      Quản lý Lịch rảnh & Tương thích Việc làm
-                    </h2>
-                  </div>
-                  <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '4px 0 0 0' }}>
-                    Chọn các ca hoặc buổi bạn có thể đi làm trong tuần. Matching Engine sẽ dùng dữ liệu này để so khớp thời gian thực với yêu cầu của nhà tuyển dụng.
-                  </p>
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <AvailabilityEditor
+                slots={availabilitySlots}
+                savedSlots={savedAvailability}
+                onChange={setAvailabilitySlots}
+                onSave={() => handleSaveAvailability(availabilitySlots)}
+                saving={isSavingAvailability}
+                loading={availabilityLoading}
+              />
 
-                <Button
-                  variant="primary"
-                  onClick={() => handleSaveAvailability(availabilitySlots)}
-                  disabled={isSavingAvailability}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
-                >
-                  <Save size={16} />
-                  {isSavingAvailability ? 'Đang lưu...' : 'Lưu lịch rảnh & Cập nhật gợi ý'}
-                </Button>
-              </div>
-
-              {/* Quick Preset Buttons for Demo */}
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
-                  ⚡ Cấu hình nhanh cho buổi trình bày Demo:
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // Student A preset: Thứ 2, 4, 6 sáng 07:30 - 11:30
-                      const presetA = [
-                        { day_of_week: 1, start_time: '07:30:00', end_time: '11:30:00', is_active: true },
-                        { day_of_week: 3, start_time: '07:30:00', end_time: '11:30:00', is_active: true },
-                        { day_of_week: 5, start_time: '07:30:00', end_time: '11:30:00', is_active: true },
-                      ];
-                      setAvailabilitySlots(presetA);
-                      if (showToast) showToast('Đã chọn mẫu Sinh viên A (Rảnh Sáng T2, T4, T6). Bấm "Lưu lịch rảnh" để cập nhật!', 'info');
-                    }}
-                    style={{
-                      background: '#F5F3FF',
-                      border: '1px solid #DDD6FE',
-                      color: '#6D28D9',
-                      padding: '6px 12px',
-                      borderRadius: 8,
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    🌅 Sinh viên A: Rảnh Sáng (T2, T4, T6: 07:30 - 11:30)
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // Student B preset: Thứ 3, 5, 7 tối 18:00 - 22:00
-                      const presetB = [
-                        { day_of_week: 2, start_time: '18:00:00', end_time: '22:00:00', is_active: true },
-                        { day_of_week: 4, start_time: '18:00:00', end_time: '22:00:00', is_active: true },
-                        { day_of_week: 6, start_time: '18:00:00', end_time: '22:00:00', is_active: true },
-                      ];
-                      setAvailabilitySlots(presetB);
-                      if (showToast) showToast('Đã chọn mẫu Sinh viên B (Rảnh Tối T3, T5, T7). Bấm "Lưu lịch rảnh" để cập nhật!', 'info');
-                    }}
-                    style={{
-                      background: '#EFF6FF',
-                      border: '1px solid #BFDBFE',
-                      color: '#1D4ED8',
-                      padding: '6px 12px',
-                      borderRadius: 8,
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    🌙 Sinh viên B: Rảnh Tối (T3, T5, T7: 18:00 - 22:00)
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // Weekend preset
-                      const presetWeekend = [
-                        { day_of_week: 6, start_time: '08:00:00', end_time: '17:00:00', is_active: true },
-                        { day_of_week: 7, start_time: '08:00:00', end_time: '17:00:00', is_active: true },
-                      ];
-                      setAvailabilitySlots(presetWeekend);
-                    }}
-                    style={{
-                      background: '#ECFDF5',
-                      border: '1px solid #A7F3D0',
-                      color: '#047857',
-                      padding: '6px 12px',
-                      borderRadius: 8,
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    🏖️ Rảnh Cuối tuần (T7, CN: 08:00 - 17:00)
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAvailabilitySlots([]);
-                      if (showToast) showToast('Đã xóa trắng lịch rảnh.', 'info');
-                    }}
-                    style={{
-                      background: '#FEF2F2',
-                      border: '1px solid #FECACA',
-                      color: '#DC2626',
-                      padding: '6px 12px',
-                      borderRadius: 8,
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    🧹 Xóa toàn bộ lịch
-                  </button>
-                </div>
-              </div>
-
-              {/* 7-Day Weekly Matrix Table */}
+              {/* Kết quả gợi ý theo lịch rảnh đã lưu */}
               <div style={{
-                background: '#FAFAFA',
+                background: '#ffffff',
+                borderRadius: 16,
                 border: '1px solid var(--color-border)',
-                borderRadius: 12,
-                overflow: 'hidden',
-                marginBottom: 32
+                padding: '24px 28px',
+                boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)'
               }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '120px 1fr',
-                  background: 'var(--color-primary-light, #ede9fe)',
-                  borderBottom: '1px solid var(--color-border)',
-                  padding: '12px 16px',
-                  fontWeight: 800,
-                  fontSize: 13,
-                  color: 'var(--color-primary, #7565A8)'
-                }}>
-                  <div>THỨ / NGÀY</div>
-                  <div>CÁC CA RẢNH TRONG NGÀY (NHẤN ĐỂ BẬT / TẮT)</div>
-                </div>
-
-                {[
-                  { day: 1, label: 'Thứ Hai', short: 'T2' },
-                  { day: 2, label: 'Thứ Ba', short: 'T3' },
-                  { day: 3, label: 'Thứ Tư', short: 'T4' },
-                  { day: 4, label: 'Thứ Năm', short: 'T5' },
-                  { day: 5, label: 'Thứ Sáu', short: 'T6' },
-                  { day: 6, label: 'Thứ Bảy', short: 'T7' },
-                  { day: 7, label: 'Chủ Nhật', short: 'CN' }
-                ].map(({ day, label }) => {
-                  const daySlots = availabilitySlots.filter(s => s.day_of_week === day);
-
-                  const isMorning = daySlots.some(s => s.start_time.startsWith('07:30') || s.start_time.startsWith('08:00'));
-                  const isAfternoon = daySlots.some(s => s.start_time.startsWith('13:00'));
-                  const isEvening = daySlots.some(s => s.start_time.startsWith('18:00') || s.start_time.startsWith('17:30'));
-
-                  const togglePreset = (startStr, endStr) => {
-                    setAvailabilitySlots(prev => {
-                      const exists = prev.some(s => s.day_of_week === day && s.start_time.startsWith(startStr));
-                      if (exists) {
-                        return prev.filter(s => !(s.day_of_week === day && s.start_time.startsWith(startStr)));
-                      } else {
-                        return [...prev, {
-                          day_of_week: day,
-                          start_time: `${startStr}:00`,
-                          end_time: `${endStr}:00`,
-                          is_active: true
-                        }];
-                      }
-                    });
-                  };
-
-                  return (
-                    <div
-                      key={day}
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '120px 1fr',
-                        padding: '12px 16px',
-                        borderBottom: '1px solid #ECECEC',
-                        alignItems: 'center',
-                        background: daySlots.length > 0 ? '#FFFFFF' : '#FAFAFA'
-                      }}
-                    >
-                      <div style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--color-text)' }}>
-                        {label}
-                      </div>
-
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
-                        {/* Ca Sáng */}
-                        <button
-                          type="button"
-                          onClick={() => togglePreset('07:30', '11:30')}
-                          style={{
-                            background: isMorning ? '#7565A8' : '#FFFFFF',
-                            color: isMorning ? '#FFFFFF' : 'var(--color-text)',
-                            border: `1.5px solid ${isMorning ? '#7565A8' : '#D1D5DB'}`,
-                            padding: '6px 14px',
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            transition: 'all 0.15s ease'
-                          }}
-                        >
-                          <span>🌅</span> Ca Sáng (07:30 - 11:30) {isMorning && '✓'}
-                        </button>
-
-                        {/* Ca Chiều */}
-                        <button
-                          type="button"
-                          onClick={() => togglePreset('13:00', '17:00')}
-                          style={{
-                            background: isAfternoon ? '#7565A8' : '#FFFFFF',
-                            color: isAfternoon ? '#FFFFFF' : 'var(--color-text)',
-                            border: `1.5px solid ${isAfternoon ? '#7565A8' : '#D1D5DB'}`,
-                            padding: '6px 14px',
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            transition: 'all 0.15s ease'
-                          }}
-                        >
-                          <span>☀️</span> Ca Chiều (13:00 - 17:00) {isAfternoon && '✓'}
-                        </button>
-
-                        {/* Ca Tối */}
-                        <button
-                          type="button"
-                          onClick={() => togglePreset('18:00', '22:00')}
-                          style={{
-                            background: isEvening ? '#7565A8' : '#FFFFFF',
-                            color: isEvening ? '#FFFFFF' : 'var(--color-text)',
-                            border: `1.5px solid ${isEvening ? '#7565A8' : '#D1D5DB'}`,
-                            padding: '6px 14px',
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            transition: 'all 0.15s ease'
-                          }}
-                        >
-                          <span>🌙</span> Ca Tối (18:00 - 22:00) {isEvening && '✓'}
-                        </button>
-
-                        {daySlots.length === 0 && (
-                          <span style={{ fontSize: 12, color: 'var(--color-text-muted)', fontStyle: 'italic', marginLeft: 8 }}>
-                            Bận / Chưa chọn ca rảnh
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Matching Engine Live Results Preview */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <div>
                     <h3 style={{ fontSize: 17, fontWeight: 800, color: 'var(--color-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Sparkles size={18} color="#7565A8" />
-                      Kết quả việc làm đề xuất dựa trên lịch rảnh của bạn ({recommendedJobs.length} việc làm)
+                      {previewJobs
+                        ? `Xem trước: việc phù hợp với lịch đang chọn (${previewJobs.length})`
+                        : `Việc làm phù hợp với lịch rảnh của bạn (${recommendedJobs.length})`}
                     </h3>
                     <p style={{ fontSize: 12.5, color: 'var(--color-text-secondary)', margin: '4px 0 0 0' }}>
-                      Điểm so khớp được tính toán bởi thuật toán Matching Engine hai tầng từ PostgreSQL thực tế
+                      {previewJobs
+                        ? 'Lịch này chưa được lưu. Bấm "Lưu lịch rảnh" để áp dụng gợi ý trên toàn bộ JobNest.'
+                        : 'Chỉ gồm việc không trùng lịch học, sắp xếp theo mức độ phù hợp với bạn'}
                     </p>
                   </div>
 
@@ -1437,12 +1028,12 @@ export default function StudentDashboardPage({
                   </Button>
                 </div>
 
-                {recommendedLoading ? (
+                {(recommendedLoading || previewLoading) ? (
                   <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: 13.5 }}>
                     <RefreshCw className="animate-spin" size={24} style={{ margin: '0 auto 8px auto', display: 'block' }} />
-                    Đang tính toán lại điểm tương thích...
+                    Đang tìm việc phù hợp với lịch của bạn...
                   </div>
-                ) : recommendedJobs.length === 0 ? (
+                ) : (previewJobs ?? recommendedJobs).length === 0 ? (
                   <EmptyState
                     title="Chưa có việc làm tương thích với lịch này"
                     description="Hãy thử chọn thêm ca rảnh khác để mở rộng danh sách công việc phù hợp nhé."
@@ -1453,7 +1044,7 @@ export default function StudentDashboardPage({
                     gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
                     gap: 16
                   }}>
-                    {recommendedJobs.map((job) => (
+                    {(previewJobs ?? recommendedJobs).map((job) => (
                       <JobCard
                         key={job.id}
                         job={job}
@@ -1472,6 +1063,7 @@ export default function StudentDashboardPage({
                   </div>
                 )}
               </div>
+              </div>
             </div>
           )}
 
@@ -1480,318 +1072,22 @@ export default function StudentDashboardPage({
               Cho phép cập nhật: student_code, university, major, experience, bio, default_cv_url
               =================================================================== */}
           {activeTab === 'profile' && (
-            <div style={{
-              background: '#ffffff',
-              borderRadius: 16,
-              border: '1px solid var(--color-border)',
-              padding: '28px 32px',
-              boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #F1F5F9' }}>
-                <div>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
-                    Thông tin hồ sơ sinh viên
-                  </h2>
-                  <p style={{ color: 'var(--color-text-secondary)', fontSize: 13, margin: 0 }}>
-                    Cập nhật thông tin học vấn và hồ sơ năng lực để gây ấn tượng với nhà tuyển dụng
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleSaveProfile}
-                  disabled={isSavingProfile}
-                  style={{
-                    background: 'var(--color-primary)',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: 10,
-                    padding: '10px 22px',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: isSavingProfile ? 'not-allowed' : 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    boxShadow: '0 4px 12px rgba(117, 101, 168, 0.3)'
-                  }}
-                >
-                  {isSavingProfile ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
-                  {isSavingProfile ? 'Đang lưu...' : 'Lưu thay đổi'}
-                </button>
-              </div>
-
-              {profileLoading ? (
-                <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-                  <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 10px' }} />
-                  Đang tải thông tin hồ sơ...
-                </div>
-              ) : (
-                <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }} className="form-two-cols">
-                    {/* Họ và tên */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                        Họ và tên sinh viên *
-                      </label>
-                      <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '10px 14px',
-                          borderRadius: 8,
-                          border: '1.5px solid var(--color-border)',
-                          fontSize: 13.5,
-                          outline: 'none'
-                        }}
-                      />
-                    </div>
-
-                    {/* Mã sinh viên (student_code) */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                        Mã số sinh viên (MSSV) *
-                      </label>
-                      <input
-                        type="text"
-                        value={studentCode}
-                        onChange={(e) => setStudentCode(e.target.value)}
-                        placeholder="VD: 20110001"
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '10px 14px',
-                          borderRadius: 8,
-                          border: '1.5px solid var(--color-border)',
-                          fontSize: 13.5,
-                          outline: 'none'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }} className="form-two-cols">
-                    {/* Trường đại học (university) */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                        Trường Đại học / Cao đẳng *
-                      </label>
-                      <input
-                        type="text"
-                        value={university}
-                        onChange={(e) => setUniversity(e.target.value)}
-                        placeholder="VD: Trường Đại học Văn Lang (VLU)"
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '10px 14px',
-                          borderRadius: 8,
-                          border: '1.5px solid var(--color-border)',
-                          fontSize: 13.5,
-                          outline: 'none'
-                        }}
-                      />
-                    </div>
-
-                    {/* Chuyên ngành (major) */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                        Chuyên ngành đào tạo *
-                      </label>
-                      <input
-                        type="text"
-                        value={major}
-                        onChange={(e) => setMajor(e.target.value)}
-                        placeholder="VD: Công nghệ Thông tin, Thiết kế đồ họa, Quản trị du lịch..."
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '10px 14px',
-                          borderRadius: 8,
-                          border: '1.5px solid var(--color-border)',
-                          fontSize: 13.5,
-                          outline: 'none'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Kinh nghiệm (experience) */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                      Kinh nghiệm làm việc & Hoạt động
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={experience}
-                      onChange={(e) => setExperience(e.target.value)}
-                      placeholder="Mô tả các dự án, công việc part-time hoặc hoạt động phong trào đã tham gia..."
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        borderRadius: 8,
-                        border: '1.5px solid var(--color-border)',
-                        fontSize: 13.5,
-                        outline: 'none',
-                        lineHeight: 1.5
-                      }}
-                    />
-                  </div>
-
-                  {/* Giới thiệu bản thân (bio) */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                      Giới thiệu bản thân (Bio)
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                      placeholder="Giới thiệu điểm mạnh, sở thích và mục tiêu nghề nghiệp..."
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        borderRadius: 8,
-                        border: '1.5px solid var(--color-border)',
-                        fontSize: 13.5,
-                        outline: 'none',
-                        lineHeight: 1.5
-                      }}
-                    />
-                  </div>
-
-                  {/* Link CV mặc định (default_cv_url) */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                      Tệp CV mặc định / Đường dẫn CV Online
-                    </label>
-                    <div style={{ display: 'flex', gap: 10 }}>
-                      <input
-                        type="url"
-                        value={defaultCvUrl}
-                        onChange={(e) => setDefaultCvUrl(e.target.value)}
-                        placeholder="https://drive.google.com/your-cv.pdf"
-                        style={{
-                          flex: 1,
-                          padding: '10px 14px',
-                          borderRadius: 8,
-                          border: '1.5px solid var(--color-border)',
-                          fontSize: 13.5,
-                          outline: 'none'
-                        }}
-                      />
-                      {defaultCvUrl && (
-                        <a
-                          href={defaultCvUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            background: '#F8F7FB',
-                            border: '1.5px solid var(--color-border)',
-                            color: 'var(--color-primary)',
-                            padding: '0 16px',
-                            borderRadius: 8,
-                            fontSize: 13,
-                            fontWeight: 700,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            textDecoration: 'none'
-                          }}
-                        >
-                          <ExternalLink size={14} /> Xem CV
-                        </a>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Kỹ năng (skills) */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
-                      Kỹ năng chuyên môn & Kỹ năng mềm
-                    </label>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-                      {skills.map((skill) => (
-                        <span
-                          key={skill}
-                          style={{
-                            background: '#F3EFF9',
-                            color: 'var(--color-primary)',
-                            fontSize: 12.5,
-                            fontWeight: 600,
-                            padding: '5px 12px',
-                            borderRadius: 20,
-                            border: '1px solid #EDE9FE',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6
-                          }}
-                        >
-                          {skill}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveSkill(skill)}
-                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: '#7565A8' }}
-                          >
-                            <X size={13} />
-                          </button>
-                        </span>
-                      ))}
-
-                      {isAddingSkill ? (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                          <input
-                            type="text"
-                            value={newSkill}
-                            onChange={(e) => setNewSkill(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddSkill(); } }}
-                            placeholder="Nhập kỹ năng mới..."
-                            autoFocus
-                            style={{
-                              padding: '4px 10px',
-                              borderRadius: 16,
-                              border: '1.5px solid var(--color-primary)',
-                              fontSize: 12.5,
-                              outline: 'none'
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={handleAddSkill}
-                            style={{ background: 'var(--color-primary)', color: '#ffffff', border: 'none', borderRadius: 6, padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}
-                          >
-                            Thêm
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setIsAddingSkill(true)}
-                          style={{
-                            background: '#ffffff',
-                            color: 'var(--color-primary)',
-                            border: '1px dashed var(--color-primary)',
-                            borderRadius: 20,
-                            padding: '4px 12px',
-                            fontSize: 12,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 4
-                          }}
-                        >
-                          <Plus size={13} /> Thêm kỹ năng
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </form>
-              )}
-            </div>
+            <StudentProfileForm
+              token={currentUser?.token}
+              email={currentUser?.email}
+              showToast={showToast}
+              avatarUrl={avatarUrl}
+              onAvatarChange={(url) => {
+                setAvatarUrl(url);
+                if (onUserUpdate) onUserUpdate({ avatar_url: url });
+              }}
+              onSaved={(p) => {
+                setFullName(p.full_name || '');
+                setMajor(p.major || '');
+                setUniversity(p.school || '');
+                if (onUserUpdate) onUserUpdate({ full_name: p.full_name });
+              }}
+            />
           )}
 
           {/* ===================================================================
@@ -2074,7 +1370,7 @@ export default function StudentDashboardPage({
                     Quản lý CV & Hồ sơ ứng tuyển
                   </h2>
                   <p style={{ color: 'var(--color-text-secondary)', fontSize: 13, margin: 0 }}>
-                    Tải lên và thiết lập CV mặc định để nộp nhanh cho các công việc part-time & freelance
+                    Tải lên và thiết lập CV mặc định để nộp nhanh cho các công việc part-time & full-time
                   </p>
                 </div>
 
@@ -2226,6 +1522,9 @@ export default function StudentDashboardPage({
                   </p>
                 </div>
               </div>
+
+              {/* Đánh giá doanh nghiệp & công việc (migration 014) */}
+              <MyExperienceReviews currentUser={currentUser} showToast={showToast} onSelectJob={onSelectJob} />
 
               {/* ===============================================================
                   1. TABLE: Assignment đã hoàn thành chưa đánh giá (Chuẩn Image 3)
@@ -2526,7 +1825,8 @@ export default function StudentDashboardPage({
               currentUser={currentUser}
               showToast={showToast}
               onSelectNotification={(item) => {
-                if (showToast) showToast(`Đã mở thông báo: ${item.title || 'Thông báo'}`, 'info');
+                fetchNotifications();
+                if (onOpenNotification) onOpenNotification(item);
               }}
             />
           )}
@@ -2539,6 +1839,7 @@ export default function StudentDashboardPage({
               currentUser={currentUser}
               showToast={showToast}
               embedded={true}
+              onNavigateProfile={() => setActiveTab('profile')}
             />
           )}
 

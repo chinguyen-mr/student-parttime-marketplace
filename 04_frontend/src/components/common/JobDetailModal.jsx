@@ -185,7 +185,7 @@ export default function JobDetailModal({
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6, flexWrap: 'wrap' }}>
                 <span className="badge badge-primary">{formData.category || job.category || 'Công nghệ thông tin'}</span>
                 <span className="badge badge-success">
-                  {formData.work_type === 'PART_TIME' ? 'Bán thời gian (Part-time)' : 'Freelance theo dự án'}
+                  {formData.work_type === 'FULL_TIME' ? 'Toàn thời gian (Full-time)' : 'Bán thời gian (Part-time)'}
                 </span>
                 <span className={`badge ${formData.status === 'OPEN' ? 'badge-warning' : 'badge-secondary'}`}>
                   {formData.status === 'OPEN' ? 'Đang tuyển' : 'Đã đóng'}

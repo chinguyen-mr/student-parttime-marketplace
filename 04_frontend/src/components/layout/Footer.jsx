@@ -524,7 +524,7 @@ export default function Footer({
           lineHeight: 1.7
         }}>
           <div>
-            Copyright &copy; 2026 JobNest &mdash; Nền tảng kết nối việc làm bán thời gian và freelance sinh viên
+            Copyright &copy; 2026 JobNest &mdash; Nền tảng kết nối việc làm bán thời gian và toàn thời gian cho sinh viên
           </div>
           <div>
             Trường Đại học Văn Lang &mdash; 69/68 Đặng Thùy Trâm, Phường 13, Quận Bình Thạnh, TP. Hồ Chí Minh

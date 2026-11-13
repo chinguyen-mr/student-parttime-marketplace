@@ -64,3 +64,6 @@ JOBNEST_REMEDIATION/
 Dự án/
 Tài Liệu/
 
+
+# Bản sao lưu database cục bộ (chứa dữ liệu người dùng)
+02_database/backups/

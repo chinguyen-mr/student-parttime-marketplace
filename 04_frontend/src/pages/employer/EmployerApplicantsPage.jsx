@@ -340,6 +340,7 @@ export default function EmployerApplicantsPage({
               { id: 'PENDING', label: 'Chờ duyệt (APPLIED)' },
               { id: 'SHORTLISTED', label: 'Rút gọn (SHORTLISTED)' },
               { id: 'REJECTED', label: 'Từ chối (REJECTED)' },
+              { id: 'WITHDRAWN', label: 'Đã hủy / Rút đơn (WITHDRAWN)' },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -429,42 +430,71 @@ export default function EmployerApplicantsPage({
                       </td>
 
                       <td style={{ padding: '14px 16px' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '3px 10px',
-                          borderRadius: 16,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          background: app.status === 'SHORTLISTED' ? '#ECFDF5' : app.status === 'REJECTED' ? '#FEE2E2' : '#FEF3C7',
-                          color: app.status === 'SHORTLISTED' ? '#047857' : app.status === 'REJECTED' ? '#B91C1C' : '#B45309'
-                        }}>
-                          {app.status === 'SHORTLISTED' ? 'Rút gọn' : app.status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt'}
-                        </span>
+                        {app.status === 'WITHDRAWN' ? (
+                          <div>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '3px 10px',
+                              borderRadius: 16,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              background: '#F1F5F9',
+                              color: '#64748B'
+                            }}>
+                              Đã hủy ứng tuyển
+                            </span>
+                            {app.withdraw_reason && (
+                              <div style={{ fontSize: 11, color: '#DC2626', marginTop: 3, fontStyle: 'italic', maxWidth: 200 }} title={app.withdraw_reason}>
+                                Lý do: {app.withdraw_reason}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '3px 10px',
+                            borderRadius: 16,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            background: app.status === 'SHORTLISTED' ? '#ECFDF5' : app.status === 'REJECTED' ? '#FEE2E2' : '#FEF3C7',
+                            color: app.status === 'SHORTLISTED' ? '#047857' : app.status === 'REJECTED' ? '#B91C1C' : '#B45309'
+                          }}>
+                            {app.status === 'SHORTLISTED' ? 'Rút gọn' : app.status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt'}
+                          </span>
+                        )}
                       </td>
 
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
                         <div style={{ display: 'inline-flex', gap: 6 }}>
                           <button
                             onClick={() => handleViewStudentProfile(app)}
-                            title="Xem chi tiết hồ sơ sinh viên (WF-E13)"
+                            title="Xem chi tiết hồ sơ sinh viên"
                             style={{ background: '#ffffff', border: '1px solid var(--color-border)', borderRadius: 6, padding: '5px 10px', fontSize: 12, fontWeight: 700, color: 'var(--color-primary)', cursor: 'pointer' }}
                           >
-                            Hồ sơ (WF-E13)
+                            Xem hồ sơ
                           </button>
 
-                          <button
-                            onClick={() => handleUpdateApplicationStatus(app.id, 'SHORTLISTED')}
-                            style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 700, color: '#047857', cursor: 'pointer' }}
-                          >
-                            Rút gọn
-                          </button>
+                          {app.status !== 'WITHDRAWN' ? (
+                            <>
+                              <button
+                                onClick={() => handleUpdateApplicationStatus(app.id, 'SHORTLISTED')}
+                                style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 700, color: '#047857', cursor: 'pointer' }}
+                              >
+                                Rút gọn
+                              </button>
 
-                          <button
-                            onClick={() => handleUpdateApplicationStatus(app.id, 'REJECTED')}
-                            style={{ background: '#FFF1F2', border: '1px solid #FECDD3', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 700, color: '#BE123C', cursor: 'pointer' }}
-                          >
-                            Từ chối
-                          </button>
+                              <button
+                                onClick={() => handleUpdateApplicationStatus(app.id, 'REJECTED')}
+                                style={{ background: '#FFF1F2', border: '1px solid #FECDD3', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 700, color: '#BE123C', cursor: 'pointer' }}
+                              >
+                                Từ chối
+                              </button>
+                            </>
+                          ) : (
+                            <span style={{ fontSize: 11.5, color: '#94A3B8', fontStyle: 'italic', padding: '5px 4px' }}>
+                              Đã hủy
+                            </span>
+                          )}
                         </div>
                       </td>
                     </tr>

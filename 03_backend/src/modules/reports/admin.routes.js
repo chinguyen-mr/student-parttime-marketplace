@@ -84,6 +84,55 @@ router.patch('/users/:id/verify', async (req, res, next) => {
 });
 
 // =============================================================================
+// 2b. XÁC MINH PHÁP LÝ DOANH NGHIỆP (khác "tick xanh" xác minh email/SĐT ở trên)
+// =============================================================================
+const employerAccountService = require('../auth/employer-account.service');
+const db = require('../../config/db');
+
+// GET /api/admin/employer-verifications?status=PENDING|NEEDS_INFO|REJECTED|VERIFIED|UNVERIFIED|ALL
+router.get('/employer-verifications', async (req, res, next) => {
+    try {
+        res.status(200).json({ success: true, data: await employerAccountService.listVerificationRequests({ status: req.query.status || 'PENDING' }) });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// GET /api/admin/employer-verifications/:id — chi tiết + danh sách tài liệu (tải qua /api/files/legal-documents/:id)
+router.get('/employer-verifications/:id(\\d+)', async (req, res, next) => {
+    try {
+        res.status(200).json({ success: true, data: await employerAccountService.getVerificationForAdmin(parseInt(req.params.id, 10)) });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// PATCH /api/admin/employer-verifications/:id — body: { status: VERIFIED|NEEDS_INFO|REJECTED, note }
+router.patch('/employer-verifications/:id(\\d+)', async (req, res, next) => {
+    try {
+        const data = await employerAccountService.reviewVerification(req.user.id, parseInt(req.params.id, 10), req.body);
+        res.status(200).json({ success: true, message: 'Đã cập nhật kết quả xác minh doanh nghiệp', data });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// GET /api/admin/employers/:id/profile-changes — lịch sử thay đổi thông tin quan trọng
+router.get('/employers/:id(\\d+)/profile-changes', async (req, res, next) => {
+    try {
+        const result = await db.query(
+            `SELECT c.id, c.section, c.changes, c.created_at, c.changed_by, u.full_name AS changed_by_name, u.role AS changed_by_role
+             FROM employer_profile_changes c LEFT JOIN users u ON u.id = c.changed_by
+             WHERE c.employer_id = $1 ORDER BY c.created_at DESC, c.id DESC LIMIT 100`,
+            [parseInt(req.params.id, 10)]
+        );
+        res.status(200).json({ success: true, data: result.rows });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// =============================================================================
 // 3. JOB MODERATION (WF-A03 & WF-A04)
 // =============================================================================
 // GET /api/admin/jobs/pending

@@ -4,6 +4,37 @@ import { MapPin, Search, Trash2, Loader2 } from 'lucide-react';
 const VN_CENTER = [16.05, 106.5]; // khung nhìn ban đầu khi chưa ghim (không lưu)
 const inVietnam = (lat, lng) => lat >= 8 && lat <= 24 && lng >= 102 && lng <= 110;
 
+const nominatim = async (q) => {
+  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=vn&q=${encodeURIComponent(q)}`;
+  const list = await (await fetch(url, { headers: { 'Accept-Language': 'vi' }, referrerPolicy: 'strict-origin-when-cross-origin' })).json();
+  return Array.isArray(list) ? list : [];
+};
+
+// Nominatim không hiểu số nhà hẻm và tiền tố "Phường/Quận/TP." → thử dần các dạng rút gọn.
+// Trả về [{ q, zoom }] theo thứ tự từ chi tiết đến khái quát.
+const addressVariants = (addr) => {
+  const parts = addr.split(',').map(s => s.trim()).filter(Boolean);
+  const street = (parts[0] || '').replace(/^[\d\s/\-a-zA-Z]*\d[\w/\-]*\s+/, '');
+  const clean = (s) => s.replace(/^(phường|p\.|xã|thị trấn|quận|q\.|huyện|thị xã|thành phố|tp\.?|tỉnh)\s*/i, '');
+  const area = parts.slice(1).filter(p => !/^(phường|p\.|xã|thị trấn)\s/i.test(p)).map(clean);
+  const list = [
+    { q: addr, zoom: 18 },
+    { q: [street, ...area].join(', '), zoom: 17 },
+    { q: [street, area[area.length - 1]].filter(Boolean).join(', '), zoom: 17 },
+    { q: area.join(', '), zoom: 14 },
+  ];
+  return list.filter((v, i) => v.q && list.findIndex(x => x.q === v.q) === i);
+};
+
+const geocodeAddress = async (addr) => {
+  for (const [i, v] of addressVariants(addr).entries()) {
+    if (i) await new Promise(r => setTimeout(r, 1000)); // chính sách Nominatim: tối đa 1 request/giây
+    const list = await nominatim(v.q);
+    if (list.length) return { list, zoom: v.zoom };
+  }
+  return { list: [], zoom: 0 };
+};
+
 /**
  * Ghim vị trí trụ sở trên bản đồ (Leaflet + OpenStreetMap).
  * value: { latitude, longitude } hoặc null; onChange(lat, lng) / onChange(null, null) để bỏ ghim.
@@ -33,6 +64,8 @@ export default function LocationPicker({ latitude, longitude, address, onChange 
         const map = L.map(boxRef.current, { scrollWheelZoom: false }).setView(VN_CENTER, 5);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
+          // index.html đặt no-referrer toàn trang; OSM chặn (403) tile không có Referer
+          referrerPolicy: 'strict-origin-when-cross-origin',
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }).addTo(map);
         map.on('click', (e) => onChangeRef.current(e.latlng.lat, e.latlng.lng));
@@ -67,14 +100,26 @@ export default function LocationPicker({ latitude, longitude, address, onChange 
     }
   }, [ready, hasPin, latitude, longitude]);
 
+  // Chưa ghim → tự đưa bản đồ tới địa chỉ đã khai báo (chỉ di chuyển khung nhìn, không tự ghim)
+  useEffect(() => {
+    if (!ready || hasPin || !address?.trim()) return;
+    let alive = true;
+    geocodeAddress(address.trim())
+      .then(({ list, zoom }) => {
+        if (alive && list[0]) mapRef.current?.setView([Number(list[0].lat), Number(list[0].lon)], zoom);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, address]);
+
   const search = async () => {
     if (!query.trim()) return;
     setSearching(true);
     setResults(null);
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=vn&q=${encodeURIComponent(query.trim())}`;
-      const list = await (await fetch(url, { headers: { 'Accept-Language': 'vi' } })).json();
-      setResults(Array.isArray(list) ? list : []);
+      const { list } = await geocodeAddress(query.trim());
+      setResults(list);
     } catch {
       setResults([]);
     } finally {

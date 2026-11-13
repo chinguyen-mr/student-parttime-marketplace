@@ -112,25 +112,40 @@ class ApplicationService {
         return app;
     }
 
-    /** Sinh viên rút đơn — chỉ khi đơn còn chờ duyệt. Báo cho nhà tuyển dụng. */
-    async withdraw(applicationId, studentId) {
+    /** Sinh viên rút/hủy đơn — chỉ khi đơn còn chờ duyệt. Báo cho nhà tuyển dụng kèm lý do. */
+    async withdraw(applicationId, studentId, reason = null) {
         const app = await applicationRepository.findById(applicationId);
         if (!app) throw new NotFoundError('Không tìm thấy đơn ứng tuyển');
         if (app.student_id !== studentId) throw new ForbiddenError('Bạn không thể rút đơn của người khác');
         if (app.status !== 'PENDING') throw new AppError('Chỉ rút được đơn đang chờ duyệt', 400);
 
-        const res = await db.query(
-            `UPDATE applications SET status = 'WITHDRAWN', withdrawn_at = NOW(), updated_at = NOW()
-             WHERE id = $1 AND status = 'PENDING' RETURNING *`,
-            [applicationId]
-        );
+        let res;
+        try {
+            res = await db.query(
+                `UPDATE applications 
+                 SET status = 'WITHDRAWN', withdraw_reason = $1, withdrawn_at = NOW(), updated_at = NOW()
+                 WHERE id = $2 AND status = 'PENDING' RETURNING *`,
+                [reason, applicationId]
+            );
+        } catch (dbErr) {
+            // Fallback nếu cột withdraw_reason chưa migrate
+            res = await db.query(
+                `UPDATE applications SET status = 'WITHDRAWN', withdrawn_at = NOW(), updated_at = NOW()
+                 WHERE id = $1 AND status = 'PENDING' RETURNING *`,
+                [applicationId]
+            );
+        }
         if (!res.rows[0]) throw new AppError('Đơn đã được nhà tuyển dụng xử lý, không thể rút', 409);
 
         try {
+            const notifBody = reason 
+                ? `${app.student_name || 'Ứng viên'} đã hủy đơn ứng tuyển vị trí "${app.job_title}". Lý do: "${reason}".`
+                : `${app.student_name || 'Ứng viên'} đã hủy đơn ứng tuyển vị trí "${app.job_title}".`;
+
             await db.query(
                 `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
-                 VALUES ($1, 'APPLICATION_WITHDRAWN', $2, $3, 'APPLICATION', $4)`,
-                [app.employer_id, 'Ứng viên đã rút đơn', `${app.student_name} đã rút đơn ứng tuyển vị trí "${app.job_title}".`, applicationId]
+                 VALUES ($1, 'APPLICATION_WITHDRAWN', 'Ứng viên đã hủy đơn ứng tuyển', $2, 'APPLICATION', $3)`,
+                [app.employer_id, notifBody, applicationId]
             );
         } catch (notifErr) {
             console.error('Lỗi tạo notification rút đơn:', notifErr.message);

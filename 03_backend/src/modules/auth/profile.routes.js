@@ -3,6 +3,7 @@ const router = express.Router();
 const profileService = require('./profile.service');
 const studentProfileService = require('./student-profile.service');
 const employerPublicService = require('./employer-public.service');
+const employerAccountService = require('./employer-account.service');
 const db = require('../../config/db');
 
 // Đăng nhập không bắt buộc: có token thì xác thực, không có thì đi tiếp với req.user = undefined
@@ -164,10 +165,62 @@ router.put('/me/employer-public', verifyToken, requireRoles('EMPLOYER'), async (
     }
 });
 
+// PUT /api/profile/me/representative — Thông tin người đại diện (họ tên, chức vụ)
+router.put('/me/representative', verifyToken, requireRoles('EMPLOYER'), async (req, res, next) => {
+    try {
+        const data = await employerAccountService.updateRepresentative(req.user.id, req.body);
+        res.status(200).json({ success: true, message: 'Đã lưu thông tin người đại diện', data });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Xác minh pháp lý doanh nghiệp (khác xác minh email/SĐT)
+router.get('/me/verification', verifyToken, requireRoles('EMPLOYER'), async (req, res, next) => {
+    try {
+        res.status(200).json({ success: true, data: await employerAccountService.getVerification(req.user.id) });
+    } catch (err) {
+        next(err);
+    }
+});
+router.put('/me/verification', verifyToken, requireRoles('EMPLOYER'), async (req, res, next) => {
+    try {
+        const data = await employerAccountService.updateLegalInfo(req.user.id, req.body);
+        res.status(200).json({ success: true, message: 'Đã lưu thông tin pháp lý', data });
+    } catch (err) {
+        next(err);
+    }
+});
+router.post('/me/verification/submit', verifyToken, requireRoles('EMPLOYER'), async (req, res, next) => {
+    try {
+        const data = await employerAccountService.submitVerification(req.user.id);
+        res.status(200).json({ success: true, message: 'Đã gửi hồ sơ xác minh. JobNest sẽ xét duyệt và thông báo cho bạn.', data });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Trường nhà tuyển dụng không được tự đặt qua PUT /me:
+// - trạng thái/kết quả xác minh pháp lý (chỉ quản trị viên), ảnh (chỉ qua /api/files có kiểm tra nội dung)
+// - tên pháp nhân/MST/giấy phép khi hồ sơ đang chờ duyệt hoặc đã xác minh
+const EMPLOYER_PROTECTED_FIELDS = ['verification_status', 'verification_note', 'verification_submitted_at', 'verification_reviewed_at',
+    'avatar_url', 'cover_url', 'office_images', 'representative_avatar_url'];
+const LEGAL_LOCKED_FIELDS = ['company_name', 'tax_code', 'business_license_file'];
+
+async function sanitizeEmployerUpdate(userId, body) {
+    const clean = { ...(body || {}) };
+    for (const k of EMPLOYER_PROTECTED_FIELDS) delete clean[k];
+    const cur = await db.query('SELECT verification_status FROM employer_profiles WHERE user_id = $1', [userId]);
+    const status = employerPublicService.normalizeLegalStatus(cur.rows[0]?.verification_status);
+    if (!employerAccountService.EDITABLE_LEGAL.includes(status)) for (const k of LEGAL_LOCKED_FIELDS) delete clean[k];
+    return clean;
+}
+
 // PUT /api/profile/me (UC-03: Cập nhật hồ sơ cá nhân)
 router.put('/me', verifyToken, async (req, res, next) => {
     try {
-        const updated = await profileService.updateProfile(req.user.id, req.body);
+        const body = req.user.role === 'EMPLOYER' ? await sanitizeEmployerUpdate(req.user.id, req.body) : req.body;
+        const updated = await profileService.updateProfile(req.user.id, body);
         res.status(200).json({
             success: true,
             message: 'Cập nhật hồ sơ thành công',

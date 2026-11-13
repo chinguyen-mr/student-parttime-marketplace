@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   FileText, Briefcase, Calendar, MapPin, DollarSign, 
   Building2, ArrowLeft, Download, ExternalLink, CheckCircle2, 
-  Clock, XCircle, AlertCircle, RefreshCw, ChevronRight, User, AlertTriangle
+  Clock, XCircle, AlertCircle, RefreshCw, ChevronRight, User, AlertTriangle, X
 } from 'lucide-react';
+import { Button, AnimatedModal } from '../../components/ui';
 import { API_BASE, formatApiError } from '../../config/api';
 import ProfileSnapshotView from '../../components/student/ProfileSnapshotView';
 
@@ -18,21 +19,44 @@ export default function ApplicationDetailPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReasonPreset, setCancelReasonPreset] = useState('Đã tìm được việc làm khác phù hợp hơn');
+  const [cancelReasonCustom, setCancelReasonCustom] = useState('');
 
-  const handleWithdraw = async () => {
-    if (!window.confirm('Rút đơn ứng tuyển này? Nhà tuyển dụng sẽ không xét hồ sơ của bạn cho vị trí này nữa.')) return;
+  const handleOpenCancelModal = () => {
+    setCancelReasonPreset('Đã tìm được việc làm khác phù hợp hơn');
+    setCancelReasonCustom('');
+    setCancelModalOpen(true);
+  };
+
+  const handleConfirmWithdraw = async (e) => {
+    e?.preventDefault();
+    const finalReason = cancelReasonPreset === 'Khác'
+      ? cancelReasonCustom.trim()
+      : (cancelReasonCustom.trim() ? `${cancelReasonPreset}: ${cancelReasonCustom.trim()}` : cancelReasonPreset);
+
+    if (!finalReason) {
+      if (showToast) showToast('Vui lòng chọn hoặc nhập lý do hủy ứng tuyển', 'error');
+      return;
+    }
+
     setWithdrawing(true);
     try {
       const res = await fetch(`${API_BASE}/applications/${applicationId}/withdraw`, {
         method: 'PATCH',
-        headers: { Authorization: `Bearer ${currentUser.token}` }
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${currentUser.token}` 
+        },
+        body: JSON.stringify({ reason: finalReason })
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.success) throw new Error(data.message || 'Không rút được đơn.');
-      if (showToast) showToast('Đã rút đơn ứng tuyển.', 'success');
+      if (!res.ok || !data.success) throw new Error(data.message || 'Không hủy được đơn ứng tuyển.');
+      if (showToast) showToast('Đã hủy đơn ứng tuyển và gửi thông báo lý do đến Nhà tuyển dụng!', 'success');
+      setCancelModalOpen(false);
       await fetchApplicationDetail();
     } catch (err) {
-      if (showToast) showToast(err.message || 'Không rút được đơn.', 'error');
+      if (showToast) showToast(err.message || 'Không hủy được đơn ứng tuyển.', 'error');
     } finally {
       setWithdrawing(false);
     }
@@ -451,7 +475,7 @@ export default function ApplicationDetailPage({
                   {application.status === 'PENDING' ? (
                     <button
                       type="button"
-                      onClick={handleWithdraw}
+                      onClick={handleOpenCancelModal}
                       disabled={withdrawing}
                       style={{
                         padding: '9px 18px',
@@ -467,10 +491,19 @@ export default function ApplicationDetailPage({
                         gap: 6
                       }}
                     >
-                      <XCircle size={15} /> {withdrawing ? 'Đang rút đơn...' : 'Rút đơn ứng tuyển'}
+                      <XCircle size={15} /> {withdrawing ? 'Đang hủy đơn...' : 'Hủy đơn ứng tuyển'}
                     </button>
                   ) : application.status === 'WITHDRAWN' ? (
-                    <span>Bạn đã rút đơn này{application.withdrawn_at ? ` ngày ${formatDate(application.withdrawn_at)}` : ''}.</span>
+                    <div>
+                      <span style={{ color: '#DC2626', fontWeight: 600 }}>
+                        Bạn đã hủy đơn này{application.withdrawn_at ? ` ngày ${formatDate(application.withdrawn_at)}` : ''}.
+                      </span>
+                      {application.withdraw_reason && (
+                        <div style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>
+                          Lý do đã gửi: "{application.withdraw_reason}"
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <span>Đơn đã có kết quả nên không thể rút.</span>
                   )}
@@ -495,6 +528,116 @@ export default function ApplicationDetailPage({
               </div>
             </div>
           </div>
+        )}
+
+        {/* MODAL NHẬP LÝ DO HỦY ỨNG TUYỂN */}
+        {cancelModalOpen && (
+          <AnimatedModal
+            isOpen={cancelModalOpen}
+            onClose={() => setCancelModalOpen(false)}
+            maxWidth={540}
+          >
+            <form onSubmit={handleConfirmWithdraw} style={{ padding: '24px 28px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div>
+                  <span style={{ fontSize: 11.5, fontWeight: 800, background: '#FEF2F2', color: '#DC2626', padding: '3px 10px', borderRadius: 12 }}>
+                    HỦY ĐƠN ỨNG TUYỂN
+                  </span>
+                  <h2 style={{ fontSize: 19, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>
+                    Xác nhận rút đơn ứng tuyển
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCancelModalOpen(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: 4 }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div style={{ background: '#F8F7FB', borderRadius: 10, padding: '12px 16px', marginBottom: 18, fontSize: 13, border: '1px solid var(--color-border)' }}>
+                <div>Vị trí: <strong>{application?.job_title}</strong></div>
+                <div>Doanh nghiệp: <strong>{application?.employer_name || application?.company_name || 'Nhà tuyển dụng'}</strong></div>
+              </div>
+
+              {/* Chọn lý do mẫu */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
+                  Vui lòng chọn lý do vì sao bạn hủy ứng tuyển:
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {[
+                    'Đã tìm được việc làm khác phù hợp hơn',
+                    'Bị trùng lịch học / Lịch thi của trường',
+                    'Khoảng cách đi lại quá xa, không thuận tiện',
+                    'Thời gian hoặc ca làm việc chưa phù hợp',
+                    'Khác'
+                  ].map((reason) => (
+                    <label
+                      key={reason}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '9px 14px',
+                        borderRadius: 8,
+                        border: '1.5px solid',
+                        borderColor: cancelReasonPreset === reason ? 'var(--color-primary)' : 'var(--color-border)',
+                        background: cancelReasonPreset === reason ? 'var(--color-lavender-light)' : '#ffffff',
+                        cursor: 'pointer',
+                        fontSize: 13,
+                        fontWeight: cancelReasonPreset === reason ? 700 : 500,
+                        color: cancelReasonPreset === reason ? 'var(--color-primary)' : 'var(--color-text)',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="detailCancelPreset"
+                        checked={cancelReasonPreset === reason}
+                        onChange={() => setCancelReasonPreset(reason)}
+                      />
+                      <span>{reason}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Textarea nhập chi tiết lý do */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
+                  {cancelReasonPreset === 'Khác' ? 'Nhập chi tiết lý do (Bắt buộc):' : 'Ghi chú thêm gửi đến Nhà tuyển dụng (Không bắt buộc):'}
+                </label>
+                <textarea
+                  value={cancelReasonCustom}
+                  onChange={(e) => setCancelReasonCustom(e.target.value)}
+                  required={cancelReasonPreset === 'Khác'}
+                  placeholder="Nêu rõ lý do vì sao bạn muốn hủy đơn ứng tuyển này..."
+                  rows={3}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1.5px solid var(--color-border)', fontSize: 13.5, resize: 'vertical' }}
+                />
+                <div style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>
+                  ℹ️ Lý do này sẽ được gửi trực tiếp đến Nhà tuyển dụng để họ nắm thông tin.
+                </div>
+              </div>
+
+              {/* Nút hành động */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                <Button type="button" variant="secondary" onClick={() => setCancelModalOpen(false)}>
+                  Giữ lại đơn
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={withdrawing}
+                  style={{ background: '#DC2626', border: 'none', fontWeight: 800, padding: '9px 20px' }}
+                >
+                  {withdrawing ? 'Đang gửi...' : 'Xác nhận hủy ứng tuyển'}
+                </Button>
+              </div>
+            </form>
+          </AnimatedModal>
         )}
       </div>
     </div>

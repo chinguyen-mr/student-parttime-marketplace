@@ -8,7 +8,7 @@ import {
   Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Button } from '../../components/ui';
+import { Button, AnimatedModal } from '../../components/ui';
 import JobCard from '../../components/common/JobCard';
 import EmptyState from '../../components/common/EmptyState';
 import StatusBadge from '../../components/common/StatusBadge';
@@ -100,6 +100,64 @@ export default function StudentDashboardPage({
     }
   });
   const [submittedReviewsList, setSubmittedReviewsList] = useState([]);
+
+  // =========================================================================
+  // MODAL HỦY ỨNG TUYỂN KÈM LÝ DO GỬI DOANH NGHIỆP
+  // =========================================================================
+  const [cancelingApp, setCancelingApp] = useState(null);
+  const [cancelReasonPreset, setCancelReasonPreset] = useState('Đã tìm được việc làm khác phù hợp hơn');
+  const [cancelReasonCustom, setCancelReasonCustom] = useState('');
+  const [isSubmittingCancel, setIsSubmittingCancel] = useState(false);
+
+  const handleOpenCancelModal = (app) => {
+    setCancelingApp(app);
+    setCancelReasonPreset('Đã tìm được việc làm khác phù hợp hơn');
+    setCancelReasonCustom('');
+  };
+
+  const handleConfirmCancelApplication = async (e) => {
+    e?.preventDefault();
+    if (!cancelingApp) return;
+
+    const finalReason = cancelReasonPreset === 'Khác'
+      ? cancelReasonCustom.trim()
+      : (cancelReasonCustom.trim() ? `${cancelReasonPreset}: ${cancelReasonCustom.trim()}` : cancelReasonPreset);
+
+    if (!finalReason) {
+      if (showToast) showToast('Vui lòng chọn hoặc nhập lý do hủy ứng tuyển', 'error');
+      return;
+    }
+
+    try {
+      setIsSubmittingCancel(true);
+      const res = await fetch(`${API_BASE}/applications/${cancelingApp.id}/withdraw`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${currentUser?.token}`
+        },
+        body: JSON.stringify({ reason: finalReason })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        if (showToast) showToast('Đã hủy đơn ứng tuyển và gửi thông báo lý do đến Nhà tuyển dụng!', 'success');
+        // Cập nhật trạng thái đơn ứng tuyển trong danh sách local
+        setApplications(prev => prev.map(a => a.id === cancelingApp.id ? {
+          ...a,
+          status: 'WITHDRAWN',
+          withdraw_reason: finalReason,
+          withdrawn_at: new Date().toISOString()
+        } : a));
+        setCancelingApp(null);
+      } else {
+        throw new Error(data.message || 'Không hủy được đơn ứng tuyển');
+      }
+    } catch (err) {
+      if (showToast) showToast(formatApiError(err, 'Lỗi khi hủy đơn ứng tuyển'), 'error');
+    } finally {
+      setIsSubmittingCancel(false);
+    }
+  };
 
   // =========================================================================
   // 1. FETCH PROFILE DATA FROM API (GET /api/profile/me)
@@ -1203,6 +1261,12 @@ export default function StudentDashboardPage({
                               💬 Ghi chú từ NTD: {app.note}
                             </div>
                           )}
+
+                          {app.status === 'WITHDRAWN' && (
+                            <div style={{ fontSize: 12, color: '#DC2626', marginTop: 8, background: '#FEF2F2', padding: '6px 10px', borderRadius: 6, border: '1px solid #FECACA' }}>
+                              ⚠️ Bạn đã hủy đơn này{app.withdraw_reason ? `: "${app.withdraw_reason}"` : ''}
+                            </div>
+                          )}
                         </div>
 
                         {/* Actions */}
@@ -1210,7 +1274,7 @@ export default function StudentDashboardPage({
                           {isPending && (
                             <button
                               type="button"
-                              onClick={() => handleCancelApplication(app.id)}
+                              onClick={() => handleOpenCancelModal(app)}
                               style={{
                                 background: '#ffffff',
                                 border: '1.5px solid #D95F68',
@@ -1841,6 +1905,121 @@ export default function StudentDashboardPage({
               embedded={true}
               onNavigateProfile={() => setActiveTab('profile')}
             />
+          )}
+
+          {/* ===================================================================
+              MODAL XÁC NHẬN HỦY ỨNG TUYỂN KÈM LÝ DO GỬI DOANH NGHIỆP
+              =================================================================== */}
+          {cancelingApp && (
+            <AnimatedModal
+              isOpen={!!cancelingApp}
+              onClose={() => setCancelingApp(null)}
+              maxWidth={540}
+            >
+              <form onSubmit={handleConfirmCancelApplication} style={{ padding: '24px 28px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <div>
+                    <span style={{ fontSize: 11.5, fontWeight: 800, background: '#FEF2F2', color: '#DC2626', padding: '3px 10px', borderRadius: 12 }}>
+                      HỦY ĐƠN ỨNG TUYỂN
+                    </span>
+                    <h2 style={{ fontSize: 19, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>
+                      Xác nhận rút đơn ứng tuyển
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCancelingApp(null)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: 4 }}
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div style={{ background: '#F8F7FB', borderRadius: 10, padding: '12px 16px', marginBottom: 18, fontSize: 13, border: '1px solid var(--color-border)' }}>
+                  <div>Vị trí: <strong>{cancelingApp.job_title}</strong></div>
+                  <div>Nhà tuyển dụng: <strong>{cancelingApp.employer_name || cancelingApp.company_name || 'Doanh nghiệp'}</strong></div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
+                    Đơn ứng tuyển gửi ngày: {cancelingApp.applied_at ? new Date(cancelingApp.applied_at).toLocaleDateString('vi-VN') : 'Gần đây'}
+                  </div>
+                </div>
+
+                {/* Chọn lý do mẫu */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 8 }}>
+                    Vui lòng chọn lý do vì sao bạn hủy ứng tuyển:
+                  </label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {[
+                      'Đã tìm được việc làm khác phù hợp hơn',
+                      'Bị trùng lịch học / Lịch thi của trường',
+                      'Khoảng cách đi lại quá xa, không thuận tiện',
+                      'Thời gian hoặc ca làm việc chưa phù hợp',
+                      'Khác'
+                    ].map((reason) => (
+                      <label
+                        key={reason}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          padding: '9px 14px',
+                          borderRadius: 8,
+                          border: '1.5px solid',
+                          borderColor: cancelReasonPreset === reason ? 'var(--color-primary)' : 'var(--color-border)',
+                          background: cancelReasonPreset === reason ? 'var(--color-lavender-light)' : '#ffffff',
+                          cursor: 'pointer',
+                          fontSize: 13,
+                          fontWeight: cancelReasonPreset === reason ? 700 : 500,
+                          color: cancelReasonPreset === reason ? 'var(--color-primary)' : 'var(--color-text)',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="cancelReasonPreset"
+                          checked={cancelReasonPreset === reason}
+                          onChange={() => setCancelReasonPreset(reason)}
+                        />
+                        <span>{reason}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Textarea nhập chi tiết lý do */}
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
+                    {cancelReasonPreset === 'Khác' ? 'Nhập chi tiết lý do (Bắt buộc):' : 'Ghi chú thêm gửi đến Nhà tuyển dụng (Không bắt buộc):'}
+                  </label>
+                  <textarea
+                    value={cancelReasonCustom}
+                    onChange={(e) => setCancelReasonCustom(e.target.value)}
+                    required={cancelReasonPreset === 'Khác'}
+                    placeholder="Nêu rõ lý do vì sao bạn muốn hủy đơn ứng tuyển này để nhà tuyển dụng nắm thông tin..."
+                    rows={3}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1.5px solid var(--color-border)', fontSize: 13.5, resize: 'vertical' }}
+                  />
+                  <div style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>
+                    ℹ️ Lý do này sẽ được gửi trực tiếp vào hòm thư thông báo của Nhà tuyển dụng.
+                  </div>
+                </div>
+
+                {/* Nút hành động */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                  <Button type="button" variant="secondary" onClick={() => setCancelingApp(null)}>
+                    Giữ lại đơn
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmittingCancel}
+                    style={{ background: '#DC2626', border: 'none', fontWeight: 800, padding: '9px 20px' }}
+                  >
+                    {isSubmittingCancel ? 'Đang gửi...' : 'Xác nhận hủy ứng tuyển'}
+                  </Button>
+                </div>
+              </form>
+            </AnimatedModal>
           )}
 
         </main>

@@ -10,7 +10,9 @@ import { Button } from '../../components/ui';
 
 // Import all 12 Wireframe Employer Sub-pages (WF-E01 to WF-E12) + WF-X03 Settings
 import EmployerDashboardPage from './EmployerDashboardPage';             // WF-E01
-import EmployerPersonalProfilePage from './EmployerPersonalProfilePage'; // WF-E02 (Personal Profile only, no company profile)
+import EmployerPersonalProfilePage from './EmployerPersonalProfilePage'; // WF-E02 Thông tin người đại diện (không công khai)
+import EmployerCompanyProfilePage from './EmployerCompanyProfilePage';   // Hồ sơ doanh nghiệp (công khai) + Xác minh doanh nghiệp (WF-E03)
+import { LEGAL_STATUS_UI } from '../../components/employer/CompanyVerificationSection';
 import EmployerJobsPage from './EmployerJobsPage';                       // WF-E04 (Job list with 7 filters & moderation_reason)
 import EmployerCreateJobPage from './EmployerCreateJobPage';             // WF-E05 (Create/Edit Job with PT/SS/FL variants & verification gate)
 import EmployerApplicantsPage from './EmployerApplicantsPage';           // WF-E06 (Part-time applicants, no Accept button)
@@ -75,6 +77,16 @@ export default function EmployerPortal({
 
   const displayedName = profileData?.display_name || profileData?.company_name || currentUser?.display_name || currentUser?.company_name || currentUser?.full_name || 'Nhà tuyển dụng';
   const displayedAvatarLetter = (displayedName.charAt(0) || 'C').toUpperCase();
+  const legalUi = LEGAL_STATUS_UI[profileData?.verification_status] || LEGAL_STATUS_UI.UNVERIFIED;
+  const LegalIcon = legalUi.icon;
+
+  // Trang hồ sơ báo có thay đổi chưa lưu → hỏi trước khi chuyển mục khác trong menu
+  const unsavedRef = React.useRef(false);
+  const goTab = (tab) => {
+    if (tab !== activeTab && unsavedRef.current && !window.confirm('Bạn có thay đổi chưa lưu. Rời khỏi trang này?')) return;
+    unsavedRef.current = false;
+    setActiveTab(tab);
+  };
 
   const prevInitialTabRef = React.useRef(initialTab);
   const prevEditingJobRef = React.useRef(initialEditingJob);
@@ -268,43 +280,44 @@ export default function EmployerPortal({
               {currentUser?.email || 'employer.test@vlu.edu.vn'}
             </div>
 
-            {/* Trạng thái xác minh */}
-            <span style={{
+            {/* Trạng thái xác minh pháp lý thật (không phải xác minh email/SĐT) — bấm để mở mục xác minh */}
+            <button type="button" onClick={() => goTab('verification')} title="Xác minh doanh nghiệp" style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 4,
-              background: '#ECFDF5',
-              color: '#059669',
+              background: legalUi.bg,
+              color: legalUi.color,
               fontSize: 11.5,
               fontWeight: 700,
               padding: '3px 10px',
               borderRadius: 12,
-              border: '1.5px solid #A7F3D0'
+              border: `1.5px solid ${legalUi.border}`,
+              cursor: 'pointer'
             }}>
-              <ShieldCheck size={12} /> Đã xác thực uy tín
-            </span>
+              <LegalIcon size={12} /> {legalUi.label}
+            </button>
           </div>
 
           {/* Sidebar Menu Items */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             {[
               { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-              { id: 'profile', label: 'Hồ sơ doanh nghiệp', icon: User },
+              { id: 'profile', label: 'Hồ sơ doanh nghiệp', icon: Building2 },
               { id: 'jobs', label: 'Tin tuyển dụng', icon: Briefcase },
               { id: 'applicants', label: 'Hồ sơ ứng viên', icon: Users },
               { id: 'assignments', label: 'Quản lý hợp đồng', icon: FileText },
               { id: 'reviews', label: 'Đánh giá', icon: Star },
               { id: 'notifications', label: 'Thông báo', icon: Bell },
+              { id: 'representative', label: 'Thông tin người đại diện', icon: User },
               { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings },
             ].map(item => {
-              const isActive = activeTab === item.id;
+              const isActive = activeTab === item.id || (item.id === 'profile' && activeTab === 'verification');
               const IconComp = item.icon;
               return (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                  }}
+                  onClick={() => goTab(item.id)}
+                  aria-current={isActive ? 'page' : undefined}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -376,15 +389,26 @@ export default function EmployerPortal({
             />
           )}
 
-          {/* WF-E02: Personal Profile (Avatar, display_name, bio, location, readonly email & phone) */}
-          {activeTab === 'profile' && (
-            <EmployerPersonalProfilePage
+          {/* Hồ sơ doanh nghiệp (công khai) — 'verification' mở thẳng phân vùng Xác minh doanh nghiệp */}
+          {(activeTab === 'profile' || activeTab === 'verification') && (
+            <EmployerCompanyProfilePage
               currentUser={currentUser}
               showToast={showToast}
-              onNavigateSettings={() => setActiveTab('settings')}
+              initialSection={activeTab === 'verification' ? 'verification' : 'media'}
+              onDirtyChange={(d) => { unsavedRef.current = d; }}
               onProfileUpdated={(updated) => {
                 setProfileData(prev => ({ ...prev, ...updated }));
               }}
+            />
+          )}
+
+          {/* WF-E02: Thông tin người đại diện (ảnh cá nhân, họ tên, chức vụ, email/SĐT chỉ đọc) */}
+          {activeTab === 'representative' && (
+            <EmployerPersonalProfilePage
+              currentUser={currentUser}
+              showToast={showToast}
+              onNavigateSettings={() => goTab('settings')}
+              onNavigateCompany={() => goTab('profile')}
             />
           )}
 
@@ -522,7 +546,7 @@ export default function EmployerPortal({
               currentUser={currentUser}
               showToast={showToast}
               embedded={true}
-              onNavigateProfile={() => setActiveTab('profile')}
+              onNavigateProfile={() => setActiveTab('representative')}
             />
           )}
         </main>

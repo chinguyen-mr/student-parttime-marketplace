@@ -63,11 +63,12 @@ router.get('/:id', verifyToken, async (req, res, next) => {
     }
 });
 
-// PATCH /api/applications/:id/withdraw (Sinh viên rút đơn khi còn chờ duyệt)
+// PATCH /api/applications/:id/withdraw (Sinh viên rút/hủy đơn khi còn chờ duyệt kèm lý do gửi doanh nghiệp)
 router.patch('/:id/withdraw', verifyToken, requireRoles('STUDENT'), async (req, res, next) => {
     try {
-        const updated = await applicationService.withdraw(parseInt(req.params.id, 10), req.user.id);
-        res.status(200).json({ success: true, message: 'Đã rút đơn ứng tuyển', data: updated });
+        const reason = req.body?.reason || req.body?.withdraw_reason || null;
+        const updated = await applicationService.withdraw(parseInt(req.params.id, 10), req.user.id, reason);
+        res.status(200).json({ success: true, message: 'Đã hủy đơn ứng tuyển và gửi thông báo đến Nhà tuyển dụng', data: updated });
     } catch (err) {
         next(err);
     }

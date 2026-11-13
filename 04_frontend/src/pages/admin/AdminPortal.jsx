@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Users, ShieldCheck, AlertTriangle, 
-  Tag, History, Search, Shield, LogOut, ArrowRight, Star
+  Tag, History, Search, Shield, LogOut, ArrowRight, Star, Building2
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 
@@ -13,6 +13,7 @@ import AdminReportsPage from './AdminReportsPage';       // WF-A05 & WF-A06
 import AdminCategoriesPage from './AdminCategoriesPage'; // WF-A07
 import AdminLogsPage from './AdminLogsPage';             // WF-A08
 import AdminReviewsPage from './AdminReviewsPage';       // Kiểm duyệt đánh giá doanh nghiệp / công việc
+import AdminEmployerVerificationPage from './AdminEmployerVerificationPage'; // Xét duyệt pháp lý doanh nghiệp
 
 export default function AdminPortal({
   currentUser,
@@ -260,6 +261,7 @@ export default function AdminPortal({
             {[
               { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
               { id: 'users', label: 'Người dùng', icon: Users },
+              { id: 'employer_verification', label: 'Xác minh doanh nghiệp', icon: Building2 },
               { id: 'moderation', label: 'Kiểm duyệt tin', icon: ShieldCheck },
               { id: 'reports', label: 'Báo cáo', icon: AlertTriangle },
               { id: 'reviews', label: 'Kiểm duyệt đánh giá', icon: Star },
@@ -399,6 +401,11 @@ export default function AdminPortal({
               currentUser={currentUser}
               showToast={showToast}
             />
+          )}
+
+          {/* Xét duyệt hồ sơ pháp lý doanh nghiệp */}
+          {activeTab === 'employer_verification' && (
+            <AdminEmployerVerificationPage currentUser={currentUser} showToast={showToast} />
           )}
 
           {/* Kiểm duyệt đánh giá doanh nghiệp / công việc */}

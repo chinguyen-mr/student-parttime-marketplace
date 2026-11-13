@@ -1,5 +1,7 @@
 const db = require('../../config/db');
 const { BadRequestError, NotFoundError, ForbiddenError } = require('../../utils/app-error');
+const { EDITABLE_LEGAL } = require('../auth/employer-account.service');
+const { normalizeLegalStatus } = require('../auth/employer-public.service');
 
 const IMAGE_TYPES = {
     'image/jpeg': (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
@@ -11,20 +13,31 @@ const AVATAR_SOURCE_MAX_BYTES = 4 * 1024 * 1024;
 const COVER_MAX_BYTES = 3 * 1024 * 1024;
 const OFFICE_IMAGE_MAX_BYTES = 3 * 1024 * 1024;
 const OFFICE_IMAGES_MAX = 8;
+// Tài liệu pháp lý: PDF hoặc ảnh chụp, tối đa 5 file × 5MB. Không bao giờ phát công khai.
+const LEGAL_DOC_TYPES = { ...IMAGE_TYPES, 'application/pdf': (b) => b.toString('ascii', 0, 5) === '%PDF-' };
+const LEGAL_DOC_MAX_BYTES = 5 * 1024 * 1024;
+const LEGAL_DOCS_MAX = 5;
 
 /** Tách data URL base64 → { mime, buffer }, kiểm tra loại file theo nội dung thật (magic bytes). */
-function decodeImageDataUrl(dataUrl, maxBytes) {
+function decodeDataUrl(dataUrl, maxBytes, types, typeError) {
     const match = /^data:([\w/+.-]+);base64,([A-Za-z0-9+/=]+)$/.exec(String(dataUrl || ''));
-    if (!match) throw new BadRequestError('Ảnh không hợp lệ (cần data URL base64).');
+    if (!match) throw new BadRequestError('File không hợp lệ (cần data URL base64).');
     const [, mime, base64] = match;
-    const check = IMAGE_TYPES[mime];
-    if (!check) throw new BadRequestError('Chỉ chấp nhận ảnh JPG, PNG hoặc WEBP.');
+    const check = types[mime];
+    if (!check) throw new BadRequestError(typeError);
     const buffer = Buffer.from(base64, 'base64');
-    if (buffer.length === 0) throw new BadRequestError('Ảnh rỗng.');
-    if (buffer.length > maxBytes) throw new BadRequestError(`Ảnh vượt quá ${Math.round(maxBytes / 1024 / 1024)}MB.`);
-    if (!check(buffer)) throw new BadRequestError('Nội dung file không khớp định dạng ảnh.');
+    if (buffer.length === 0) throw new BadRequestError('File rỗng.');
+    if (buffer.length > maxBytes) throw new BadRequestError(`File vượt quá ${Math.round(maxBytes / 1024 / 1024)}MB.`);
+    if (!check(buffer)) throw new BadRequestError('Nội dung file không khớp định dạng khai báo.');
     return { mime, buffer };
 }
+const decodeImageDataUrl = (dataUrl, maxBytes) => decodeDataUrl(dataUrl, maxBytes, IMAGE_TYPES, 'Chỉ chấp nhận ảnh JPG, PNG hoặc WEBP.');
+
+/** Tên file hiển thị: bỏ đường dẫn và ký tự điều khiển, giới hạn độ dài. */
+const safeFileName = (name, fallback) => {
+    const s = String(name || '').split(/[\\/]/).pop().replace(/[\u0000-\u001f<>"]/g, '').trim();
+    return (s || fallback).slice(0, 120);
+};
 
 /** Bảng hồ sơ chứa avatar theo vai trò. Nhà tuyển dụng dùng avatar làm logo công ty. */
 async function profileTableFor(userId) {
@@ -175,6 +188,125 @@ class FileService {
         // Chỉ xóa file thuộc chính chủ
         await db.query(`DELETE FROM file_uploads WHERE id = $1 AND owner_id = $2 AND kind = 'OFFICE_IMAGE'`, [fileId, userId]);
         return { office_images: next };
+    }
+
+    /** Đổi thứ tự ảnh thư viện: `order` phải là hoán vị đúng của danh sách hiện có. */
+    async reorderOfficeImages(userId, order) {
+        await this.assertEmployer(userId);
+        const client = await db.pool.connect();
+        try {
+            await client.query('BEGIN');
+            const prof = await client.query('SELECT office_images FROM employer_profiles WHERE user_id = $1 FOR UPDATE', [userId]);
+            const current = Array.isArray(prof.rows[0].office_images) ? prof.rows[0].office_images : [];
+            const next = Array.isArray(order) ? order.map(String) : [];
+            const isPermutation = next.length === current.length && new Set(next).size === next.length && next.every(u => current.includes(u));
+            if (!isPermutation) throw new BadRequestError('Danh sách ảnh không khớp với thư viện hiện tại. Hãy tải lại trang.');
+            await client.query('UPDATE employer_profiles SET office_images = $2, updated_at = NOW() WHERE user_id = $1', [userId, JSON.stringify(next)]);
+            await client.query('COMMIT');
+            return { office_images: next };
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
+    }
+
+    // ---------- Ảnh người đại diện (riêng tư, khác logo doanh nghiệp) ----------
+
+    async setRepresentativeAvatar(userId, dataUrl) {
+        await this.assertEmployer(userId);
+        const { mime, buffer } = decodeImageDataUrl(dataUrl, AVATAR_MAX_BYTES);
+        const client = await db.pool.connect();
+        try {
+            await client.query('BEGIN');
+            const ins = await client.query(
+                `INSERT INTO file_uploads (owner_id, kind, original_name, mime_type, size_bytes, data)
+                 VALUES ($1, 'REP_AVATAR', 'representative', $2, $3, $4) RETURNING id`,
+                [userId, mime, buffer.length, buffer]
+            );
+            const url = `/api/files/representative-avatar?v=${ins.rows[0].id}`;
+            await client.query('UPDATE employer_profiles SET representative_avatar_url = $2, updated_at = NOW() WHERE user_id = $1', [userId, url]);
+            await client.query(`DELETE FROM file_uploads WHERE owner_id = $1 AND kind = 'REP_AVATAR' AND id <> $2`, [userId, ins.rows[0].id]);
+            await client.query('COMMIT');
+            return { representative_avatar_url: url };
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
+    }
+
+    async removeRepresentativeAvatar(userId) {
+        await this.assertEmployer(userId);
+        await db.query('UPDATE employer_profiles SET representative_avatar_url = NULL, updated_at = NOW() WHERE user_id = $1', [userId]);
+        await db.query(`DELETE FROM file_uploads WHERE owner_id = $1 AND kind = 'REP_AVATAR'`, [userId]);
+        return { representative_avatar_url: null };
+    }
+
+    /** Chỉ chính chủ xem được ảnh người đại diện. */
+    async getRepresentativeAvatar(userId) {
+        const res = await db.query(
+            `SELECT mime_type, data FROM file_uploads WHERE owner_id = $1 AND kind = 'REP_AVATAR' ORDER BY id DESC LIMIT 1`,
+            [userId]
+        );
+        if (!res.rows[0]) throw new NotFoundError('Chưa có ảnh người đại diện.');
+        return res.rows[0];
+    }
+
+    // ---------- Tài liệu pháp lý (riêng tư: chính chủ + quản trị viên) ----------
+
+    async assertLegalEditable(userId) {
+        await this.assertEmployer(userId);
+        const res = await db.query('SELECT verification_status FROM employer_profiles WHERE user_id = $1', [userId]);
+        if (!EDITABLE_LEGAL.includes(normalizeLegalStatus(res.rows[0]?.verification_status))) {
+            throw new ForbiddenError('Hồ sơ pháp lý đang chờ duyệt hoặc đã được xác minh nên không thể thay đổi tài liệu.');
+        }
+    }
+
+    async addLegalDocument(userId, dataUrl, name) {
+        await this.assertLegalEditable(userId);
+        const { mime, buffer } = decodeDataUrl(dataUrl, LEGAL_DOC_MAX_BYTES, LEGAL_DOC_TYPES, 'Chỉ chấp nhận PDF, JPG, PNG hoặc WEBP.');
+        const client = await db.pool.connect();
+        try {
+            await client.query('BEGIN');
+            // Khóa hồ sơ để 2 lần tải đồng thời không vượt giới hạn số tài liệu
+            await client.query('SELECT 1 FROM employer_profiles WHERE user_id = $1 FOR UPDATE', [userId]);
+            const count = await client.query(`SELECT COUNT(*)::int AS n FROM file_uploads WHERE owner_id = $1 AND kind = 'LEGAL_DOC'`, [userId]);
+            if (count.rows[0].n >= LEGAL_DOCS_MAX) throw new BadRequestError(`Tối đa ${LEGAL_DOCS_MAX} tài liệu.`);
+            const ins = await client.query(
+                `INSERT INTO file_uploads (owner_id, kind, original_name, mime_type, size_bytes, data)
+                 VALUES ($1, 'LEGAL_DOC', $2, $3, $4, $5) RETURNING id, original_name, mime_type, size_bytes, created_at`,
+                [userId, safeFileName(name, 'tai-lieu'), mime, buffer.length, buffer]
+            );
+            await client.query('COMMIT');
+            const r = ins.rows[0];
+            return { id: r.id, name: r.original_name, mime_type: r.mime_type, size_bytes: r.size_bytes, created_at: r.created_at };
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
+    }
+
+    async removeLegalDocument(userId, fileId) {
+        await this.assertLegalEditable(userId);
+        const res = await db.query(`DELETE FROM file_uploads WHERE id = $1 AND owner_id = $2 AND kind = 'LEGAL_DOC'`, [fileId, userId]);
+        if (res.rowCount === 0) throw new NotFoundError('Không tìm thấy tài liệu.');
+        return { id: fileId };
+    }
+
+    /** Tải tài liệu pháp lý: chỉ chính chủ hoặc quản trị viên. */
+    async getLegalDocument(requester, fileId) {
+        const res = await db.query(
+            `SELECT owner_id, original_name, mime_type, data FROM file_uploads WHERE id = $1 AND kind = 'LEGAL_DOC'`,
+            [fileId]
+        );
+        const doc = res.rows[0];
+        if (!doc || (doc.owner_id !== requester.id && requester.role !== 'ADMIN')) throw new NotFoundError('Không tìm thấy tài liệu.');
+        return doc;
     }
 
     /** File công khai: ảnh đại diện, ảnh bìa, ảnh văn phòng, ảnh đánh giá. CV và ảnh gốc avatar không phát công khai. */

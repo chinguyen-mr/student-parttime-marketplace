@@ -1,5 +1,6 @@
 const db = require('../../config/db');
 const { AppError, NotFoundError, ForbiddenError } = require('../../utils/app-error');
+const { diffFields, logProfileChange } = require('./employer-audit');
 
 // Loại tài khoản lưu dạng nhãn tiếng Việt từ form đăng ký → chuẩn hóa, không suy luận từ tên
 const ACCOUNT_TYPES = {
@@ -8,8 +9,13 @@ const ACCOUNT_TYPES = {
     BUSINESS: 'BUSINESS',
     INDIVIDUAL: 'INDIVIDUAL',
 };
-const LEGAL_STATUSES = ['UNVERIFIED', 'PENDING', 'VERIFIED', 'REJECTED'];
+// Trạng thái xác minh pháp lý nội bộ. Ra ngoài chỉ công khai VERIFIED / PENDING / UNVERIFIED.
+const LEGAL_STATUSES = ['UNVERIFIED', 'PENDING', 'VERIFIED', 'NEEDS_INFO', 'REJECTED'];
+const PUBLIC_LEGAL_STATUSES = ['UNVERIFIED', 'PENDING', 'VERIFIED'];
 const SOCIAL_KEYS = ['facebook', 'linkedin', 'tiktok', 'youtube', 'instagram'];
+// Chính sách nhân sự chi tiết (ưu tiên sinh viên); "Phúc lợi" = cột benefits, "Chính sách khác" = hr_policies
+const POLICY_KEYS = ['internship', 'training', 'student_support', 'flexible_schedule', 'part_time', 'full_time', 'career_growth'];
+const BRANCHES_MAX = 20;
 
 const str = (v, max) => {
     if (v === undefined || v === null) return null;
@@ -17,7 +23,47 @@ const str = (v, max) => {
     return s ? s.slice(0, max) : null;
 };
 const isHttpUrl = (v) => /^https?:\/\/[^\s/$.?#].[^\s]*$/i.test(v);
+const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const asList = (v) => (Array.isArray(v) ? v : []);
+const asObject = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+const inVietnam = (lat, lng) => lat >= 8 && lat <= 24 && lng >= 102 && lng <= 110;
+const round6 = (n) => Math.round(n * 1e6) / 1e6;
+
+/** Trạng thái pháp lý đã lưu → một trong LEGAL_STATUSES (giá trị cũ/lạ như 'PENDING_VERIFICATION' = chưa gửi hồ sơ). */
+const normalizeLegalStatus = (v) => (LEGAL_STATUSES.includes(v) ? v : 'UNVERIFIED');
+
+/** Số điện thoại VN: bỏ khoảng trắng/dấu chấm/gạch → null nếu không hợp lệ. */
+const normalizePhone = (v) => {
+    const s = String(v).replace(/[\s.-]/g, '');
+    return /^(\+84|0)\d{8,10}$/.test(s) ? s : null;
+};
+
+/** Chi nhánh: dữ liệu cũ là chuỗi → coi chuỗi đó là địa chỉ. */
+function readBranch(b) {
+    if (typeof b === 'string') {
+        const address = str(b, 255);
+        return address ? { name: null, address, phone: null, email: null, latitude: null, longitude: null, is_active: true } : null;
+    }
+    const o = asObject(b);
+    const address = str(o.address, 255);
+    const name = str(o.name, 120);
+    if (!address && !name) return null;
+    const lat = o.latitude === null || o.latitude === undefined || o.latitude === '' ? null : Number(o.latitude);
+    const lng = o.longitude === null || o.longitude === undefined || o.longitude === '' ? null : Number(o.longitude);
+    const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
+    return {
+        name, address,
+        phone: str(o.phone, 20), email: str(o.email, 255),
+        latitude: hasCoords ? lat : null, longitude: hasCoords ? lng : null,
+        is_active: o.is_active !== false,
+    };
+}
+const readBranches = (raw) => asList(raw).map(readBranch).filter(Boolean);
+
+const readPolicies = (raw) => {
+    const o = asObject(raw);
+    return Object.fromEntries(POLICY_KEYS.map(k => [k, str(o[k], 3000)]).filter(([, v]) => v));
+};
 
 /** Bỏ phần số nhà/tên đường, giữ tối đa 2 cấp cuối (quận/khu vực, tỉnh/thành) — dùng cho tài khoản cá nhân. */
 const coarseLocation = (loc) => {
@@ -27,11 +73,15 @@ const coarseLocation = (loc) => {
     return parts.length ? parts.slice(-2).join(', ') : null;
 };
 
-/** Dữ liệu được phép công khai. Không có: email/SĐT đăng nhập, MST, giấy phép, người đại diện, trạng thái tài khoản nội bộ. */
+/**
+ * Dữ liệu được phép công khai. Không có: email/SĐT đăng nhập, MST, giấy phép/tài liệu pháp lý,
+ * thông tin người đại diện, ghi chú xét duyệt, trạng thái tài khoản nội bộ.
+ */
 function toPublicDto(row, openJobsCount) {
     const accountType = ACCOUNT_TYPES[row.account_type] || null;
-    const legalStatus = LEGAL_STATUSES.includes(row.verification_status) ? row.verification_status : 'UNVERIFIED';
-    const social = row.social_links && typeof row.social_links === 'object' ? row.social_links : {};
+    const stored = normalizeLegalStatus(row.verification_status);
+    const legalStatus = PUBLIC_LEGAL_STATUSES.includes(stored) ? stored : 'UNVERIFIED';
+    const social = asObject(row.social_links);
     return {
         id: row.user_id,
         display_name: row.display_name || row.company_name || row.full_name,
@@ -58,10 +108,14 @@ function toPublicDto(row, openJobsCount) {
         products_services: row.products_services || null,
         achievements: row.achievements || null,
         work_environment_desc: row.work_environment_desc || null,
+        internal_culture: row.internal_culture || null,
         benefits: row.benefits || null,
         hr_policies: row.hr_policies || null,
+        hr_policy_details: readPolicies(row.hr_policy_details),
         office_images: asList(row.office_images).filter(u => typeof u === 'string' && u.startsWith('/api/files/')),
-        branches: asList(row.branches).filter(b => typeof b === 'string' && b.trim()),
+        // Chỉ chi nhánh đang hoạt động; không kèm cờ nội bộ
+        branches: readBranches(row.branches).filter(b => b.is_active && b.address)
+            .map(({ is_active, ...b }) => ({ ...b, phone: b.phone && normalizePhone(b.phone) ? b.phone : null, email: b.email && isEmail(b.email) ? b.email : null })),
         website: row.website && isHttpUrl(row.website) ? row.website : null,
         public_email: row.public_email || null,
         public_phone: row.public_phone || null,
@@ -77,11 +131,52 @@ function toPublicDto(row, openJobsCount) {
     };
 }
 
-/** Kiểm tra dữ liệu phần "thông tin công khai" do nhà tuyển dụng nhập. */
+function validateBranch(b, i, errors) {
+    const o = typeof b === 'string' ? { address: b } : asObject(b);
+    const label = `Chi nhánh ${i + 1}`;
+    const out = {
+        name: str(o.name, 120),
+        address: str(o.address, 255),
+        phone: str(o.phone, 20),
+        email: str(o.email, 255),
+        latitude: null,
+        longitude: null,
+        is_active: o.is_active !== false && o.is_active !== 'false',
+    };
+    if (!out.name && !out.address && !out.phone && !out.email) return null; // dòng trống → bỏ qua
+    if (!out.address) errors.push(`${label}: cần nhập địa chỉ.`);
+    if (out.phone) {
+        out.phone = normalizePhone(out.phone);
+        if (!out.phone) errors.push(`${label}: số điện thoại không hợp lệ.`);
+    }
+    if (out.email && !isEmail(out.email)) errors.push(`${label}: email không hợp lệ.`);
+    const hasLat = o.latitude !== undefined && o.latitude !== null && o.latitude !== '';
+    const hasLng = o.longitude !== undefined && o.longitude !== null && o.longitude !== '';
+    if (hasLat !== hasLng) errors.push(`${label}: cần đủ cả vĩ độ và kinh độ.`);
+    else if (hasLat) {
+        const lat = Number(o.latitude);
+        const lng = Number(o.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng) || !inVietnam(lat, lng)) errors.push(`${label}: vị trí ghim phải nằm trong lãnh thổ Việt Nam.`);
+        else { out.latitude = round6(lat); out.longitude = round6(lng); }
+    }
+    return out;
+}
+
+/**
+ * Kiểm tra dữ liệu phần "Hồ sơ doanh nghiệp" do nhà tuyển dụng nhập.
+ * Trả về giá trị đã chuẩn hóa cho mọi trường; `present` = các cột thực sự có trong body (chỉ cột đó được ghi).
+ */
 function validatePublicInfo(body = {}) {
     const errors = [];
+    const has = (k) => Object.prototype.hasOwnProperty.call(body, k);
     const currentYear = new Date().getFullYear();
     const out = {
+        display_name: str(body.display_name, 255),
+        company_type: str(body.company_type, 100),
+        bio: str(body.bio, 5000),
+        website: str(body.website, 500),
+        province: str(body.province, 255),
+        detailed_address: str(body.detailed_address, 500),
         brand_name: str(body.brand_name, 255),
         founded_year: body.founded_year === '' || body.founded_year === null || body.founded_year === undefined ? null : Number(body.founded_year),
         industry: str(body.industry, 255),
@@ -91,37 +186,43 @@ function validatePublicInfo(body = {}) {
         products_services: str(body.products_services, 3000),
         achievements: str(body.achievements, 3000),
         work_environment_desc: str(body.work_environment_desc, 3000),
+        internal_culture: str(body.internal_culture, 3000),
         benefits: str(body.benefits, 3000),
         hr_policies: str(body.hr_policies, 3000),
+        hr_policy_details: readPolicies(body.hr_policy_details),
         public_email: str(body.public_email, 255),
         public_phone: str(body.public_phone, 20),
-        branches: asList(body.branches).map(b => str(b, 255)).filter(Boolean),
+        branches: [],
         social_links: {},
     };
+    if (has('display_name') && !out.display_name) errors.push('Tên hiển thị doanh nghiệp không được để trống.');
+    if (out.website && !isHttpUrl(out.website)) errors.push('Website phải bắt đầu bằng http:// hoặc https://');
     if (out.founded_year !== null && (!Number.isInteger(out.founded_year) || out.founded_year < 1800 || out.founded_year > currentYear)) {
         errors.push(`Năm thành lập phải từ 1800 đến ${currentYear}.`);
     }
-    if (out.public_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(out.public_email)) errors.push('Email liên hệ không hợp lệ.');
+    if (out.public_email && !isEmail(out.public_email)) errors.push('Email liên hệ không hợp lệ.');
     if (out.public_phone) {
-        out.public_phone = out.public_phone.replace(/[\s.-]/g, '');
-        if (!/^(\+84|0)\d{8,10}$/.test(out.public_phone)) errors.push('Số điện thoại liên hệ không hợp lệ.');
+        const phone = normalizePhone(out.public_phone);
+        if (!phone) errors.push('Số điện thoại liên hệ không hợp lệ.');
+        else out.public_phone = phone;
     }
-    if (out.branches.length > 20) errors.push('Tối đa 20 chi nhánh.');
+    const rawBranches = asList(body.branches);
+    if (rawBranches.length > BRANCHES_MAX) errors.push(`Tối đa ${BRANCHES_MAX} chi nhánh.`);
+    else out.branches = rawBranches.map((b, i) => validateBranch(b, i, errors)).filter(Boolean);
     // Tọa độ trụ sở: cả hai cùng có hoặc cùng trống; giới hạn trong lãnh thổ Việt Nam
     const hasLat = body.latitude !== undefined && body.latitude !== null && body.latitude !== '';
     const hasLng = body.longitude !== undefined && body.longitude !== null && body.longitude !== '';
     out.latitude = hasLat ? Number(body.latitude) : null;
     out.longitude = hasLng ? Number(body.longitude) : null;
     if (hasLat !== hasLng) errors.push('Cần đủ cả vĩ độ và kinh độ.');
-    else if (hasLat && (Number.isNaN(out.latitude) || Number.isNaN(out.longitude)
-        || out.latitude < 8 || out.latitude > 24 || out.longitude < 102 || out.longitude > 110)) {
+    else if (hasLat && (Number.isNaN(out.latitude) || Number.isNaN(out.longitude) || !inVietnam(out.latitude, out.longitude))) {
         errors.push('Vị trí ghim phải nằm trong lãnh thổ Việt Nam.');
     }
     if (out.latitude !== null) {
-        out.latitude = Math.round(out.latitude * 1e6) / 1e6;
-        out.longitude = Math.round(out.longitude * 1e6) / 1e6;
+        out.latitude = round6(out.latitude);
+        out.longitude = round6(out.longitude);
     }
-    const social = body.social_links && typeof body.social_links === 'object' ? body.social_links : {};
+    const social = asObject(body.social_links);
     for (const key of SOCIAL_KEYS) {
         const v = str(social[key], 255);
         if (!v) continue;
@@ -129,8 +230,17 @@ function validatePublicInfo(body = {}) {
         else out.social_links[key] = v;
     }
     if (errors.length) throw new AppError(errors[0], 400, errors);
-    return out;
+    const present = Object.keys(out).filter(k => has(k));
+    if (has('latitude') || has('longitude')) present.push('latitude', 'longitude');
+    return Object.defineProperty(out, 'present', { value: [...new Set(present)], enumerable: false });
 }
+
+const JSON_COLUMNS = new Set(['branches', 'social_links', 'hr_policy_details']);
+// Thông tin quan trọng ghi giá trị cũ/mới vào lịch sử; văn bản dài chỉ ghi "đã cập nhật"
+const AUDIT_FIELDS = ['display_name', 'brand_name', 'company_type', 'industry', 'company_size', 'founded_year', 'website',
+    'province', 'detailed_address', 'public_email', 'public_phone', 'latitude', 'longitude', 'social_links', 'branches'];
+const AUDIT_LONG_FIELDS = ['bio', 'mission', 'core_values', 'products_services', 'achievements', 'work_environment_desc',
+    'internal_culture', 'benefits', 'hr_policies', 'hr_policy_details'];
 
 class EmployerPublicService {
     async getPublicProfile(userId) {
@@ -154,29 +264,26 @@ class EmployerPublicService {
     }
 
     /**
-     * Nhà tuyển dụng cập nhật phần thông tin công khai.
-     * Không đụng tới: thông tin pháp lý/xác minh, tên/giới thiệu/website/địa chỉ (do form hồ sơ cơ bản quản lý).
+     * Nhà tuyển dụng cập nhật Hồ sơ doanh nghiệp. Chỉ ghi các trường có trong body.
+     * Không đụng tới: tên pháp nhân/MST/tài liệu & trạng thái xác minh (mục Xác minh), ảnh (API /files),
+     * thông tin người đại diện, email/SĐT đăng nhập.
      */
     async updatePublicInfo(userId, body) {
         const u = await db.query('SELECT role FROM users WHERE id = $1', [userId]);
         if (!u.rows[0]) throw new NotFoundError('Người dùng không tồn tại');
         if (u.rows[0].role !== 'EMPLOYER') throw new ForbiddenError('Chỉ nhà tuyển dụng mới có hồ sơ công ty.');
         const p = validatePublicInfo(body);
-        const res = await db.query(
-            `UPDATE employer_profiles SET
-                brand_name = $2, founded_year = $3, industry = $4, company_size = $5,
-                mission = $6, core_values = $7, products_services = $8, achievements = $9,
-                work_environment_desc = $10, benefits = $11, hr_policies = $12,
-                public_email = $13, public_phone = $14, branches = $15, social_links = $16,
-                latitude = $17, longitude = $18, updated_at = NOW()
-             WHERE user_id = $1`,
-            [userId, p.brand_name, p.founded_year, p.industry, p.company_size,
-                p.mission, p.core_values, p.products_services, p.achievements,
-                p.work_environment_desc, p.benefits, p.hr_policies,
-                p.public_email, p.public_phone, JSON.stringify(p.branches), JSON.stringify(p.social_links),
-                p.latitude, p.longitude]
-        );
-        if (res.rowCount === 0) throw new NotFoundError('Chưa có hồ sơ doanh nghiệp. Hãy hoàn tất thông tin cơ bản trước.');
+        const before = (await db.query('SELECT * FROM employer_profiles WHERE user_id = $1', [userId])).rows[0];
+        if (!before) throw new NotFoundError('Chưa có hồ sơ doanh nghiệp. Hãy hoàn tất thông tin cơ bản trước.');
+        if (p.present.length) {
+            const cols = p.present;
+            // Tên cột lấy từ danh sách trường đã kiểm tra (không lấy từ body) → không thể chèn SQL
+            const sets = cols.map((c, i) => `${c} = $${i + 2}`);
+            const values = cols.map(c => (JSON_COLUMNS.has(c) ? JSON.stringify(p[c]) : p[c]));
+            await db.query(`UPDATE employer_profiles SET ${sets.join(', ')}, updated_at = NOW() WHERE user_id = $1`, [userId, ...values]);
+            const changes = diffFields(before, p, AUDIT_FIELDS.filter(f => cols.includes(f)), AUDIT_LONG_FIELDS.filter(f => cols.includes(f)));
+            await logProfileChange(db, userId, userId, 'COMPANY', changes);
+        }
         return this.getPublicProfile(userId);
     }
 }
@@ -184,3 +291,8 @@ class EmployerPublicService {
 module.exports = new EmployerPublicService();
 module.exports.toPublicDto = toPublicDto;
 module.exports.validatePublicInfo = validatePublicInfo;
+module.exports.normalizeLegalStatus = normalizeLegalStatus;
+module.exports.normalizePhone = normalizePhone;
+module.exports.readBranches = readBranches;
+module.exports.LEGAL_STATUSES = LEGAL_STATUSES;
+module.exports.POLICY_KEYS = POLICY_KEYS;

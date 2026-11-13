@@ -1,464 +1,215 @@
-import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, ShieldCheck, AlertCircle, ArrowRight, Save, Camera, CheckCircle2, Settings } from 'lucide-react';
-import { Button } from '../../components/ui';
-import EmployerPublicInfoForm from '../../components/employer/EmployerPublicInfoForm';
-import { API_BASE, formatApiError } from '../../config/api';
+import React, { useEffect, useRef, useState } from 'react';
+import { User, Mail, Phone, ShieldCheck, Save, Camera, Trash2, Settings, Loader2, Lock, CircleDashed, AlertCircle, Building2, MonitorSmartphone } from 'lucide-react';
+import { checkImageFile, resizeImageFile } from '../../utils/imageResize';
+import {
+  apiJson, fetchPrivateBlobUrl, card, input, inputError, labelStyle, hintStyle, errorStyle, grid, btn, btnDanger, btnPrimary, sectionTitle,
+} from '../../components/employer/companyProfileShared';
 
-export default function EmployerPersonalProfilePage({
-  currentUser,
-  showToast,
-  onNavigateVerification,
-  onNavigateSettings,
-  onProfileUpdated
-}) {
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({
-    displayName: currentUser?.full_name || '',
-    bio: '',
-    location: '',
-    avatarUrl: ''
-  });
-
-  // Read-only account credentials
-  const [contact, setContact] = useState({ email: currentUser?.email || '', phone: currentUser?.phone || '' });
-  const { email, phone } = contact;
-
-  // Trạng thái xác minh lấy từ database (thời điểm xác minh OTP thật), mặc định là chưa xác minh
-  const [verified, setVerified] = useState({ email: false, phone: false });
-  const emailVerified = verified.email;
-  const phoneVerified = verified.phone;
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!currentUser?.token) return;
-      try {
-        setLoading(true);
-        const res = await fetch(`${API_BASE}/profile/me`, {
-          headers: { Authorization: `Bearer ${currentUser.token}` }
-        });
-        const data = await res.json();
-        if (data.success && data.data) {
-          const p = data.data;
-          setFormData({
-            displayName: p.display_name || p.full_name || currentUser.full_name || '',
-            bio: p.bio || '',
-            location: p.location || p.company_address || '',
-            avatarUrl: p.avatar_url || ''
-          });
-          setContact({ email: p.email || currentUser.email || '', phone: p.phone || currentUser.phone || '' });
-          setVerified({ email: Boolean(p.email_verified_at), phone: Boolean(p.phone_verified_at) });
-        }
-      } catch (err) {
-        console.warn('Could not load profile from API, using local state:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [currentUser]);
-
-  const handleSave = async (e) => {
-    e?.preventDefault();
-    if (!formData.displayName.trim()) {
-      if (showToast) showToast('Vui lòng nhập tên hiển thị', 'error');
-      return;
-    }
-
-    try {
-      setSaving(true);
-      const res = await fetch(`${API_BASE}/profile/me`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${currentUser?.token}`
-        },
-        body: JSON.stringify({
-          display_name: formData.displayName.trim(),
-          bio: formData.bio.trim(),
-          location: formData.location.trim(),
-          avatar_url: formData.avatarUrl
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        if (showToast) showToast('Đã lưu thay đổi hồ sơ cá nhân thành công!', 'success');
-        if (onProfileUpdated) {
-          onProfileUpdated({
-            display_name: formData.displayName.trim(),
-            bio: formData.bio.trim(),
-            location: formData.location.trim(),
-            avatar_url: formData.avatarUrl
-          });
-        }
-      } else {
-        if (showToast) showToast(data.message || 'Lỗi cập nhật hồ sơ', 'error');
-      }
-    } catch (err) {
-      if (showToast) showToast(formatApiError(err, 'Lỗi cập nhật hồ sơ cá nhân'), 'error');
-    } finally {
-      setSaving(false);
-    }
-  };
-
+function ReadOnlyField({ icon: Icon, label, value, verified }) {
   return (
-    <div style={{ width: '100%', maxWidth: 'none', display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Page Title */}
-      <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14 }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-          HỒ SƠ CÁ NHÂN
-        </div>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>
-          Hồ sơ Cá nhân Nhà tuyển dụng
-        </h1>
-        <p style={{ margin: '4px 0 0 0', fontSize: 13.5, color: 'var(--color-text-secondary)' }}>
-          Quản lý thông tin hiển thị cá nhân người đăng tin. Email và số điện thoại được bảo vệ chỉ đọc.
-        </p>
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
+        <span style={labelStyle}>{label} <span style={{ fontWeight: 500, color: '#94A3B8' }}>(chỉ đọc)</span></span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: verified ? '#047857' : '#B45309', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          {verified ? <><ShieldCheck size={13} /> Đã xác minh</> : <><CircleDashed size={13} /> Chưa xác minh</>}
+        </span>
       </div>
-
-      {/* 2-Column Main Layout matching WF-E02 Wireframe */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 2fr) minmax(320px, 1fr)',
-        gap: 24,
-        alignItems: 'flex-start'
-      }}>
-        {/* ================= CỘT TRÁI: KHỐI HỒ SƠ ================= */}
-        <div style={{
-          background: '#ffffff',
-          borderRadius: 14,
-          border: '1.5px solid #000000',
-          padding: 24,
-          boxShadow: 'var(--shadow-sm)'
-        }}>
-          <div style={{
-            fontSize: 16,
-            fontWeight: 800,
-            color: '#000000',
-            marginBottom: 20,
-            paddingBottom: 10,
-            borderBottom: '1px solid #E2E8F0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8
-          }}>
-            <User size={18} />
-            <span>Hồ sơ</span>
-          </div>
-
-          <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-            {/* Ảnh đại diện */}
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>
-                Ảnh đại diện
-              </label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 28,
-                  fontWeight: 800,
-                  border: '2px solid #000000',
-                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.25)'
-                }}>
-                  {formData.displayName ? formData.displayName.charAt(0).toUpperCase() : 'E'}
-                </div>
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (showToast) showToast('Ảnh đại diện đã được cập nhật từ tài khoản');
-                    }}
-                    style={{
-                      padding: '7px 14px',
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      background: '#F1F5F9',
-                      border: '1.5px solid #CBD5E1',
-                      borderRadius: 8,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6
-                    }}
-                  >
-                    <Camera size={14} /> Thay đổi ảnh
-                  </button>
-                  <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 4 }}>
-                    Định dạng PNG, JPG tối đa 2MB
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Tên hiển thị */}
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 6 }}>
-                Tên hiển thị <span style={{ color: '#DC2626' }}>*</span>
-              </label>
-              <input
-                type="text"
-                value={formData.displayName}
-                onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                placeholder="VD: Nguyễn Văn Anh (HR Manager)"
-                style={{
-                  width: '100%',
-                  height: 42,
-                  padding: '0 14px',
-                  borderRadius: 8,
-                  border: '1.5px solid #000000',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: '#0F172A',
-                  outline: 'none'
-                }}
-              />
-            </div>
-
-            {/* Bio */}
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 6 }}>
-                Bio (Giới thiệu bản thân)
-              </label>
-              <textarea
-                rows={3}
-                value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                placeholder="Mô tả ngắn gọn về vị trí làm việc, kinh nghiệm tuyển dụng của bạn..."
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  border: '1.5px solid #000000',
-                  fontSize: 13.5,
-                  color: '#0F172A',
-                  outline: 'none',
-                  resize: 'vertical'
-                }}
-              />
-            </div>
-
-            {/* Địa điểm */}
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 6 }}>
-                Địa điểm
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="VD: Quận 1, TP. Hồ Chí Minh"
-                  style={{
-                    width: '100%',
-                    height: 42,
-                    padding: '0 14px 0 38px',
-                    borderRadius: 8,
-                    border: '1.5px solid #000000',
-                    fontSize: 14,
-                    color: '#0F172A',
-                    outline: 'none'
-                  }}
-                />
-                <MapPin size={16} color="#64748B" style={{ position: 'absolute', left: 12, top: 13 }} />
-              </div>
-            </div>
-
-            {/* Email (chỉ đọc) */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <label style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
-                  Email (chỉ đọc)
-                </label>
-                <span style={{ fontSize: 11.5, color: '#059669', fontWeight: 700 }}>
-                  ✓ Đã xác minh
-                </span>
-              </div>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="email"
-                  value={email}
-                  disabled
-                  readOnly
-                  style={{
-                    width: '100%',
-                    height: 42,
-                    padding: '0 14px 0 38px',
-                    borderRadius: 8,
-                    border: '1.5px solid #CBD5E1',
-                    background: '#F8FAFC',
-                    color: '#64748B',
-                    fontSize: 14,
-                    cursor: 'not-allowed'
-                  }}
-                />
-                <Mail size={16} color="#94A3B8" style={{ position: 'absolute', left: 12, top: 13 }} />
-              </div>
-            </div>
-
-            {/* Số điện thoại (chỉ đọc) */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <label style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
-                  Số điện thoại (chỉ đọc)
-                </label>
-                <span style={{ fontSize: 11.5, color: phoneVerified ? '#059669' : '#D97706', fontWeight: 700 }}>
-                  {phoneVerified ? '✓ Đã xác minh' : 'Chưa xác minh'}
-                </span>
-              </div>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  value={phone}
-                  disabled
-                  readOnly
-                  style={{
-                    width: '100%',
-                    height: 42,
-                    padding: '0 14px 0 38px',
-                    borderRadius: 8,
-                    border: '1.5px solid #CBD5E1',
-                    background: '#F8FAFC',
-                    color: '#64748B',
-                    fontSize: 14,
-                    cursor: 'not-allowed'
-                  }}
-                />
-                <Phone size={16} color="#94A3B8" style={{ position: 'absolute', left: 12, top: 13 }} />
-              </div>
-            </div>
-
-            {/* Nút Lưu thay đổi */}
-            <div style={{ paddingTop: 10 }}>
-              <button
-                type="submit"
-                disabled={saving || loading}
-                style={{
-                  background: '#000000',
-                  color: '#ffffff',
-                  border: '1.5px solid #000000',
-                  borderRadius: 8,
-                  padding: '11px 24px',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: saving ? 'wait' : 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  transition: 'all 0.15s ease',
-                  boxShadow: 'var(--shadow-sm)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#27272A'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#000000'}
-              >
-                <Save size={16} />
-                <span>{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* ================= CỘT PHẢI: KHỐI XÁC MINH ================= */}
-        <div style={{
-          background: '#ffffff',
-          borderRadius: 14,
-          border: '1.5px solid #000000',
-          padding: 24,
-          boxShadow: 'var(--shadow-sm)',
-          position: 'sticky',
-          top: 90
-        }}>
-          <div style={{
-            fontSize: 16,
-            fontWeight: 800,
-            color: '#000000',
-            marginBottom: 16,
-            paddingBottom: 10,
-            borderBottom: '1px solid #E2E8F0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8
-          }}>
-            <ShieldCheck size={18} color="#059669" />
-            <span>Trạng thái tài khoản</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 16 }}>
-            {/* Email status */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13.5 }}>
-              <span style={{ color: '#334155', fontWeight: 600 }}>• Email:</span>
-              <span style={{
-                background: '#ECFDF5',
-                color: '#059669',
-                border: '1px solid #A7F3D0',
-                padding: '2px 10px',
-                borderRadius: 12,
-                fontSize: 12,
-                fontWeight: 700
-              }}>
-                Hoạt động
-              </span>
-            </div>
-
-            {/* Phone status */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13.5 }}>
-              <span style={{ color: '#334155', fontWeight: 600 }}>• Điện thoại:</span>
-              <span style={{
-                background: '#ECFDF5',
-                color: '#059669',
-                border: '1px solid #A7F3D0',
-                padding: '2px 10px',
-                borderRadius: 12,
-                fontSize: 12,
-                fontWeight: 700
-              }}>
-                Hoạt động
-              </span>
-            </div>
-          </div>
-
-          {/* Button Cài đặt tài khoản & Đổi mật khẩu (WF-X03) */}
-          {onNavigateSettings && (
-            <button
-              type="button"
-              onClick={onNavigateSettings}
-              style={{
-                width: '100%',
-                background: '#ffffff',
-                color: '#7565A8',
-                border: '1.5px solid #7565A8',
-                borderRadius: 8,
-                padding: '10px 16px',
-                fontSize: 13.5,
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#F1EEF8'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
-            >
-              <Settings size={15} />
-              <span>Cài đặt tài khoản & Đổi mật khẩu</span>
-            </button>
-          )}
-        </div>
+      <div style={{ position: 'relative' }}>
+        <input value={value || 'Chưa có'} readOnly aria-readonly="true" aria-label={label}
+          style={{ ...input, padding: '10px 12px 10px 36px', background: '#F8FAFC', color: '#64748B', cursor: 'default' }} />
+        <Icon size={16} color="#94A3B8" style={{ position: 'absolute', left: 12, top: 12 }} />
       </div>
-
-      {/* Thông tin hiển thị trên trang công ty công khai */}
-      <EmployerPublicInfoForm currentUser={currentUser} showToast={showToast} />
     </div>
   );
 }
 
+/**
+ * Thông tin người đại diện (người quản lý tài khoản nhà tuyển dụng).
+ * Không hiển thị công khai. Thông tin doanh nghiệp nằm ở mục "Hồ sơ doanh nghiệp".
+ */
+export default function EmployerPersonalProfilePage({ currentUser, showToast, onNavigateSettings, onNavigateCompany }) {
+  const token = currentUser?.token;
+  const [state, setState] = useState('loading'); // loading | ready | error
+  const [profile, setProfile] = useState(null);
+  const [form, setForm] = useState({ representative_name: '', representative_title: '' });
+  const [saved, setSaved] = useState(form);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [avatar, setAvatar] = useState({ url: null, busy: false });
+  const fileRef = useRef(null);
+  const notify = (m, t) => showToast && showToast(m, t);
+
+  const loadAvatar = async (hasAvatar) => {
+    if (!hasAvatar) { setAvatar(a => ({ ...a, url: null })); return; }
+    try {
+      const url = await fetchPrivateBlobUrl(token, '/files/representative-avatar');
+      setAvatar(a => { if (a.url) URL.revokeObjectURL(a.url); return { ...a, url }; });
+    } catch { setAvatar(a => ({ ...a, url: null })); }
+  };
+
+  const load = async () => {
+    setState('loading');
+    try {
+      const p = await apiJson(token, '/profile/me');
+      const f = { representative_name: p.representative_name || '', representative_title: p.representative_title || '' };
+      setProfile(p);
+      setForm(f);
+      setSaved(f);
+      setState('ready');
+      loadAvatar(Boolean(p.representative_avatar_url));
+    } catch {
+      setState('error');
+    }
+  };
+  useEffect(() => { if (token) load(); }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => { if (avatar.url) URL.revokeObjectURL(avatar.url); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const dirty = form.representative_name !== saved.representative_name || form.representative_title !== saved.representative_title;
+  useEffect(() => {
+    if (!dirty) return undefined;
+    const onBeforeUnload = (e) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [dirty]);
+
+  const validate = () => {
+    const name = form.representative_name.trim();
+    const msg = name.length < 2 ? 'Nhập họ và tên (ít nhất 2 ký tự).' : /[<>{}\d]/.test(name) ? 'Họ và tên không được chứa số hoặc ký tự đặc biệt.' : '';
+    setError(msg);
+    return !msg;
+  };
+
+  const save = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    setSaving(true);
+    try {
+      const d = await apiJson(token, '/profile/me/representative', { method: 'PUT', body: form });
+      const f = { representative_name: d.representative_name || '', representative_title: d.representative_title || '' };
+      setForm(f);
+      setSaved(f);
+      notify('Đã lưu thông tin người đại diện.', 'success');
+    } catch (ex) { notify(ex.message, 'error'); } finally { setSaving(false); }
+  };
+
+  const uploadAvatar = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    const err = checkImageFile(file);
+    if (err) return notify(err, 'error');
+    setAvatar(a => ({ ...a, busy: true }));
+    try {
+      const image = await resizeImageFile(file, { maxWidth: 512, maxHeight: 512 });
+      await apiJson(token, '/files/representative-avatar', { method: 'PUT', body: { image } });
+      await loadAvatar(true);
+      notify('Đã cập nhật ảnh đại diện.', 'success');
+    } catch (ex) { notify(ex.message, 'error'); } finally { setAvatar(a => ({ ...a, busy: false })); }
+  };
+
+  const removeAvatar = async () => {
+    if (!window.confirm('Xóa ảnh đại diện cá nhân?')) return;
+    setAvatar(a => ({ ...a, busy: true }));
+    try {
+      await apiJson(token, '/files/representative-avatar', { method: 'DELETE' });
+      setAvatar(a => { if (a.url) URL.revokeObjectURL(a.url); return { url: null, busy: false }; });
+    } catch (ex) { notify(ex.message, 'error'); setAvatar(a => ({ ...a, busy: false })); }
+  };
+
+  if (state === 'loading' && !profile) {
+    return <div style={{ ...card, color: '#64748B', textAlign: 'center' }} aria-busy="true"><Loader2 size={18} className="animate-spin" /> Đang tải…</div>;
+  }
+  if (state === 'error' && !profile) {
+    return (
+      <div style={{ ...card, textAlign: 'center' }} role="alert">
+        <AlertCircle size={28} color="#DC2626" style={{ margin: '0 auto 8px' }} />
+        <p style={{ margin: '0 0 12px 0' }}>Không tải được thông tin người đại diện.</p>
+        <button type="button" style={btn} onClick={load}>Thử lại</button>
+      </div>
+    );
+  }
+
+  const initial = (form.representative_name || currentUser?.full_name || 'N').trim().charAt(0).toUpperCase();
+
+  return (
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14 }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Tài khoản</div>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>Thông tin người đại diện</h1>
+        <p style={{ margin: '4px 0 0 0', fontSize: 13.5, color: 'var(--color-text-secondary)' }}>
+          <Lock size={13} style={{ verticalAlign: -2 }} /> Thông tin cá nhân của người quản lý tài khoản. Không hiển thị trên trang công ty và không dùng làm liên hệ tuyển dụng.
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: 20, alignItems: 'start' }}>
+        <form onSubmit={save} style={{ ...card, display: 'flex', flexDirection: 'column', gap: 18 }} noValidate>
+          <h3 style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 8 }}><User size={18} /> Hồ sơ người đại diện</h3>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ width: 76, height: 76, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: 'linear-gradient(135deg, #7565A8, #A997C5)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 800 }}>
+              {avatar.url ? <img src={avatar.url} alt="Ảnh đại diện cá nhân" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initial}
+            </div>
+            <div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button type="button" style={btn} disabled={avatar.busy} onClick={() => fileRef.current?.click()}>
+                  {avatar.busy ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />} {avatar.url ? 'Đổi ảnh' : 'Tải ảnh lên'}
+                </button>
+                {avatar.url && <button type="button" style={btnDanger} disabled={avatar.busy} onClick={removeAvatar}><Trash2 size={14} /> Xóa</button>}
+              </div>
+              <p style={hintStyle}>JPG, PNG, WEBP. Khác với logo doanh nghiệp.</p>
+              <input ref={fileRef} type="file" hidden accept="image/jpeg,image/png,image/webp" onChange={uploadAvatar} />
+            </div>
+          </div>
+
+          <div style={grid}>
+            <label>
+              <span style={labelStyle}>Họ và tên <span style={{ color: '#DC2626' }}>*</span></span>
+              <input style={error ? inputError : input} value={form.representative_name} maxLength={100} aria-invalid={Boolean(error)} autoComplete="name"
+                onChange={(e) => setForm(f => ({ ...f, representative_name: e.target.value }))} onBlur={() => form.representative_name && validate()} />
+              {error && <p style={errorStyle} role="alert">{error}</p>}
+            </label>
+            <label>
+              <span style={labelStyle}>Chức vụ</span>
+              <input style={input} value={form.representative_title} maxLength={100} placeholder="VD: Trưởng phòng nhân sự" autoComplete="organization-title"
+                onChange={(e) => setForm(f => ({ ...f, representative_title: e.target.value }))} />
+            </label>
+          </div>
+
+          <ReadOnlyField icon={Mail} label="Email tài khoản" value={profile?.email} verified={Boolean(profile?.email_verified_at)} />
+          <ReadOnlyField icon={Phone} label="Số điện thoại cá nhân" value={profile?.phone} verified={Boolean(profile?.phone_verified_at)} />
+          <p style={{ ...hintStyle, marginTop: -8 }}>
+            Email và số điện thoại dùng để đăng nhập nên không sửa trực tiếp được. Việc thay đổi cần quy trình xác minh mã OTP — liên hệ quản trị viên JobNest nếu cần đổi.
+          </p>
+
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            <button type="submit" disabled={!dirty || saving} style={{ ...btnPrimary, background: !dirty || saving ? '#C4B5FD' : '#7565A8', cursor: !dirty || saving ? 'not-allowed' : 'pointer' }}>
+              {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Lưu thay đổi
+            </button>
+            {dirty && <span style={{ fontSize: 12.5, color: '#C2410C', fontWeight: 600 }}>Có thay đổi chưa lưu</span>}
+          </div>
+        </form>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={card}>
+            <h3 style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 8 }}><ShieldCheck size={18} color="#047857" /> Bảo mật tài khoản</h3>
+            <p style={{ ...hintStyle, marginTop: 0, marginBottom: 12 }}>Đổi mật khẩu và các cài đặt bảo mật nằm ở Cài đặt tài khoản.</p>
+            {onNavigateSettings && (
+              <button type="button" style={{ ...btn, width: '100%', justifyContent: 'center' }} onClick={onNavigateSettings}>
+                <Settings size={15} /> Cài đặt tài khoản & Đổi mật khẩu
+              </button>
+            )}
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 14, padding: '10px 12px', borderRadius: 8, background: '#F8FAFC', fontSize: 12.5, color: '#64748B' }}>
+              <MonitorSmartphone size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+              <span>Quản lý phiên đăng nhập trên từng thiết bị: hệ thống chưa hỗ trợ. Nếu nghi ngờ lộ tài khoản, hãy đổi mật khẩu ngay.</span>
+            </div>
+          </div>
+
+          <div style={card}>
+            <h3 style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 8 }}><Building2 size={18} color="#7565A8" /> Thông tin doanh nghiệp</h3>
+            <p style={{ ...hintStyle, marginTop: 0, marginBottom: 12 }}>Logo, giới thiệu, liên hệ tuyển dụng, chi nhánh và xác minh pháp lý được quản lý riêng.</p>
+            {onNavigateCompany && <button type="button" style={{ ...btn, width: '100%', justifyContent: 'center' }} onClick={onNavigateCompany}>Mở Hồ sơ doanh nghiệp</button>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -65,19 +65,25 @@ class ProfileRepository {
             const accType = company_type || account_type;
 
             try {
-                // Try extended insert with all new fields
+                // Try extended insert with all new fields.
+                // Khi cập nhật: trường không gửi lên ($n = NULL) giữ nguyên giá trị cũ. Giá trị mặc định
+                // (tên hiển thị, '[]', 'UNVERIFIED', 30, false) CHỈ dùng khi tạo mới — trước đây các mặc định này
+                // nằm trong EXCLUDED nên mỗi lần lưu đều ghi đè thư viện ảnh, trạng thái xác minh và tên pháp nhân.
                 const res = await db.query(
                     `INSERT INTO employer_profiles (
-                        user_id, display_name, bio, location, avatar_url, account_type, 
-                        tax_code, website, business_license_file, representative_name, 
-                        representative_title, company_name, company_type, industry, 
-                        company_size, province, detailed_address, cover_url, recruiter_name, 
-                        recruiter_email, work_environment_desc, office_images, verification_status, 
+                        user_id, display_name, bio, location, avatar_url, account_type,
+                        tax_code, website, business_license_file, representative_name,
+                        representative_title, company_name, company_type, industry,
+                        company_size, province, detailed_address, cover_url, recruiter_name,
+                        recruiter_email, work_environment_desc, office_images, verification_status,
                         profile_completion_rate, is_profile_completed, updated_at
                      )
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, NOW())
+                     VALUES ($1, COALESCE($2::varchar, $26::varchar), $3, $4, $5, $6, $7, $8, $9, $10, $11,
+                             COALESCE($12::varchar, $2::varchar, $26::varchar), $13, $14, $15, COALESCE($16::varchar, $4::varchar), $17, $18, $19, $20, $21,
+                             COALESCE($22::jsonb, '[]'::jsonb), COALESCE($23::varchar, 'UNVERIFIED'),
+                             COALESCE($24::int, 30), COALESCE($25::boolean, false), NOW())
                      ON CONFLICT (user_id) DO UPDATE SET
-                        display_name = COALESCE(EXCLUDED.display_name, employer_profiles.display_name),
+                        display_name = COALESCE($2::varchar, employer_profiles.display_name),
                         bio = COALESCE(EXCLUDED.bio, employer_profiles.bio),
                         location = COALESCE(EXCLUDED.location, employer_profiles.location),
                         avatar_url = COALESCE(EXCLUDED.avatar_url, employer_profiles.avatar_url),
@@ -87,31 +93,32 @@ class ProfileRepository {
                         business_license_file = COALESCE(EXCLUDED.business_license_file, employer_profiles.business_license_file),
                         representative_name = COALESCE(EXCLUDED.representative_name, employer_profiles.representative_name),
                         representative_title = COALESCE(EXCLUDED.representative_title, employer_profiles.representative_title),
-                        company_name = COALESCE(EXCLUDED.company_name, employer_profiles.company_name),
+                        company_name = COALESCE($12::varchar, employer_profiles.company_name),
                         company_type = COALESCE(EXCLUDED.company_type, employer_profiles.company_type),
                         industry = COALESCE(EXCLUDED.industry, employer_profiles.industry),
                         company_size = COALESCE(EXCLUDED.company_size, employer_profiles.company_size),
-                        province = COALESCE(EXCLUDED.province, employer_profiles.province),
+                        province = COALESCE($16::varchar, employer_profiles.province),
                         detailed_address = COALESCE(EXCLUDED.detailed_address, employer_profiles.detailed_address),
                         cover_url = COALESCE(EXCLUDED.cover_url, employer_profiles.cover_url),
                         recruiter_name = COALESCE(EXCLUDED.recruiter_name, employer_profiles.recruiter_name),
                         recruiter_email = COALESCE(EXCLUDED.recruiter_email, employer_profiles.recruiter_email),
                         work_environment_desc = COALESCE(EXCLUDED.work_environment_desc, employer_profiles.work_environment_desc),
-                        office_images = COALESCE(EXCLUDED.office_images, employer_profiles.office_images),
-                        verification_status = COALESCE(EXCLUDED.verification_status, employer_profiles.verification_status),
-                        profile_completion_rate = COALESCE(EXCLUDED.profile_completion_rate, employer_profiles.profile_completion_rate),
-                        is_profile_completed = COALESCE(EXCLUDED.is_profile_completed, employer_profiles.is_profile_completed),
+                        office_images = COALESCE($22::jsonb, employer_profiles.office_images),
+                        verification_status = COALESCE($23::varchar, employer_profiles.verification_status),
+                        profile_completion_rate = COALESCE($24::int, employer_profiles.profile_completion_rate),
+                        is_profile_completed = COALESCE($25::boolean, employer_profiles.is_profile_completed),
                         updated_at = NOW()
                      RETURNING *, display_name AS company_name, location AS company_address`,
                     [
-                        userId, dName, bio || null, loc || null, avatar_url || null, accType || null,
+                        userId, display_name || company_name || null, bio || null, loc || null, avatar_url || null, accType || null,
                         tax_code || null, website || null, business_license_file || null,
-                        representative_name || null, representative_title || null, company_name || dName,
-                        company_type || null, industry || null, company_size || null, province || loc || null,
+                        representative_name || null, representative_title || null, company_name || null,
+                        company_type || null, industry || null, company_size || null, province || null,
                         detailed_address || null, cover_url || null, recruiter_name || null, recruiter_email || null,
-                        work_environment_desc || null, office_images ? JSON.stringify(office_images) : '[]',
-                        verification_status || 'UNVERIFIED', profile_completion_rate || 30,
-                        is_profile_completed !== undefined ? Boolean(is_profile_completed) : false
+                        work_environment_desc || null, office_images ? JSON.stringify(office_images) : null,
+                        verification_status || null, profile_completion_rate || null,
+                        is_profile_completed !== undefined ? Boolean(is_profile_completed) : null,
+                        dName
                     ]
                 );
                 return res.rows[0];

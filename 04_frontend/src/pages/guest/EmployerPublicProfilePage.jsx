@@ -13,6 +13,13 @@ import { applyBlockReason, salaryOptionsFor, matchesSalaryFilter, shortLocation 
 
 const ACCOUNT_LABEL = { BUSINESS: 'Doanh nghiệp', INDIVIDUAL: 'Nhà tuyển dụng cá nhân / Hộ kinh doanh' };
 const SOCIAL_LABEL = { facebook: 'Facebook', linkedin: 'LinkedIn', tiktok: 'TikTok', youtube: 'YouTube', instagram: 'Instagram' };
+// Thứ tự hiển thị chính sách nhân sự (ưu tiên thông tin sinh viên quan tâm)
+const POLICY_LABELS = [
+  ['internship', 'Chính sách thực tập'], ['training', 'Đào tạo nhân viên mới'], ['student_support', 'Hỗ trợ sinh viên'],
+  ['flexible_schedule', 'Lịch làm việc linh hoạt'], ['part_time', 'Chính sách Part-time'], ['full_time', 'Chính sách Full-time'],
+  ['benefits', 'Phúc lợi'], ['career_growth', 'Cơ hội phát triển nghề nghiệp'], ['hr_policies', 'Chính sách khác'],
+];
+const policyText = (p, key) => (['benefits', 'hr_policies'].includes(key) ? p[key] : p.hr_policy_details?.[key]);
 const JOBS_STEP = 6;
 
 const monthYear = (d) => {
@@ -145,8 +152,9 @@ export default function EmployerPublicProfilePage({
   const clearFilters = () => { setKeyword(''); setWorkFilter(''); setCategoryFilter(''); setCityFilter(''); setSalaryFilter(''); };
 
   const p = profile;
+  const policies = p ? POLICY_LABELS.filter(([k]) => policyText(p, k)) : [];
   const hasAbout = Boolean(p && ([p.bio, p.industry, p.company_type, p.products_services, p.mission, p.core_values, p.achievements,
-    p.work_environment_desc, p.benefits, p.hr_policies].some(Boolean) || p.office_images?.length));
+    p.work_environment_desc, p.internal_culture].some(Boolean) || policies.length || p.office_images?.length));
   const mapAddress = p ? (p.headquarters || p.location || p.province) : null;
   const hasContact = Boolean(p && (p.website || p.public_email || p.public_phone || mapAddress || p.branches?.length || Object.keys(p.social_links || {}).length));
 
@@ -365,10 +373,11 @@ export default function EmployerPublicProfilePage({
             <TextBlock title="Sứ mệnh & tầm nhìn" text={p.mission} />
             <TextBlock title="Giá trị cốt lõi" text={p.core_values} />
             <TextBlock title="Thành tựu nổi bật" text={p.achievements} />
-            <TextBlock title="Văn hóa & môi trường làm việc" text={p.work_environment_desc} />
+            <TextBlock title="Môi trường làm việc" text={p.work_environment_desc} />
+            <TextBlock title="Văn hóa nội bộ" text={p.internal_culture} />
             {p.office_images?.length > 0 && (
               <div className="company-block">
-                <h3 style={{ ...h3, marginBottom: 10 }}>Hình ảnh văn phòng</h3>
+                <h3 style={{ ...h3, marginBottom: 10 }}>Hình ảnh doanh nghiệp</h3>
                 <div className="company-gallery">
                   {p.office_images.map((url, i) => (
                     <button key={url} type="button" onClick={() => setLightbox(i)} aria-label={`Xem ảnh văn phòng ${i + 1}`}>
@@ -378,10 +387,17 @@ export default function EmployerPublicProfilePage({
                 </div>
               </div>
             )}
-            {(p.benefits || p.hr_policies) && (
-              <div className="company-block" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <TextBlock title="Phúc lợi" text={p.benefits} />
-                <TextBlock title="Chính sách nhân sự" text={p.hr_policies} />
+            {policies.length > 0 && (
+              <div className="company-block">
+                <h3 style={{ ...h3, marginBottom: 10 }}>Chính sách nhân sự</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: 12 }}>
+                  {policies.map(([k, label]) => (
+                    <div key={k} style={{ border: '1px solid #EDE9F6', background: '#FBFAFE', borderRadius: 12, padding: '12px 14px' }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 800, color: '#594675', marginBottom: 4 }}>{label}</div>
+                      <p style={{ ...para, fontSize: 14 }}>{policyText(p, k)}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </section>
@@ -473,8 +489,21 @@ export default function EmployerPublicProfilePage({
                 </ContactRow>
                 <ContactRow icon={MapPin} label={p.headquarters ? 'Địa chỉ trụ sở' : 'Khu vực'}>{mapAddress}</ContactRow>
                 {p.branches?.length > 0 && (
-                  <ContactRow icon={MapPin} label="Chi nhánh">
-                    <ul style={{ margin: 0, paddingLeft: 16, fontWeight: 500 }}>{p.branches.map(b => <li key={b}>{b}</li>)}</ul>
+                  <ContactRow icon={MapPin} label={`Chi nhánh (${p.branches.length})`}>
+                    <ul style={{ margin: 0, paddingLeft: 16, fontWeight: 500, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {p.branches.map((b, i) => (
+                        <li key={`${b.name || ''}-${b.address}-${i}`}>
+                          {b.name && <strong>{b.name}: </strong>}{b.address}
+                          {(b.phone || b.email) && (
+                            <div style={{ fontSize: 12.5, color: '#64748B', fontWeight: 500 }}>
+                              {b.phone && <a href={`tel:${b.phone}`} style={{ color: '#7565A8' }}>{b.phone}</a>}
+                              {b.phone && b.email && ' · '}
+                              {b.email && <a href={`mailto:${b.email}`} style={{ color: '#7565A8' }}>{b.email}</a>}
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
                   </ContactRow>
                 )}
                 {socials.length > 0 && (

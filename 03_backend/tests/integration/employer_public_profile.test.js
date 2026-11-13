@@ -61,14 +61,15 @@ describe('Hồ sơ công ty công khai', () => {
         const dto = toPublicDto(baseRow, 0);
         assert.deepStrictEqual(dto.office_images, ['/api/files/10']);
         assert.deepStrictEqual(dto.social_links, { facebook: 'https://facebook.com/abc' });
-        assert.deepStrictEqual(dto.branches, ['Hà Nội']);
+        // Chi nhánh lưu dạng chuỗi (dữ liệu cũ) được đọc thành object có địa chỉ; chuỗi rỗng bị bỏ
+        assert.deepStrictEqual(dto.branches, [{ name: null, address: 'Hà Nội', phone: null, email: null, latitude: null, longitude: null }]);
     });
 
     test('Validate thông tin công khai', () => {
         const ok = validatePublicInfo({ founded_year: '2020', public_phone: '028 3838 8888', branches: ['Hà Nội', ' '] });
         assert.strictEqual(ok.founded_year, 2020);
         assert.strictEqual(ok.public_phone, '02838388888');
-        assert.deepStrictEqual(ok.branches, ['Hà Nội']);
+        assert.deepStrictEqual(ok.branches.map(b => b.address), ['Hà Nội']);
         const bad = [
             [{ founded_year: 1700 }, /Năm thành lập/],
             [{ founded_year: new Date().getFullYear() + 1 }, /Năm thành lập/],

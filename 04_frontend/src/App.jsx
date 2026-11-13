@@ -49,6 +49,42 @@ import StudentProfileViewPage from './pages/employer/StudentProfileViewPage';
 import ReportViolationModal from './components/forms/ReportViolationModal';
 import AccountSettingsPage from './pages/student/AccountSettingsPage';
 import { API_BASE, checkBackendConnection, formatApiError } from './config/api';
+import { takeRestoredTab, rememberTab, clearRememberedTabs } from './utils/rememberedTab';
+import { isImeComposing } from './utils/ime';
+
+// ===== Giữ đăng nhập & vị trí khi tải lại trang =====
+const SESSION_KEY = 'jobnest_session';
+/** Phiên đã lưu; tự xóa nếu token hỏng hoặc đã hết hạn (exp trong JWT). */
+function loadStoredSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const user = JSON.parse(raw);
+    const payload = JSON.parse(atob(String(user?.token).split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (payload.exp && payload.exp * 1000 <= Date.now()) throw new Error('expired');
+    return user;
+  } catch {
+    try { localStorage.removeItem(SESSION_KEY); } catch { /* bỏ qua */ }
+    return null;
+  }
+}
+// Trang khách xem được khi chưa đăng nhập; trang khác chỉ khôi phục khi còn phiên
+const PUBLIC_TABS = ['home', 'jobs', 'about', 'static_content', 'job_detail', 'employer_public_profile', 'coming_soon', 'login', 'register'];
+// Trang cần mã đối tượng đang xem → thiếu mã thì không khôi phục
+const TAB_SELECTION = { job_detail: 'jobId', employer_public_profile: 'employerId', application_detail: 'applicationId', student_profile_view: 'studentId' };
+let appRestore;
+function getAppRestore() {
+  if (appRestore) return appRestore;
+  const session = loadStoredSession();
+  let tab = takeRestoredTab('app');
+  let sel = {};
+  try { sel = JSON.parse(takeRestoredTab('app_sel') || '{}') || {}; } catch { sel = {}; }
+  if (session && ['login', 'register', 'register_success'].includes(tab)) tab = null;
+  if (!session && tab && !PUBLIC_TABS.includes(tab)) tab = null;
+  if (tab && TAB_SELECTION[tab] && !sel[TAB_SELECTION[tab]]) tab = tab === 'job_detail' ? 'jobs' : null;
+  appRestore = { session, tab, sel };
+  return appRestore;
+}
 
 // Wireframe Screen 8: Default 12 Applications matching wireframe tabs
 // Tất cả (12) = Chờ duyệt (3) + Đã duyệt (4) + Bị từ chối (2) + Hoàn thành (3)
@@ -379,7 +415,7 @@ export default function App() {
   // Navigation tabs matching the wireframe screens:
   // 'home' (WF-G01), 'jobs' (WF-G02), 'student_apps' (Screen 8), 'employer_jobs' (Screen 10),
   // 'create_job' (Screen 11), 'applicants' (Screen 12), 'admin' (Screen 5), 'login' (Screen 1 & 2)
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState(() => getAppRestore().tab || 'home');
   // Tab con muốn mở trong trang Sinh viên; n tăng mỗi lần chọn để mở lại cả khi trùng tab
   const [studentDashNav, setStudentDashNav] = useState({ tab: 'dashboard', n: 0 });
   const [editingEmployerJob, setEditingEmployerJob] = useState(null);
@@ -399,7 +435,21 @@ export default function App() {
   const [retryingBackend, setRetryingBackend] = useState(false);
 
   // Authentication state (null when not logged in)
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => getAppRestore().session);
+
+  // Lưu phiên để tải lại trang không bị đăng xuất; đăng xuất (currentUser = null) thì xóa
+  useEffect(() => {
+    try {
+      if (currentUser?.token) localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+      else localStorage.removeItem(SESSION_KEY);
+    } catch { /* trình duyệt chặn lưu trữ → chỉ mất tính năng giữ đăng nhập */ }
+  }, [currentUser]);
+  // Đăng nhập tài khoản khác / đăng xuất → không mở lại các tab của phiên trước
+  const prevTokenRef = useRef(currentUser?.token);
+  useEffect(() => {
+    if (prevTokenRef.current !== currentUser?.token) clearRememberedTabs();
+    prevTokenRef.current = currentUser?.token;
+  }, [currentUser?.token]);
 
   // =========================================================================
   // TRƯỜNG 1 (WORKSPACE) vs TRƯỜNG 2 (MARKETPLACE) CONDITIONAL DEFINITION
@@ -554,12 +604,18 @@ export default function App() {
 
   // Selected entities for modals & pages
   const [selectedJob, setSelectedJob] = useState(null);
-  const [viewingJobId, setViewingJobId] = useState(null);
+  const [viewingJobId, setViewingJobId] = useState(() => getAppRestore().sel.jobId || null);
 
   // 8 Màn hình bổ sung states (WF-G06, WF-G07, WF-G08, WF-X02, WF-S12, WF-E13, WF-X01, WF-X03)
-  const [selectedEmployerId, setSelectedEmployerId] = useState(null);
-  const [selectedApplicationId, setSelectedApplicationId] = useState(null);
-  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [selectedEmployerId, setSelectedEmployerId] = useState(() => getAppRestore().sel.employerId || null);
+  const [selectedApplicationId, setSelectedApplicationId] = useState(() => getAppRestore().sel.applicationId || null);
+  const [selectedStudentId, setSelectedStudentId] = useState(() => getAppRestore().sel.studentId || null);
+
+  // Ghi nhớ trang + đối tượng đang xem để tải lại trang (F5) vẫn ở đúng chỗ
+  useEffect(() => { rememberTab('app', activeTab); }, [activeTab]);
+  useEffect(() => {
+    rememberTab('app_sel', JSON.stringify({ jobId: viewingJobId, employerId: selectedEmployerId, applicationId: selectedApplicationId, studentId: selectedStudentId }));
+  }, [viewingJobId, selectedEmployerId, selectedApplicationId, selectedStudentId]);
   const [registeredUser, setRegisteredUser] = useState(null);
   const [errorPageConfig, setErrorPageConfig] = useState({ type: '404', message: '' });
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -617,13 +673,13 @@ export default function App() {
       showToast(`${isRegister ? 'Đăng ký' : 'Đăng nhập'} thành công! Bạn đang xem lại công việc "${target.title}".`, 'success');
     } else {
       if (isRegister) {
+        // Đăng ký xong → vào thẳng trang chỉnh sửa hồ sơ trong dashboard (không mở popup)
         if (user?.role === 'EMPLOYER') {
-          setActiveTab('employer_dashboard');
-          setEmployerProfileOpen(true);
+          setActiveTab('employer_profile');
           showToast(`Đăng ký thành công! Hãy hoàn thiện thông tin doanh nghiệp để sẵn sàng đăng tin tuyển dụng.`, 'success');
         } else {
-          setActiveTab('home');
-          setStudentProfileOpen(true);
+          setStudentDashNav(prev => ({ tab: 'profile', n: prev.n + 1 }));
+          setActiveTab('student_dashboard');
           showToast(`Đăng ký thành công! Hãy hoàn thiện hồ sơ sinh viên để sẵn sàng ứng tuyển.`, 'success');
         }
       } else {
@@ -1920,7 +1976,8 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation(); // nằm trong khối logo (bấm logo = về trang chủ)
                     setActiveTab('employer_dashboard');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
@@ -1947,7 +2004,8 @@ export default function App() {
                 {isEmployerWorkspace && (
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // nằm trong khối logo (bấm logo = về trang chủ)
                       setEditingEmployerJob(null);
                       setActiveTab('create_job');
                       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2732,7 +2790,7 @@ export default function App() {
                         placeholder="Tìm kiếm theo vị trí, kỹ năng, công ty..." 
                         value={searchKeyword}
                         onChange={(e) => setSearchKeyword(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') fetchJobs(); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !isImeComposing(e)) fetchJobs(); }}
                         style={{ border: 'none', width: '100%', padding: '8px 0', fontSize: 13.5, outline: 'none' }}
                       />
                     </div>
@@ -3416,7 +3474,7 @@ export default function App() {
                         setEmployerJobPage(1);
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                        if (e.key === 'Enter' && !isImeComposing(e)) {
                           showToast(`Đang lọc tin với từ khóa: "${employerJobSearch}"`);
                         }
                       }}
@@ -4245,7 +4303,7 @@ export default function App() {
                       value={applicantSearch}
                       onChange={(e) => setApplicantSearch(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                        if (e.key === 'Enter' && !isImeComposing(e)) {
                           showToast(`Đang lọc ứng viên với từ khóa: "${applicantSearch}"`);
                         }
                       }}

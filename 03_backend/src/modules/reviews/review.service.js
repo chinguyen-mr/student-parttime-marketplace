@@ -4,15 +4,28 @@ const applicationRepository = require('../../database/repositories/application.r
 const { NotFoundError, ForbiddenError, ConflictError, AppError } = require('../../utils/app-error');
 
 class ReviewService {
-    async createReview(reviewerId, { job_id, reviewee_id, rating, comment }) {
+    async createReview(reviewerId, body) {
+        // Body JSON có thể gửi ID dạng chuỗi → chuẩn hóa để so sánh === đúng
+        const job_id = parseInt(body.job_id, 10);
+        const reviewee_id = parseInt(body.reviewee_id, 10);
+        const { rating, comment } = body;
         const job = await jobRepository.findById(job_id);
         if (!job) {
             throw new NotFoundError('Không tìm thấy tin công việc');
         }
 
-        // Quy tắc 1: Công việc phải hoàn thành mới được đánh giá
+        // Quy tắc 1: Công việc phải hoàn thành mới được đánh giá — cả tin đã COMPLETED,
+        // hoặc phần việc của chính sinh viên này đã COMPLETED (tin tuyển nhiều người chưa đóng)
         if (job.status !== 'COMPLETED') {
-            throw new AppError('Chỉ có thể đánh giá sau khi công việc đã được xác nhận Hoàn thành (COMPLETED)', 400);
+            const studentId = job.employer_id === reviewerId ? reviewee_id : reviewerId;
+            const db = require('../../config/db');
+            const wa = await db.query(
+                `SELECT status FROM work_assignments WHERE job_id = $1 AND student_id = $2 ORDER BY id DESC LIMIT 1`,
+                [job_id, studentId]
+            ).catch(() => ({ rows: [] }));
+            if (wa.rows[0]?.status !== 'COMPLETED') {
+                throw new AppError('Chỉ có thể đánh giá sau khi công việc đã được xác nhận Hoàn thành (COMPLETED)', 400);
+            }
         }
 
         // Quy tắc 2: Tự đánh giá chính mình là không hợp lệ

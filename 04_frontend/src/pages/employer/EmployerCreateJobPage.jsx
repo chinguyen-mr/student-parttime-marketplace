@@ -26,7 +26,7 @@ export default function EmployerCreateJobPage({
   const [requirements, setRequirements] = useState(editingJob?.requirements || '');
   const [salaryType, setSalaryType] = useState(editingJob?.salary_type || 'HOURLY');
   const [salary, setSalary] = useState(editingJob?.salary || 40000);
-  const [quantityRequired, setQuantityRequired] = useState(editingJob?.quantity_required || 1);
+  const [quantityRequired, setQuantityRequired] = useState(editingJob?.quantity_required || editingJob?.headcount || 1);
   const [applicationDeadline, setApplicationDeadline] = useState(() => {
     if (editingJob?.application_deadline) {
       return new Date(editingJob.application_deadline).toISOString().split('T')[0];
@@ -55,7 +55,7 @@ export default function EmployerCreateJobPage({
       setRequirements(editingJob.requirements || '');
       setSalaryType(editingJob.salary_type || 'HOURLY');
       setSalary(editingJob.salary || 40000);
-      setQuantityRequired(editingJob.quantity_required || editingJob.slots || 1);
+      setQuantityRequired(editingJob.quantity_required || editingJob.headcount || editingJob.slots || 1);
       if (editingJob.application_deadline) {
         setApplicationDeadline(new Date(editingJob.application_deadline).toISOString().split('T')[0]);
       }

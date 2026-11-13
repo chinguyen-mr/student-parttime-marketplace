@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useRememberedTab } from '../../utils/rememberedTab';
 import { 
   User, Briefcase, FileText, Bookmark, Clock, CheckCircle2, 
   XCircle, AlertCircle, ArrowRight, Save, Trash2, ExternalLink,
@@ -47,7 +48,8 @@ export default function StudentDashboardPage({
   onNavigateComingSoon,
   showToast
 }) {
-  const [activeTab, setActiveTab] = useState(initialTab); // 'dashboard' | 'availability' | 'profile' | 'cv' | 'saved_jobs' | 'applications' | 'assignments' | 'reviews' | 'notifications'
+  const [activeTab, setActiveTab] = useRememberedTab('student', initialTab,
+    ['dashboard', 'availability', 'profile', 'cv', 'saved_jobs', 'applications', 'assignments', 'reviews', 'notifications', 'settings']); // 'dashboard' | 'availability' | 'profile' | 'cv' | 'saved_jobs' | 'applications' | 'assignments' | 'reviews' | 'notifications'
   
   // Dashboard overall loading & error states (WF-S01 Error / Loading / Retry)
   const [dashboardLoading, setDashboardLoading] = useState(false);
@@ -397,7 +399,11 @@ export default function StudentDashboardPage({
     loadAllDashboardData();
   }, [currentUser]);
 
+  // Chỉ đồng bộ khi bên ngoài thật sự điều hướng (initialTab/navNonce đổi) → giữ mục khôi phục sau F5
+  const prevNav = useRef(`${initialTab}|${navNonce}`);
   useEffect(() => {
+    if (prevNav.current === `${initialTab}|${navNonce}`) return;
+    prevNav.current = `${initialTab}|${navNonce}`;
     if (initialTab) {
       setActiveTab(initialTab);
     }

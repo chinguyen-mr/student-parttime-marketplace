@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '../ui/Button';
 import AnimatedModal from '../ui/AnimatedModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import AccountAppealPanel from './AccountAppealPanel';
 import { API_BASE, formatApiError } from '../../config/api';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode = 'login', apiBase = API_BASE }) {
@@ -16,6 +17,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
   const [successMessage, setSuccessMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
+  const [banInfo, setBanInfo] = useState(null); // tài khoản bị khóa → hiện form khiếu nại
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -55,8 +57,10 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
       const data = await res.json();
       if (!res.ok || !data.success) {
         setErrorMessage(data.message || 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.');
+        setBanInfo(data.details?.code === 'ACCOUNT_BANNED' ? { appeal: data.details.appeal } : null);
         return;
       }
+      setBanInfo(null);
 
       setSuccessMessage('Đăng nhập thành công! Đang chuyển hướng...');
       setTimeout(() => {
@@ -274,6 +278,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
             </motion.div>
           )}
         </AnimatePresence>
+        {banInfo && mode === 'login' && (
+          <AccountAppealPanel email={loginEmail} password={loginPassword} appeal={banInfo.appeal} apiBase={apiBase} />
+        )}
 
         {/* Animated Success Banner */}
         <AnimatePresence>
@@ -322,6 +329,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                   <Mail size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
                   <input 
                     type="email"
+                    autoComplete="username"
                     required
                     placeholder="name@example.com hoặc email Văn Lang"
                     value={loginEmail}
@@ -357,6 +365,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                   <Lock size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
                   <input 
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
                     required
                     placeholder="Nhập mật khẩu của bạn"
                     value={loginPassword}
@@ -531,6 +540,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                   </label>
                   <input 
                     type="email"
+                    autoComplete="username"
                     required
                     placeholder="email@example.com"
                     value={registerEmail}
@@ -574,6 +584,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                   </label>
                   <input 
                     type="password"
+                    autoComplete="new-password"
                     required
                     placeholder="Tối thiểu 6 ký tự"
                     value={registerPassword}
@@ -594,6 +605,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                   </label>
                   <input 
                     type="password"
+                    autoComplete="new-password"
                     required
                     placeholder="Nhập lại mật khẩu"
                     value={confirmPassword}

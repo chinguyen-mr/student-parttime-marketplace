@@ -11,27 +11,23 @@ export default function EmployerCandidateSelectionPage({
   onNavigateAssignments,
   showToast
 }) {
-  const [selectedJobId, setSelectedJobId] = useState(job?.id || (jobs[0]?.id || 1));
+  const [selectedJobId, setSelectedJobId] = useState(job?.id || jobs[0]?.id || null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [eligibleCandidates, setEligibleCandidates] = useState([]);
   const [selectedCandidateIds, setSelectedCandidateIds] = useState([]);
 
   // Find active job
-  const activeJob = jobs.find(j => j.id === Number(selectedJobId)) || job || {
-    id: 1,
-    title: 'Thực tập sinh Lập trình Web Part-time',
-    work_type: 'PART_TIME',
-    quantity_required: 2,
-    headcount: 2
-  };
+  // Không còn tin "giả" khi chưa chọn tin — hiển thị hướng dẫn quay lại chọn tin (xem phần render)
+  const activeJob = jobs.find(j => j.id === Number(selectedJobId)) || job || null;
 
-  const quantityRequired = Number(activeJob.quantity_required || activeJob.headcount || 2);
-  const alreadySelectedCount = Number(activeJob.accepted_count || 0);
+  const quantityRequired = Number(activeJob?.quantity_required || activeJob?.headcount || 1);
+  const alreadySelectedCount = Number(activeJob?.accepted_count || 0);
   const remainingSlots = Math.max(0, quantityRequired - alreadySelectedCount);
 
   // Fetch eligible candidates (applications in SHORTLISTED/REVIEWING, proposals in REVIEWING)
   useEffect(() => {
+    if (!selectedJobId) return;
     const fetchEligibleCandidates = async () => {
       try {
         setLoading(true);
@@ -46,7 +42,7 @@ export default function EmployerCandidateSelectionPage({
             apps = dataApps.data.map(a => ({
               id: a.id,
               student_id: a.student_id,
-              student_name: a.student_name || 'Nguyễn Văn Chi',
+              student_name: a.student_name || `Ứng viên #${a.student_id}`,
               source: 'Application (Part-time)',
               status: a.status,
               type: 'APPLICATION'
@@ -65,7 +61,7 @@ export default function EmployerCandidateSelectionPage({
             props = dataProps.data.map(p => ({
               id: p.id,
               student_id: p.student_id,
-              student_name: p.student_name || 'Nguyễn Văn Chi',
+              student_name: p.student_name || `Ứng viên #${p.student_id}`,
               source: 'Proposal (Freelance)',
               status: p.status,
               type: 'PROPOSAL'
@@ -75,20 +71,10 @@ export default function EmployerCandidateSelectionPage({
           console.warn('Error fetching proposals for selection:', e);
         }
 
-        // Merge eligible: shortlisted, reviewing, or applied
-        let merged = [...apps, ...props].filter(c => 
+        // Merge eligible: shortlisted, reviewing, or applied (không còn ứng viên "demo" khi danh sách trống)
+        const merged = [...apps, ...props].filter(c =>
           ['SHORTLISTED', 'REVIEWING', 'PENDING', 'APPLIED', 'SUBMITTED'].includes(c.status)
         );
-
-        // Fallback demo candidates if empty for testing
-        if (merged.length === 0) {
-          merged = [
-            { id: 101, student_id: 2, student_name: 'Nguyễn Văn Chi', source: 'Application', status: 'SHORTLISTED', type: 'APPLICATION' },
-            { id: 102, student_id: 3, student_name: 'Trần Thị Thu Thảo', source: 'Proposal', status: 'REVIEWING', type: 'PROPOSAL' },
-            { id: 103, student_id: 4, student_name: 'Lê Hoàng Nam', source: 'Application', status: 'REVIEWING', type: 'APPLICATION' }
-          ];
-        }
-
         setEligibleCandidates(merged);
       } catch (err) {
         console.error('Error fetching eligible candidates:', err);
@@ -149,6 +135,16 @@ export default function EmployerCandidateSelectionPage({
       setSubmitting(false);
     }
   };
+
+  if (!activeJob) {
+    return (
+      <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid var(--color-border)', padding: 28, textAlign: 'center' }}>
+        <AlertTriangle size={28} color="#B45309" style={{ margin: '0 auto 10px' }} />
+        <p style={{ margin: '0 0 14px 0', color: '#334155' }}>Chưa chọn tin tuyển dụng. Hãy vào <strong>Hồ sơ ứng viên</strong>, lọc theo một tin rồi bấm "Tuyển chọn ứng viên chính thức".</p>
+        {onBack && <Button variant="secondary" onClick={onBack}><ArrowLeft size={15} /> Quay lại</Button>}
+      </div>
+    );
+  }
 
   return (
     <div style={{ width: '100%', maxWidth: 'none', display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -264,6 +260,13 @@ export default function EmployerCandidateSelectionPage({
               </tr>
             </thead>
             <tbody>
+              {!loading && eligibleCandidates.length === 0 && (
+                <tr>
+                  <td colSpan={4} style={{ padding: '22px 14px', textAlign: 'center', color: '#64748B' }}>
+                    Tin này chưa có ứng viên đang chờ hoặc đã rút gọn để tuyển chọn.
+                  </td>
+                </tr>
+              )}
               {eligibleCandidates.map((cand) => {
                 const isSelected = selectedCandidateIds.includes(cand.id);
                 return (

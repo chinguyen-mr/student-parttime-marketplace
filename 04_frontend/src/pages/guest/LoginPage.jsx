@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { API_BASE, formatApiError } from '../../config/api';
+import AccountAppealPanel from '../../components/forms/AccountAppealPanel';
 
 /**
  * WF-G05 — Login / Forgot / Reset Password
@@ -45,6 +46,7 @@ export default function LoginPage({
   const [otpError, setOtpError] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [banInfo, setBanInfo] = useState(null); // tài khoản bị khóa → hiện form khiếu nại
 
 
 
@@ -54,6 +56,7 @@ export default function LoginPage({
     setLoginError('');
     setGeneralError('');
     setSuccessMessage('');
+    setBanInfo(null);
 
     if (!loginEmail.trim() || !loginPassword.trim()) {
       setGeneralError('Vui lòng nhập đầy đủ Email và Mật khẩu.');
@@ -77,7 +80,9 @@ export default function LoginPage({
         if (res.status === 401 || (data.message && data.message.includes('không chính xác'))) {
           setLoginError('Sai thông tin đăng nhập. Vui lòng kiểm tra lại email hoặc mật khẩu.');
         } else if (res.status === 403) {
-          setGeneralError('Tài khoản của bạn đã bị khóa bởi Quản trị viên.');
+          // Hiện cả lý do khóa (server trả) và form khiếu nại
+          setGeneralError(data.message || 'Tài khoản của bạn đã bị khóa bởi Quản trị viên.');
+          if (data.details?.code === 'ACCOUNT_BANNED') setBanInfo({ appeal: data.details.appeal });
         } else {
           setGeneralError(data.message || 'Đăng nhập không thành công. Vui lòng thử lại.');
         }
@@ -245,6 +250,9 @@ export default function LoginPage({
             </motion.div>
           )}
         </AnimatePresence>
+        {banInfo && mode === 'login' && (
+          <AccountAppealPanel email={loginEmail} password={loginPassword} appeal={banInfo.appeal} apiBase={apiBase} />
+        )}
 
         <AnimatePresence>
           {successMessage && (

@@ -133,8 +133,8 @@ class AssignmentService {
 
         const updateRes = await db.query(
             `UPDATE work_assignments 
-             SET status = $1, 
-                 completed_at = CASE WHEN $1 = 'COMPLETED' THEN CURRENT_TIMESTAMP ELSE completed_at END,
+             SET status = $1::varchar,
+                 completed_at = CASE WHEN $1::varchar = 'COMPLETED' THEN CURRENT_TIMESTAMP ELSE completed_at END,
                  updated_at = CURRENT_TIMESTAMP 
              WHERE id = $2 
              RETURNING *`,
@@ -145,13 +145,15 @@ class AssignmentService {
         if (newStatus === 'COMPLETED') {
             try {
                 const uncompletedRes = await db.query(
-                    `SELECT COUNT(*) FROM work_assignments WHERE job_id = $1 AND status != 'COMPLETED'`,
+                    // Người nghỉ việc / bị chấm dứt cũng là đã kết thúc → không chặn việc đóng tin
+                    `SELECT COUNT(*) FROM work_assignments WHERE job_id = $1 AND status NOT IN ('COMPLETED', 'TERMINATED', 'RESIGNED')`,
                     [wa.job_id]
                 );
                 const count = uncompletedRes?.rows?.[0]?.count ? parseInt(uncompletedRes.rows[0].count, 10) : null;
                 if (count === 0) {
                     await db.query(
-                        `UPDATE jobs SET status = 'COMPLETED', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+                        // Chỉ tin đã tuyển đủ (FILLED) mới tự hoàn thành; tin còn chỉ tiêu vẫn tiếp tục nhận đơn
+                        `UPDATE jobs SET status = 'COMPLETED', updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND status = 'FILLED'`,
                         [wa.job_id]
                     );
                 }

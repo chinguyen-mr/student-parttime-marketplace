@@ -1,12 +1,19 @@
 const db = require('../../config/db');
 
+// Số lượng tuyển: form gửi quantity_required, DB lưu ở cột headcount (1–50)
+const toHeadcount = (v, fallback = 1) => {
+    const n = parseInt(v, 10);
+    return Number.isInteger(n) ? Math.min(50, Math.max(1, n)) : fallback;
+};
+
 class JobRepository {
-    async create(employerId, { title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url, work_schedules }) {
+    async create(employerId, { title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url, work_schedules, quantity_required, headcount }) {
+        // Tin mới luôn chờ Admin duyệt (cột moderation_status mặc định 'APPROVED' khiến tin bỏ qua kiểm duyệt)
         const res = await db.query(
-            `INSERT INTO jobs (employer_id, title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-             RETURNING *`,
-            [employerId, title, description, requirements || null, category, location, salary_type || 'HOURLY', salary, work_type || 'PART_TIME', application_deadline || null, job_banner_url || null]
+            `INSERT INTO jobs (employer_id, title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url, headcount, moderation_status)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'PENDING')
+             RETURNING *, headcount AS quantity_required`,
+            [employerId, title, description, requirements || null, category, location, salary_type || 'HOURLY', salary, work_type || 'PART_TIME', application_deadline || null, job_banner_url || null, toHeadcount(quantity_required ?? headcount)]
         );
         const job = res.rows[0];
 
@@ -36,9 +43,10 @@ class JobRepository {
         return job;
     }
 
-    async update(jobId, { title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url, work_schedules }) {
+    async update(jobId, { title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url, work_schedules, headcount }) {
+        // Tin bị Admin từ chối, khi doanh nghiệp sửa lại → tự gửi duyệt lại (PENDING)
         const res = await db.query(
-            `UPDATE jobs 
+            `UPDATE jobs
              SET title = $1,
                  description = $2,
                  requirements = $3,
@@ -49,9 +57,11 @@ class JobRepository {
                  work_type = $8,
                  application_deadline = $9,
                  job_banner_url = $10,
+                 headcount = $12,
+                 moderation_status = CASE WHEN moderation_status = 'REJECTED' THEN 'PENDING' ELSE moderation_status END,
                  updated_at = CURRENT_TIMESTAMP
              WHERE id = $11
-             RETURNING *`,
+             RETURNING *, headcount AS quantity_required`,
             [
                 title,
                 description,
@@ -63,7 +73,8 @@ class JobRepository {
                 work_type || 'PART_TIME',
                 application_deadline || null,
                 job_banner_url !== undefined ? job_banner_url : null,
-                jobId
+                jobId,
+                toHeadcount(headcount)
             ]
         );
         const updatedJob = res.rows[0];

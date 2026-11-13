@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MapPin, Search, Trash2, Loader2 } from 'lucide-react';
+import { isImeComposing } from '../../utils/ime';
 
 const VN_CENTER = [16.05, 106.5]; // khung nhìn ban đầu khi chưa ghim (không lưu)
 const inVietnam = (lat, lng) => lat >= 8 && lat <= 24 && lng >= 102 && lng <= 110;
@@ -141,7 +142,7 @@ export default function LocationPicker({ latitude, longitude, address, onChange 
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); search(); } }}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (!isImeComposing(e)) search(); } }}
           placeholder="Tìm khu vực, tên đường…"
           aria-label="Tìm vị trí trên bản đồ"
           style={{ flex: 1, minWidth: 200, padding: '9px 12px', borderRadius: 8, border: '1.5px solid var(--color-border, #E2E8F0)', fontSize: 13.5 }}

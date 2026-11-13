@@ -71,6 +71,7 @@ class JobService {
             work_type: jobData.work_type !== undefined ? jobData.work_type : job.work_type,
             application_deadline: jobData.application_deadline !== undefined ? jobData.application_deadline : job.application_deadline,
             job_banner_url: jobData.job_banner_url !== undefined ? jobData.job_banner_url : job.job_banner_url,
+            headcount: jobData.quantity_required ?? jobData.headcount ?? job.headcount,
             work_schedules: jobData.work_schedules !== undefined ? jobData.work_schedules : undefined,
         };
 

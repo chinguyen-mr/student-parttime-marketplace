@@ -145,6 +145,7 @@ export default function AccountSettingsPage({
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showCurrent ? 'text' : 'password'}
+                    autoComplete="current-password"
                     required
                     placeholder="Nhập mật khẩu bạn đang sử dụng"
                     value={currentPassword}
@@ -186,6 +187,7 @@ export default function AccountSettingsPage({
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showNew ? 'text' : 'password'}
+                    autoComplete="new-password"
                     required
                     placeholder="Tối thiểu 6 ký tự"
                     value={newPassword}
@@ -226,6 +228,7 @@ export default function AccountSettingsPage({
                 </label>
                 <input
                   type="password"
+                  autoComplete="new-password"
                   required
                   placeholder="Nhập lại chính xác mật khẩu mới"
                   value={confirmPassword}

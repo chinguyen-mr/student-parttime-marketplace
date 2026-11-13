@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnimatedModal, Button } from '../ui';
+import { isImeComposing } from '../../utils/ime';
 
 export function StudentProfileCard({
   currentUser,
@@ -552,7 +553,7 @@ export function StudentProfileCard({
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      handleAddSkill();
+                      if (!isImeComposing(e)) handleAddSkill();
                     } else if (e.key === 'Escape') {
                       setIsAddingSkill(false);
                     }

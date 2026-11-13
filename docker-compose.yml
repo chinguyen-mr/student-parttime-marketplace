@@ -22,6 +22,10 @@ services:
       - ./02_database/migrations/012_employer_public_profile.sql:/docker-entrypoint-initdb.d/09_012.sql:ro
       - ./02_database/migrations/013_employer_location.sql:/docker-entrypoint-initdb.d/10_013.sql:ro
       - ./02_database/migrations/014_company_job_reviews.sql:/docker-entrypoint-initdb.d/11_014.sql:ro
+      - ./02_database/migrations/015_assignment_status_parttime.sql:/docker-entrypoint-initdb.d/12_015.sql:ro
+      - ./02_database/migrations/016_application_withdraw_reason.sql:/docker-entrypoint-initdb.d/13_016.sql:ro
+      - ./02_database/migrations/017_employer_company_restructure.sql:/docker-entrypoint-initdb.d/14_017.sql:ro
+      - ./02_database/migrations/018_application_status_shortlisted.sql:/docker-entrypoint-initdb.d/15_018.sql:ro
     ports:
       # Chỉ expose ra host để debug bằng psql. Xoá dòng này nếu không cần.
       - "5432:5432"

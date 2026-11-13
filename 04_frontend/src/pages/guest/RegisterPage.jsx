@@ -295,10 +295,12 @@ export default function RegisterPage({
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        if (res.status === 409 || (data.message && data.message.includes('Email'))) {
-          setErrors(prev => ({ ...prev, email: 'Email này đã tồn tại trong hệ thống. Vui lòng chọn email khác.' }));
-        } else if (data.message && data.message.includes('Số điện thoại')) {
+        // Backend trả 409 cho cả trùng email lẫn trùng SĐT → phân biệt theo nội dung, không theo mã lỗi
+        const msg = data.message || '';
+        if (msg.includes('Số điện thoại')) {
           setErrors(prev => ({ ...prev, phone: 'Số điện thoại này đã được đăng ký tài khoản.' }));
+        } else if (msg.includes('Email')) {
+          setErrors(prev => ({ ...prev, email: 'Email này đã tồn tại trong hệ thống. Vui lòng chọn email khác.' }));
         } else {
           setGeneralError(data.message || 'Đăng ký không thành công. Vui lòng thử lại.');
         }

@@ -30,6 +30,7 @@ export default function AdminUsersPage({
   const [selectedUserForAction, setSelectedUserForAction] = useState(null);
   const [actionType, setActionType] = useState('LOCK'); // 'LOCK' | 'UNLOCK'
   const [actionSubmitting, setActionSubmitting] = useState(false);
+  const [lockReason, setLockReason] = useState('');
 
   // Fetch Users
   const fetchUsers = async (isManual = false) => {
@@ -76,6 +77,10 @@ export default function AdminUsersPage({
   // Xác nhận Khóa / Mở khóa tài khoản (Quy tắc Wireframe WF-A02)
   const handleConfirmStatusChange = async () => {
     if (!selectedUserForAction) return;
+    if (actionType === 'LOCK' && !lockReason.trim()) {
+      if (showToast) showToast('Vui lòng nhập lý do khóa tài khoản.', 'error');
+      return;
+    }
     try {
       setActionSubmitting(true);
       const newStatus = actionType === 'LOCK' ? 'BANNED' : 'ACTIVE';
@@ -88,7 +93,7 @@ export default function AdminUsersPage({
       const res = await fetch(`${API_BASE}/admin/users/${selectedUserForAction.id}/status`, {
         method: 'PATCH',
         headers,
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus, reason: newStatus === 'BANNED' ? lockReason.trim() : undefined })
       });
       const data = await res.json();
 
@@ -420,6 +425,7 @@ export default function AdminUsersPage({
                             onClick={() => {
                               setSelectedUserForAction(u);
                               setActionType(isLocked ? 'UNLOCK' : 'LOCK');
+                              setLockReason('');
                             }}
                             style={{
                               padding: '6px 12px',
@@ -580,6 +586,22 @@ export default function AdminUsersPage({
               <br />
               <strong style={{ color: '#0F172A' }}>{selectedUserForAction.email}</strong> ({selectedUserForAction.role})
             </p>
+
+            {actionType === 'LOCK' && (
+              <label style={{ display: 'block', marginBottom: 14 }}>
+                <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 6 }}>
+                  Lý do khóa <span style={{ color: '#DC2626' }}>*</span>
+                </span>
+                <textarea
+                  value={lockReason}
+                  onChange={(e) => setLockReason(e.target.value)}
+                  rows={3}
+                  maxLength={500}
+                  placeholder="VD: Đăng tin sai sự thật nhiều lần. Người dùng sẽ thấy lý do này trong thông báo."
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1.5px solid #CBD5E1', fontSize: 13.5, fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box' }}
+                />
+              </label>
+            )}
 
             {/* Cảnh báo đặc biệt từ Wireframe: Không thể khóa Admin cuối cùng */}
             {selectedUserForAction.role === 'ADMIN' && actionType === 'LOCK' && (

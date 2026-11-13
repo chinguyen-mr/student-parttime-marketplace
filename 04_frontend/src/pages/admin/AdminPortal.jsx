@@ -4,6 +4,7 @@ import {
   Tag, History, Search, Shield, LogOut, ArrowRight, Star, Building2
 } from 'lucide-react';
 import { Button } from '../../components/ui';
+import { useRememberedTab } from '../../utils/rememberedTab';
 
 // Import all Admin Sub-pages (WF-A01 to WF-A08)
 import AdminDashboardPage from './AdminDashboardPage';   // WF-A01
@@ -14,6 +15,7 @@ import AdminCategoriesPage from './AdminCategoriesPage'; // WF-A07
 import AdminLogsPage from './AdminLogsPage';             // WF-A08
 import AdminReviewsPage from './AdminReviewsPage';       // Kiểm duyệt đánh giá doanh nghiệp / công việc
 import AdminEmployerVerificationPage from './AdminEmployerVerificationPage'; // Xét duyệt pháp lý doanh nghiệp
+import AdminAppealsPage from './AdminAppealsPage';           // Khiếu nại của tài khoản bị khóa
 
 export default function AdminPortal({
   currentUser,
@@ -30,10 +32,15 @@ export default function AdminPortal({
   // 'reports' (WF-A05 & WF-A06)
   // 'categories' (WF-A07)
   // 'logs' (WF-A08)
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useRememberedTab('admin', initialTab,
+    ['dashboard', 'users', 'employer_verification', 'appeals', 'moderation', 'reports', 'reviews', 'categories', 'logs']);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Chỉ đồng bộ khi initialTab thật sự đổi → không ghi đè mục vừa khôi phục sau F5
+  const prevInitialTab = React.useRef(initialTab);
   useEffect(() => {
+    if (prevInitialTab.current === initialTab) return;
+    prevInitialTab.current = initialTab;
     if (initialTab) {
       setActiveTab(initialTab);
     }
@@ -262,6 +269,7 @@ export default function AdminPortal({
               { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
               { id: 'users', label: 'Người dùng', icon: Users },
               { id: 'employer_verification', label: 'Xác minh doanh nghiệp', icon: Building2 },
+              { id: 'appeals', label: 'Khiếu nại tài khoản', icon: Shield },
               { id: 'moderation', label: 'Kiểm duyệt tin', icon: ShieldCheck },
               { id: 'reports', label: 'Báo cáo', icon: AlertTriangle },
               { id: 'reviews', label: 'Kiểm duyệt đánh giá', icon: Star },
@@ -401,6 +409,11 @@ export default function AdminPortal({
               currentUser={currentUser}
               showToast={showToast}
             />
+          )}
+
+          {/* Khiếu nại của tài khoản bị khóa */}
+          {activeTab === 'appeals' && (
+            <AdminAppealsPage currentUser={currentUser} showToast={showToast} />
           )}
 
           {/* Xét duyệt hồ sơ pháp lý doanh nghiệp */}

@@ -4,65 +4,7 @@ const authService = require('./auth.service');
 const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('./auth.validator');
 const { verifyToken } = require('../../middleware/auth.middleware');
 
-// In-memory Rate Limiting cho Login (SEC-01: Chống Brute-force & Credential Stuffing)
-const loginAttempts = new Map();
-const LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15 phút
-const MAX_FAILED_LOGIN_ATTEMPTS = 5; // Tối đa 5 lần thử sai
-
-function rateLimitLogin(req, res, next) {
-    // Trong môi trường testing, cho phép bypass nếu có header x-test-bypass-ratelimit
-    if (process.env.NODE_ENV === 'test' && req.headers['x-test-bypass-ratelimit']) {
-        return next();
-    }
-
-    const clientIp = req.ip || req.connection?.remoteAddress || '127.0.0.1';
-    const now = Date.now();
-
-    const record = loginAttempts.get(clientIp);
-    if (record) {
-        if (now > record.resetTime) {
-            loginAttempts.delete(clientIp);
-        } else if (record.count >= MAX_FAILED_LOGIN_ATTEMPTS) {
-            const retryAfterSeconds = Math.ceil((record.resetTime - now) / 1000);
-            res.set('Retry-After', String(retryAfterSeconds));
-            return res.status(429).json({
-                success: false,
-                message: 'Tài khoản hoặc địa chỉ IP tạm thời bị khóa do nhập sai mật khẩu quá 5 lần. Vui lòng thử lại sau 15 phút.'
-            });
-        }
-    }
-
-    next();
-}
-
-function recordFailedLogin(clientIp) {
-    const now = Date.now();
-    let record = loginAttempts.get(clientIp);
-    if (!record || now > record.resetTime) {
-        record = { count: 1, resetTime: now + LOGIN_WINDOW_MS };
-    } else {
-        record.count++;
-    }
-    loginAttempts.set(clientIp, record);
-    return record;
-}
-
-function resetLoginAttempts(clientIp) {
-    loginAttempts.delete(clientIp);
-}
-
-function cleanupExpiredLoginAttempts() {
-    const now = Date.now();
-    for (const [ip, record] of loginAttempts.entries()) {
-        if (now > record.resetTime) {
-            loginAttempts.delete(ip);
-        }
-    }
-}
-
-// Background sweep dọn dẹp bộ nhớ mỗi 10 phút, unref để không treo Node process
-const loginSweepTimer = setInterval(cleanupExpiredLoginAttempts, 10 * 60 * 1000);
-if (loginSweepTimer.unref) loginSweepTimer.unref();
+// Đăng nhập không còn khóa tạm thời theo IP sau nhiều lần sai (theo yêu cầu): sai thông tin chỉ báo lỗi.
 
 // In-memory Rate Limiting cho Forgot Password (chống spam request)
 const forgotPasswordAttempts = new Map();
@@ -111,20 +53,26 @@ router.post('/register', validateRegister, async (req, res, next) => {
 });
 
 // POST /api/auth/login (UC-02)
-router.post('/login', rateLimitLogin, validateLogin, async (req, res, next) => {
-    const clientIp = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+router.post('/login', validateLogin, async (req, res, next) => {
     try {
         const result = await authService.login(req.body);
-        // Đăng nhập thành công -> Reset ngay bộ đếm số lần thử sai của IP này
-        resetLoginAttempts(clientIp);
         res.status(200).json({
             success: true,
             message: 'Đăng nhập thành công',
             data: result,
         });
     } catch (err) {
-        // Ghi nhận lần đăng nhập thất bại
-        recordFailedLogin(clientIp);
+        next(err);
+    }
+});
+
+// POST /api/auth/appeals — tài khoản bị khóa gửi khiếu nại (xác minh bằng email + mật khẩu, không cần token)
+// Có kiểm tra mật khẩu → dùng chung giới hạn tần suất với quên mật khẩu để không bị dùng dò mật khẩu
+router.post('/appeals', rateLimitForgotPassword, async (req, res, next) => {
+    try {
+        const data = await authService.submitAccountAppeal(req.body || {});
+        res.status(201).json({ success: true, message: 'Đã gửi khiếu nại. Quản trị viên sẽ xem xét và phản hồi qua thông báo/email.', data: { id: data.id, status: data.status } });
+    } catch (err) {
         next(err);
     }
 });
@@ -166,11 +114,5 @@ router.get('/me', verifyToken, async (req, res) => {
         data: req.user,
     });
 });
-
-router.loginAttempts = loginAttempts;
-router.rateLimitLogin = rateLimitLogin;
-router.recordFailedLogin = recordFailedLogin;
-router.resetLoginAttempts = resetLoginAttempts;
-router.cleanupExpiredLoginAttempts = cleanupExpiredLoginAttempts;
 
 module.exports = router;

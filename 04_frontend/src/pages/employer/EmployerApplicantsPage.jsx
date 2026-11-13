@@ -149,17 +149,12 @@ export default function EmployerApplicantsPage({
         body: JSON.stringify({ status: newStatus })
       });
       const data = await res.json();
-      if (data.success) {
-        showToast(`Đã cập nhật trạng thái hồ sơ thành: ${newStatus}`, 'success');
-        setApplications(prev => prev.map(a => a.id === appId ? { ...a, status: newStatus } : a));
-      } else {
-        // Fallback local update
-        setApplications(prev => prev.map(a => a.id === appId ? { ...a, status: newStatus } : a));
-        showToast(`Đã chuyển ứng viên sang: ${newStatus}`);
-      }
-    } catch {
+      if (!res.ok || !data.success) throw new Error(data.message || 'Không cập nhật được trạng thái hồ sơ.');
+      showToast(`Đã cập nhật trạng thái hồ sơ thành: ${newStatus}`, 'success');
       setApplications(prev => prev.map(a => a.id === appId ? { ...a, status: newStatus } : a));
-      showToast(`Đã chuyển ứng viên sang: ${newStatus}`);
+    } catch (err) {
+      // Không đổi giao diện khi server chưa lưu — trước đây báo "thành công" dù API lỗi
+      showToast(formatApiError(err, 'Không cập nhật được trạng thái hồ sơ'), 'error');
     }
   };
 

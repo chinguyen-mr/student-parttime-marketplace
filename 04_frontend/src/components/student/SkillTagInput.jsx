@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import { suggestedSkillsForMajor, ALL_SKILLS } from '../../constants/profileOptions';
+import { isImeComposing } from '../../utils/ime';
 
 // So khớp không phân biệt dấu & hoa thường ("reac" khớp "ReactJS", "giao tiep" khớp "Giao tiếp")
 const fold = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
@@ -36,6 +37,7 @@ export default function SkillTagInput({ value = [], onChange, major, max = 30 })
   const onKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
+      if (isImeComposing(e)) return; // Enter đang xác nhận chữ của bộ gõ, chưa phải thêm kỹ năng
       const typed = text.trim();
       // Enter khi đang chọn gợi ý → thêm gợi ý; nếu không, thêm đúng chữ đã gõ
       if (e.key === 'Enter' && suggestions[activeIdx] && typed && fold(suggestions[activeIdx]).includes(fold(typed))) add(suggestions[activeIdx]);

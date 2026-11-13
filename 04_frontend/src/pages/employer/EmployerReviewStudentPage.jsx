@@ -44,21 +44,14 @@ export default function EmployerReviewStudentPage({
     fetchCompletedAssignments();
   }, [currentUser]);
 
-  // Fallback demo data if no completed assignment yet
-  const displayAssignments = completedAssignments.length > 0 ? completedAssignments : [
-    {
-      id: 588,
-      student_id: 2,
-      student_name: 'Nguyễn Văn Chi',
-      job_title: 'Dự án Thiết kế UI Website E-commerce',
-      status: 'COMPLETED'
-    }
-  ];
+  // Chỉ dữ liệu thật — không còn hợp đồng "demo" #588 khi chưa có việc hoàn thành
+  const displayAssignments = completedAssignments;
 
-  const currentItem = selectedAssignment || displayAssignments[0];
+  const currentItem = selectedAssignment || displayAssignments[0] || null;
 
   const handleSubmitReview = async (e) => {
     e?.preventDefault();
+    if (!currentItem) return;
     if (!comment.trim()) {
       if (showToast) showToast('Vui lòng nhập nhận xét chi tiết về sinh viên', 'error');
       return;
@@ -73,8 +66,8 @@ export default function EmployerReviewStudentPage({
           Authorization: `Bearer ${currentUser?.token}`
         },
         body: JSON.stringify({
-          work_assignment_id: currentItem.id,
-          reviewee_id: currentItem.student_id || 2,
+          job_id: currentItem.job_id, // API bắt buộc job_id — trước đây chỉ gửi work_assignment_id nên luôn lỗi 400
+          reviewee_id: currentItem.student_id,
           rating: Number(rating),
           comment: comment.trim()
         })
@@ -155,8 +148,15 @@ export default function EmployerReviewStudentPage({
               </tr>
             </thead>
             <tbody>
+              {!loading && displayAssignments.length === 0 && (
+                <tr>
+                  <td colSpan={3} style={{ padding: '22px 14px', textAlign: 'center', color: '#64748B' }}>
+                    Chưa có công việc nào hoàn thành để đánh giá. Hãy xác nhận "Hoàn thành" trong Quản lý hợp đồng trước.
+                  </td>
+                </tr>
+              )}
               {displayAssignments.map((a, idx) => {
-                const isCurrent = currentItem.id === a.id;
+                const isCurrent = currentItem?.id === a.id;
                 return (
                   <tr
                     key={a.id || idx}
@@ -169,7 +169,7 @@ export default function EmployerReviewStudentPage({
                     }}
                   >
                     <td style={{ padding: '14px', fontWeight: 700, color: '#0F172A' }}>
-                      {a.student_name || 'Nguyễn Văn Chi'}
+                      {a.student_name || `Sinh viên #${a.student_id}`}
                     </td>
                     <td style={{ padding: '14px', color: '#475569' }}>
                       {a.job_title}
@@ -194,7 +194,7 @@ export default function EmployerReviewStudentPage({
         </div>
 
         {/* Box Đánh giá */}
-        <div style={{
+        {currentItem && <div style={{
           background: '#F8FAFC',
           borderRadius: 12,
           border: '1.5px solid #000000',
@@ -291,7 +291,7 @@ export default function EmployerReviewStudentPage({
               </button>
             </div>
           </form>
-        </div>
+        </div>}
       </div>
     </div>
   );

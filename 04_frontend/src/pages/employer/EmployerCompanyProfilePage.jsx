@@ -3,6 +3,7 @@ import {
   ImagePlus, Trash2, Plus, Save, RotateCcw, Loader2, Globe, Eye, ArrowLeft, ArrowRight, MapPin, Check, X, AlertCircle,
 } from 'lucide-react';
 import { resolveFileUrl } from '../../config/api';
+import { useRememberedTab } from '../../utils/rememberedTab';
 import AvatarUploader from '../../components/common/AvatarUploader';
 import { checkImageFile, resizeImageFile } from '../../utils/imageResize';
 import LocationPicker from '../../components/employer/LocationPicker';
@@ -46,7 +47,8 @@ function Field({ label, required, hint, error, children }) {
  */
 export default function EmployerCompanyProfilePage({ currentUser, showToast, initialSection = 'media', onDirtyChange, onProfileUpdated }) {
   const token = currentUser?.token;
-  const [section, setSection] = useState(initialSection);
+  const [section, setSection] = useRememberedTab('company_section', initialSection, SECTIONS.map(([id]) => id));
+  const prevInitialSection = useRef(initialSection); // chỉ đổi phân vùng khi bên ngoài thật sự yêu cầu (giữ phân vùng khôi phục sau F5)
   const [status, setStatus] = useState('loading'); // loading | ready | error
   const [form, setForm] = useState(null);
   const [saved, setSaved] = useState(null);
@@ -63,7 +65,11 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
   const officeInput = useRef(null);
   const notify = (m, t) => showToast && showToast(m, t);
 
-  useEffect(() => { setSection(initialSection); }, [initialSection]);
+  useEffect(() => {
+    if (prevInitialSection.current === initialSection) return;
+    prevInitialSection.current = initialSection;
+    setSection(initialSection);
+  }, [initialSection]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const load = async () => {
     setStatus('loading');

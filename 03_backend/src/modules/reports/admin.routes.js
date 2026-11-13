@@ -52,7 +52,8 @@ router.patch('/users/:id/status', async (req, res, next) => {
         const updatedUser = await adminService.updateUserStatus(
             parseInt(req.params.id, 10),
             req.body.status,
-            req.user?.id
+            req.user?.id,
+            req.body.reason // service bắt buộc có lý do khi khóa; trước đây không truyền nên khóa luôn thất bại
         );
         res.status(200).json({
             success: true,

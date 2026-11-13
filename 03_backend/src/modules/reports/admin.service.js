@@ -16,9 +16,17 @@ class AdminService {
             db.query(`SELECT COALESCE(work_type, 'PART_TIME') as work_type, COUNT(*) as count FROM jobs GROUP BY work_type`),
             db.query(`
                 SELECT l.id, l.action, l.target_type, l.target_id, l.metadata, l.created_at,
-                       COALESCE(u.full_name, 'Admin') as admin_name
+                       COALESCE(u.full_name, 'Admin') as admin_name,
+                       CASE l.target_type
+                           WHEN 'USER' THEN COALESCE(NULLIF(tu.full_name, ''), tu.email)
+                           WHEN 'JOB' THEN tj.title
+                           WHEN 'CATEGORY' THEN tc.name
+                       END AS target_label
                 FROM admin_logs l
                 LEFT JOIN users u ON l.admin_id = u.id
+                LEFT JOIN users tu ON l.target_type = 'USER' AND tu.id = l.target_id
+                LEFT JOIN jobs tj ON l.target_type = 'JOB' AND tj.id = l.target_id
+                LEFT JOIN categories tc ON l.target_type = 'CATEGORY' AND tc.id = l.target_id
                 ORDER BY l.created_at DESC
                 LIMIT 8
             `)
@@ -138,7 +146,8 @@ class AdminService {
             try {
                 await db.query(
                     `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
-                     VALUES ($1, 'ACCOUNT_UNBANNED', 'Tài khoản đã được mở khóa', 'Tài khoản của bạn đã được Quản trị viên kích hoạt lại và có thể tiếp tục sử dụng hệ thống.', 'USER', $1)`
+                     VALUES ($1, 'ACCOUNT_UNBANNED', 'Tài khoản đã được mở khóa', 'Tài khoản của bạn đã được Quản trị viên kích hoạt lại và có thể tiếp tục sử dụng hệ thống.', 'USER', $1)`,
+                    [userId]
                 );
             } catch (notifErr) {
                 console.warn('Lỗi gửi notification mở khóa user:', notifErr.message);
@@ -540,9 +549,18 @@ class AdminService {
         const { action, limit = 50, offset = 0 } = options;
         let query = `
             SELECT l.*,
-                   u.full_name as admin_name, u.email as admin_email
+                   u.full_name as admin_name, u.email as admin_email,
+                   -- Tên dễ đọc của đối tượng bị tác động (thay cho "USER #128")
+                   CASE l.target_type
+                       WHEN 'USER' THEN COALESCE(NULLIF(tu.full_name, ''), tu.email)
+                       WHEN 'JOB' THEN tj.title
+                       WHEN 'CATEGORY' THEN tc.name
+                   END AS target_label
             FROM admin_logs l
             LEFT JOIN users u ON l.admin_id = u.id
+            LEFT JOIN users tu ON l.target_type = 'USER' AND tu.id = l.target_id
+            LEFT JOIN jobs tj ON l.target_type = 'JOB' AND tj.id = l.target_id
+            LEFT JOIN categories tc ON l.target_type = 'CATEGORY' AND tc.id = l.target_id
             WHERE 1=1
         `;
         const params = [];
@@ -682,7 +700,7 @@ class AdminService {
     async listAppeals(options = {}) {
         const { status = 'ALL', limit = 50, offset = 0 } = options;
         let query = `
-            SELECT a.*, u.email, u.full_name, u.role, u.status as user_status, u.violation_count
+            SELECT a.*, u.email, u.full_name, u.role, u.status as user_status, u.violation_count, u.suspension_reason
             FROM user_appeals a
             JOIN users u ON a.user_id = u.id
             WHERE 1=1

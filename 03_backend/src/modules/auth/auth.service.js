@@ -107,8 +107,27 @@ class AuthService {
             throw new UnauthorizedError('Email hoặc mật khẩu không chính xác');
         }
 
+        // Kiểm tra mật khẩu TRƯỚC khi báo trạng thái khóa → người chỉ biết email không xem được tài khoản bị khóa / lý do
+        const passwordOk = await bcrypt.compare(password, user.password_hash);
+        if (!passwordOk) {
+            throw new UnauthorizedError('Email hoặc mật khẩu không chính xác');
+        }
+
         if (user.status === 'BANNED') {
-            throw new AppError(`Tài khoản của bạn đã bị khóa bởi Quản trị viên. Lý do: ${user.suspension_reason || 'Vi phạm điều khoản dịch vụ'}`, 403);
+            // Kèm kết quả khiếu nại gần nhất: người bị khóa không đăng nhập được nên không xem được thông báo
+            let appeal = null;
+            try {
+                const a = await db.query(
+                    `SELECT status, admin_response, created_at FROM user_appeals WHERE user_id = $1 ORDER BY id DESC LIMIT 1`,
+                    [user.id]
+                );
+                appeal = a.rows[0] || null;
+            } catch { /* bảng chưa có → bỏ qua */ }
+            throw new AppError(
+                `Tài khoản của bạn đã bị khóa bởi Quản trị viên. Lý do: ${user.suspension_reason || 'Vi phạm điều khoản dịch vụ'}`,
+                403,
+                { code: 'ACCOUNT_BANNED', appeal } // frontend dựa vào mã này để mở form khiếu nại
+            );
         }
 
         if (user.status === 'SUSPENDED') {
@@ -120,11 +139,6 @@ class AuthService {
                 const expireStr = user.suspension_expires_at ? new Date(user.suspension_expires_at).toLocaleDateString('vi-VN') : '7 ngày';
                 throw new AppError(`Tài khoản của bạn đang bị tạm ngưng hoạt động đến ngày ${expireStr}. Lý do: ${user.suspension_reason || 'Vi phạm quy định hệ thống'}`, 403);
             }
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password_hash);
-        if (!isMatch) {
-            throw new UnauthorizedError('Email hoặc mật khẩu không chính xác');
         }
 
         const token = this.generateToken(user);
@@ -144,6 +158,30 @@ class AuthService {
             getJwtSecret(),
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
+    }
+
+    /**
+     * Khiếu nại khi tài khoản bị khóa/tạm ngưng. Người bị khóa không có token nên xác minh bằng email + mật khẩu.
+     * Trả lời giống nhau cho mọi sai sót đăng nhập để không lộ tài khoản tồn tại hay không.
+     */
+    async submitAccountAppeal({ email, password, appeal_reason }) {
+        const user = email ? await userRepository.findByEmail(String(email).trim().toLowerCase()) : null;
+        if (!user || !password || !(await bcrypt.compare(String(password), user.password_hash))) {
+            throw new UnauthorizedError('Email hoặc mật khẩu không chính xác');
+        }
+        if (!['BANNED', 'SUSPENDED'].includes(user.status)) {
+            throw new AppError('Tài khoản của bạn đang hoạt động bình thường, không cần gửi khiếu nại.', 400);
+        }
+        const reason = String(appeal_reason || '').trim().slice(0, 2000);
+        if (reason.length < 10) {
+            throw new AppError('Vui lòng trình bày nội dung khiếu nại (ít nhất 10 ký tự).', 400);
+        }
+        const pending = await db.query(`SELECT 1 FROM user_appeals WHERE user_id = $1 AND status = 'PENDING' LIMIT 1`, [user.id]);
+        if (pending.rowCount > 0) {
+            throw new ConflictError('Bạn đã có một khiếu nại đang chờ Quản trị viên xử lý.');
+        }
+        const adminService = require('../reports/admin.service');
+        return adminService.submitAppeal(user.id, { appeal_reason: reason });
     }
 
     async forgotPassword(email) {
@@ -308,11 +346,12 @@ class AuthService {
         if (newPassword.length < 6) {
             throw new AppError('Mật khẩu mới phải có ít nhất 6 ký tự', 400);
         }
-        const user = await userRepository.findById(userId);
+        // findById cố ý không trả password_hash → lấy riêng (trước đây so với undefined nên luôn lỗi 500)
+        const user = await userRepository.findCredentialsById(userId);
         if (!user) {
             throw new AppError('Người dùng không tồn tại', 404);
         }
-        const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+        const isMatch = await bcrypt.compare(String(currentPassword), user.password_hash);
         if (!isMatch) {
             throw new AppError('Mật khẩu hiện tại không chính xác', 400);
         }

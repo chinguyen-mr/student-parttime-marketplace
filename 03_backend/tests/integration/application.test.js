@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const applicationService = require('../../src/modules/applications/application.service');
 const jobRepository = require('../../src/database/repositories/job.repository');
 const applicationRepository = require('../../src/database/repositories/application.repository');
+const profileRepository = require('../../src/database/repositories/profile.repository');
 
 describe('UC-06 & UC-07: Quy tắc nghiệp vụ Ứng tuyển (Applications)', () => {
     test('Nhà tuyển dụng không thể tự nộp đơn ứng tuyển vào tin của chính mình', async () => {
@@ -66,6 +67,9 @@ describe('UC-06 & UC-07: Quy tắc nghiệp vụ Ứng tuyển (Applications)', 
             student_id: 20,
             status: 'PENDING',
         });
+        // Hồ sơ đầy đủ → không bị chặn ở bước "hồ sơ chưa hoàn thiện" (không phụ thuộc dữ liệu thật của user #20)
+        const originalFindProfile = profileRepository.findByUserId;
+        profileRepository.findByUserId = async () => ({ school: 'ĐH Văn Lang', major: 'CNTT' });
 
         await assert.rejects(
             async () => {
@@ -79,6 +83,7 @@ describe('UC-06 & UC-07: Quy tắc nghiệp vụ Ứng tuyển (Applications)', 
 
         jobRepository.findById = originalFindJob;
         applicationRepository.findByJobAndStudent = originalFindApp;
+        profileRepository.findByUserId = originalFindProfile;
     });
 
     test('Chặn hoàn toàn việc cập nhật sang trạng thái ACCEPTED qua updateStatus (A3 RULE)', async () => {

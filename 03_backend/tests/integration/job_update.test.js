@@ -299,12 +299,17 @@ describe('PB-14: Đóng và Chỉnh sửa tin tuyển dụng (Job Update & Closu
     });
 
     // 12. Kiểm thử Endpoint HTTP PUT /api/jobs/:id thông qua fetch nội bộ
-    test('12. HTTP Endpoint: PUT /api/jobs/:id với JWT Employer A trả 200 OK, còn Student trả 403', async () => {
+    test('12. HTTP Endpoint: PUT /api/jobs/:id với JWT Employer A trả 200 OK, còn Student trả 403', async (t) => {
+        // Chạy app ngay trong tiến trình test (cùng DB với test) thay vì gọi server đang chạy ở cổng 5000
+        const app = require('../../src/app');
+        const server = await new Promise((resolve) => { const s = app.listen(0, () => resolve(s)); });
+        t.after(() => server.close());
+        const base = `http://127.0.0.1:${server.address().port}`;
         const futureDate = new Date();
         futureDate.setDate(futureDate.getDate() + 20);
 
         // Gửi request bằng Employer A
-        const resA = await fetch(`http://127.0.0.1:5000/api/jobs/${testJobId}`, {
+        const resA = await fetch(`${base}/api/jobs/${testJobId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -328,7 +333,7 @@ describe('PB-14: Đóng và Chỉnh sửa tin tuyển dụng (Job Update & Closu
         assert.equal(dataA.data.title, 'Tuyển nhân viên ca sáng (HTTP Test OK)');
 
         // Gửi request bằng Student -> 403 Forbidden
-        const resStudent = await fetch(`http://127.0.0.1:5000/api/jobs/${testJobId}`, {
+        const resStudent = await fetch(`${base}/api/jobs/${testJobId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -347,8 +352,12 @@ describe('PB-14: Đóng và Chỉnh sửa tin tuyển dụng (Job Update & Closu
     });
 
     // 13. Khách vãng lai không có token gọi PUT /api/jobs/:id -> 401 Unauthorized
-    test('13. HTTP Endpoint: Khách vãng lai (không có token) gọi PUT /api/jobs/:id -> 401 Unauthorized', async () => {
-        const resGuest = await fetch(`http://127.0.0.1:5000/api/jobs/${testJobId}`, {
+    test('13. HTTP Endpoint: Khách vãng lai (không có token) gọi PUT /api/jobs/:id -> 401 Unauthorized', async (t) => {
+        const app = require('../../src/app');
+        const server = await new Promise((resolve) => { const s = app.listen(0, () => resolve(s)); });
+        t.after(() => server.close());
+        const base = `http://127.0.0.1:${server.address().port}`;
+        const resGuest = await fetch(`${base}/api/jobs/${testJobId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

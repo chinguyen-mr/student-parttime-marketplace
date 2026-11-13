@@ -25,6 +25,7 @@ import EmployerNotificationsPage from './EmployerNotificationsPage';     // WF-E
 import EmployerReviewsPage from './EmployerReviewsPage';                 // Đánh giá doanh nghiệp & công việc (phản hồi / báo cáo)
 import AccountSettingsPage from '../student/AccountSettingsPage';         // WF-X03 (Account Settings & Security)
 import { API_BASE } from '../../config/api';
+import { useRememberedTab } from '../../utils/rememberedTab';
 
 export default function EmployerPortal({
   currentUser,
@@ -48,7 +49,9 @@ export default function EmployerPortal({
   // 'deliverable' (WF-E10)
   // 'review_student' (WF-E11)
   // 'notifications' (WF-E12)
-  const [activeTab, setActiveTab] = useState(initialTab);
+  // Tải lại trang vẫn mở đúng mục (trừ mục cần dữ liệu đang chọn như sửa tin / chọn ứng viên)
+  const [activeTab, setActiveTab] = useRememberedTab('employer', initialTab,
+    ['dashboard', 'profile', 'verification', 'representative', 'jobs', 'applicants', 'proposals', 'assignments', 'reviews', 'notifications', 'settings']);
   const [editingJob, setEditingJob] = useState(initialEditingJob);
   const [selectedJobForApplicants, setSelectedJobForApplicants] = useState(null);
   const [selectedAssignmentForSubflow, setSelectedAssignmentForSubflow] = useState(null);

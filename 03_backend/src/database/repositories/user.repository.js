@@ -21,6 +21,12 @@ class UserRepository {
         return res.rows[0] || null;
     }
 
+    /** Chỉ dùng nội bộ khi cần so mật khẩu (findById cố ý không trả password_hash). */
+    async findCredentialsById(id) {
+        const res = await db.query('SELECT id, password_hash FROM users WHERE id = $1', [id]);
+        return res.rows[0] || null;
+    }
+
     async create({ email, password_hash, full_name, phone, role }) {
         const res = await db.query(
             `INSERT INTO users (email, password_hash, full_name, phone, role)

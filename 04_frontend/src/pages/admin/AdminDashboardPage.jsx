@@ -7,6 +7,7 @@ import {
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import { API_BASE, formatApiError } from '../../config/api';
+import { describeAdminLog, TONE_STYLE } from '../../utils/adminLogDisplay';
 
 export default function AdminDashboardPage({
   currentUser,
@@ -463,43 +464,37 @@ export default function AdminDashboardPage({
               <thead>
                 <tr style={{ borderBottom: '1.5px solid #CBD5E1', color: '#64748B', fontSize: 12, textTransform: 'uppercase' }}>
                   <th style={{ padding: '8px 12px' }}>Thời gian</th>
-                  <th style={{ padding: '8px 12px' }}>Admin</th>
+                  <th style={{ padding: '8px 12px' }}>Người thực hiện</th>
                   <th style={{ padding: '8px 12px' }}>Hành động</th>
                   <th style={{ padding: '8px 12px' }}>Đối tượng</th>
                   <th style={{ padding: '8px 12px' }}>Chi tiết</th>
                 </tr>
               </thead>
               <tbody>
-                {statsData.recent_activities.map(log => (
-                  <tr key={log.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <td style={{ padding: '12px', color: '#64748B', whiteSpace: 'nowrap' }}>
-                      {formatTime(log.created_at)}
-                    </td>
-                    <td style={{ padding: '12px', fontWeight: 700, color: '#0F172A' }}>
-                      {log.admin_name}
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <span style={{
-                        padding: '3px 8px',
-                        borderRadius: 6,
-                        fontSize: 11.5,
-                        fontWeight: 800,
-                        background: log.action.includes('APPROVE') ? '#DCFCE7' :
-                                    log.action.includes('REJECT') || log.action.includes('BAN') ? '#FEE2E2' : '#F1F5F9',
-                        color: log.action.includes('APPROVE') ? '#15803D' :
-                               log.action.includes('REJECT') || log.action.includes('BAN') ? '#B91C1C' : '#475569',
-                      }}>
-                        {log.action}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', color: '#334155', fontWeight: 600 }}>
-                      {log.target_type} #{log.target_id}
-                    </td>
-                    <td style={{ padding: '12px', color: '#64748B', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {typeof log.metadata === 'object' ? JSON.stringify(log.metadata) : String(log.metadata || '')}
-                    </td>
-                  </tr>
-                ))}
+                {statsData.recent_activities.map(log => {
+                  const d = describeAdminLog(log); // câu tiếng Việt thay cho mã nội bộ / JSON thô
+                  return (
+                    <tr key={log.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                      <td style={{ padding: '12px', color: '#64748B', whiteSpace: 'nowrap' }}>
+                        {formatTime(log.created_at)}
+                      </td>
+                      <td style={{ padding: '12px', fontWeight: 700, color: '#0F172A' }}>
+                        {log.admin_name}
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <span style={{ padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700, display: 'inline-block', ...TONE_STYLE[d.tone] }}>
+                          {d.label}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px', color: '#334155', fontWeight: 600 }}>
+                        {d.target || '—'}
+                      </td>
+                      <td title={d.detail} style={{ padding: '12px', color: '#64748B', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {d.detail || '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

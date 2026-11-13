@@ -184,8 +184,8 @@ describe('JOBNEST — 8 Additional Screens Logic & Security Verification', () =>
         });
 
         it('2.3. Từ chối nếu mật khẩu mới trùng mật khẩu hiện tại', async () => {
-            const originalFindById = userRepository.findById;
-            userRepository.findById = async () => ({
+            const originalFindById = userRepository.findCredentialsById;
+            userRepository.findCredentialsById = async () => ({
                 id: 1,
                 password_hash: await bcrypt.hash('samePassword123', 10)
             });
@@ -196,13 +196,13 @@ describe('JOBNEST — 8 Additional Screens Logic & Security Verification', () =>
                     /không được trùng/
                 );
             } finally {
-                userRepository.findById = originalFindById;
+                userRepository.findCredentialsById = originalFindById;
             }
         });
 
         it('2.4. Từ chối nếu mật khẩu hiện tại sai lệch so với hash trong CSDL', async () => {
-            const originalFindById = userRepository.findById;
-            userRepository.findById = async () => ({
+            const originalFindById = userRepository.findCredentialsById;
+            userRepository.findCredentialsById = async () => ({
                 id: 1,
                 password_hash: await bcrypt.hash('correctPassword123', 10)
             });
@@ -213,16 +213,16 @@ describe('JOBNEST — 8 Additional Screens Logic & Security Verification', () =>
                     /Mật khẩu hiện tại không chính xác/
                 );
             } finally {
-                userRepository.findById = originalFindById;
+                userRepository.findCredentialsById = originalFindById;
             }
         });
 
         it('2.5. Cập nhật mật khẩu thành công khi mật khẩu hiện tại đúng', async () => {
-            const originalFindById = userRepository.findById;
+            const originalFindById = userRepository.findCredentialsById;
             const originalQuery = db.query;
             let updatedHash = null;
 
-            userRepository.findById = async () => ({
+            userRepository.findCredentialsById = async () => ({
                 id: 1,
                 password_hash: await bcrypt.hash('oldSecret123', 10)
             });
@@ -245,7 +245,7 @@ describe('JOBNEST — 8 Additional Screens Logic & Security Verification', () =>
                 assert.ok(updatedHash);
                 assert.ok(await bcrypt.compare('newSecurePassword789', updatedHash));
             } finally {
-                userRepository.findById = originalFindById;
+                userRepository.findCredentialsById = originalFindById;
                 db.query = originalQuery;
             }
         });

@@ -200,7 +200,8 @@ describe('NGÀY 4: Kiểm thử Module Work Assignments (Tiến độ công vi�
             },
             {
                 name: 'StateTransitionInvalidError',
-                message: 'Không thể lùi trạng thái công việc đã hoàn thành (COMPLETED)'
+                // Code đã gộp COMPLETED/TERMINATED/RESIGNED thành "hợp đồng đã kết thúc" (migration 015)
+                message: 'Không thể thay đổi trạng thái hợp đồng đã kết thúc (COMPLETED)'
             }
         );
 

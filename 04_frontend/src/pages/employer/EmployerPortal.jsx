@@ -292,7 +292,7 @@ export default function EmployerPortal({
               { id: 'profile', label: 'Hồ sơ doanh nghiệp', icon: User },
               { id: 'jobs', label: 'Tin tuyển dụng', icon: Briefcase },
               { id: 'applicants', label: 'Hồ sơ ứng viên', icon: Users },
-              { id: 'assignments', label: 'Công việc đang giao', icon: Clock },
+              { id: 'assignments', label: 'Quản lý hợp đồng', icon: FileText },
               { id: 'reviews', label: 'Đánh giá', icon: Star },
               { id: 'notifications', label: 'Thông báo', icon: Bell },
               { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings },

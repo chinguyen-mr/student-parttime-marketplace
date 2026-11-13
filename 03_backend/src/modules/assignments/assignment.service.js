@@ -120,20 +120,22 @@ class AssignmentService {
             if (newStatus === 'COMPLETED') {
                 throw new StateTransitionInvalidError('Không thể chuyển thẳng từ NOT_STARTED sang COMPLETED (phải qua IN_PROGRESS)');
             }
-            if (newStatus !== 'IN_PROGRESS') {
+            if (!['IN_PROGRESS', 'TERMINATED', 'RESIGNED'].includes(newStatus)) {
                 throw new StateTransitionInvalidError(`Không thể chuyển trạng thái từ "${currentStatus}" sang "${newStatus}"`);
             }
         } else if (currentStatus === 'IN_PROGRESS') {
-            if (newStatus !== 'COMPLETED') {
+            if (!['COMPLETED', 'TERMINATED', 'RESIGNED'].includes(newStatus)) {
                 throw new StateTransitionInvalidError(`Không thể chuyển trạng thái từ "${currentStatus}" sang "${newStatus}"`);
             }
-        } else if (currentStatus === 'COMPLETED') {
-            throw new StateTransitionInvalidError('Không thể lùi trạng thái công việc đã hoàn thành (COMPLETED)');
+        } else if (['COMPLETED', 'TERMINATED', 'RESIGNED'].includes(currentStatus)) {
+            throw new StateTransitionInvalidError(`Không thể thay đổi trạng thái hợp đồng đã kết thúc (${currentStatus})`);
         }
 
         const updateRes = await db.query(
             `UPDATE work_assignments 
-             SET status = $1, updated_at = CURRENT_TIMESTAMP 
+             SET status = $1, 
+                 completed_at = CASE WHEN $1 = 'COMPLETED' THEN CURRENT_TIMESTAMP ELSE completed_at END,
+                 updated_at = CURRENT_TIMESTAMP 
              WHERE id = $2 
              RETURNING *`,
             [newStatus, id]

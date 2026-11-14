@@ -51,7 +51,18 @@ class ApplicationService {
             console.error('Lỗi chụp hồ sơ khi nộp đơn:', snapErr.message);
         }
 
-        const newApp = await applicationRepository.create(job_id, studentId, { cover_letter, cv_url, profile_snapshot });
+        // Chỉ nhận CV thuộc chính sinh viên (link có khóa trong student_cvs); giá trị khác bị bỏ
+        let ownCvUrl = null;
+        if (cv_url) {
+            const own = await db.query(
+                `SELECT 1 FROM student_cvs c JOIN student_profiles p ON p.id = c.student_profile_id
+                 WHERE p.user_id = $1 AND c.file_key = $2`,
+                [studentId, String(cv_url)]
+            );
+            if (own.rows.length) ownCvUrl = String(cv_url);
+        }
+
+        const newApp = await applicationRepository.create(job_id, studentId, { cover_letter, cv_url: ownCvUrl, profile_snapshot });
 
         // Tự động tạo thông báo cho Nhà tuyển dụng (Event: Student nộp đơn ứng tuyển)
         try {

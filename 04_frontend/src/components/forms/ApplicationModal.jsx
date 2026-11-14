@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Building2, MapPin, DollarSign, Clock, Calendar, 
   FileText, CheckCircle2, Award, Send, X, AlertCircle, ChevronDown, Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnimatedModal, Button, CustomDropdown } from '../ui';
-import { API_BASE, formatApiError } from '../../config/api';
+import { API_BASE, SERVER_BASE, formatApiError } from '../../config/api';
 
 /**
  * WF-S06 — Application Form (PT/SV)
@@ -26,18 +26,39 @@ export default function ApplicationModal({
   onSuccess,
   showToast
 }) {
-  const [selectedCv, setSelectedCv] = useState('CV_Nguyen_Van_Chi_Default.pdf');
+  // CV thật của sinh viên (GET /api/files/cv/me) — giá trị gửi đi là link có khóa của CV
+  const [myCv, setMyCv] = useState(null);
+  const [cvLoading, setCvLoading] = useState(false);
+  const [selectedCv, setSelectedCv] = useState('');
   const [coverLetter, setCoverLetter] = useState('Em đã có kinh nghiệm phù hợp và có thể sắp xếp lịch học để hoàn thành tốt công việc.');
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  useEffect(() => {
+    if (!isOpen || !currentUser?.token) return undefined;
+    let cancelled = false;
+    setCvLoading(true);
+    fetch(`${SERVER_BASE}/api/files/cv/me`, { headers: { Authorization: `Bearer ${currentUser.token}` } })
+      .then(res => res.json())
+      .then(data => {
+        if (cancelled) return;
+        const cv = data?.success ? data.data : null;
+        setMyCv(cv);
+        setSelectedCv(cv?.default_cv_url || '');
+      })
+      .catch(() => { if (!cancelled) { setMyCv(null); setSelectedCv(''); } })
+      .finally(() => { if (!cancelled) setCvLoading(false); });
+    return () => { cancelled = true; };
+  }, [isOpen, currentUser?.token]);
+
   if (!isOpen || !job) return null;
 
-  const cvOptions = [
-    { value: 'CV_Nguyen_Van_Chi_Default.pdf', label: 'CV Mặc định: CV_Nguyen_Van_Chi_Default.pdf (Cập nhật 2026)' },
-    { value: 'CV_PartTime_BanHang_Kho.pdf', label: 'CV Part-time Bán hàng & Dịch vụ: CV_PartTime_BanHang_Kho.pdf' },
-    { value: 'CV_Ky_Thuat_CNTT.pdf', label: 'CV Chuyên ngành CNTT: CV_Ky_Thuat_CNTT.pdf' }
-  ];
+  const cvOptions = myCv
+    ? [
+      { value: myCv.default_cv_url, label: `CV mặc định: ${myCv.original_name}${myCv.created_at ? ` (tải lên ${new Date(myCv.created_at).toLocaleDateString('vi-VN')})` : ''}` },
+      { value: '', label: 'Không đính kèm CV' },
+    ]
+    : [{ value: '', label: cvLoading ? 'Đang tải CV…' : 'Chưa có CV — vào "Quản lý CV" để tải lên' }];
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
@@ -63,7 +84,7 @@ export default function ApplicationModal({
         body: JSON.stringify({
           job_id: job.id,
           cover_letter: coverLetter.trim(),
-          cv_url: `https://jobnest.vn/uploads/cv/${selectedCv}`,
+          cv_url: selectedCv || null,
         }),
       });
 
@@ -169,7 +190,7 @@ export default function ApplicationModal({
           {/* Field 1: Chọn CV */}
           <div style={{ marginBottom: 18 }}>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-              Chọn CV đính kèm <span style={{ color: '#DC2626' }}>*</span>
+              Chọn CV đính kèm
             </label>
             <div style={{ position: 'relative' }}>
               <select
@@ -195,7 +216,7 @@ export default function ApplicationModal({
               <ChevronDown size={16} color="#64748B" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
             </div>
             <p style={{ margin: '4px 0 0 0', fontSize: 11.5, color: 'var(--color-text-secondary)' }}>
-              Được chọn từ danh sách CV đã tải lên. Doanh nghiệp tuyển dụng sẽ nhận liên kết tệp PDF này.
+              {myCv ? 'Nhà tuyển dụng sẽ xem được tệp PDF này cùng hồ sơ của bạn.' : 'Bạn vẫn nộp được đơn; CV giúp nhà tuyển dụng đánh giá nhanh hơn.'}
             </p>
           </div>
 

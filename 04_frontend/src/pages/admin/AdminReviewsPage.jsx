@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, X, ShieldCheck, AlertTriangle, ChevronLeft, ChevronRight, Loader2, History, Flag, EyeOff } from 'lucide-react';
 import ReviewCard from '../../components/reviews/ReviewCard';
+import ExportMenu from '../../components/common/ExportMenu';
 import { reviewRequest } from '../../components/reviews/reviewApi';
 import { STATUS_LABEL, EXPERIENCE_LABEL, FLAG_LABEL, REPORT_REASONS, reviewDate, formatRating } from '../../utils/reviewDisplay';
 
@@ -222,25 +223,77 @@ export default function AdminReviewsPage({ currentUser, showToast }) {
     try { setStats((await reviewRequest('/admin/reviews/stats', { token })).data); } catch { setStats(null); }
   }, [token]);
 
+  const listPath = useCallback((p) => {
+    if (queue === 'REPORTS' || queue === 'APPEALS') {
+      return `/admin/reviews/reports?kind=${queue === 'REPORTS' ? 'REPORT' : 'APPEAL'}&status=PENDING&page=${p}`;
+    }
+    const q = new URLSearchParams({ page: String(p) });
+    if (queue === 'PENDING' || queue === 'PUBLISHED') q.set('status', queue);
+    if (queue === 'CLOSED') q.set('status', closedStatus);
+    if (queue === 'REPORTED') q.set('reported', 'true');
+    return `/admin/reviews/${type}?${q}`;
+  }, [queue, type, closedStatus]);
+
   const loadList = useCallback(async () => {
     setList(l => ({ ...l, loading: true }));
     try {
-      let path;
-      if (queue === 'REPORTS' || queue === 'APPEALS') {
-        path = `/admin/reviews/reports?kind=${queue === 'REPORTS' ? 'REPORT' : 'APPEAL'}&status=PENDING&page=${page}`;
-      } else {
-        const q = new URLSearchParams({ page: String(page) });
-        if (queue === 'PENDING' || queue === 'PUBLISHED') q.set('status', queue);
-        if (queue === 'CLOSED') q.set('status', closedStatus);
-        if (queue === 'REPORTED') q.set('reported', 'true');
-        path = `/admin/reviews/${type}?${q}`;
-      }
-      const r = await reviewRequest(path, { token });
+      const r = await reviewRequest(listPath(page), { token });
       setList({ data: r.data, pagination: r.pagination, loading: false });
     } catch (e) {
       setList({ data: [], pagination: null, loading: false, error: e.message });
     }
-  }, [token, queue, type, page, closedStatus]);
+  }, [token, listPath, page]);
+
+  // Xuất báo cáo: gom tất cả các trang của hàng đợi đang xem
+  const getReport = async () => {
+    const first = await reviewRequest(listPath(1), { token });
+    let rows = first.data || [];
+    const pages = Math.min(first.pagination?.totalPages || 1, 100);
+    for (let p = 2; p <= pages; p += 1) rows = rows.concat((await reviewRequest(listPath(p), { token })).data || []);
+    const queueText = QUEUES.find(q => q[0] === queue)[1] + (queue === 'CLOSED' ? ` — ${STATUS_LABEL[closedStatus][0]}` : '');
+    const base = { author: currentUser?.full_name, rows };
+    if (isReportQueue) {
+      return {
+        ...base,
+        title: queue === 'REPORTS' ? 'Báo cáo vi phạm đánh giá' : 'Khiếu nại về kiểm duyệt đánh giá',
+        subtitle: `Hàng đợi: ${queueText} (chờ xử lý)`,
+        fileName: queue === 'REPORTS' ? 'bao-cao-vi-pham-danh-gia' : 'khieu-nai-danh-gia',
+        summary: [['Tổng số mục', rows.length], ['Về đánh giá doanh nghiệp', rows.filter(r => r.review_type === 'company').length], ['Về đánh giá công việc', rows.filter(r => r.review_type !== 'company').length]],
+        columns: [
+          { header: 'Mã', value: r => `#${r.id}`, width: 8 },
+          { header: 'Loại', value: r => (r.kind === 'APPEAL' ? 'Khiếu nại' : REASON_LABEL[r.reason] || r.reason), width: 26 },
+          { header: 'Người gửi', value: r => `${r.reporter_name || ''}${r.reporter_role ? ` (${r.reporter_role})` : ''}`, width: 24 },
+          { header: 'Đánh giá', value: r => `${r.review_type === 'company' ? 'Doanh nghiệp' : 'Công việc'} #${r.review_id}`, width: 18 },
+          { header: 'Điểm', value: r => formatRating(r.review_rating), width: 8 },
+          { header: 'Trích nội dung', value: r => r.review_excerpt, width: 40 },
+          { header: 'Mô tả', value: r => r.description, width: 36 },
+          { header: 'Trạng thái đánh giá', value: r => STATUS_LABEL[r.review_status]?.[0] || r.review_status, width: 20 },
+          { header: 'Ngày gửi', value: r => r.created_at, type: 'datetime', width: 16 },
+        ],
+      };
+    }
+    const avg = rows.length ? rows.reduce((s, r) => s + Number(r.rating_overall || 0), 0) / rows.length : 0;
+    return {
+      ...base,
+      title: `Kiểm duyệt ${type === 'company' ? 'đánh giá doanh nghiệp' : 'đánh giá công việc'}`,
+      subtitle: `Hàng đợi: ${queueText}`,
+      fileName: `kiem-duyet-danh-gia-${type === 'company' ? 'doanh-nghiep' : 'cong-viec'}`,
+      summary: [['Số đánh giá', rows.length], ['Điểm trung bình', `${formatRating(avg)} ★`],
+        ['Đã xác thực', rows.filter(r => r.is_verified).length], ['Có báo cáo chờ xử lý', rows.filter(r => r.pending_reports > 0).length]],
+      columns: [
+        { header: 'Mã', value: r => `#${r.id}`, width: 8 },
+        { header: type === 'company' ? 'Tiêu đề' : 'Công việc', value: r => (type === 'company' ? r.title : r.job_title), width: 30 },
+        { header: 'Doanh nghiệp', value: r => r.employer_name, width: 24 },
+        { header: 'Người viết', value: r => `${r.reviewer_name || ''}${r.is_anonymous ? ' (ẩn danh)' : ''}`, width: 24 },
+        { header: 'Trải nghiệm', value: r => EXPERIENCE_LABEL[r.experience_type] || r.experience_type, width: 14 },
+        { header: 'Điểm tổng', value: r => Number(r.rating_overall), type: 'number', width: 10 },
+        { header: 'Xác thực', value: r => (r.is_verified ? 'Có' : 'Không'), width: 10 },
+        { header: 'Cờ kiểm duyệt', value: r => (r.moderation_flags || []).map(f => FLAG_LABEL[f] || f).join(', '), width: 24 },
+        { header: 'Trạng thái', value: r => STATUS_LABEL[r.status]?.[0] || r.status, width: 20 },
+        { header: 'Ngày viết', value: r => r.created_at, type: 'datetime', width: 16 },
+      ],
+    };
+  };
 
   useEffect(() => { loadStats(); }, [loadStats]);
   useEffect(() => { loadList(); }, [loadList]);
@@ -261,7 +314,10 @@ export default function AdminReviewsPage({ currentUser, showToast }) {
             Đánh giá doanh nghiệp và đánh giá công việc của ứng viên. Mọi thao tác đều được ghi lịch sử kèm lý do.
           </p>
         </div>
-        <button type="button" style={btn()} onClick={refresh}><RefreshCw size={14} /> Làm mới</button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <ExportMenu getReport={getReport} disabled={list.loading} onError={() => showToast?.('Xuất báo cáo thất bại', 'error')} />
+          <button type="button" style={btn()} onClick={refresh}><RefreshCw size={14} /> Làm mới</button>
+        </div>
       </div>
 
       <div role="tablist" aria-label="Hàng đợi kiểm duyệt" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>

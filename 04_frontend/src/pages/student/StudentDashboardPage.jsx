@@ -13,6 +13,7 @@ import { Button, AnimatedModal } from '../../components/ui';
 import JobCard from '../../components/common/JobCard';
 import EmptyState from '../../components/common/EmptyState';
 import StatusBadge from '../../components/common/StatusBadge';
+import ExportMenu from '../../components/common/ExportMenu';
 import CompanyLogo from '../../components/CompanyLogo';
 import { API_BASE, formatApiError } from '../../config/api';
 import MyAssignmentsPage from './MyAssignmentsPage';
@@ -1177,7 +1178,33 @@ export default function StudentDashboardPage({
                 </div>
 
                 {/* Filter Pills */}
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <ExportMenu
+                    label="Xuất danh sách"
+                    disabled={appsLoading || applications.length === 0}
+                    onError={() => showToast && showToast('Xuất file thất bại', 'error')}
+                    getReport={() => {
+                      const S = { PENDING: 'Chờ duyệt', REVIEWING: 'Đang xem xét', SHORTLISTED: 'Vào vòng phỏng vấn', ACCEPTED: 'Được nhận', REJECTED: 'Bị từ chối', WITHDRAWN: 'Đã rút hồ sơ' };
+                      const n = (s) => filteredApplications.filter(a => a.status === s).length;
+                      return {
+                        title: 'Danh sách đơn ứng tuyển',
+                        subtitle: `Sinh viên: ${currentUser?.full_name || ''} · Bộ lọc: ${appFilter === 'ALL' ? 'Tất cả' : S[appFilter]}`,
+                        fileName: 'don-ung-tuyen',
+                        author: currentUser?.full_name,
+                        summary: [['Tổng đơn', filteredApplications.length], ['Đang chờ', n('PENDING') + n('REVIEWING') + n('SHORTLISTED')], ['Được nhận', n('ACCEPTED')], ['Bị từ chối', n('REJECTED')]],
+                        columns: [
+                          { header: 'Vị trí', value: a => a.job_title, width: 32 },
+                          { header: 'Doanh nghiệp', value: a => a.employer_name, width: 28 },
+                          { header: 'Ngành nghề', value: a => a.category, width: 20 },
+                          { header: 'Địa điểm', value: a => a.location, width: 34 },
+                          { header: 'Ngày nộp', value: a => a.applied_at, type: 'date', width: 12 },
+                          { header: 'Trạng thái', value: a => S[a.status] || a.status, width: 18 },
+                          { header: 'Phản hồi / lý do', value: a => a.rejection_reason || a.withdraw_reason, width: 34 },
+                        ],
+                        rows: filteredApplications,
+                      };
+                    }}
+                  />
                   {[
                     { id: 'ALL', label: 'Tất cả' },
                     { id: 'PENDING', label: 'Chờ duyệt' },

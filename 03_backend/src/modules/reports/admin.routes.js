@@ -261,6 +261,16 @@ router.get('/categories', async (req, res, next) => {
     }
 });
 
+// GET /api/admin/categories/:id/jobs
+router.get('/categories/:id/jobs', async (req, res, next) => {
+    try {
+        const data = await adminService.listCategoryJobs(parseInt(req.params.id, 10));
+        res.status(200).json({ success: true, data });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // POST /api/admin/categories
 router.post('/categories', async (req, res, next) => {
     try {

@@ -8,6 +8,9 @@ import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import StatusBadge from '../../components/common/StatusBadge';
 import { API_BASE, formatApiError } from '../../config/api';
+import ExportMenu from '../../components/common/ExportMenu';
+import { getStatusInfo } from '../../utils/formatters';
+import { formatSalary } from '../../utils/jobDisplay';
 
 export default function EmployerJobsPage({
   currentUser,
@@ -136,6 +139,38 @@ export default function EmployerJobsPage({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <ExportMenu
+            disabled={loading || jobs.length === 0}
+            onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}
+            getReport={() => {
+              const statusText = (j) => (j.moderation_status === 'REJECTED' || j.status === 'REJECTED') ? 'Bị từ chối'
+                : (j.moderation_status === 'PENDING' || j.status === 'PENDING') ? 'Chờ duyệt'
+                  : j.status === 'FILLED' ? 'Đủ người' : getStatusInfo(j.status).label;
+              const apps = (j) => Number(j.total_applicants ?? j.applicant_count ?? j.applications_count ?? 0);
+              return {
+                title: 'Báo cáo tin tuyển dụng của doanh nghiệp',
+                subtitle: `${currentUser?.company_name || currentUser?.full_name || ''}${searchKeyword.trim() ? ` · Từ khóa: "${searchKeyword.trim()}"` : ''}`,
+                fileName: 'tin-tuyen-dung-doanh-nghiep',
+                author: currentUser?.full_name,
+                summary: [['Tổng số tin', filteredJobs.length],
+                  ['Đang tuyển', filteredJobs.filter(j => j.status === 'OPEN' && j.moderation_status === 'APPROVED').length],
+                  ['Chờ duyệt', filteredJobs.filter(j => j.moderation_status === 'PENDING').length],
+                  ['Tổng lượt ứng tuyển', filteredJobs.reduce((s, j) => s + apps(j), 0)]],
+                columns: [
+                  { header: 'Mã tin', value: j => `#${j.id}`, width: 9 },
+                  { header: 'Tiêu đề', value: j => j.title, width: 36 },
+                  { header: 'Ngành nghề', value: j => j.category, width: 22 },
+                  { header: 'Mức lương', value: j => formatSalary(j), width: 18 },
+                  { header: 'Số lượng tuyển', value: j => j.headcount, type: 'number', width: 12 },
+                  { header: 'Ứng tuyển', value: apps, type: 'number', width: 11 },
+                  { header: 'Trạng thái', value: statusText, width: 14 },
+                  { header: 'Ngày đăng', value: j => j.created_at, type: 'date', width: 12 },
+                  { header: 'Hạn nộp', value: j => j.application_deadline || j.deadline, type: 'date', width: 12 },
+                ],
+                rows: filteredJobs,
+              };
+            }}
+          />
           <button
             onClick={fetchJobs}
             disabled={loading}

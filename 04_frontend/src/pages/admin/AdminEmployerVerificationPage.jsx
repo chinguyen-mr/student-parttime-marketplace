@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Loader2, RefreshCw, Download, FileText, CheckCircle2, AlertTriangle, XCircle, History, X } from 'lucide-react';
 import { apiJson, fetchPrivateBlobUrl, card, input, btn, btnDanger, btnPrimary, hintStyle, labelStyle } from '../../components/employer/companyProfileShared';
 import { LegalStatusBadge } from '../../components/employer/CompanyVerificationSection';
+import ExportMenu from '../../components/common/ExportMenu';
 
 const FILTERS = [['PENDING', 'Chờ duyệt'], ['NEEDS_INFO', 'Cần bổ sung'], ['REJECTED', 'Đã từ chối'], ['VERIFIED', 'Đã xác minh'], ['ALL', 'Tất cả']];
 const fmt = (d) => (d ? new Date(d).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '—');
@@ -73,7 +74,35 @@ export default function AdminEmployerVerificationPage({ currentUser, showToast }
           <button key={v} type="button" onClick={() => setFilter(v)} aria-pressed={filter === v}
             style={{ ...btn, borderColor: filter === v ? '#7565A8' : '#E2E8F0', background: filter === v ? '#F1EEF8' : '#fff', color: filter === v ? '#594675' : '#475569' }}>{l}</button>
         ))}
-        <button type="button" style={{ ...btn, marginLeft: 'auto' }} onClick={load}><RefreshCw size={14} /> Tải lại</button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
+          <ExportMenu
+            disabled={state !== 'ready'}
+            onError={() => showToast?.('Xuất báo cáo thất bại', 'error')}
+            getReport={() => {
+              const LEGAL = { UNVERIFIED: 'Chưa gửi', PENDING: 'Chờ duyệt', NEEDS_INFO: 'Cần bổ sung', REJECTED: 'Đã từ chối', VERIFIED: 'Đã xác minh' };
+              return {
+                title: 'Báo cáo xác minh doanh nghiệp',
+                subtitle: `Bộ lọc: ${FILTERS.find(f => f[0] === filter)[1]}`,
+                fileName: 'xac-minh-doanh-nghiep',
+                author: currentUser?.full_name,
+                summary: Object.entries(LEGAL).map(([k, l]) => [l, rows.filter(r => r.verification_status === k).length]).filter(([, n]) => n > 0)
+                  .concat([['Tổng hồ sơ', rows.length]]),
+                columns: [
+                  { header: 'Doanh nghiệp', value: r => r.display_name, width: 28 },
+                  { header: 'Email', value: r => r.email, width: 28 },
+                  { header: 'Tên pháp nhân', value: r => r.company_name, width: 34 },
+                  { header: 'Mã số thuế', value: r => r.tax_code, width: 14 },
+                  { header: 'Loại tài khoản', value: r => r.account_type, width: 22 },
+                  { header: 'Số tài liệu', value: r => r.document_count, type: 'number', width: 11 },
+                  { header: 'Gửi lúc', value: r => r.verification_submitted_at, type: 'datetime', width: 16 },
+                  { header: 'Trạng thái', value: r => LEGAL[r.verification_status] || r.verification_status, width: 14 },
+                ],
+                rows,
+              };
+            }}
+          />
+          <button type="button" style={btn} onClick={load}><RefreshCw size={14} /> Tải lại</button>
+        </div>
       </div>
 
       <div style={{ ...card, padding: 0, overflowX: 'auto' }}>

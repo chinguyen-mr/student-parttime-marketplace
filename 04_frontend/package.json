@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@animate-ui/react": "^2.4.1",
+    "exceljs": "^4.4.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.61.0",
     "motion": "^14.9.0",

@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
+import ExportMenu from '../../components/common/ExportMenu';
 import { API_BASE, formatApiError } from '../../config/api';
 import { describeAdminLog, TONE_STYLE, ADMIN_LOG_FILTERS } from '../../utils/adminLogDisplay';
 
@@ -89,15 +90,41 @@ export default function AdminLogsPage({
           </h1>
         </div>
 
-        <Button
-          variant="secondary"
-          onClick={() => fetchLogs(true)}
-          disabled={refreshing}
-          style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
-        >
-          <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
-          <span>Làm mới ({filteredLogs.length})</span>
-        </Button>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <ExportMenu
+            disabled={loading}
+            onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}
+            getReport={() => {
+              const described = filteredLogs.map(l => ({ ...l, d: describeAdminLog(l) }));
+              const byAdmin = {};
+              described.forEach(l => { byAdmin[l.admin_name || 'Không rõ'] = (byAdmin[l.admin_name || 'Không rõ'] || 0) + 1; });
+              return {
+                title: 'Nhật ký hoạt động quản trị',
+                subtitle: `Loại thao tác: ${actionFilter === 'ALL' ? 'Tất cả' : (ADMIN_LOG_FILTERS.find(f => f[0] === actionFilter)?.[1] || actionFilter)}${searchKeyword.trim() ? ` · Từ khóa: "${searchKeyword.trim()}"` : ''} · ${filteredLogs.length} thao tác gần nhất`,
+                fileName: 'nhat-ky-quan-tri',
+                author: currentUser?.full_name,
+                summary: [['Tổng thao tác', described.length], ...Object.entries(byAdmin).slice(0, 3)],
+                columns: [
+                  { header: 'Thời gian', value: l => l.created_at, type: 'datetime', width: 16 },
+                  { header: 'Quản trị viên', value: l => l.admin_name, width: 24 },
+                  { header: 'Thao tác', value: l => l.d.label, width: 28 },
+                  { header: 'Đối tượng', value: l => l.d.target, width: 34 },
+                  { header: 'Chi tiết', value: l => l.d.detail, width: 46 },
+                ],
+                rows: described,
+              };
+            }}
+          />
+          <Button
+            variant="secondary"
+            onClick={() => fetchLogs(true)}
+            disabled={refreshing}
+            style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
+          >
+            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+            <span>Làm mới ({filteredLogs.length})</span>
+          </Button>
+        </div>
       </div>
 
       {/* Bộ lọc chuẩn Wireframe WF-A08: Admin, Action type, Khoảng ngày */}

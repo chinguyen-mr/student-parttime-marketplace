@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
+import ExportMenu from '../../components/common/ExportMenu';
 import { API_BASE, formatApiError } from '../../config/api';
 
 export default function AdminUsersPage({
@@ -185,15 +186,52 @@ export default function AdminUsersPage({
           </h1>
         </div>
 
-        <Button
-          variant="secondary"
-          onClick={() => fetchUsers(true)}
-          disabled={refreshing}
-          style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
-        >
-          <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
-          <span>Làm mới danh sách</span>
-        </Button>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <ExportMenu
+            disabled={loading}
+            onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}
+            getReport={async () => {
+              const params = new URLSearchParams({ limit: '10000' });
+              if (roleFilter !== 'ALL') params.append('role', roleFilter);
+              if (statusFilter !== 'ALL') params.append('status', statusFilter);
+              if (searchKeyword.trim()) params.append('search', searchKeyword.trim());
+              const res = await fetch(`${API_BASE}/admin/users?${params}`, { headers: { Authorization: `Bearer ${currentUser?.token}` } });
+              const data = await res.json();
+              if (!res.ok || !data.success) throw new Error(data.message || 'Không tải được dữ liệu');
+              const rows = data.data || [];
+              const ROLE = { STUDENT: 'Sinh viên', EMPLOYER: 'Nhà tuyển dụng', ADMIN: 'Quản trị viên' };
+              const STATUS = { ACTIVE: 'Hoạt động', BANNED: 'Đã khóa', PENDING: 'Chờ kích hoạt' };
+              return {
+                title: 'Báo cáo danh sách người dùng',
+                subtitle: `Vai trò: ${ROLE[roleFilter] || 'Tất cả'} · Trạng thái: ${STATUS[statusFilter] || 'Tất cả'}${searchKeyword.trim() ? ` · Từ khóa: "${searchKeyword.trim()}"` : ''}`,
+                fileName: 'danh-sach-nguoi-dung',
+                author: currentUser?.full_name,
+                summary: [['Tổng người dùng', rows.length], ['Sinh viên', rows.filter(u => u.role === 'STUDENT').length],
+                  ['Nhà tuyển dụng', rows.filter(u => u.role === 'EMPLOYER').length], ['Đang bị khóa', rows.filter(u => u.status === 'BANNED').length]],
+                columns: [
+                  { header: 'ID', value: u => `#${u.id}`, width: 8 },
+                  { header: 'Họ tên / Tên hiển thị', value: u => u.display_name || u.full_name, width: 30 },
+                  { header: 'Email', value: u => u.email, width: 32 },
+                  { header: 'Số điện thoại', value: u => u.phone, width: 14 },
+                  { header: 'Vai trò', value: u => ROLE[u.role] || u.role, width: 16 },
+                  { header: 'Loại tài khoản', value: u => u.account_type, width: 22 },
+                  { header: 'Trạng thái', value: u => STATUS[u.status] || u.status, width: 14 },
+                  { header: 'Ngày đăng ký', value: u => u.created_at, type: 'date', width: 13 },
+                ],
+                rows,
+              };
+            }}
+          />
+          <Button
+            variant="secondary"
+            onClick={() => fetchUsers(true)}
+            disabled={refreshing}
+            style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
+          >
+            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+            <span>Làm mới danh sách</span>
+          </Button>
+        </div>
       </div>
 
       {/* ================= BỘ LỌC CHUẨN WIREFRAME WF-A02 (Role, Status, Lọc, Search) ================= */}

@@ -9,6 +9,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, AnimatedModal } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
+import ExportMenu from '../../components/common/ExportMenu';
 import { API_BASE, formatApiError } from '../../config/api';
 
 export default function EmployerAssignmentsPage({
@@ -368,6 +369,34 @@ export default function EmployerAssignmentsPage({
           </p>
         </div>
 
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <ExportMenu
+          disabled={loading || assignments.length === 0}
+          onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}
+          getReport={() => {
+            const WORK = { NOT_STARTED: 'Chưa nhận việc', IN_PROGRESS: 'Đang làm việc', ACTIVE: 'Đang làm việc', COMPLETED: 'Đã hoàn thành', RESIGNED: 'Đã xin nghỉ', TERMINATED: 'Đã cho thôi việc' };
+            const FILTER = { ALL: 'Tất cả', NOT_STARTED: 'Chưa nhận việc', IN_PROGRESS: 'Đang làm việc', COMPLETED: 'Đã hoàn thành', TERMINATED_RESIGNED: 'Nghỉ / thôi việc' };
+            return {
+              title: 'Báo cáo nhân sự part-time',
+              subtitle: `Tình trạng: ${FILTER[statusFilter] || 'Tất cả'}`,
+              fileName: 'nhan-su-part-time',
+              author: currentUser?.full_name,
+              summary: [['Tổng hợp đồng', totalCount], ['Đang làm việc', inProgressCount], ['Đã hoàn thành', completedCount], ['Nghỉ / thôi việc', terminatedCount]],
+              columns: [
+                { header: 'Sinh viên', value: a => a.student_name, width: 24 },
+                { header: 'Email', value: a => a.student_email, width: 30 },
+                { header: 'Số điện thoại', value: a => a.student_phone, width: 14 },
+                { header: 'Trường', value: a => a.university, width: 28 },
+                { header: 'Vị trí', value: a => a.job_title, width: 30 },
+                { header: 'Bắt đầu', value: a => a.started_at, type: 'date', width: 12 },
+                { header: 'Kết thúc', value: a => a.completed_at || a.terminated_at, type: 'date', width: 12 },
+                { header: 'Tình trạng', value: a => WORK[a.status] || a.status, width: 16 },
+                { header: 'Lý do nghỉ', value: a => a.termination_reason, width: 30 },
+              ],
+              rows: filteredAssignments,
+            };
+          }}
+        />
         <button
           onClick={fetchAssignments}
           disabled={loading}
@@ -388,6 +417,7 @@ export default function EmployerAssignmentsPage({
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Làm mới danh sách
         </button>
+        </div>
       </div>
 
       {/* ================= THỐNG KÊ NHANH (QUICK STAT CARDS) ================= */}

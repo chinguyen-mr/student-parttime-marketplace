@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
+import ExportMenu from '../../components/common/ExportMenu';
 import { API_BASE, formatApiError } from '../../config/api';
 
 export default function AdminReportsPage({
@@ -513,15 +514,55 @@ export default function AdminReportsPage({
           </h1>
         </div>
 
-        <Button
-          variant="secondary"
-          onClick={() => fetchReports(true)}
-          disabled={refreshing}
-          style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
-        >
-          <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
-          <span>Làm mới ({reports.length})</span>
-        </Button>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <ExportMenu
+            disabled={loading}
+            onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}
+            getReport={async () => {
+              const params = new URLSearchParams({ limit: '5000' });
+              if (statusFilter !== 'ALL') params.append('status', statusFilter);
+              if (targetTypeFilter !== 'ALL') params.append('target_type', targetTypeFilter);
+              const res = await fetch(`${API_BASE}/admin/reports?${params}`, { headers: { Authorization: `Bearer ${currentUser?.token}` } });
+              const data = await res.json();
+              if (!res.ok || !data.success) throw new Error(data.message || 'Không tải được dữ liệu');
+              const rows = data.data || [];
+              return {
+                title: 'Báo cáo xử lý vi phạm',
+                subtitle: `Trạng thái: ${{ ALL: 'Tất cả', OPEN: 'Chờ xử lý', RESOLVED: 'Đã giải quyết' }[statusFilter]} · Đối tượng: ${{ ALL: 'Tất cả', JOB: 'Tin tuyển dụng', USER: 'Người dùng' }[targetTypeFilter]}`,
+                fileName: 'bao-cao-vi-pham',
+                author: currentUser?.full_name,
+                summary: [
+                  ['Tổng báo cáo', rows.length],
+                  ['Chờ xử lý', rows.filter(r => r.status === 'OPEN' || r.status === 'PENDING').length],
+                  ['Đã giải quyết', rows.filter(r => r.status === 'RESOLVED').length],
+                  ['Về tin tuyển dụng', rows.filter(r => r.target_type === 'JOB').length],
+                  ['Về người dùng', rows.filter(r => r.target_type === 'USER').length],
+                ],
+                columns: [
+                  { header: 'Mã', value: r => `R-${String(r.id).padStart(3, '0')}`, width: 9 },
+                  { header: 'Người báo cáo', value: r => r.reporter_name || 'Ẩn danh', width: 22 },
+                  { header: 'Email', value: r => r.reporter_email, width: 26 },
+                  { header: 'Đối tượng', value: r => `${r.target_type === 'JOB' ? 'Tin' : 'Người dùng'} #${r.target_id}`, width: 15 },
+                  { header: 'Tên đối tượng', value: r => r.target_title, width: 28 },
+                  { header: 'Lý do', value: r => r.reason, width: 26 },
+                  { header: 'Mô tả', value: r => r.description, width: 40 },
+                  { header: 'Trạng thái', value: r => (r.status === 'RESOLVED' ? 'Đã giải quyết' : 'Chờ xử lý'), width: 14 },
+                  { header: 'Thời gian', value: r => r.created_at, type: 'datetime', width: 16 },
+                ],
+                rows,
+              };
+            }}
+          />
+          <Button
+            variant="secondary"
+            onClick={() => fetchReports(true)}
+            disabled={refreshing}
+            style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
+          >
+            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+            <span>Làm mới ({reports.length})</span>
+          </Button>
+        </div>
       </div>
 
       {/* Bộ lọc chuẩn Wireframe WF-A05: Status (OPEN/RESOLVED), Target type */}

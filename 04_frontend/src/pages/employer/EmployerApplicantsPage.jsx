@@ -9,6 +9,7 @@ import { Button, AnimatedModal } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import { API_BASE, formatApiError } from '../../config/api';
 import { DEFAULT_APPLICANTS_KETOAN, DEFAULT_EMPLOYER_JOBS } from '../../App';
+import ExportMenu from '../../components/common/ExportMenu';
 
 export default function EmployerApplicantsPage({
   currentUser,
@@ -234,7 +235,44 @@ export default function EmployerApplicantsPage({
         </div>
 
         {/* Job Selection Dropdown */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <ExportMenu
+            disabled={loading || jobs.length === 0}
+            onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}
+            getReport={async () => {
+              const headers = { Authorization: `Bearer ${currentUser.token}` };
+              const targetJobs = jobs.filter(j => j.id && (currentJobId === 'ALL' || String(j.id) === String(currentJobId)));
+              let rows = [];
+              for (const j of targetJobs) {
+                const res = await fetch(`${API_BASE}/applications/job/${j.id}`, { headers });
+                const data = await res.json();
+                if (!res.ok || !data.success) throw new Error(data.message || 'Không tải được hồ sơ');
+                rows = rows.concat((data.data || []).map(a => ({ ...a, job_title: j.title })));
+              }
+              if (appFilter !== 'ALL') rows = rows.filter(a => a.status === appFilter);
+              const APP_STATUS = { PENDING: 'Chờ xem xét', REVIEWING: 'Đang xem xét', SHORTLISTED: 'Vào vòng phỏng vấn', ACCEPTED: 'Đã nhận', REJECTED: 'Từ chối', WITHDRAWN: 'Ứng viên rút hồ sơ' };
+              const n = (s) => rows.filter(a => a.status === s).length;
+              return {
+                title: 'Báo cáo hồ sơ ứng tuyển',
+                subtitle: `Tin tuyển dụng: ${currentJobId === 'ALL' ? 'Tất cả' : targetJobs[0]?.title || currentJobId} · Trạng thái: ${appFilter === 'ALL' ? 'Tất cả' : APP_STATUS[appFilter]}`,
+                fileName: 'ho-so-ung-tuyen',
+                author: currentUser?.full_name,
+                summary: [['Tổng hồ sơ', rows.length], ['Chờ / đang xem xét', n('PENDING') + n('REVIEWING')], ['Vào vòng phỏng vấn', n('SHORTLISTED')], ['Đã nhận', n('ACCEPTED')], ['Từ chối / rút', n('REJECTED') + n('WITHDRAWN')]],
+                columns: [
+                  { header: 'Ứng viên', value: a => a.student_name, width: 24 },
+                  { header: 'Email', value: a => a.student_email, width: 30 },
+                  { header: 'Số điện thoại', value: a => a.student_phone, width: 14 },
+                  { header: 'Trường', value: a => a.university, width: 30 },
+                  { header: 'Ngành', value: a => a.major, width: 22 },
+                  { header: 'Vị trí ứng tuyển', value: a => a.job_title, width: 30 },
+                  { header: 'Ngày nộp', value: a => a.applied_at, type: 'date', width: 12 },
+                  { header: 'Trạng thái', value: a => APP_STATUS[a.status] || a.status, width: 18 },
+                  { header: 'Ghi chú / lý do', value: a => a.rejection_reason || a.withdraw_reason, width: 34 },
+                ],
+                rows,
+              };
+            }}
+          />
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-secondary)' }}>
             Lọc theo tin tuyển dụng:
           </span>

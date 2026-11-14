@@ -481,6 +481,24 @@ class AdminService {
         return res.rows;
     }
 
+    // Tin tuyển dụng thuộc một danh mục (jobs.category lưu theo tên danh mục)
+    async listCategoryJobs(categoryId) {
+        const cat = await db.query('SELECT id, name, is_active FROM categories WHERE id = $1', [categoryId]);
+        if (!cat.rows.length) throw new AppError('Không tìm thấy danh mục', 404);
+        const jobs = await db.query(`
+            SELECT j.id, j.title, j.status, j.moderation_status, j.salary, j.salary_type, j.work_type, j.location,
+                   j.headcount, j.created_at, j.application_deadline,
+                   COALESCE(ep.display_name, u.full_name) AS company_name,
+                   (SELECT COUNT(*)::int FROM applications a WHERE a.job_id = j.id) AS application_count
+            FROM jobs j
+            LEFT JOIN users u ON u.id = j.employer_id
+            LEFT JOIN employer_profiles ep ON ep.user_id = j.employer_id
+            WHERE j.category = $1
+            ORDER BY j.created_at DESC
+        `, [cat.rows[0].name]);
+        return { category: cat.rows[0], jobs: jobs.rows };
+    }
+
     async createCategory({ name, parent_id = null, is_active = true }, adminId = null) {
         if (!name || !name.trim()) {
             throw new AppError('Tên ngành nghề không được để trống', 400);

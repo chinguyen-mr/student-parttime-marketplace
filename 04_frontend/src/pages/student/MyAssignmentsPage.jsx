@@ -7,6 +7,8 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, AnimatedModal } from '../../components/ui';
 import StatusBadge from '../../components/common/StatusBadge';
+import ExportMenu from '../../components/common/ExportMenu';
+import { formatSalary } from '../../utils/jobDisplay';
 import { API_BASE, formatApiError } from '../../config/api';
 
 /**
@@ -185,6 +187,33 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
               Theo dõi chi tiết hợp đồng, cập nhật tiến độ công việc và nộp sản phẩm bàn giao cho Nhà tuyển dụng.
             </p>
           </div>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <ExportMenu
+            label="Xuất xác nhận công việc"
+            disabled={loading || assignments.length === 0}
+            onError={() => showToast && showToast('Xuất file thất bại', 'error')}
+            getReport={() => {
+              const WORK = { NOT_STARTED: 'Chưa bắt đầu', IN_PROGRESS: 'Đang làm việc', COMPLETED: 'Đã hoàn thành', RESIGNED: 'Đã xin nghỉ', TERMINATED: 'Đã thôi việc' };
+              return {
+                title: 'Bảng tổng hợp quá trình làm việc part-time',
+                subtitle: `Sinh viên: ${currentUser?.full_name || ''}${currentUser?.email ? ` · ${currentUser.email}` : ''}`,
+                fileName: 'qua-trinh-lam-viec',
+                author: currentUser?.full_name,
+                summary: [['Tổng công việc', filtered.length], ['Đã hoàn thành', filtered.filter(a => a.status === 'COMPLETED').length],
+                  ['Đang làm việc', filtered.filter(a => a.status === 'IN_PROGRESS').length]],
+                columns: [
+                  { header: 'Vị trí', value: a => a.job_title, width: 32 },
+                  { header: 'Doanh nghiệp', value: a => a.employer_name, width: 28 },
+                  { header: 'Ngành nghề', value: a => a.category, width: 20 },
+                  { header: 'Mức lương', value: a => formatSalary(a), width: 18 },
+                  { header: 'Bắt đầu', value: a => a.started_at, type: 'date', width: 12 },
+                  { header: 'Kết thúc', value: a => a.completed_at || a.terminated_at, type: 'date', width: 12 },
+                  { header: 'Tình trạng', value: a => WORK[a.status] || a.status, width: 16 },
+                ],
+                rows: filtered,
+              };
+            }}
+          />
           <Button
             variant="secondary"
             onClick={fetchAssignments}
@@ -192,6 +221,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Làm mới
           </Button>
+          </div>
         </div>
       </div>
 

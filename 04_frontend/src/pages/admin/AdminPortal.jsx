@@ -408,6 +408,7 @@ export default function AdminPortal({
             <AdminCategoriesPage
               currentUser={currentUser}
               showToast={showToast}
+              onNavigateTab={(tab) => setActiveTab(tab)}
             />
           )}
 

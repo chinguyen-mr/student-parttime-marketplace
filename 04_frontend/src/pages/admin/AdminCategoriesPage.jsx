@@ -5,12 +5,16 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
+import ExportMenu from '../../components/common/ExportMenu';
+import CategoryJobsModal from '../../components/admin/CategoryJobsModal';
 import { API_BASE, formatApiError } from '../../config/api';
 
 export default function AdminCategoriesPage({
   currentUser,
-  showToast
+  showToast,
+  onNavigateTab
 }) {
+  const [viewingCategory, setViewingCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -205,7 +209,31 @@ export default function AdminCategoriesPage({
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <ExportMenu
+            disabled={loading || categories.length === 0}
+            onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}
+            getReport={() => ({
+              title: 'Báo cáo danh mục ngành nghề',
+              fileName: 'danh-muc-nganh-nghe',
+              author: currentUser?.full_name,
+              summary: [
+                ['Tổng danh mục', categories.length],
+                ['Đang hoạt động', categories.filter(c => c.is_active !== false).length],
+                ['Đang ẩn', categories.filter(c => c.is_active === false).length],
+                ['Tổng tin tuyển dụng', categories.reduce((s, c) => s + Number(c.job_count || 0), 0)],
+              ],
+              columns: [
+                { header: 'ID', value: c => `#${c.id}`, width: 8 },
+                { header: 'Tên danh mục', value: c => c.name, width: 34 },
+                { header: 'Danh mục cha', value: c => c.parent_name || '— (Gốc)', width: 22 },
+                { header: 'Số tin tuyển dụng', value: c => Number(c.job_count || 0), type: 'number', width: 16 },
+                { header: 'Trạng thái', value: c => (c.is_active !== false ? 'Đang hoạt động' : 'Đang ẩn'), width: 16 },
+                { header: 'Ngày tạo', value: c => c.created_at, type: 'date', width: 13 },
+              ],
+              rows: categories,
+            })}
+          />
           <Button
             variant="secondary"
             onClick={() => fetchCategories(true)}
@@ -425,8 +453,20 @@ export default function AdminCategoriesPage({
                         )}
                       </td>
 
-                      <td style={{ padding: '14px 16px', fontWeight: 700, color: '#059669' }}>
-                        {cat.job_count || 0} tin
+                      <td style={{ padding: '14px 16px' }}>
+                        <button
+                          type="button"
+                          onClick={() => setViewingCategory(cat)}
+                          title={`Xem các tin thuộc "${cat.name}"`}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 8,
+                            border: '1px solid #A7F3D0', background: '#ECFDF5', color: '#047857', fontWeight: 700,
+                            fontSize: 13, cursor: 'pointer'
+                          }}
+                        >
+                          <Eye size={13} />
+                          <span>{cat.job_count || 0} tin</span>
+                        </button>
                       </td>
 
                       <td style={{ padding: '14px 16px' }}>
@@ -525,6 +565,14 @@ export default function AdminCategoriesPage({
           </div>
         )}
       </div>
+
+      <CategoryJobsModal
+        category={viewingCategory}
+        token={currentUser?.token}
+        adminName={currentUser?.full_name}
+        onClose={() => setViewingCategory(null)}
+        onOpenModeration={onNavigateTab ? () => { setViewingCategory(null); onNavigateTab('moderation'); } : undefined}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
 import { apiJson, card, input, btn, btnDanger, btnPrimary, hintStyle } from '../../components/employer/companyProfileShared';
+import ExportMenu from '../../components/common/ExportMenu';
 
 const FILTERS = [['PENDING', 'Chờ xử lý'], ['APPROVED', 'Đã chấp nhận'], ['REJECTED', 'Đã từ chối'], ['ALL', 'Tất cả']];
 const STATUS_LABEL = { PENDING: 'Chờ xử lý', APPROVED: 'Đã chấp nhận (mở khóa)', REJECTED: 'Đã từ chối' };
@@ -45,7 +46,33 @@ export default function AdminAppealsPage({ currentUser, showToast }) {
           <button key={v} type="button" aria-pressed={filter === v} onClick={() => setFilter(v)}
             style={{ ...btn, borderColor: filter === v ? '#7565A8' : '#E2E8F0', background: filter === v ? '#F1EEF8' : '#fff', color: filter === v ? '#594675' : '#475569' }}>{l}</button>
         ))}
-        <button type="button" style={{ ...btn, marginLeft: 'auto' }} onClick={load}><RefreshCw size={14} /> Tải lại</button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
+          <ExportMenu
+            disabled={state !== 'ready'}
+            onError={() => notify('Xuất báo cáo thất bại', 'error')}
+            getReport={() => ({
+              title: 'Báo cáo khiếu nại tài khoản',
+              subtitle: `Bộ lọc: ${FILTERS.find(f => f[0] === filter)[1]}`,
+              fileName: 'khieu-nai-tai-khoan',
+              author: currentUser?.full_name,
+              summary: [['Tổng khiếu nại', rows.length], ['Chờ xử lý', rows.filter(r => r.status === 'PENDING').length],
+                ['Đã chấp nhận', rows.filter(r => r.status === 'APPROVED').length], ['Đã từ chối', rows.filter(r => r.status === 'REJECTED').length]],
+              columns: [
+                { header: 'Người dùng', value: r => r.full_name, width: 24 },
+                { header: 'Email', value: r => r.email, width: 28 },
+                { header: 'Vai trò', value: r => ({ STUDENT: 'Sinh viên', EMPLOYER: 'Nhà tuyển dụng' }[r.role] || r.role), width: 14 },
+                { header: 'Lý do bị khóa', value: r => r.suspension_reason, width: 28 },
+                { header: 'Nội dung khiếu nại', value: r => r.appeal_reason, width: 44 },
+                { header: 'Gửi lúc', value: r => r.created_at, type: 'datetime', width: 16 },
+                { header: 'Kết quả', value: r => STATUS_LABEL[r.status] || r.status, width: 20 },
+                { header: 'Phản hồi của quản trị', value: r => r.admin_response, width: 36 },
+                { header: 'Xử lý lúc', value: r => r.resolved_at, type: 'datetime', width: 16 },
+              ],
+              rows,
+            })}
+          />
+          <button type="button" style={btn} onClick={load}><RefreshCw size={14} /> Tải lại</button>
+        </div>
       </div>
 
       {state === 'loading' && <div style={{ ...card, color: '#64748B' }}><Loader2 size={16} className="animate-spin" /> Đang tải…</div>}

@@ -6,7 +6,11 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
+import ExportMenu from '../../components/common/ExportMenu';
 import { API_BASE, formatApiError } from '../../config/api';
+import { formatSalary } from '../../utils/jobDisplay';
+
+const MODERATION_LABEL = { PENDING: 'Chờ duyệt', APPROVED: 'Đã duyệt', REJECTED: 'Từ chối' };
 
 export default function AdminModerationPage({
   currentUser,
@@ -407,15 +411,51 @@ export default function AdminModerationPage({
           </h1>
         </div>
 
-        <Button
-          variant="secondary"
-          onClick={() => fetchJobs(true)}
-          disabled={refreshing}
-          style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
-        >
-          <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
-          <span>Làm mới ({pendingJobs.length})</span>
-        </Button>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <ExportMenu
+            disabled={loading}
+            onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}
+            getReport={async () => {
+              // Lấy toàn bộ theo bộ lọc hiện tại (bảng chỉ hiển thị 50 dòng)
+              const params = new URLSearchParams({ limit: '5000' });
+              if (workTypeFilter !== 'ALL') params.append('work_type', workTypeFilter);
+              params.append('moderation_status', statusFilter);
+              const res = await fetch(`${API_BASE}/admin/jobs/pending?${params}`, { headers: { Authorization: `Bearer ${currentUser?.token}` } });
+              const data = await res.json();
+              if (!res.ok || !data.success) throw new Error(data.message || 'Không tải được dữ liệu');
+              const rows = data.data || [];
+              const count = (s) => rows.filter(j => j.moderation_status === s).length;
+              return {
+                title: 'Báo cáo kiểm duyệt tin tuyển dụng',
+                subtitle: `Trạng thái: ${statusFilter === 'PENDING' ? 'Chờ duyệt' : 'Tất cả'} · Loại tin: ${workTypeFilter === 'ALL' ? 'Tất cả' : workTypeFilter === 'PART_TIME' ? 'Part-time' : 'Full-time'}`,
+                fileName: 'kiem-duyet-tin-tuyen-dung',
+                author: currentUser?.full_name,
+                summary: [['Tổng số tin', rows.length], ['Chờ duyệt', count('PENDING')], ['Đã duyệt', count('APPROVED')], ['Từ chối', count('REJECTED')]],
+                columns: [
+                  { header: 'Mã tin', value: j => `#${j.id}`, width: 9 },
+                  { header: 'Tiêu đề', value: j => j.title, width: 34 },
+                  { header: 'Ngành nghề', value: j => j.category, width: 20 },
+                  { header: 'Nhà tuyển dụng', value: j => j.company_name || j.employer_name, width: 26 },
+                  { header: 'Email liên hệ', value: j => j.employer_email, width: 26 },
+                  { header: 'Mức lương', value: j => formatSalary(j), width: 18 },
+                  { header: 'Kiểm duyệt', value: j => MODERATION_LABEL[j.moderation_status] || j.moderation_status, width: 12 },
+                  { header: 'Lý do từ chối', value: j => j.moderation_reason, width: 30 },
+                  { header: 'Ngày gửi', value: j => j.created_at, type: 'datetime', width: 16 },
+                ],
+                rows,
+              };
+            }}
+          />
+          <Button
+            variant="secondary"
+            onClick={() => fetchJobs(true)}
+            disabled={refreshing}
+            style={{ padding: '8px 16px', fontSize: 13, gap: 6 }}
+          >
+            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+            <span>Làm mới ({pendingJobs.length})</span>
+          </Button>
+        </div>
       </div>
 
       {/* Bộ lọc loại Job chuẩn Wireframe WF-A03 (Loại Job) */}

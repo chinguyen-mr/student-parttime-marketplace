@@ -29,14 +29,14 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
   // WF-S08: Progress update state
   const [progressNote, setProgressNote] = useState('');
   const [updatingProgress, setUpdatingProgress] = useState(false);
-  const [timelineNotes, setTimelineNotes] = useState({});
+  const [progressList, setProgressList] = useState([]); // GET /assignments/:id/progress (lưu DB)
 
   // WF-S09: Deliverable Submission form state
-  const [deliverableFile, setDeliverableFile] = useState(null);
   const [deliverableUrl, setDeliverableUrl] = useState('');
   const [deliverableDescription, setDeliverableDescription] = useState('');
   const [submittingDeliverable, setSubmittingDeliverable] = useState(false);
-  const [deliverableVersions, setDeliverableVersions] = useState({});
+  const [deliverables, setDeliverables] = useState([]); // GET /assignments/:id/deliverables (lưu DB)
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchAssignments = async () => {
     if (!currentUser?.token) return;
@@ -59,107 +59,89 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
 
   useEffect(() => {
     fetchAssignments();
-    // Load persisted timeline and deliverable versions
-    try {
-      const savedTimelines = JSON.parse(localStorage.getItem('jobnest_assignment_timelines') || '{}');
-      setTimelineNotes(savedTimelines);
-      const savedDeliverables = JSON.parse(localStorage.getItem('jobnest_assignment_deliverables') || '{}');
-      setDeliverableVersions(savedDeliverables);
-    } catch (e) {
-      console.warn('Failed to load assignment states from localStorage:', e);
-    }
   }, [currentUser]);
+
+  const authJson = async (path, options = {}) => {
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${currentUser.token}` },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Thao tác thất bại');
+    return data.data;
+  };
+
+  // Tiến độ & sản phẩm bàn giao của hợp đồng đang mở (lưu DB, nhà tuyển dụng cùng xem)
+  const loadDetail = async (assignId) => {
+    setDetailLoading(true);
+    try {
+      const [prog, dels] = await Promise.all([
+        authJson(`/assignments/${assignId}/progress`),
+        authJson(`/assignments/${assignId}/deliverables`),
+      ]);
+      setProgressList(prog || []);
+      setDeliverables(dels || []);
+    } catch (err) {
+      if (showToast) showToast(formatApiError(err, 'Không tải được tiến độ công việc'), 'error');
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+  useEffect(() => {
+    setProgressList([]);
+    setDeliverables([]);
+    if (selectedAssignment?.id && currentUser?.token) loadDetail(selectedAssignment.id);
+  }, [selectedAssignment?.id]);
 
   const getStatusBadge = (status) => {
     return <StatusBadge status={status} />;
   };
 
-  // WF-S08: Handle add progress note
-  const handleAddProgress = (e) => {
+  const isActiveAssignment = (a) => ['NOT_STARTED', 'IN_PROGRESS'].includes(a?.status);
+  const fmtDateTime = (v) => (v ? new Date(v).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '');
+
+  // WF-S08: Cập nhật tiến độ → POST /assignments/:id/progress
+  const handleAddProgress = async (e) => {
     e?.preventDefault();
     if (!progressNote.trim()) {
       if (showToast) showToast('Vui lòng nhập nội dung cập nhật tiến độ', 'error');
       return;
     }
-
     setUpdatingProgress(true);
-    const assignId = selectedAssignment.id;
-    const newEntry = {
-      id: Date.now(),
-      date: new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-      note: progressNote.trim(),
-      actor: 'Sinh viên (' + (currentUser?.full_name || 'Tôi') + ')'
-    };
-
-    const currentList = timelineNotes[assignId] || [];
-    const updated = [newEntry, ...currentList];
-    const newStore = { ...timelineNotes, [assignId]: updated };
-    setTimelineNotes(newStore);
-    localStorage.setItem('jobnest_assignment_timelines', JSON.stringify(newStore));
-
-    setProgressNote('');
-    setUpdatingProgress(false);
-    if (showToast) showToast('Cập nhật tiến độ công việc thành công (WF-S08)!', 'success');
+    try {
+      await authJson(`/assignments/${selectedAssignment.id}/progress`, { method: 'POST', body: JSON.stringify({ description: progressNote.trim() }) });
+      setProgressNote('');
+      await loadDetail(selectedAssignment.id);
+      if (showToast) showToast('Đã lưu cập nhật tiến độ. Nhà tuyển dụng đã được thông báo.', 'success');
+    } catch (err) {
+      if (showToast) showToast(formatApiError(err, 'Không lưu được tiến độ'), 'error');
+    } finally {
+      setUpdatingProgress(false);
+    }
   };
 
-  // WF-S09: Handle submit deliverable
-  const handleSubmitDeliverable = (e) => {
+  // WF-S09: Nộp sản phẩm bàn giao (đường link) → POST /assignments/:id/deliverables
+  const handleSubmitDeliverable = async (e) => {
     e?.preventDefault();
-    if (!deliverableFile && !deliverableUrl.trim()) {
-      if (showToast) showToast('Vui lòng tải lên tệp hoặc dán đường dẫn sản phẩm bàn giao', 'error');
+    if (!/^https?:\/\/\S+$/i.test(deliverableUrl.trim())) {
+      if (showToast) showToast('Vui lòng dán đường link sản phẩm bắt đầu bằng http:// hoặc https://', 'error');
       return;
     }
-
     setSubmittingDeliverable(true);
-    const assignId = selectedAssignment.id;
-    const currentVersions = deliverableVersions[assignId] || [
-      {
-        version: 'v1',
-        status: 'SUBMITTED',
-        fileOrLink: 'Source_code_v1.zip',
-        description: 'Bàn giao cấu trúc thư mục và giao diện ban đầu',
-        submittedAt: '02/11/2026 10:15'
-      },
-      {
-        version: 'v2',
-        status: 'REVISION_REQUESTED',
-        fileOrLink: 'Figma_prototype_v2.fig',
-        description: 'Điều chỉnh màu sắc nút bấm và bổ sung responsive tablet',
-        submittedAt: '03/11/2026 15:40'
-      }
-    ];
-
-    const nextVerNumber = currentVersions.length + 1;
-    const newVer = {
-      version: `v${nextVerNumber}`,
-      status: 'SUBMITTED',
-      fileOrLink: deliverableFile ? deliverableFile.name : deliverableUrl.trim(),
-      description: deliverableDescription.trim() || 'Nộp bản cập nhật sản phẩm',
-      submittedAt: new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-    };
-
-    const updated = [newVer, ...currentVersions];
-    const newStore = { ...deliverableVersions, [assignId]: updated };
-    setDeliverableVersions(newStore);
-    localStorage.setItem('jobnest_assignment_deliverables', JSON.stringify(newStore));
-
-    // Also push a milestone to timeline
-    const curTimeline = timelineNotes[assignId] || [];
-    const timelineEntry = {
-      id: Date.now(),
-      date: newVer.submittedAt,
-      note: `Đã nộp sản phẩm bàn giao phiên bản ${newVer.version}: ${newVer.description}`,
-      actor: 'Sinh viên (' + (currentUser?.full_name || 'Tôi') + ')'
-    };
-    const updatedTl = [timelineEntry, ...curTimeline];
-    setTimelineNotes(prev => ({ ...prev, [assignId]: updatedTl }));
-    localStorage.setItem('jobnest_assignment_timelines', JSON.stringify({ ...timelineNotes, [assignId]: updatedTl }));
-
-    setDeliverableFile(null);
-    setDeliverableUrl('');
-    setDeliverableDescription('');
-    setSubmittingDeliverable(false);
-    if (showToast) showToast(`Nộp sản phẩm ${newVer.version} thành công (WF-S09)! Nhà tuyển dụng đã được thông báo.`, 'success');
+    try {
+      const ver = await authJson(`/assignments/${selectedAssignment.id}/deliverables`, {
+        method: 'POST',
+        body: JSON.stringify({ link: deliverableUrl.trim(), description: deliverableDescription.trim() }),
+      });
+      setDeliverableUrl('');
+      setDeliverableDescription('');
+      await loadDetail(selectedAssignment.id);
+      if (showToast) showToast(`Nộp sản phẩm v${ver.version_no} thành công! Nhà tuyển dụng đã được thông báo.`, 'success');
+    } catch (err) {
+      if (showToast) showToast(formatApiError(err, 'Không nộp được sản phẩm'), 'error');
+    } finally {
+      setSubmittingDeliverable(false);
+    }
   };
 
   const filtered = assignments.filter(item => {
@@ -535,7 +517,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                         <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#E1EFFE', color: '#1E429F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>
                           ▶
                         </div>
-                        {(timelineNotes[selectedAssignment.id]?.length > 0) && (
+                        {progressList.length > 0 && (
                           <div style={{ width: 2, flex: 1, background: '#E2E8F0', marginTop: 4 }}></div>
                         )}
                       </div>
@@ -555,8 +537,11 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                       </div>
                     </div>
 
-                    {/* Dynamic updates by student */}
-                    {(timelineNotes[selectedAssignment.id] || []).map((entry, idx, arr) => (
+                    {/* Các lần cập nhật tiến độ (lưu DB — cả sinh viên và nhà tuyển dụng) */}
+                    {detailLoading && progressList.length === 0 && (
+                      <div style={{ fontSize: 12.5, color: '#94A3B8', paddingLeft: 38 }}>Đang tải tiến độ…</div>
+                    )}
+                    {progressList.map((entry, idx, arr) => (
                       <div key={entry.id} style={{ display: 'flex', gap: 14 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                           <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#FAF5FF', color: '#7565A8', border: '1.5px solid #D8B4FE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800 }}>
@@ -568,11 +553,13 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                         </div>
                         <div style={{ flex: 1, paddingBottom: 10 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                            <strong style={{ fontSize: 13.5, color: 'var(--color-text)' }}>{entry.note}</strong>
-                            <span style={{ fontSize: 11.5, color: '#64748B' }}>{entry.date}</span>
+                            <strong style={{ fontSize: 13.5, color: 'var(--color-text)' }}>
+                              {entry.description}{entry.progress_percent !== null && entry.progress_percent !== undefined ? ` (${entry.progress_percent}%)` : ''}
+                            </strong>
+                            <span style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', marginLeft: 8 }}>{fmtDateTime(entry.created_at)}</span>
                           </div>
                           <span style={{ display: 'inline-block', marginTop: 4, fontSize: 11, background: '#F1EEF8', color: '#7565A8', padding: '1px 7px', borderRadius: 4 }}>
-                            Actor: {entry.actor}
+                            {entry.updated_by_role === 'EMPLOYER' ? 'Nhà tuyển dụng' : 'Sinh viên'} ({entry.updated_by_name})
                           </span>
                         </div>
                       </div>
@@ -588,8 +575,12 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                   <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 10px 0' }}>
                     Ghi lại các mốc hoàn thành công việc định kỳ để Nhà tuyển dụng theo dõi.
                   </p>
+                  {!isActiveAssignment(selectedAssignment) ? (
+                    <div style={{ fontSize: 12.5, color: '#64748B' }}>Hợp đồng đã kết thúc nên không thể thêm cập nhật tiến độ.</div>
+                  ) : (
                   <form onSubmit={handleAddProgress}>
                     <textarea
+                      maxLength={1000}
                       rows={3}
                       value={progressNote}
                       onChange={(e) => setProgressNote(e.target.value)}
@@ -617,6 +608,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                       </Button>
                     </div>
                   </form>
+                  )}
                 </div>
 
                 {/* Actions bottom */}
@@ -651,48 +643,13 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                   </span>
                 </div>
 
-                {/* Submit Form */}
+                {/* Submit Form (ẩn khi hợp đồng đã kết thúc) */}
+                {isActiveAssignment(selectedAssignment) ? (
                 <form onSubmit={handleSubmitDeliverable} style={{ background: '#FAF8FD', border: '1.5px solid #EDE9FE', borderRadius: 12, padding: '18px 20px', marginBottom: 24 }}>
-                  {/* File Upload Box */}
-                  <div style={{ marginBottom: 16 }}>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                      Tệp đính kèm (Chọn tệp / Kéo thả)
-                    </label>
-                    <div
-                      style={{
-                        border: '2px dashed #C4B5FD',
-                        borderRadius: 10,
-                        padding: '20px',
-                        textAlign: 'center',
-                        background: '#ffffff',
-                        cursor: 'pointer'
-                      }}
-                      onClick={() => document.getElementById('deliverable_file_input')?.click()}
-                    >
-                      <UploadCloud size={30} color="#7565A8" style={{ margin: '0 auto 6px auto' }} />
-                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}>
-                        {deliverableFile ? deliverableFile.name : 'Bấm để tải tệp hoặc kéo thả file vào đây'}
-                      </div>
-                      <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>
-                        Hỗ trợ ZIP, PDF, DOCX, RAR, PNG (tối đa 25MB)
-                      </div>
-                      <input
-                        id="deliverable_file_input"
-                        type="file"
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                          if (e.target.files && e.target.files[0]) {
-                            setDeliverableFile(e.target.files[0]);
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-
                   {/* URL Input */}
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                      Đường dẫn trực tuyến (GitHub / Google Drive / Figma...)
+                      Đường dẫn sản phẩm (Google Drive / GitHub / Figma...) <span style={{ color: '#DC2626' }}>*</span>
                     </label>
                     <div style={{ position: 'relative' }}>
                       <input
@@ -748,6 +705,9 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                     </Button>
                   </div>
                 </form>
+                ) : (
+                  <div style={{ fontSize: 12.5, color: '#64748B', marginBottom: 16 }}>Hợp đồng đã kết thúc nên không thể nộp thêm sản phẩm.</div>
+                )}
 
                 {/* Version History Table */}
                 <div>
@@ -769,51 +729,46 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                         </tr>
                       </thead>
                       <tbody>
-                        {(deliverableVersions[selectedAssignment.id] || [
-                          {
-                            version: 'v1',
-                            status: 'SUBMITTED',
-                            fileOrLink: 'Source_code_v1.zip',
-                            description: 'Bàn giao cấu trúc thư mục và giao diện ban đầu',
-                            submittedAt: '02/11/2026 10:15'
-                          },
-                          {
-                            version: 'v2',
-                            status: 'REVISION_REQUESTED',
-                            fileOrLink: 'Figma_prototype_v2.fig',
-                            description: 'Điều chỉnh màu sắc nút bấm và bổ sung responsive tablet',
-                            submittedAt: '03/11/2026 15:40'
-                          }
-                        ]).map((ver) => (
-                          <tr key={ver.version} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                        {deliverables.length === 0 && (
+                          <tr><td colSpan={5} style={{ padding: '16px 14px', textAlign: 'center', color: '#94A3B8' }}>
+                            {detailLoading ? 'Đang tải…' : 'Chưa nộp phiên bản nào.'}
+                          </td></tr>
+                        )}
+                        {deliverables.map((ver) => (
+                          <tr key={ver.id} style={{ borderBottom: '1px solid #F1F5F9', verticalAlign: 'top' }}>
                             <td style={{ padding: '12px 14px', fontWeight: 800, color: 'var(--color-primary)' }}>
-                              {ver.version}
+                              v{ver.version_no}
                             </td>
                             <td style={{ padding: '12px 14px' }}>
                               {ver.status === 'SUBMITTED' ? (
                                 <span style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '2px 8px', borderRadius: 4, fontSize: 11.5, fontWeight: 700 }}>
-                                  SUBMITTED
+                                  Chờ duyệt
                                 </span>
                               ) : ver.status === 'REVISION_REQUESTED' ? (
                                 <span style={{ background: '#FEF3C7', color: '#B45309', border: '1px solid #FDE68A', padding: '2px 8px', borderRadius: 4, fontSize: 11.5, fontWeight: 700 }}>
-                                  REVISION_REQUESTED
+                                  Cần chỉnh sửa
                                 </span>
                               ) : (
                                 <span style={{ background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '2px 8px', borderRadius: 4, fontSize: 11.5, fontWeight: 700 }}>
-                                  ACCEPTED
+                                  Đã chấp nhận
                                 </span>
                               )}
                             </td>
-                            <td style={{ padding: '12px 14px', color: '#334155' }}>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
-                                <Paperclip size={13} color="#7565A8" /> {ver.fileOrLink}
-                              </span>
+                            <td style={{ padding: '12px 14px', color: '#334155', wordBreak: 'break-all' }}>
+                              <a href={ver.file_key} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600, color: '#7565A8' }}>
+                                <Paperclip size={13} color="#7565A8" /> {ver.file_key}
+                              </a>
                             </td>
                             <td style={{ padding: '12px 14px', color: '#64748B', fontSize: 12.5 }}>
                               {ver.description}
+                              {ver.review_comment && (
+                                <div style={{ marginTop: 6, color: ver.review_decision === 'ACCEPTED' ? '#047857' : '#B45309' }}>
+                                  Nhận xét của NTD: {ver.review_comment}
+                                </div>
+                              )}
                             </td>
                             <td style={{ padding: '12px 14px', color: '#64748B', fontSize: 12 }}>
-                              {ver.submittedAt}
+                              {fmtDateTime(ver.submitted_at)}
                             </td>
                           </tr>
                         ))}

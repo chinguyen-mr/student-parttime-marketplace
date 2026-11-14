@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const db = require('../../config/db');
 const { BadRequestError, NotFoundError, ForbiddenError } = require('../../utils/app-error');
 const { EDITABLE_LEGAL } = require('../auth/employer-account.service');
@@ -17,6 +18,8 @@ const OFFICE_IMAGES_MAX = 8;
 const LEGAL_DOC_TYPES = { ...IMAGE_TYPES, 'application/pdf': (b) => b.toString('ascii', 0, 5) === '%PDF-' };
 const LEGAL_DOC_MAX_BYTES = 5 * 1024 * 1024;
 const LEGAL_DOCS_MAX = 5;
+const CV_TYPES = { 'application/pdf': LEGAL_DOC_TYPES['application/pdf'] };
+const CV_MAX_BYTES = 3 * 1024 * 1024; // base64 ~4MB, vừa giới hạn body 4.5MB của Vercel
 
 /** Tách data URL base64 → { mime, buffer }, kiểm tra loại file theo nội dung thật (magic bytes). */
 function decodeDataUrl(dataUrl, maxBytes, types, typeError) {
@@ -307,6 +310,49 @@ class FileService {
         const doc = res.rows[0];
         if (!doc || (doc.owner_id !== requester.id && requester.role !== 'ADMIN')) throw new NotFoundError('Không tìm thấy tài liệu.');
         return doc;
+    }
+
+    /** Sinh viên tải CV PDF → lưu file, đặt làm CV mặc định (link có khóa ngẫu nhiên). */
+    async uploadCv(userId, dataUrl, name) {
+        const { buffer } = decodeDataUrl(dataUrl, CV_MAX_BYTES, CV_TYPES, 'CV phải là file PDF.');
+        const prof = await db.query('SELECT id FROM student_profiles WHERE user_id = $1', [userId]);
+        if (!prof.rows[0]) throw new NotFoundError('Chưa có hồ sơ sinh viên.');
+        const fileName = safeFileName(name, 'CV.pdf');
+        const client = await db.pool.connect();
+        try {
+            await client.query('BEGIN');
+            const ins = await client.query(
+                `INSERT INTO file_uploads (owner_id, kind, original_name, mime_type, size_bytes, data)
+                 VALUES ($1, 'CV', $2, 'application/pdf', $3, $4) RETURNING id, created_at`,
+                [userId, fileName, buffer.length, buffer]
+            );
+            const key = `/api/files/cv/${ins.rows[0].id}-${crypto.randomBytes(16).toString('hex')}`;
+            await client.query('UPDATE student_cvs SET is_default = false WHERE student_profile_id = $1', [prof.rows[0].id]);
+            await client.query(
+                `INSERT INTO student_cvs (student_profile_id, file_key, original_name, mime_type, size_bytes, is_default)
+                 VALUES ($1, $2, $3, 'application/pdf', $4, true)`,
+                [prof.rows[0].id, key, fileName, buffer.length]
+            );
+            await client.query('UPDATE student_profiles SET default_cv_url = $2, updated_at = NOW() WHERE id = $1', [prof.rows[0].id, key]);
+            await client.query('COMMIT');
+            return { default_cv_url: key, original_name: fileName, size_bytes: buffer.length, created_at: ins.rows[0].created_at };
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
+    }
+
+    /** CV mặc định hiện tại của sinh viên (tên file, dung lượng, thời điểm tải). */
+    async getMyCv(userId) {
+        const res = await db.query(
+            `SELECT c.file_key AS default_cv_url, c.original_name, c.size_bytes, c.created_at
+             FROM student_cvs c JOIN student_profiles p ON p.id = c.student_profile_id
+             WHERE p.user_id = $1 AND c.is_default ORDER BY c.id DESC LIMIT 1`,
+            [userId]
+        );
+        return res.rows[0] || null;
     }
 
     /**

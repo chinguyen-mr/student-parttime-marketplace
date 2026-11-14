@@ -97,6 +97,15 @@ router.get('/legal-documents/:id(\\d+)', verifyToken, requireRoles('EMPLOYER', '
     } catch (err) { next(err); }
 });
 
+// POST /api/files/cv — sinh viên tải CV PDF (data URL base64), đặt làm CV mặc định
+router.post('/cv', verifyToken, requireRoles('STUDENT'), async (req, res, next) => {
+    try { res.status(201).json({ success: true, data: await fileService.uploadCv(req.user.id, req.body?.data_url, req.body?.name) }); } catch (err) { next(err); }
+});
+// GET /api/files/cv/me — thông tin CV mặc định của sinh viên
+router.get('/cv/me', verifyToken, requireRoles('STUDENT'), async (req, res, next) => {
+    try { res.json({ success: true, data: await fileService.getMyCv(req.user.id) }); } catch (err) { next(err); }
+});
+
 // GET /api/files/cv/:key — CV PDF qua link có khóa (xem file.service getCvFile)
 router.get('/cv/:key', async (req, res, next) => {
     try {

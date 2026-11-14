@@ -15,7 +15,7 @@ import EmptyState from '../../components/common/EmptyState';
 import StatusBadge from '../../components/common/StatusBadge';
 import ExportMenu from '../../components/common/ExportMenu';
 import CompanyLogo from '../../components/CompanyLogo';
-import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
+import { API_BASE, SERVER_BASE, formatApiError, resolveFileUrl } from '../../config/api';
 import MyAssignmentsPage from './MyAssignmentsPage';
 import NotificationsPage from './NotificationsPage';
 import AccountSettingsPage from './AccountSettingsPage';
@@ -77,6 +77,7 @@ export default function StudentDashboardPage({
   const [university, setUniversity] = useState('');
   const [major, setMajor] = useState('');
   const [defaultCvUrl, setDefaultCvUrl] = useState('');
+  const [cvInfo, setCvInfo] = useState(null); // tên file, dung lượng, ngày tải của CV mặc định (GET /api/files/cv/me)
 
   // Saved Jobs State from LocalStorage
   const [savedJobIds, setSavedJobIds] = useState([]);
@@ -95,13 +96,8 @@ export default function StudentDashboardPage({
   const [reviewComment, setReviewComment] = useState('Nhà tuyển dụng rất nhiệt tình hỗ trợ, thanh toán thù lao đúng hạn và môi trường làm việc thân thiện.');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewConflictError, setReviewConflictError] = useState(null);
-  const [reviewedAssignmentIds, setReviewedAssignmentIds] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('jobnest_student_reviewed_assignments') || '[]');
-    } catch {
-      return [];
-    }
-  });
+  // Đánh giá sinh viên đã gửi cho nhà tuyển dụng — lấy từ DB (my_review_* trong /assignments/my-assignments)
+  const [reviewedAssignmentIds, setReviewedAssignmentIds] = useState([]);
   const [submittedReviewsList, setSubmittedReviewsList] = useState([]);
 
   // =========================================================================
@@ -180,6 +176,8 @@ export default function StudentDashboardPage({
         if (p.school || p.university) setUniversity(p.school || p.university);
         if (p.major) setMajor(p.major);
         if (p.default_cv_url) setDefaultCvUrl(p.default_cv_url);
+        fetch(`${SERVER_BASE}/api/files/cv/me`, { headers: { Authorization: `Bearer ${currentUser.token}` } })
+          .then(r => r.json()).then(d => { if (d.success) setCvInfo(d.data); }).catch(() => {});
       }
     } catch (err) {
       console.warn('Could not fetch student profile from API:', err);
@@ -221,6 +219,12 @@ export default function StudentDashboardPage({
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setAssignments(data.data);
+        const reviewed = data.data.filter(a => a.my_review_rating !== null && a.my_review_rating !== undefined);
+        setReviewedAssignmentIds(reviewed.map(a => a.id));
+        setSubmittedReviewsList(reviewed.map(a => ({
+          id: a.id, job_title: a.job_title, employer_name: a.employer_name,
+          rating: a.my_review_rating, comment: a.my_review_comment, created_at: a.my_review_at,
+        })));
       }
     } catch (err) {
       console.warn('Could not fetch assignments:', err);
@@ -363,15 +367,31 @@ export default function StudentDashboardPage({
     }
   };
 
-  // Load Saved Jobs from LocalStorage
-  const loadSavedJobs = () => {
+  // Việc làm đã lưu — lưu DB (bảng job_saved), đồng bộ mọi thiết bị
+  const [savedJobsData, setSavedJobsData] = useState([]);
+  const loadSavedJobs = async () => {
+    if (!currentUser?.token) return;
     try {
-      const saved = JSON.parse(localStorage.getItem('jobnest_saved_jobs') || '[]');
-      if (Array.isArray(saved)) {
-        setSavedJobIds(saved);
+      const res = await fetch(`${API_BASE}/jobs/saved`, { headers: { Authorization: `Bearer ${currentUser.token}` } });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setSavedJobIds(Array.isArray(data.data.ids) ? data.data.ids : []);
+        setSavedJobsData(Array.isArray(data.data.jobs) ? data.data.jobs : []);
       }
     } catch (e) {
-      console.warn('Failed to load saved jobs from LocalStorage:', e);
+      console.warn('Không tải được việc làm đã lưu:', e);
+    }
+  };
+  const toggleSaveJob = async (job) => {
+    if (!currentUser?.token) return;
+    try {
+      const res = await fetch(`${API_BASE}/jobs/${job.id}/save`, { method: 'POST', headers: { Authorization: `Bearer ${currentUser.token}` } });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || 'Không lưu được việc làm');
+      await loadSavedJobs();
+      if (showToast) showToast(data.data?.saved ? `Đã lưu tin "${job.title}"` : 'Đã bỏ lưu việc làm', 'success');
+    } catch (err) {
+      if (showToast) showToast(formatApiError(err), 'error');
     }
   };
 
@@ -418,8 +438,8 @@ export default function StudentDashboardPage({
 
   // Saved Jobs List
   const savedJobsList = useMemo(() => {
-    return (jobs || []).filter(j => savedJobIds.includes(j.id));
-  }, [jobs, savedJobIds]);
+    return savedJobsData.filter(j => savedJobIds.includes(j.id));
+  }, [savedJobsData, savedJobIds]);
 
   // Dashboard Metrics
   const pendingCount = applications.filter(a => a.status === 'PENDING').length;
@@ -469,17 +489,13 @@ export default function StudentDashboardPage({
       if (res.status === 409 || data.message?.includes('đã gửi đánh giá')) {
         setReviewConflictError('Bạn đã gửi đánh giá cho đối tác này trong công việc này rồi!');
         if (showToast) showToast('Công việc này bạn đã gửi đánh giá rồi', 'error');
-        const updated = [...new Set([...reviewedAssignmentIds, selectedReviewAssignment.id])];
-        setReviewedAssignmentIds(updated);
-        localStorage.setItem('jobnest_student_reviewed_assignments', JSON.stringify(updated));
+        fetchAssignments();
         return;
       }
 
       if (data.success) {
         if (showToast) showToast('Gửi đánh giá thành công! Cảm ơn phản hồi của bạn.', 'success');
-        const updated = [...new Set([...reviewedAssignmentIds, selectedReviewAssignment.id])];
-        setReviewedAssignmentIds(updated);
-        localStorage.setItem('jobnest_student_reviewed_assignments', JSON.stringify(updated));
+        fetchAssignments();
         setSubmittedReviewsList(prev => [
           {
             id: Date.now(),
@@ -1025,13 +1041,7 @@ export default function StudentDashboardPage({
                             key={job.id}
                             job={job}
                             isSaved={savedJobIds.includes(job.id)}
-                            onToggleSave={() => {
-                              const next = savedJobIds.includes(job.id)
-                                ? savedJobIds.filter(id => id !== job.id)
-                                : [...savedJobIds, job.id];
-                              setSavedJobIds(next);
-                              localStorage.setItem('jobnest_saved_jobs', JSON.stringify(next));
-                            }}
+                            onToggleSave={() => toggleSaveJob(job)}
                             onSelectJob={onSelectJob}
                             onApply={onApply}
                           />
@@ -1114,13 +1124,7 @@ export default function StudentDashboardPage({
                         key={job.id}
                         job={job}
                         isSaved={savedJobIds.includes(job.id)}
-                        onToggleSave={() => {
-                          const next = savedJobIds.includes(job.id)
-                            ? savedJobIds.filter(id => id !== job.id)
-                            : [...savedJobIds, job.id];
-                          setSavedJobIds(next);
-                          localStorage.setItem('jobnest_saved_jobs', JSON.stringify(next));
-                        }}
+                        onToggleSave={() => toggleSaveJob(job)}
                         onSelectJob={onSelectJob}
                         onApply={onApply}
                       />
@@ -1407,9 +1411,10 @@ export default function StudentDashboardPage({
                   <button
                     onClick={() => {
                       if (window.confirm('Bạn có muốn xóa tất cả việc làm đã lưu?')) {
-                        localStorage.removeItem('jobnest_saved_jobs');
-                        setSavedJobIds([]);
-                        if (showToast) showToast('Đã xóa danh sách việc làm đã lưu');
+                        // Bỏ lưu từng tin trên server (POST /jobs/:id/save là bật/tắt)
+                        Promise.all(savedJobIds.map(id => fetch(`${API_BASE}/jobs/${id}/save`, { method: 'POST', headers: { Authorization: `Bearer ${currentUser.token}` } })))
+                          .then(() => loadSavedJobs())
+                          .then(() => { if (showToast) showToast('Đã xóa danh sách việc làm đã lưu'); });
                       }
                     }}
                     style={{ background: 'transparent', border: 'none', color: '#DC2626', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}
@@ -1433,12 +1438,7 @@ export default function StudentDashboardPage({
                       key={j.id}
                       job={j}
                       isSaved={true}
-                      onToggleSave={() => {
-                        const nextSaved = savedJobIds.filter(id => id !== j.id);
-                        setSavedJobIds(nextSaved);
-                        localStorage.setItem('jobnest_saved_jobs', JSON.stringify(nextSaved));
-                        if (showToast) showToast('Đã bỏ lưu việc làm');
-                      }}
+                      onToggleSave={() => toggleSaveJob(j)}
                       onSelectJob={onSelectJob}
                       onApply={(jobItem) => {
                         if (onSelectJob) onSelectJob(jobItem);
@@ -1486,13 +1486,33 @@ export default function StudentDashboardPage({
                   <Upload size={14} /> Tải lên CV mới (.PDF)
                   <input
                     type="file"
-                    accept=".pdf,.doc,.docx"
+                    accept="application/pdf,.pdf"
                     style={{ display: 'none' }}
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        const file = e.target.files[0];
-                        setDefaultCvUrl(`https://jobnest.vn/uploads/cv/${file.name}`);
+                    onChange={async (e) => {
+                      const file = e.target.files && e.target.files[0];
+                      e.target.value = '';
+                      if (!file) return;
+                      if (file.type !== 'application/pdf') { if (showToast) showToast('CV phải là file PDF.', 'error'); return; }
+                      if (file.size > 3 * 1024 * 1024) { if (showToast) showToast('CV tối đa 3MB.', 'error'); return; }
+                      try {
+                        const dataUrl = await new Promise((resolve, reject) => {
+                          const r = new FileReader();
+                          r.onload = () => resolve(r.result);
+                          r.onerror = () => reject(new Error('Không đọc được file.'));
+                          r.readAsDataURL(file);
+                        });
+                        const res = await fetch(`${SERVER_BASE}/api/files/cv`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${currentUser.token}` },
+                          body: JSON.stringify({ data_url: dataUrl, name: file.name }),
+                        });
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok || !data.success) throw new Error(data.message || 'Tải CV thất bại');
+                        setDefaultCvUrl(data.data.default_cv_url);
+                        setCvInfo(data.data);
                         if (showToast) showToast(`Đã tải lên CV: ${file.name}`, 'success');
+                      } catch (err) {
+                        if (showToast) showToast(formatApiError(err, 'Tải CV thất bại'), 'error');
                       }
                     }}
                   />
@@ -1519,14 +1539,14 @@ export default function StudentDashboardPage({
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                       <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)' }}>
-                        CV Mặc định - {fullName} (2026)
+                        {cvInfo?.original_name || `CV Mặc định - ${fullName}`}
                       </span>
                       <span style={{ background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 700 }}>
                         ĐANG SỬ DỤNG
                       </span>
                     </div>
                     <div style={{ fontSize: 12.5, color: 'var(--color-text-secondary)' }}>
-                      Định dạng: PDF • Cập nhật lúc: {new Date().toLocaleDateString('vi-VN')} • Chuyên ngành: {major}
+                      Định dạng: PDF{cvInfo?.size_bytes ? ` • ${Math.round(cvInfo.size_bytes / 1024)} KB` : ''} • Cập nhật lúc: {cvInfo?.created_at ? new Date(cvInfo.created_at).toLocaleDateString('vi-VN') : '—'} • Chuyên ngành: {major}
                     </div>
                   </div>
                 </div>
@@ -1865,7 +1885,7 @@ export default function StudentDashboardPage({
                   </h4>
                   {submittedReviewsList.length === 0 ? (
                     <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>
-                      Bạn chưa gửi đánh giá nào trong phiên làm việc này.
+                      Bạn chưa gửi đánh giá nào.
                     </p>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

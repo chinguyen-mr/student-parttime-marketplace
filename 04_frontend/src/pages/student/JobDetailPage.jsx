@@ -219,6 +219,11 @@ export default function JobDetailPage({
   // LOGIC 3: NÚT LƯU VIỆC LÀM (BOOKMARK + LOCALSTORAGE)
   // =========================================================================
   const handleBookmarkToggle = () => {
+    // Trang cha xử lý lưu vào DB (POST /jobs/:id/save) và báo kết quả; trạng thái đồng bộ qua prop isSaved
+    if (onToggleSave) {
+      onToggleSave(currentJob);
+      return;
+    }
     const nextSaved = !isSaved;
     setIsSaved(nextSaved);
 

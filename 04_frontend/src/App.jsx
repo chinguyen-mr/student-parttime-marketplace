@@ -15,8 +15,7 @@ import RegisterPage from './pages/RegisterPage';
 import NotificationsDropdown from './components/NotificationsDropdown';
 import JobDetailModal from './components/JobDetailModal';
 import ReviewModal from './components/ReviewModal';
-import StudentProfileModal, { StudentProfileCard } from './components/StudentProfileModal';
-import EmployerProfileModal from './components/EmployerProfileModal';
+import { StudentProfileCard } from './components/StudentProfileModal';
 import ForgotPasswordModal from './components/ForgotPasswordModal';
 import Footer from './components/Footer';
 import AccountMenu from './components/layout/AccountMenu';
@@ -542,8 +541,6 @@ export default function App() {
   const [proposalModalOpen, setProposalModalOpen] = useState(false); // WF-S07: Freelance Proposal Form
   const [applyTargetJob, setApplyTargetJob] = useState(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false); // Screen 13
-  const [studentProfileOpen, setStudentProfileOpen] = useState(false); // Screen 9
-  const [employerProfileOpen, setEmployerProfileOpen] = useState(false); // Screen 14
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false); // Screen 3
   const [policyModalOpen, setPolicyModalOpen] = useState(false);
   const [policyInitialTab, setPolicyInitialTab] = useState('terms');
@@ -623,40 +620,16 @@ export default function App() {
   const [pendingApplyJob, setPendingApplyJob] = useState(null);
   const [registerSuccessModalOpen, setRegisterSuccessModalOpen] = useState(false);
 
-  // Helper: Kiểm tra xem sinh viên đã hoàn thành hồ sơ cá nhân hay chưa
-  const isStudentProfileComplete = (user) => {
-    if (!user) return false;
-    if (user.role !== 'STUDENT') return true;
-
-    // 1. Tài khoản sinh viên demo sẵn có trong seed DB / hệ thống test
-    const demoStudentEmails = [
-      'student.test@vlu.edu.vn',
-      'student@gmail.com',
-      'student.morning@vlu.edu.vn',
-      'student.evening@vlu.edu.vn',
-    ];
-    if (demoStudentEmails.includes(user.email) || user.id === 4) {
-      return true;
+  // Hồ sơ sinh viên đủ để ứng tuyển? Hỏi server (GET /profile/me) — đúng trên mọi thiết bị
+  const fetchStudentProfileComplete = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/profile/me`, { headers: { Authorization: `Bearer ${currentUser.token}` } });
+      const data = await res.json();
+      const p = data?.data || {};
+      return Boolean(p.is_profile_completed || ((p.school || p.university) && p.major));
+    } catch {
+      return true; // lỗi mạng: để backend kiểm tra lại khi nộp đơn
     }
-
-    // 2. Kiểm tra thuộc tính trên user
-    if (user.is_profile_completed) return true;
-    if ((user.university || user.school) && (user.major || user.faculty)) {
-      return true;
-    }
-
-    // 3. Kiểm tra localStorage theo userId
-    const savedLocal = localStorage.getItem(`jobnest_student_profile_${user.id}`);
-    if (savedLocal) {
-      try {
-        const parsed = JSON.parse(savedLocal);
-        if (parsed.university || parsed.school || parsed.major || parsed.dob || (parsed.skills && parsed.skills.length > 0)) {
-          return true;
-        }
-      } catch {}
-    }
-
-    return false;
   };
 
   // Helper xử lý điều hướng sau Đăng nhập / Đăng ký thành công có xét pendingApplyJob
@@ -725,14 +698,8 @@ export default function App() {
   };
 
   // Saved Jobs State (Lưu việc làm yêu thích)
-  const [savedJobIds, setSavedJobIds] = useState(() => {
-    try {
-      const saved = localStorage.getItem('jobnest_saved_jobs');
-      return saved ? JSON.parse(saved) : [1, 4];
-    } catch {
-      return [1, 4];
-    }
-  });
+  // Việc làm đã lưu — lưu DB (job_saved), tải lại khi đăng nhập
+  const [savedJobIds, setSavedJobIds] = useState([]);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
 
   // Quick Preview Hover State (Giai đoạn 2: Xem nhanh) & Auto-Dismissal Architecture
@@ -972,28 +939,39 @@ export default function App() {
   }, []);
 
   // Toggle Lưu việc làm
-  const handleToggleSaveJob = async (jobItem) => {
-    const isCurrentlySaved = savedJobIds.includes(jobItem.id);
-    const updated = isCurrentlySaved 
-      ? savedJobIds.filter(id => id !== jobItem.id)
-      : [...savedJobIds, jobItem.id];
-    setSavedJobIds(updated);
-    try {
-      localStorage.setItem('jobnest_saved_jobs', JSON.stringify(updated));
-    } catch (e) {
-      console.error(e);
-    }
-    showToast(isCurrentlySaved ? `Đã bỏ lưu việc "${jobItem.title}"` : `Đã lưu tin "${jobItem.title}" vào mục yêu thích ❤️`);
+  // Danh sách tin đã lưu của sinh viên đang đăng nhập (GET /jobs/saved)
+  useEffect(() => {
+    if (!currentUser?.token || currentUser?.role !== 'STUDENT') { setSavedJobIds([]); return undefined; }
+    let cancelled = false;
+    fetch(`${API_BASE}/jobs/saved`, { headers: { Authorization: `Bearer ${currentUser.token}` } })
+      .then(res => res.json())
+      .then(data => { if (!cancelled && data.success && Array.isArray(data.data?.ids)) setSavedJobIds(data.data.ids); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [currentUser?.token, currentUser?.role]);
 
-    if (currentUser?.token && typeof jobItem.id === 'number') {
-      try {
-        await fetch(`${API_BASE}/jobs/${jobItem.id}/save`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${currentUser.token}` }
-        });
-      } catch (err) {
-        console.error(err);
-      }
+  // Bật/tắt lưu việc làm → POST /jobs/:id/save (lưu DB)
+  const handleToggleSaveJob = async (jobItem) => {
+    if (!currentUser?.token) {
+      showToast('Vui lòng đăng nhập tài khoản sinh viên để lưu việc làm', 'error');
+      return;
+    }
+    if (currentUser.role !== 'STUDENT') {
+      showToast('Chỉ sinh viên mới lưu được việc làm', 'error');
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/jobs/${jobItem.id}/save`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${currentUser.token}` }
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || 'Không lưu được việc làm');
+      const saved = Boolean(data.data?.saved);
+      setSavedJobIds(prev => (saved ? [...new Set([...prev, jobItem.id])] : prev.filter(id => id !== jobItem.id)));
+      showToast(saved ? `Đã lưu tin "${jobItem.title}" vào mục yêu thích ❤️` : `Đã bỏ lưu việc "${jobItem.title}"`);
+    } catch (err) {
+      showToast(formatApiError(err, 'Không lưu được việc làm'), 'error');
     }
   };
 
@@ -1413,7 +1391,7 @@ export default function App() {
   };
 
   // Dispatches to WF-S06 (Application Form for PT/SV) or WF-S07 (Proposal Form for Freelance)
-  const handleOpenApplyModal = (jobItem) => {
+  const handleOpenApplyModal = async (jobItem) => {
     // Tin đã đóng hoặc hết hạn nhận hồ sơ → không cho ứng tuyển
     const blockReason = applyBlockReason(jobItem);
     if (blockReason) {
@@ -1433,9 +1411,9 @@ export default function App() {
     }
 
     // Yêu cầu: Sinh viên chưa hoàn thành hồ sơ thì CHƯA ĐƯỢC ỨNG TUYỂN
-    if (!isStudentProfileComplete(currentUser)) {
+    if (!(await fetchStudentProfileComplete())) {
       showToast('Bạn chưa hoàn thiện hồ sơ sinh viên! Vui lòng cập nhật đầy đủ thông tin (Trường học, Chuyên ngành, Kỹ năng, CV) để nộp đơn ứng tuyển.', 'error');
-      setStudentProfileOpen(true);
+      openStudentTab('profile');
       return;
     }
 
@@ -4761,7 +4739,7 @@ export default function App() {
         onApply={handleApplyFromModal}
         currentUser={currentUser}
         onUpdateJob={handleUpdateJobInfo}
-        onViewCompany={(companyName) => setEmployerProfileOpen(true)}
+        onViewCompany={() => { setJobDetailModalOpen(false); handleNavigateToEmployerProfile(selectedJob); }}
         onEditJob={(jobToEdit) => {
           setEditingEmployerJob(jobToEdit);
           setJobDetailModalOpen(false);
@@ -4944,66 +4922,7 @@ export default function App() {
         onSubmitReview={handleSubmitReview}
       />
 
-      {/* SCREEN 9: PROFILE CÁ NHÂN SINH VIÊN */}
-      <StudentProfileModal
-        isOpen={studentProfileOpen}
-        onClose={() => setStudentProfileOpen(false)}
-        currentUser={currentUser}
-        onSave={(data) => {
-          if (currentUser?.id) {
-            localStorage.setItem(`jobnest_student_profile_${currentUser.id}`, JSON.stringify(data));
-          }
-          const updatedUser = {
-            ...(currentUser || {}),
-            ...data,
-            is_profile_completed: true,
-            full_name: data.fullName || currentUser?.full_name,
-            phone: data.phone || currentUser?.phone,
-            university: data.university || currentUser?.university,
-            major: data.major || currentUser?.major,
-            location: data.address || currentUser?.location,
-            bio: data.bio || currentUser?.bio,
-            skills: data.skills || currentUser?.skills,
-          };
-          setCurrentUser(updatedUser);
-          setStudentProfileOpen(false);
 
-          if (pendingApplyJob) {
-            const target = pendingApplyJob;
-            setPendingApplyJob(null);
-            handleNavigateToJobDetail(target);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            showToast(`Đã lưu thông tin hồ sơ sinh viên thành công! Bạn đang xem lại công việc "${target.title}".`, 'success');
-          } else {
-            showToast('Đã lưu thông tin hồ sơ sinh viên thành công! Bạn có thể nhấn "Ứng tuyển ngay" khi đã sẵn sàng.', 'success');
-          }
-        }}
-      />
-
-      {/* SCREEN 14: PROFILE DOANH NGHIỆP / NHÀ TUYỂN DỤNG */}
-      <EmployerProfileModal
-        isOpen={employerProfileOpen}
-        onClose={() => setEmployerProfileOpen(false)}
-        currentUser={currentUser}
-        onSave={(data) => {
-          if (currentUser?.id) {
-            localStorage.setItem(`jobnest_employer_profile_${currentUser.id}`, JSON.stringify(data));
-          }
-          const updatedUser = {
-            ...(currentUser || {}),
-            ...data,
-            is_profile_completed: true,
-            company_name: data.companyName || currentUser?.company_name,
-            full_name: data.contactPerson || currentUser?.full_name,
-            phone: data.phone || currentUser?.phone,
-            tax_code: data.taxCode || currentUser?.tax_code,
-            location: data.address || currentUser?.location,
-            bio: data.description || currentUser?.bio,
-          };
-          setCurrentUser(updatedUser);
-          showToast('Đã cập nhật hồ sơ doanh nghiệp thành công!', 'success');
-        }}
-      />
 
       {/* SCREEN 3: QUÊN MẬT KHẨU */}
       <ForgotPasswordModal
@@ -5172,8 +5091,8 @@ export default function App() {
             }
             setActiveTab(tab);
           }}
-          onOpenStudentProfile={() => setStudentProfileOpen(true)}
-          onOpenEmployerProfile={() => setEmployerProfileOpen(true)}
+          onOpenStudentProfile={() => (currentUser?.role === 'STUDENT' ? openStudentTab('profile') : setActiveTab('login'))}
+          onOpenEmployerProfile={() => setActiveTab(currentUser?.role === 'EMPLOYER' ? 'employer_profile' : 'login')}
           onOpenPolicy={(tab) => {
             setPolicyInitialTab(tab || 'terms');
             setPolicyModalOpen(true);

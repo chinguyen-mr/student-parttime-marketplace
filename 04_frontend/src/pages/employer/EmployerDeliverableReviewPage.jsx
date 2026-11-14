@@ -1,386 +1,178 @@
-import React, { useState } from 'react';
-import { FileText, ExternalLink, CheckCircle2, RotateCcw, AlertTriangle, ArrowLeft, Clock, History } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ExternalLink, CheckCircle2, RotateCcw, ArrowLeft, Clock, History, Send, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { API_BASE, formatApiError } from '../../config/api';
 
-export default function EmployerDeliverableReviewPage({
-  currentUser,
-  assignment,
-  onBack,
-  onSuccess,
-  showToast
-}) {
-  const [submitting, setSubmitting] = useState(false);
-  const [revisionReason, setRevisionReason] = useState('');
-  const [activeVersion, setActiveVersion] = useState('v2');
+const STATUS = {
+  SUBMITTED: ['Chờ duyệt', '#1D4ED8', '#EFF6FF', '#BFDBFE'],
+  REVISION_REQUESTED: ['Cần chỉnh sửa', '#B45309', '#FEF3C7', '#FDE68A'],
+  ACCEPTED: ['Đã chấp nhận', '#047857', '#ECFDF5', '#A7F3D0'],
+};
+const WORK = { NOT_STARTED: 'Chưa nhận việc', IN_PROGRESS: 'Đang làm việc', COMPLETED: 'Đã hoàn thành', RESIGNED: 'Đã xin nghỉ', TERMINATED: 'Đã cho thôi việc' };
+const fmt = (v) => (v ? new Date(v).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '');
+const card = { background: '#fff', border: '1px solid var(--color-border)', borderRadius: 14, padding: '18px 20px' };
 
-  const currentAssignment = assignment || {
-    id: 588,
-    job_title: 'Phát triển Landing Page React & Tailwind',
-    student_name: 'Nguyễn Văn Chi',
-    status: 'IN_PROGRESS',
-    progress: 60
+/**
+ * WF-E10: Nhà tuyển dụng xem tiến độ công việc và duyệt sản phẩm bàn giao của sinh viên.
+ * Dữ liệu lưu DB: work_progress, work_deliverables, deliverable_reviews.
+ */
+export default function EmployerDeliverableReviewPage({ currentUser, assignment, onBack, showToast }) {
+  const [state, setState] = useState({ loading: true, error: null, progress: [], deliverables: [] });
+  const [note, setNote] = useState('');
+  const [reasons, setReasons] = useState({});
+  const [busy, setBusy] = useState(null);
+  const active = ['NOT_STARTED', 'IN_PROGRESS'].includes(assignment?.status);
+
+  const api = async (path, options = {}) => {
+    const res = await fetch(`${API_BASE}/assignments/${assignment.id}${path}`, {
+      ...options,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${currentUser.token}` },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success === false) throw new Error(data.message || 'Thao tác thất bại');
+    return data.data;
   };
 
-  // Deliverable versions matching WF-E10 Wireframe
-  const [versions, setVersions] = useState([
-    {
-      version: 'v1',
-      fileUrl: 'https://github.com/nguyen-van-chi/jobnest-deliverable-v1',
-      description: 'Bản nộp thiết kế UI và component nguyên mẫu v1',
-      status: 'REVISION_REQUESTED',
-      note: 'Cần bổ sung responsive trên mobile và kiểm tra lại màu sắc',
-      submittedAt: '2026-10-25'
-    },
-    {
-      version: 'v2',
-      fileUrl: 'https://github.com/nguyen-van-chi/jobnest-deliverable-v2',
-      description: 'Đã hoàn thiện responsive và tối ưu hiệu năng toàn bộ component',
-      status: 'SUBMITTED',
-      note: '',
-      submittedAt: '2026-10-28'
-    }
-  ]);
-
-  const currentDeliverable = versions.find(v => v.version === activeVersion) || versions[versions.length - 1];
-
-  const handleReviewAction = async (decision) => {
-    if (decision === 'REVISE' && !revisionReason.trim()) {
-      if (showToast) showToast('Lý do yêu cầu chỉnh sửa là BẮT BUỘC khi chọn Request Revision!', 'error');
-      return;
-    }
-
+  const load = async () => {
+    setState(s => ({ ...s, loading: true, error: null }));
     try {
-      setSubmitting(true);
-      // Calls deliverable review endpoint
-      const res = await fetch(`${API_BASE}/assignments/${currentAssignment.id}/deliverables/review`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${currentUser?.token}`
-        },
-        body: JSON.stringify({
-          version: currentDeliverable.version,
-          decision: decision === 'ACCEPT' ? 'ACCEPTED' : 'REVISION_REQUESTED',
-          reason: revisionReason.trim() || undefined
-        })
-      });
-
-      // Update local versions state
-      const nextStatus = decision === 'ACCEPT' ? 'ACCEPTED' : 'REVISION_REQUESTED';
-      setVersions(prev => prev.map(v => v.version === currentDeliverable.version ? {
-        ...v,
-        status: nextStatus,
-        note: revisionReason.trim()
-      } : v));
-
-      if (decision === 'ACCEPT') {
-        if (showToast) showToast(`Đã chấp thuận sản phẩm ${currentDeliverable.version}! Assignment vẫn tiếp tục IN_PROGRESS theo quy định.`, 'success');
-      } else {
-        if (showToast) showToast(`Đã gửi yêu cầu chỉnh sửa ${currentDeliverable.version} tới sinh viên!`, 'warning');
-      }
-      setRevisionReason('');
-      if (onSuccess) onSuccess();
+      const [progress, deliverables] = await Promise.all([api('/progress'), api('/deliverables')]);
+      setState({ loading: false, error: null, progress, deliverables });
     } catch (err) {
-      // Fallback update
-      const nextStatus = decision === 'ACCEPT' ? 'ACCEPTED' : 'REVISION_REQUESTED';
-      setVersions(prev => prev.map(v => v.version === currentDeliverable.version ? {
-        ...v,
-        status: nextStatus,
-        note: revisionReason.trim()
-      } : v));
-      if (showToast) showToast(`Đã cập nhật trạng thái sản phẩm ${currentDeliverable.version} (${nextStatus})!`, 'success');
-    } finally {
-      setSubmitting(false);
+      setState({ loading: false, error: formatApiError(err, 'Không tải được tiến độ'), progress: [], deliverables: [] });
     }
+  };
+  useEffect(() => { if (assignment?.id) load(); }, [assignment?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!assignment) {
+    return (
+      <div style={card}>
+        Chưa chọn hợp đồng. <Button variant="secondary" onClick={onBack}>Quay lại danh sách</Button>
+      </div>
+    );
+  }
+
+  const addNote = async (e) => {
+    e.preventDefault();
+    if (note.trim().length < 3) { showToast?.('Nội dung cần ít nhất 3 ký tự', 'error'); return; }
+    setBusy('note');
+    try {
+      await api('/progress', { method: 'POST', body: JSON.stringify({ description: note.trim() }) });
+      setNote('');
+      await load();
+      showToast?.('Đã lưu ghi chú tiến độ. Sinh viên đã được thông báo.', 'success');
+    } catch (err) { showToast?.(formatApiError(err), 'error'); } finally { setBusy(null); }
+  };
+
+  const review = async (d, decision) => {
+    const comment = (reasons[d.id] || '').trim();
+    if (decision === 'REVISION_REQUESTED' && comment.length < 5) { showToast?.('Vui lòng nhập lý do yêu cầu chỉnh sửa (tối thiểu 5 ký tự)', 'error'); return; }
+    setBusy(`${d.id}-${decision}`);
+    try {
+      await api(`/deliverables/${d.id}/review`, { method: 'POST', body: JSON.stringify({ decision, comment }) });
+      await load();
+      showToast?.(decision === 'ACCEPTED' ? `Đã chấp nhận phiên bản v${d.version_no}` : `Đã yêu cầu chỉnh sửa v${d.version_no}`, 'success');
+    } catch (err) { showToast?.(formatApiError(err), 'error'); } finally { setBusy(null); }
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: 'none', display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Header with back navigation */}
-      <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-            NGHIỆM THU SẢN PHẨM
-          </div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>
-            Nghiệm thu sản phẩm bàn giao
-          </h1>
-          <p style={{ margin: '4px 0 0 0', fontSize: 13.5, color: 'var(--color-text-secondary)' }}>
-            Kiểm tra tiến độ nộp bài, tệp bàn giao và đưa ra quyết định duyệt hoặc yêu cầu sửa đổi.
-          </p>
-        </div>
-
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            style={{
-              padding: '8px 16px',
-              fontSize: 13,
-              fontWeight: 700,
-              background: '#ffffff',
-              border: '1.5px solid #000000',
-              borderRadius: 8,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6
-            }}
-          >
-            <ArrowLeft size={15} /> Quay lại Assignments
-          </button>
-        )}
-      </div>
-
-      {/* Box Assignment Info matching WF-E10 */}
-      <div style={{
-        background: '#ffffff',
-        borderRadius: 14,
-        border: '1.5px solid #000000',
-        padding: 20,
-        boxShadow: 'var(--shadow-sm)'
-      }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#000000', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Clock size={16} color="#059669" />
-          <span>Assignment</span>
-        </div>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', lineHeight: 1.5 }}>
-          • Assignment: <strong>{currentAssignment.job_title}</strong> — Student: <strong>{currentAssignment.student_name}</strong> — Phiên bản hiện tại: <span style={{ color: '#2563EB', fontWeight: 800 }}>{activeVersion}</span> — Assignment: <span style={{ background: '#EEF2FF', color: '#4F46E5', padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 800 }}>IN_PROGRESS</span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18, paddingBottom: 60 }}>
+      <div>
+        <button type="button" onClick={onBack} style={{ border: 'none', background: 'none', color: 'var(--color-primary)', fontWeight: 700, cursor: 'pointer', padding: 0, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+          <ArrowLeft size={15} /> Quay lại Quản lý hợp đồng
+        </button>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: '8px 0 4px' }}>Tiến độ & sản phẩm bàn giao</h1>
+        <div style={{ fontSize: 13.5, color: 'var(--color-text-secondary)' }}>
+          Hợp đồng #{assignment.id} · <b>{assignment.job_title}</b> · Sinh viên <b>{assignment.student_name}</b> · {WORK[assignment.status] || assignment.status}
         </div>
       </div>
 
-      {/* 2-Column Grid: Sản phẩm (Left) + Lịch sử phiên bản (Right) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 3fr) minmax(320px, 2fr)',
-        gap: 24,
-        alignItems: 'stretch'
-      }}>
-        {/* Box Sản phẩm */}
-        <div style={{
-          background: '#ffffff',
-          borderRadius: 14,
-          border: '1.5px solid #000000',
-          padding: 24,
-          boxShadow: 'var(--shadow-sm)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between'
-        }}>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#000000', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FileText size={18} />
-              <span>Sản phẩm ({currentDeliverable.version})</span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 4 }}>
-                  • Tệp / đường dẫn
-                </label>
-                <div style={{
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  border: '1.5px solid #CBD5E1',
-                  background: '#F8FAFC',
-                  fontSize: 13.5,
-                  wordBreak: 'break-all',
-                  fontWeight: 600,
-                  color: '#2563EB'
-                }}>
-                  {currentDeliverable.fileUrl}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 4 }}>
-                  • Mô tả
-                </label>
-                <div style={{
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  border: '1.5px solid #CBD5E1',
-                  background: '#F8FAFC',
-                  fontSize: 13.5,
-                  color: '#334155',
-                  lineHeight: 1.5
-                }}>
-                  {currentDeliverable.description}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ paddingTop: 20 }}>
-            <a
-              href={currentDeliverable.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: '#ffffff',
-                color: '#000000',
-                border: '1.5px solid #000000',
-                borderRadius: 8,
-                padding: '9px 18px',
-                fontSize: 13.5,
-                fontWeight: 700,
-                textDecoration: 'none'
-              }}
-            >
-              <ExternalLink size={15} />
-              <span>Xem tệp</span>
-            </a>
-          </div>
+      {state.loading && <div style={{ ...card, color: '#64748B' }}><Loader2 size={16} className="animate-spin" /> Đang tải…</div>}
+      {state.error && (
+        <div style={{ ...card, color: '#B91C1C' }} role="alert">
+          <AlertTriangle size={16} /> {state.error} <Button variant="secondary" onClick={load} style={{ marginLeft: 8 }}>Thử lại</Button>
         </div>
+      )}
 
-        {/* Box Lịch sử phiên bản */}
-        <div style={{
-          background: '#ffffff',
-          borderRadius: 14,
-          border: '1.5px solid #000000',
-          padding: 24,
-          boxShadow: 'var(--shadow-sm)'
-        }}>
-          <div style={{ fontSize: 16, fontWeight: 800, color: '#000000', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <History size={18} />
-            <span>Lịch sử phiên bản</span>
-          </div>
+      {!state.loading && !state.error && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: 18, alignItems: 'start' }}>
+          {/* Sản phẩm bàn giao */}
+          <section style={card}>
+            <h2 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <History size={17} color="#7565A8" /> Sản phẩm bàn giao ({state.deliverables.length})
+            </h2>
+            {state.deliverables.length === 0 && <p style={{ color: '#94A3B8', fontSize: 13, margin: 0 }}>Sinh viên chưa nộp phiên bản nào.</p>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {state.deliverables.map(d => {
+                const [label, color, bg, border] = STATUS[d.status] || [d.status, '#475569', '#F1F5F9', '#E2E8F0'];
+                return (
+                  <div key={d.id} style={{ border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <strong style={{ color: 'var(--color-primary)' }}>Phiên bản v{d.version_no}</strong>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color, background: bg, border: `1px solid ${border}`, padding: '2px 9px', borderRadius: 999 }}>{label}</span>
+                    </div>
+                    <a href={d.file_key} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, fontSize: 13, color: '#7565A8', fontWeight: 600, wordBreak: 'break-all' }}>
+                      <ExternalLink size={13} /> {d.file_key}
+                    </a>
+                    <p style={{ margin: '6px 0 0', fontSize: 13, color: '#334155' }}>{d.description}</p>
+                    <div style={{ fontSize: 11.5, color: '#94A3B8', marginTop: 4 }}><Clock size={11} /> Nộp lúc {fmt(d.submitted_at)}</div>
+                    {d.review_comment && (
+                      <div style={{ marginTop: 6, fontSize: 12.5, color: d.review_decision === 'ACCEPTED' ? '#047857' : '#B45309' }}>
+                        Nhận xét ({fmt(d.reviewed_at)}): {d.review_comment}
+                      </div>
+                    )}
+                    {d.status === 'SUBMITTED' && (
+                      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <textarea rows={2} maxLength={1000} value={reasons[d.id] || ''} onChange={(e) => setReasons(r => ({ ...r, [d.id]: e.target.value }))}
+                          placeholder="Nhận xét (bắt buộc khi yêu cầu chỉnh sửa)" aria-label="Nhận xét"
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid var(--color-border)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          <Button variant="success" disabled={Boolean(busy)} onClick={() => review(d, 'ACCEPTED')} style={{ padding: '7px 14px', fontSize: 12.5, gap: 6 }}>
+                            <CheckCircle2 size={14} /> Chấp nhận
+                          </Button>
+                          <Button variant="secondary" disabled={Boolean(busy)} onClick={() => review(d, 'REVISION_REQUESTED')} style={{ padding: '7px 14px', fontSize: 12.5, gap: 6 }}>
+                            <RotateCcw size={14} /> Yêu cầu chỉnh sửa
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
-            <thead>
-              <tr style={{ borderBottom: '1.5px solid #000000' }}>
-                <th style={{ padding: '8px 10px', fontWeight: 800 }}>Phiên bản</th>
-                <th style={{ padding: '8px 10px', fontWeight: 800 }}>Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody>
-              {versions.map(v => (
-                <tr
-                  key={v.version}
-                  onClick={() => setActiveVersion(v.version)}
-                  style={{
-                    borderBottom: '1px solid #E2E8F0',
-                    cursor: 'pointer',
-                    background: activeVersion === v.version ? '#F1F5F9' : 'transparent',
-                    fontWeight: activeVersion === v.version ? 700 : 500
-                  }}
-                >
-                  <td style={{ padding: '12px 10px' }}>
-                    <strong>{v.version}</strong>
-                    {v.version === activeVersion && <span style={{ marginLeft: 6, fontSize: 11, color: '#059669' }}>● Đang chọn</span>}
-                  </td>
-                  <td style={{ padding: '12px 10px' }}>
-                    <span style={{
-                      padding: '2px 8px',
-                      borderRadius: 10,
-                      fontSize: 11.5,
-                      fontWeight: 700,
-                      background: v.status === 'ACCEPTED' ? '#ECFDF5' : v.status === 'REVISION_REQUESTED' ? '#FEF2F2' : '#EEF2FF',
-                      color: v.status === 'ACCEPTED' ? '#059669' : v.status === 'REVISION_REQUESTED' ? '#DC2626' : '#4F46E5',
-                      border: '1px solid',
-                      borderColor: v.status === 'ACCEPTED' ? '#A7F3D0' : v.status === 'REVISION_REQUESTED' ? '#FECDD3' : '#C7D2FE'
-                    }}>
-                      {v.status}
-                    </span>
-                  </td>
-                </tr>
+          {/* Tiến độ công việc */}
+          <section style={card}>
+            <h2 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 12px' }}>Nhật ký tiến độ ({state.progress.length})</h2>
+            {active && (
+              <form onSubmit={addNote} style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+                <textarea rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} aria-label="Ghi chú tiến độ"
+                  placeholder="Ghi chú cho sinh viên (VD: tuần sau đổi sang ca chiều Thứ 5)…"
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid var(--color-border)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button type="submit" variant="primary" disabled={busy === 'note'} style={{ padding: '7px 14px', fontSize: 12.5, gap: 6 }}>
+                    <Send size={13} /> {busy === 'note' ? 'Đang lưu…' : 'Thêm ghi chú'}
+                  </Button>
+                </div>
+              </form>
+            )}
+            {state.progress.length === 0 && <p style={{ color: '#94A3B8', fontSize: 13, margin: 0 }}>Chưa có cập nhật tiến độ.</p>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {state.progress.map(p => (
+                <div key={p.id} style={{ borderLeft: `3px solid ${p.updated_by_role === 'EMPLOYER' ? '#F4B99D' : '#7565A8'}`, padding: '4px 0 4px 12px' }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--color-text)' }}>
+                    {p.description}{p.progress_percent !== null && p.progress_percent !== undefined ? ` (${p.progress_percent}%)` : ''}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>
+                    {p.updated_by_role === 'EMPLOYER' ? 'Nhà tuyển dụng' : 'Sinh viên'} ({p.updated_by_name}) · {fmt(p.created_at)}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </section>
         </div>
-      </div>
-
-      {/* Box Quyết định matching WF-E10 */}
-      <div style={{
-        background: '#ffffff',
-        borderRadius: 14,
-        border: '1.5px solid #000000',
-        padding: 24,
-        boxShadow: 'var(--shadow-sm)'
-      }}>
-        <div style={{ fontSize: 16, fontWeight: 800, color: '#000000', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #E2E8F0' }}>
-          Quyết định
-        </div>
-
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <label style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
-              Lý do yêu cầu chỉnh sửa
-            </label>
-            <span style={{ fontSize: 11.5, color: '#DC2626', fontWeight: 700 }}>
-              Bắt buộc khi Request Revision
-            </span>
-          </div>
-          <textarea
-            rows={3}
-            value={revisionReason}
-            onChange={(e) => setRevisionReason(e.target.value)}
-            placeholder="Ghi rõ các điểm cần sửa chữa hoặc cải thiện..."
-            style={{
-              width: '100%',
-              padding: '10px 14px',
-              borderRadius: 8,
-              border: '1.5px solid #000000',
-              fontSize: 13.5,
-              outline: 'none',
-              resize: 'vertical'
-            }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            type="button"
-            onClick={() => handleReviewAction('ACCEPT')}
-            disabled={submitting}
-            style={{
-              background: '#059669',
-              color: '#ffffff',
-              border: '1.5px solid #047857',
-              borderRadius: 8,
-              padding: '10px 22px',
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: submitting ? 'wait' : 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              boxShadow: 'var(--shadow-sm)'
-            }}
-          >
-            <CheckCircle2 size={16} />
-            <span>Accept</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleReviewAction('REVISE')}
-            disabled={submitting}
-            style={{
-              background: '#DC2626',
-              color: '#ffffff',
-              border: '1.5px solid #B91C1C',
-              borderRadius: 8,
-              padding: '10px 22px',
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: submitting ? 'wait' : 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              boxShadow: 'var(--shadow-sm)'
-            }}
-          >
-            <RotateCcw size={16} />
-            <span>Yêu cầu chỉnh sửa</span>
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
-

@@ -14,7 +14,8 @@ import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
 
 export default function EmployerAssignmentsPage({
   currentUser,
-  showToast
+  showToast,
+  onNavigateDeliverable
 }) {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -39,14 +40,8 @@ export default function EmployerAssignmentsPage({
   // Modal: Xem lại đánh giá đã gửi
   const [viewReviewAssignment, setViewReviewAssignment] = useState(null);
 
-  // Cache danh sách ID hợp đồng đã được đánh giá
-  const [reviewedAssignmentIds, setReviewedAssignmentIds] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('jobnest_employer_reviewed_assignments') || '[]');
-    } catch {
-      return [];
-    }
-  });
+  // Hợp đồng đã được nhà tuyển dụng đánh giá — lấy từ DB (my_review_rating trong danh sách hợp đồng)
+  const [reviewedAssignmentIds, setReviewedAssignmentIds] = useState([]);
 
   // Fetch danh sách hợp đồng (GET /api/assignments/employer-assignments)
   const fetchAssignments = async () => {
@@ -59,6 +54,7 @@ export default function EmployerAssignmentsPage({
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setAssignments(data.data);
+        setReviewedAssignmentIds(data.data.filter(a => a.my_review_rating !== null && a.my_review_rating !== undefined).map(a => a.id));
       }
     } catch (err) {
       console.error(err);
@@ -208,19 +204,15 @@ export default function EmployerAssignmentsPage({
       const data = await res.json();
       if (res.status === 409 || data.message?.includes('đã gửi đánh giá')) {
         if (showToast) showToast('Bạn đã gửi đánh giá cho sinh viên trong hợp đồng này rồi!', 'info');
-        const updated = [...new Set([...reviewedAssignmentIds, selectedAssignmentForReview.id])];
-        setReviewedAssignmentIds(updated);
-        localStorage.setItem('jobnest_employer_reviewed_assignments', JSON.stringify(updated));
         setSelectedAssignmentForReview(null);
+        fetchAssignments();
         return;
       }
 
       if (data.success) {
         if (showToast) showToast(`Đánh giá sinh viên thành công (${rating} ⭐)!`, 'success');
-        const updated = [...new Set([...reviewedAssignmentIds, selectedAssignmentForReview.id])];
-        setReviewedAssignmentIds(updated);
-        localStorage.setItem('jobnest_employer_reviewed_assignments', JSON.stringify(updated));
         setSelectedAssignmentForReview(null);
+        fetchAssignments();
       } else {
         throw new Error(data.message || 'Lỗi gửi đánh giá');
       }
@@ -610,7 +602,7 @@ export default function EmployerAssignmentsPage({
                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#FEF3C7', padding: '4px 10px', borderRadius: 8, border: '1px solid #FDE68A' }}>
                               <Star size={13} fill="#F59E0B" color="#F59E0B" />
                               <span style={{ fontSize: 12, fontWeight: 800, color: '#B45309' }}>
-                                Đã đánh giá (5/5 ⭐)
+                                Đã đánh giá ({assign.my_review_rating || '—'}/5 ⭐)
                               </span>
                             </div>
                           ) : (
@@ -645,6 +637,26 @@ export default function EmployerAssignmentsPage({
                       {/* Cột 6: Thao tác */}
                       <td style={{ padding: '16px 18px', textAlign: 'right' }}>
                         <div style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+                          {/* Xem tiến độ & sản phẩm bàn giao do sinh viên cập nhật (lưu DB) */}
+                          {onNavigateDeliverable && (
+                            <button
+                              onClick={() => onNavigateDeliverable(assign)}
+                              title="Xem tiến độ công việc và duyệt sản phẩm bàn giao"
+                              style={{
+                                background: '#F5F3FB',
+                                border: '1px solid #C4B5FD',
+                                color: '#5B4B8A',
+                                padding: '6px 12px',
+                                borderRadius: 8,
+                                fontSize: 12.5,
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              Tiến độ & bàn giao
+                            </button>
+                          )}
                           {/* Chưa bắt đầu -> Bắt đầu làm việc */}
                           {assign.status === 'NOT_STARTED' && (
                             <button

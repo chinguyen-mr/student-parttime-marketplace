@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  Building2, MapPin, DollarSign, Clock, Calendar, 
-  FileText, CheckCircle2, Award, Send, X, Briefcase, Paperclip, ChevronRight 
-} from 'lucide-react';
-import { motion } from 'motion/react';
+import { Building2, MapPin, DollarSign, Calendar, FileText, Award, Send, X, Paperclip } from 'lucide-react';
 import { AnimatedModal, Button, CustomDropdown } from '../ui';
 
 export default function JobDetailModal({ 

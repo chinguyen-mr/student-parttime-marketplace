@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Briefcase, Building2, Calendar, DollarSign, Clock, 
-  CheckCircle2, AlertCircle, PlayCircle, Star, Eye, RefreshCw, X,
-  UploadCloud, Link as LinkIcon, FileText, Send, ChevronRight, History, CheckCheck, Paperclip
+import {
+  Briefcase,
+  Building2,
+  Clock,
+  RefreshCw,
+  X,
+  UploadCloud,
+  Link as LinkIcon,
+  Send,
+  ChevronRight,
+  Paperclip
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { Button, AnimatedModal } from '../../components/ui';
 import StatusBadge from '../../components/common/StatusBadge';
 import ExportMenu from '../../components/common/ExportMenu';
@@ -451,7 +458,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                 {/* Excerpt of proposal/application */}
                 <div style={{ marginBottom: 22 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-                    {selectedAssignment.proposal_id ? 'Nội dung đề xuất / Cam kết thực hiện của bạn:' : 'Thư giới thiệu ứng tuyển:'}
+                    Thư giới thiệu ứng tuyển:
                   </div>
                   <div style={{
                     background: '#ffffff',
@@ -463,7 +470,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                     lineHeight: 1.5,
                     whiteSpace: 'pre-line'
                   }}>
-                    {selectedAssignment.proposal_text || selectedAssignment.cover_letter || 'Đã chấp thuận theo hồ sơ ứng tuyển ban đầu.'}
+                    {selectedAssignment.cover_letter || 'Đã chấp thuận theo hồ sơ ứng tuyển ban đầu.'}
                   </div>
                 </div>
 

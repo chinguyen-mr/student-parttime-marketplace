@@ -7,10 +7,8 @@
  * 2. Kiểm tra kết nối PostgreSQL bằng đúng thông tin cấu hình (không đoán mật khẩu).
  * 3. Báo cáo tình trạng database và hướng dẫn lệnh thủ công cần chạy.
  *
- * KHÔNG tự động: tạo database, chạy migration, seed, tạo tài khoản.
- * Migration và seed phải chạy thủ công:
- *   npm run migrate
- *   npm run seed
+ * KHÔNG tự động: tạo database, nạp schema, nạp dữ liệu.
+ * Các bước đó làm thủ công theo README.md (jobnest_schema.sql + scripts/data_v3/import_data_v3.py).
  */
 
 const autoBootstrap = require('./03_backend/src/config/auto-bootstrap');
@@ -25,17 +23,13 @@ async function main() {
     if (success) {
         console.log(`🎉 KẾT NỐI THÀNH CÔNG!`);
         console.log(`-------------------------------------------------------------`);
-        console.log(`📋 CÁC BƯỚC TIẾP THEO (thủ công, chỉ chạy trên database mới):`);
-        console.log(`   1. Tạo bảng:        npm run migrate`);
-        console.log(`   2. Nạp dữ liệu mẫu: npm run seed`);
+        console.log(`📋 CÁC BƯỚC TIẾP THEO (xem README.md, mục "Cài đặt thủ công"):`);
+        console.log(`   1. Nạp schema + migration 005→018 (chỉ trên database mới)`);
+        console.log(`   2. Nạp dữ liệu demo: python scripts/data_v3/import_data_v3.py --yes`);
         console.log(`   3. Chạy Backend:    npm run dev:backend`);
         console.log(`   4. Chạy Frontend:   npm run dev:frontend`);
-        console.log(`   Hoặc chạy cả hai:   npm run dev`);
         console.log(`-------------------------------------------------------------`);
-        console.log(`ℹ️ Tài khoản test (admin/student/employer) tạo bằng script riêng:`);
-        console.log(`   node setup_temp_admin.js       (cần SEED_ADMIN_PASSWORD)`);
-        console.log(`   npm --prefix 03_backend run setup:employer`);
-        console.log(`   npm --prefix 03_backend run setup:student`);
+        console.log(`ℹ️ Tài khoản demo (mật khẩu Jobnest@2026): admin.test / employer.test / student.test @vlu.edu.vn`);
         console.log(`=============================================================\n`);
         process.exit(0);
     } else {

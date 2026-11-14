@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  History, Search, Filter, RefreshCw, Calendar, 
-  User, Shield, FileText, CheckCircle2, Lock, Tag
-} from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import ExportMenu from '../../components/common/ExportMenu';

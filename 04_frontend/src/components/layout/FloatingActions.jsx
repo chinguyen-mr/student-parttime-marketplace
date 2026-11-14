@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUp, Headphones, HelpCircle } from 'lucide-react';
+import { ArrowUp, Headphones } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function FloatingActions({

@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Building2, Briefcase, Calendar, DollarSign, MapPin, 
-  Clock, FileText, Image as ImageIcon, CheckCircle2, 
-  AlertCircle, ArrowLeft, Send, Save, X
-} from 'lucide-react';
+import { AlertCircle, ArrowLeft, Send, Save } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { API_BASE, formatApiError } from '../../config/api';
 
@@ -36,10 +32,6 @@ export default function EmployerCreateJobPage({
     return d.toISOString().split('T')[0];
   });
   const [jobBannerUrl, setJobBannerUrl] = useState(editingJob?.job_banner_url || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800');
-
-  // Specific Freelance / Seasonal Fields
-  const [deliverableRequirements, setDeliverableRequirements] = useState('Bàn giao mã nguồn hoàn chỉnh kèm tài liệu hướng dẫn và link demo trực tuyến.');
-  const [revisionPolicy, setRevisionPolicy] = useState('Hỗ trợ chỉnh sửa tối đa 2 lần trong vòng 7 ngày sau khi nghiệm thu.');
 
   const [submitting, setSubmitting] = useState(false);
   const [deadlineError, setDeadlineError] = useState(null);
@@ -118,9 +110,7 @@ export default function EmployerCreateJobPage({
         salary: Number(salary),
         quantity_required: Number(quantityRequired),
         application_deadline: new Date(applicationDeadline).toISOString(),
-        job_banner_url: jobBannerUrl.trim(),
-        deliverable_requirements: workType === 'FREELANCE' ? deliverableRequirements.trim() : undefined,
-        revision_policy: workType === 'FREELANCE' ? revisionPolicy.trim() : undefined
+        job_banner_url: jobBannerUrl.trim()
       };
 
       const url = isEditing ? `${API_BASE}/jobs/${editingJob.id}` : `${API_BASE}/jobs`;
@@ -325,7 +315,7 @@ export default function EmployerCreateJobPage({
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 18 }}>
           <div>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-              {workType === 'FREELANCE' ? 'Ngân sách trọn gói (VNĐ)' : 'Mức lương / Thù lao (VNĐ)'}
+              Mức lương / Thù lao (VNĐ)
             </label>
             <input
               type="number"
@@ -455,39 +445,6 @@ export default function EmployerCreateJobPage({
             }}
           />
         </div>
-
-        {/* Freelance Specific: Deliverable Requirements & Revision Policy (Wireframe C10) */}
-        {workType === 'FREELANCE' && (
-          <div style={{ background: '#F8F7FB', borderRadius: 12, padding: '18px 20px', marginBottom: 24, border: '1px solid var(--color-border)' }}>
-            <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--color-primary)', marginBottom: 12 }}>
-              QUY ĐỊNH BÀN GIAO DỰ ÁN FREELANCE (C10)
-            </div>
-
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--color-text)', marginBottom: 4 }}>
-                Yêu cầu sản phẩm bàn giao (Deliverable requirements) *
-              </label>
-              <input
-                type="text"
-                value={deliverableRequirements}
-                onChange={(e) => setDeliverableRequirements(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--color-border)', fontSize: 13 }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--color-text)', marginBottom: 4 }}>
-                Chính sách chỉnh sửa sau bàn giao (Revision policy)
-              </label>
-              <input
-                type="text"
-                value={revisionPolicy}
-                onChange={(e) => setRevisionPolicy(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--color-border)', fontSize: 13 }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Buttons matching WF-E05: Lưu nháp | Gửi duyệt | Hủy */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, paddingTop: 16, borderTop: '1px solid var(--color-border)' }}>

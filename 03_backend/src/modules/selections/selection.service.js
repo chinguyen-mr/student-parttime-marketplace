@@ -11,19 +11,12 @@ const {
 
 class SelectionService {
     /**
-     * A3 RULE: CHỈ endpoint này được phép chuyển Application hoặc Proposal sang ACCEPTED 
+     * A3 RULE: CHỈ endpoint này được phép chuyển Application sang ACCEPTED 
      * và khởi tạo Work Assignment chính thức.
      */
     async createSelections(jobId, employerId, payload) {
-        // Hỗ trợ cả payload là mảng applicationIds (cũ) lẫn object { applicationIds, proposalIds }
-        let applicationIds = null;
-        let proposalIds = null;
-        if (Array.isArray(payload)) {
-            applicationIds = payload;
-        } else if (payload && typeof payload === 'object') {
-            applicationIds = payload.applicationIds;
-            proposalIds = payload.proposalIds;
-        }
+        // Payload: mảng applicationIds hoặc object { applicationIds }
+        const applicationIds = Array.isArray(payload) ? payload : payload?.applicationIds;
 
         // 1. Kiểm tra sự tồn tại của Job
         const job = await jobRepository.findById(jobId);
@@ -41,130 +34,7 @@ class SelectionService {
             throw new ConflictError('Tin tuyển dụng không ở trạng thái mở nhận việc (OPEN)');
         }
 
-        const isFreelance = job.work_type === 'FREELANCE';
-
-        // 4. Phân luồng Part-time (applications) vs Freelance (proposals)
-        if (isFreelance) {
-            if (applicationIds && (!proposalIds || proposalIds.length === 0)) {
-                throw new StateTransitionInvalidError('Công việc Freelance chỉ hỗ trợ lựa chọn qua đề xuất (proposalIds)');
-            }
-            return await this._processProposalSelections(job, proposalIds);
-        } else {
-            if (proposalIds && (!applicationIds || applicationIds.length === 0)) {
-                throw new StateTransitionInvalidError('Công việc Part-time chỉ hỗ trợ lựa chọn qua đơn ứng tuyển (applicationIds)');
-            }
-            return await this._processApplicationSelections(job, applicationIds);
-        }
-    }
-
-    async _processProposalSelections(job, proposalIds) {
-        const jobId = job.id;
-        const uniquePropIds = [...new Set(proposalIds.map(id => parseInt(id, 10)))];
-        const validProposals = [];
-
-        for (const propId of uniquePropIds) {
-            const pRes = await db.query('SELECT * FROM freelance_proposals WHERE id = $1', [propId]);
-            const proposal = pRes.rows[0];
-            if (!proposal) {
-                throw new NotFoundError(`Không tìm thấy đề xuất #${propId}`);
-            }
-
-            if (parseInt(proposal.job_id, 10) !== parseInt(jobId, 10)) {
-                throw new ConflictError(`Đề xuất #${propId} không thuộc tin tuyển dụng này`);
-            }
-
-            if (proposal.status === 'ACCEPTED') {
-                throw new StateTransitionInvalidError(`Đề xuất #${propId} đã được chấp nhận trước đó`);
-            }
-            if (proposal.status === 'REJECTED') {
-                throw new StateTransitionInvalidError(`Đề xuất #${propId} đã bị từ chối, không thể chấp nhận`);
-            }
-
-            validProposals.push(proposal);
-        }
-
-        // Kiểm tra số lượng tuyển
-        let currentAcceptedCount = 0;
-        try {
-            const countRes = await db.query(
-                `SELECT COUNT(*) FROM freelance_proposals WHERE job_id = $1 AND status = 'ACCEPTED'`,
-                [jobId]
-            );
-            currentAcceptedCount = parseInt(countRes.rows[0].count, 10) || 0;
-        } catch (e) {
-            currentAcceptedCount = 0;
-        }
-
-        const maxQuantity = parseInt(job.headcount || job.quantity_required || job.quantity || 1, 10);
-        if (currentAcceptedCount + validProposals.length > maxQuantity) {
-            throw new QuantityExceededError(
-                `Số lượng đề xuất lựa chọn (${currentAcceptedCount + validProposals.length}) vượt quá chỉ tiêu tuyển dụng (${maxQuantity})`
-            );
-        }
-
-        // Transaction A3: Cập nhật status ACCEPTED và tạo work_assignment với proposal_id
-        const client = await db.pool.connect();
-        const createdAssignments = [];
-        try {
-            await client.query('BEGIN');
-
-            for (const prop of validProposals) {
-                await client.query(
-                    `UPDATE freelance_proposals 
-                     SET status = 'ACCEPTED', updated_at = CURRENT_TIMESTAMP 
-                     WHERE id = $1`,
-                    [prop.id]
-                );
-
-                const assignRes = await client.query(
-                    `INSERT INTO work_assignments (job_id, student_id, proposal_id, status)
-                     VALUES ($1, $2, $3, 'NOT_STARTED')
-                     ON CONFLICT (proposal_id) DO UPDATE SET status = 'NOT_STARTED', updated_at = CURRENT_TIMESTAMP
-                     RETURNING *`,
-                    [jobId, prop.student_id, prop.id]
-                );
-                createdAssignments.push(assignRes.rows[0]);
-            }
-
-            // Tự động chuyển trạng thái tin tuyển dụng sang FILLED khi tuyển đủ chỉ tiêu
-            if (currentAcceptedCount + validProposals.length >= maxQuantity) {
-                await client.query(
-                    `UPDATE jobs SET status = 'FILLED', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
-                    [jobId]
-                );
-            }
-
-            await client.query('COMMIT');
-        } catch (err) {
-            await client.query('ROLLBACK');
-            throw err;
-        } finally {
-            client.release();
-        }
-
-        // Gửi thông báo đến Student sau khi commit thành công
-        for (const prop of validProposals) {
-            try {
-                await db.query(
-                    `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
-                     VALUES ($1, 'PROPOSAL_ACCEPTED', 'Đề xuất được chấp nhận', $2, 'PROPOSAL', $3)`,
-                    [
-                        prop.student_id,
-                        `Đề xuất của bạn cho dự án "${job.title}" đã được chấp nhận! Hợp đồng làm việc đã được khởi tạo.`,
-                        prop.id
-                    ]
-                );
-            } catch (notifErr) {
-                console.error('Lỗi gửi notification đề xuất:', notifErr.message);
-            }
-        }
-
-        return {
-            job_id: jobId,
-            accepted_count: validProposals.length,
-            assignments: createdAssignments,
-            message: `Lựa chọn thành công ${validProposals.length} đề xuất và đã khởi tạo hợp đồng làm việc (A3 Rule)`
-        };
+        return await this._processApplicationSelections(job, applicationIds);
     }
 
     async _processApplicationSelections(job, applicationIds) {

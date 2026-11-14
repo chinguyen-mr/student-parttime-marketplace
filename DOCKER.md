@@ -19,8 +19,8 @@ docker compose version
 ## 2. Clone dự án
 
 ```powershell
-git clone <repository-url>
-cd "Chuyên Đề 2"
+git clone https://github.com/chinguyen-mr/student-parttime-marketplace.git
+cd student-parttime-marketplace
 ```
 
 ## 3. Tạo file `.env` ở thư mục gốc
@@ -48,13 +48,13 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ## 4. Khởi động toàn bộ hệ thống
 
 ```powershell
-docker compose up -d
+docker compose up -d --build
 ```
 
 Lần đầu Docker sẽ:
 - Tải image PostgreSQL, Node, Nginx
 - Build backend và frontend
-- **Tự động nạp schema + dữ liệu mẫu** từ `02_database/cd2_marketplace_full_dump.sql`
+- **Tự động tạo toàn bộ bảng** từ `02_database/jobnest_schema.sql`
   (chạy một lần duy nhất khi database còn trống)
 
 Chờ tới khi cả 3 container `healthy`:
@@ -62,6 +62,14 @@ Chờ tới khi cả 3 container `healthy`:
 ```powershell
 docker compose ps
 ```
+
+Nạp bộ dữ liệu demo (`02_database/JobNest_Data_v3.xlsx` — xóa dữ liệu cũ rồi nạp lại):
+
+```powershell
+docker compose --profile seed run --rm seed
+```
+
+Tài khoản demo (mật khẩu `Jobnest@2026`): `admin.test@vlu.edu.vn`, `employer.test@vlu.edu.vn`, `student.test@vlu.edu.vn`.
 
 ## 5. Truy cập ứng dụng
 
@@ -91,7 +99,7 @@ docker compose start
 # Dừng và xoá container (GIỮ dữ liệu database trong volume)
 docker compose down
 
-# Xoá sạch kể cả database để nạp lại dump từ đầu
+# Xoá sạch kể cả database (lần sau tạo lại bảng từ đầu)
 docker compose down -v
 
 # Build lại sau khi sửa code
@@ -106,7 +114,8 @@ docker compose up -d --build
 | `JWT_SECRET ... missing` | Thiếu `JWT_SECRET` ≥ 32 ký tự | Điền `JWT_SECRET` trong `.env` |
 | Container `postgres` không healthy | Cổng 5432 đang bị chiếm | Dừng PostgreSQL local, hoặc xoá dòng `5432:5432` trong `docker-compose.yml` |
 | Cổng 8080 đã dùng | App khác chiếm cổng | Đổi `"8080:80"` thành `"3000:80"` trong compose |
-| `relation ... does not exist` | Dump chưa nạp (volume cũ) | `docker compose down -v` rồi `up -d` lại |
+| `relation ... does not exist` | Schema chưa nạp (volume cũ) | `docker compose down -v` rồi `up -d` lại, sau đó chạy lại lệnh seed |
+| Đăng nhập demo báo sai mật khẩu | Chưa nạp dữ liệu demo | `docker compose --profile seed run --rm seed` |
 | Docker daemon không chạy | Docker Desktop chưa khởi động | Mở Docker Desktop, chờ icon xanh |
 
 ## 8. Kiến trúc

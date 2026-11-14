@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Briefcase, User, Calendar, DollarSign, Clock, 
-  CheckCircle2, PlayCircle, Star, Eye, RefreshCw, 
-  X, ShieldCheck, AlertCircle, FileText,
-  MessageSquare, ChevronRight, AlertTriangle, UserX,
-  UserCheck, ThumbsUp, Award, Phone, Mail, GraduationCap
+import {
+  Calendar,
+  Clock,
+  CheckCircle2,
+  Star,
+  RefreshCw,
+  X,
+  FileText,
+  AlertTriangle,
+  UserX,
+  UserCheck,
+  Mail,
+  GraduationCap
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Button, AnimatedModal } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import ExportMenu from '../../components/common/ExportMenu';

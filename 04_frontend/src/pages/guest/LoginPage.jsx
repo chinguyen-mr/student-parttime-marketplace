@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  Mail, Lock, Eye, EyeOff, User, Building2, Shield, 
-  CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, Clock, Award
-} from 'lucide-react';
+import { Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { API_BASE, formatApiError } from '../../config/api';
 import AccountAppealPanel from '../../components/forms/AccountAppealPanel';

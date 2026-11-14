@@ -12,12 +12,26 @@ function summarizeSlots(slots) {
     return days.length ? `${sh.label} ${days.join(', ')}` : null;
   }).filter(Boolean).join(' · ');
 }
-import { 
-  Search, MapPin, Briefcase, Filter, Sparkles, X, 
-  ChevronDown, DollarSign, Clock, Calendar, Check, ArrowRight,
-  Code2, Palette, Megaphone, GraduationCap, Utensils, 
-  Store, Users, ShieldCheck, CheckCircle2, ChevronRight,
-  Sparkle, Building2, Eye, Star, HeartHandshake, Layers
+import {
+  Briefcase,
+  Sparkles,
+  DollarSign,
+  Clock,
+  Calendar,
+  ArrowRight,
+  Code2,
+  Palette,
+  Megaphone,
+  GraduationCap,
+  Utensils,
+  Store,
+  Users,
+  ShieldCheck,
+  CheckCircle2,
+  ChevronRight,
+  Eye,
+  HeartHandshake,
+  Layers
 } from 'lucide-react';
 import JobListSkeleton from '../../components/common/JobListSkeleton';
 import EmptyState from '../../components/common/EmptyState';

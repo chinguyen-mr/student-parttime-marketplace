@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Building2, Cpu, BookOpen, Mail, HelpCircle, 
-  FileText, ShieldCheck, Lock, Map, ArrowLeft, 
-  CheckCircle2, Send, Phone, MapPin, Clock, 
-  Sparkles, ExternalLink, ChevronDown, ChevronRight,
-  Shield, Check, AlertCircle, Info, Calendar
+import {
+  Building2,
+  Cpu,
+  BookOpen,
+  Mail,
+  HelpCircle,
+  FileText,
+  ShieldCheck,
+  Lock,
+  Map,
+  ArrowLeft,
+  CheckCircle2,
+  Send,
+  Phone,
+  MapPin,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 
 export default function AboutPage({

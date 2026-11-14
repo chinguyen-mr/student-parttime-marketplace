@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
-import { 
-  User, Mail, Phone, Calendar, School, MapPin, 
-  FileText, Plus, X, UploadCloud, CheckCircle2, Award, Camera, AlertTriangle
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { AnimatedModal, Button } from '../ui';
+import { User, FileText, X, CheckCircle2, Camera, AlertTriangle } from 'lucide-react';
+import { AnimatedModal } from '../ui';
 import { isImeComposing } from '../../utils/ime';
 
 export function StudentProfileCard({

@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  MapPin, ExternalLink, Globe, AlertCircle, 
-  Navigation, CheckCircle2, ShieldCheck 
-} from 'lucide-react';
+import { MapPin, ExternalLink, Globe, AlertCircle, Navigation, CheckCircle2 } from 'lucide-react';
 
 /**
  * JobLocationMap Component

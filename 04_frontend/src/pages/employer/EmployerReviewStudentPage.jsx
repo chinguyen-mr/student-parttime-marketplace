@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Award, CheckCircle2, AlertCircle, ArrowLeft, MessageSquare, Send } from 'lucide-react';
-import { Button } from '../../components/ui';
+import { Star, Award, ArrowLeft, Send } from 'lucide-react';
 import { API_BASE, formatApiError } from '../../config/api';
 
 export default function EmployerReviewStudentPage({

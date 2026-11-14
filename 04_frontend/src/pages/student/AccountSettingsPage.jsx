@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  Lock, KeyRound, Mail, ShieldCheck, 
-  AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, 
-  Sparkles, ArrowLeft, RefreshCw 
-} from 'lucide-react';
+import { Lock, KeyRound, Mail, AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { API_BASE } from '../../config/api';
 
 export default function AccountSettingsPage({

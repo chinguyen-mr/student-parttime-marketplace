@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Building2, Mail, FileText, Phone, MapPin, Clock, 
-  Send, CheckCircle2, ShieldAlert, Sparkles, ChevronRight,
-  ArrowLeft, ExternalLink, HelpCircle, AlertCircle, ShieldCheck
+import {
+  Building2,
+  Mail,
+  FileText,
+  Phone,
+  MapPin,
+  Clock,
+  Send,
+  CheckCircle2,
+  Sparkles,
+  ChevronRight,
+  ArrowLeft,
+  ShieldCheck
 } from 'lucide-react';
 
 export default function StaticContentPage({

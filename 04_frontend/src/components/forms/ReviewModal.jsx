@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Award, CheckCircle2, User, Building2, X } from 'lucide-react';
+import { Star, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AnimatedModal, Button } from '../ui';
 

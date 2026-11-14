@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Briefcase, Users, FileText, Clock, CheckCircle2, 
-  XCircle, AlertCircle, ArrowRight, Plus, RefreshCw, 
-  Eye, Calendar, DollarSign, Building2, User, ChevronRight,
-  ShieldCheck, AlertTriangle, ExternalLink, Filter, Search
+import {
+  Briefcase,
+  Users,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ArrowRight,
+  Calendar,
+  ChevronRight,
+  ShieldCheck,
+  AlertTriangle
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
-import { DEFAULT_EMPLOYER_JOBS, DEFAULT_APPLICANTS_KETOAN } from '../../App';
 
 export default function EmployerDashboardPage({
   currentUser,
@@ -24,7 +28,7 @@ export default function EmployerDashboardPage({
   showToast
 }) {
   // Navigation / Active View within Employer Portal
-  const [activeMenu, setActiveMenu] = useState('dashboard'); // 'dashboard' | 'profile' | 'verification' | 'jobs' | 'applicants' | 'proposals' | 'assignments' | 'notifications'
+  const [activeMenu, setActiveMenu] = useState('dashboard'); // 'dashboard' | 'profile' | 'verification' | 'jobs' | 'applicants' | 'assignments' | 'notifications'
 
   // Loading, refreshing, and error states
   const [loading, setLoading] = useState(true);
@@ -33,12 +37,11 @@ export default function EmployerDashboardPage({
 
   // Data states
   const [employerJobs, setEmployerJobs] = useState([]);
-  const [proposals, setProposals] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [allApplicants, setAllApplicants] = useState([]);
 
   // Candidate Filter
-  const [candidateFilter, setCandidateFilter] = useState('ALL'); // 'ALL' | 'PENDING' | 'ACCEPTED' | 'APPLICATION' | 'PROPOSAL'
+  const [candidateFilter, setCandidateFilter] = useState('ALL'); // 'ALL' | 'PENDING' | 'ACCEPTED' | 'APPLICATION'
   const [searchKeyword, setSearchKeyword] = useState('');
 
   // =========================================================================
@@ -74,26 +77,9 @@ export default function EmployerDashboardPage({
         console.warn('API /jobs/my-jobs warning:', err);
       }
 
-      // If API returns empty and we have props jobs / seed jobs, keep fallback for smooth UX
-      if (fetchedJobs.length === 0 && Array.isArray(DEFAULT_EMPLOYER_JOBS) && DEFAULT_EMPLOYER_JOBS.length > 0) {
-        fetchedJobs = DEFAULT_EMPLOYER_JOBS;
-      }
       setEmployerJobs(fetchedJobs);
 
-      // 2. Fetch Proposals (GET /api/proposals/employer-proposals)
-      let fetchedProposals = [];
-      try {
-        const resProp = await fetch(`${API_BASE}/proposals/employer-proposals`, { headers });
-        const dataProp = await resProp.json();
-        if (dataProp.success && Array.isArray(dataProp.data)) {
-          fetchedProposals = dataProp.data;
-        }
-      } catch (err) {
-        console.warn('API /proposals/employer-proposals warning:', err);
-      }
-      setProposals(fetchedProposals);
-
-      // 3. Fetch Assignments (GET /api/assignments/employer-assignments)
+      // 2. Fetch Assignments (GET /api/assignments/employer-assignments)
       let fetchedAssignments = [];
       try {
         const resAssign = await fetch(`${API_BASE}/assignments/employer-assignments`, { headers });
@@ -106,13 +92,12 @@ export default function EmployerDashboardPage({
       }
       setAssignments(fetchedAssignments);
 
-      // 4. Fetch / Compile Recent Applicants
+      // 3. Fetch / Compile Recent Applicants
       // Fetch applications from the active jobs or combine with seed applicants
       let compiledApplicants = [];
       try {
-        // Try fetching applicants for first 3 jobs if available
-        const jobsToCheck = fetchedJobs.slice(0, 3);
-        const appPromises = jobsToCheck.map(async (job) => {
+        // Tải hồ sơ của tất cả tin (song song) để KPI tính đúng
+        const appPromises = fetchedJobs.map(async (job) => {
           if (!job.id) return [];
           try {
             const resApp = await fetch(`${API_BASE}/applications/job/${job.id}`, { headers });
@@ -134,15 +119,6 @@ export default function EmployerDashboardPage({
         compiledApplicants = appResults.flat();
       } catch (err) {
         console.warn('API /applications/job/:id warning:', err);
-      }
-
-      // If compiled applicants are empty, use DEFAULT_APPLICANTS_KETOAN as high-fidelity wireframe seed
-      if (compiledApplicants.length === 0 && Array.isArray(DEFAULT_APPLICANTS_KETOAN)) {
-        compiledApplicants = DEFAULT_APPLICANTS_KETOAN.map(a => ({
-          ...a,
-          job_title: fetchedJobs[0]?.title || 'Nhân viên kế toán part-time',
-          type: 'APPLICATION'
-        }));
       }
 
       // JobNest chỉ có Part-time/Full-time: danh sách ứng viên chỉ gồm hồ sơ ứng tuyển
@@ -185,10 +161,6 @@ export default function EmployerDashboardPage({
     const totalApplications = allApplicants.filter(a => a.type === 'APPLICATION').length;
     const pendingApplications = allApplicants.filter(a => a.type === 'APPLICATION' && a.status === 'PENDING').length;
 
-    // 3. Total Proposals & Pending Proposals
-    const totalProposals = proposals.length;
-    const pendingProposals = proposals.filter(p => p.status === 'PENDING').length;
-
     // 4. Assignments In-Progress & Completed
     const inProgressAssignments = assignments.filter(a => a.status === 'IN_PROGRESS' || a.status === 'ACCEPTED').length;
     const completedAssignments = assignments.filter(a => a.status === 'COMPLETED').length;
@@ -198,12 +170,10 @@ export default function EmployerDashboardPage({
       activeJobs,
       totalApplications,
       pendingApplications,
-      totalProposals,
-      pendingProposals,
       inProgressAssignments,
       completedAssignments
     };
-  }, [employerJobs, allApplicants, proposals, assignments]);
+  }, [employerJobs, allApplicants, assignments]);
 
   // =========================================================================
   // 4. FILTERED CANDIDATES & JOBS LIST
@@ -214,7 +184,6 @@ export default function EmployerDashboardPage({
       if (candidateFilter === 'PENDING' && item.status !== 'PENDING') return false;
       if (candidateFilter === 'ACCEPTED' && item.status !== 'ACCEPTED') return false;
       if (candidateFilter === 'APPLICATION' && item.type !== 'APPLICATION') return false;
-      if (candidateFilter === 'PROPOSAL' && item.type !== 'PROPOSAL') return false;
 
       // Filter by search keyword
       if (searchKeyword.trim()) {
@@ -331,7 +300,7 @@ export default function EmployerDashboardPage({
             background: '#F1F5F9',
             color: '#64748B'
           }}>
-            {status || 'Mới'}
+            {{ REVIEWING: 'Đang xem xét', SHORTLISTED: 'Rút gọn', WITHDRAWN: 'Đã rút đơn' }[status] || status || 'Mới'}
           </span>
         );
     }
@@ -574,10 +543,10 @@ export default function EmployerDashboardPage({
             }}>
               <div>
                 <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
-                  Application / Proposal mới
+                  Hồ sơ ứng tuyển mới
                 </h2>
                 <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: 0 }}>
-                  Danh sách sinh viên vừa nộp hồ sơ hoặc gửi báo giá dự án gần đây
+                  Danh sách sinh viên vừa nộp hồ sơ gần đây
                 </p>
               </div>
 
@@ -696,7 +665,7 @@ export default function EmployerDashboardPage({
                           </div>
                         </td>
 
-                        {/* Loại: Application vs Proposal */}
+                        {/* Loại */}
                         <td style={{ padding: '14px' }}>
                           <span style={{
                             display: 'inline-block',
@@ -704,18 +673,18 @@ export default function EmployerDashboardPage({
                             borderRadius: 12,
                             fontSize: 11.5,
                             fontWeight: 700,
-                            background: item.type === 'PROPOSAL' ? '#EEF2FF' : 'var(--color-accent-bg)',
-                            color: item.type === 'PROPOSAL' ? '#4F46E5' : 'var(--color-primary)',
-                            border: `1px solid ${item.type === 'PROPOSAL' ? '#C7D2FE' : 'var(--color-secondary)'}`
+                            background: 'var(--color-accent-bg)',
+                            color: 'var(--color-primary)',
+                            border: '1px solid var(--color-secondary)'
                           }}>
-                            {item.type === 'PROPOSAL' ? 'Proposal (Freelance)' : 'Application (Part-time)'}
+                            Hồ sơ ứng tuyển
                           </span>
                         </td>
 
                         {/* Vị trí ứng tuyển */}
                         <td style={{ padding: '14px' }}>
                           <div style={{ fontWeight: 600, color: 'var(--color-text)' }}>
-                            {item.job_title || 'Nhân viên kế toán part-time'}
+                            {item.job_title || '—'}
                           </div>
                         </td>
 
@@ -733,11 +702,7 @@ export default function EmployerDashboardPage({
                         <td style={{ padding: '14px', textAlign: 'right' }}>
                           <button
                             onClick={() => {
-                              if (item.type === 'PROPOSAL') {
-                                if (onNavigateTab) onNavigateTab('employer_proposals');
-                              } else {
-                                if (onNavigateTab) onNavigateTab('applicants');
-                              }
+                              if (onNavigateTab) onNavigateTab('applicants');
                             }}
                             style={{
                               background: '#ffffff',

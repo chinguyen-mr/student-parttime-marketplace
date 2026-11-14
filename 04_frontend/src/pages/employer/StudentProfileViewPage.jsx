@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  User, School, BookOpen, Mail, Phone, Calendar, 
-  Clock, Download, ArrowLeft, ExternalLink, ShieldCheck, 
-  Briefcase, Award, CheckCircle2, AlertCircle, RefreshCw, ChevronRight
+import {
+  User,
+  School,
+  BookOpen,
+  Mail,
+  Phone,
+  Calendar,
+  Download,
+  ArrowLeft,
+  ExternalLink,
+  ShieldCheck,
+  Briefcase,
+  AlertCircle,
+  RefreshCw,
+  ChevronRight
 } from 'lucide-react';
-import { API_BASE, formatApiError, resolveFileUrl, cvDisplayName } from '../../config/api';
+import { API_BASE, resolveFileUrl, cvDisplayName } from '../../config/api';
 
 export default function StudentProfileViewPage({
   studentId,

@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Bell, CheckCircle2, Clock, FileText, Users, 
-  Briefcase, CheckCheck, RefreshCw, ChevronRight, AlertCircle
-} from 'lucide-react';
+import { Bell, CheckCheck, RefreshCw, ChevronRight } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import { API_BASE, formatApiError } from '../../config/api';
@@ -82,7 +79,7 @@ export default function EmployerNotificationsPage({
       } else if (item.type === 'APPLICATION' || item.title?.includes('ứng tuyển') || item.body?.includes('ứng tuyển')) {
         onNavigateTab('applicants');
       } else if (item.type === 'PROPOSAL' || item.title?.includes('đề xuất') || item.body?.includes('chào giá')) {
-        onNavigateTab('employer_proposals');
+        onNavigateTab('applicants');
       } else if (item.type === 'ASSIGNMENT' || item.type === 'DELIVERABLE' || item.title?.includes('bàn giao')) {
         onNavigateTab('employer_assignments');
       } else {

@@ -1,8 +1,5 @@
 import React from 'react';
-import { 
-  CheckCircle2, Sparkles, User, Briefcase, 
-  Clock, ShieldCheck, ArrowRight, Home, LogIn 
-} from 'lucide-react';
+import { CheckCircle2, Sparkles, Home, LogIn } from 'lucide-react';
 
 export default function RegisterSuccessPage({
   user = null,

@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { 
-  ShieldCheck, FileText, Lock, HelpCircle, 
-  CheckCircle2, X, ChevronRight, ExternalLink, Info
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { ShieldCheck, FileText, Lock, HelpCircle, X, Info } from 'lucide-react';
+import { motion } from 'motion/react';
 import { AnimatedModal, Button } from '../ui';
 
 export default function PolicyModal({

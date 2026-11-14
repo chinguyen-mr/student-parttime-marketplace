@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FileText, Briefcase, Calendar, MapPin, DollarSign, 
-  Building2, ArrowLeft, Download, ExternalLink, CheckCircle2, 
-  Clock, XCircle, AlertCircle, RefreshCw, ChevronRight, User, AlertTriangle, X
+import {
+  FileText,
+  MapPin,
+  DollarSign,
+  Building2,
+  ArrowLeft,
+  Download,
+  ExternalLink,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  AlertCircle,
+  RefreshCw,
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { Button, AnimatedModal } from '../../components/ui';
-import { API_BASE, formatApiError, resolveFileUrl, cvDisplayName } from '../../config/api';
+import { API_BASE, resolveFileUrl, cvDisplayName } from '../../config/api';
 import ProfileSnapshotView from '../../components/student/ProfileSnapshotView';
 
 export default function ApplicationDetailPage({

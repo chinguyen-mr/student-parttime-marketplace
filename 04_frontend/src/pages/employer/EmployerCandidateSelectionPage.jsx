@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, CheckCircle2, AlertTriangle, ArrowLeft, Briefcase, CheckSquare, Square, FileText, Send } from 'lucide-react';
+import { Users, CheckCircle2, AlertTriangle, ArrowLeft, Briefcase, CheckSquare, Square } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { API_BASE, formatApiError } from '../../config/api';
 
@@ -25,7 +25,7 @@ export default function EmployerCandidateSelectionPage({
   const alreadySelectedCount = Number(activeJob?.accepted_count || 0);
   const remainingSlots = Math.max(0, quantityRequired - alreadySelectedCount);
 
-  // Fetch eligible candidates (applications in SHORTLISTED/REVIEWING, proposals in REVIEWING)
+  // Fetch eligible candidates (applications in SHORTLISTED/REVIEWING)
   useEffect(() => {
     if (!selectedJobId) return;
     const fetchEligibleCandidates = async () => {
@@ -52,27 +52,8 @@ export default function EmployerCandidateSelectionPage({
           console.warn('Error fetching apps for selection:', e);
         }
 
-        // 2. Fetch Proposals for this job (if freelance)
-        let props = [];
-        try {
-          const resProps = await fetch(`${API_BASE}/proposals/job/${selectedJobId}`, { headers });
-          const dataProps = await resProps.json();
-          if (dataProps.success && Array.isArray(dataProps.data)) {
-            props = dataProps.data.map(p => ({
-              id: p.id,
-              student_id: p.student_id,
-              student_name: p.student_name || `Ứng viên #${p.student_id}`,
-              source: 'Proposal (Freelance)',
-              status: p.status,
-              type: 'PROPOSAL'
-            }));
-          }
-        } catch (e) {
-          console.warn('Error fetching proposals for selection:', e);
-        }
-
         // Merge eligible: shortlisted, reviewing, or applied (không còn ứng viên "demo" khi danh sách trống)
-        const merged = [...apps, ...props].filter(c =>
+        const merged = apps.filter(c =>
           ['SHORTLISTED', 'REVIEWING', 'PENDING', 'APPLIED', 'SUBMITTED'].includes(c.status)
         );
         setEligibleCandidates(merged);
@@ -115,9 +96,6 @@ export default function EmployerCandidateSelectionPage({
         body: JSON.stringify({
           applicationIds: eligibleCandidates
             .filter(c => c.type === 'APPLICATION' && selectedCandidateIds.includes(c.id))
-            .map(c => c.id),
-          proposalIds: eligibleCandidates
-            .filter(c => c.type === 'PROPOSAL' && selectedCandidateIds.includes(c.id))
             .map(c => c.id)
         })
       });

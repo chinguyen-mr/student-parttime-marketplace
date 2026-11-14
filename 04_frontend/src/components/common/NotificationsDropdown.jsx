@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Bell, CheckCircle2, Eye, Clock, Check, ExternalLink, RefreshCw } from 'lucide-react';
+import { Bell, CheckCircle2, Clock, Check, ExternalLink } from 'lucide-react';
 import { API_BASE } from '../../config/api';
 
 export default function NotificationsDropdown({ 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Flag, X, AlertCircle, CheckCircle2, ShieldAlert, Loader2 } from 'lucide-react';
+import { Flag, X, AlertCircle, Loader2 } from 'lucide-react';
 import { API_BASE } from '../../config/api';
 import { REPORT_REASONS } from '../../utils/reviewDisplay';
 

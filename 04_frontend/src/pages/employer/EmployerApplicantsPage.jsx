@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Users, FileText, CheckCircle2, XCircle, Clock, 
-  Eye, Award, Building2, Search, Filter, AlertCircle, 
-  ExternalLink, ChevronRight, UserCheck, ShieldCheck, 
-  ArrowRight, Sparkles, AlertTriangle
-} from 'lucide-react';
+import { Users, FileText, UserCheck, AlertTriangle } from 'lucide-react';
 import { Button, AnimatedModal } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
-import { DEFAULT_APPLICANTS_KETOAN, DEFAULT_EMPLOYER_JOBS } from '../../App';
 import ExportMenu from '../../components/common/ExportMenu';
+
+const STATUS_BADGE = {
+  PENDING: { label: 'Chờ duyệt', bg: '#FEF3C7', color: '#B45309' },
+  REVIEWING: { label: 'Đang xem xét', bg: '#E0F2FE', color: '#0369A1' },
+  SHORTLISTED: { label: 'Rút gọn', bg: '#ECFDF5', color: '#047857' },
+  ACCEPTED: { label: 'Đã nhận', bg: '#DCFCE7', color: '#15803D' },
+  REJECTED: { label: 'Từ chối', bg: '#FEE2E2', color: '#B91C1C' },
+};
 
 export default function EmployerApplicantsPage({
   currentUser,
@@ -18,16 +20,14 @@ export default function EmployerApplicantsPage({
   onNavigateSelection,
   onNavigateAssignments
 }) {
-  const [activeTab, setActiveTab] = useState('applications'); // 'applications' (WF-E06) | 'proposals' (WF-E07)
+  const [activeTab, setActiveTab] = useState('applications'); // WF-E06
   const [loading, setLoading] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [currentJobId, setCurrentJobId] = useState(selectedJob?.id || 'ALL');
 
-  // Applications & Proposals state
+  // Applications state
   const [applications, setApplications] = useState([]);
-  const [proposals, setProposals] = useState([]);
   const [appFilter, setAppFilter] = useState('ALL'); // ALL, PENDING, SHORTLISTED, REJECTED
-  const [propFilter, setPropFilter] = useState('ALL'); // ALL, SUBMITTED, REVIEWING, REJECTED
 
   // WF-E08: Candidate Selection (A3 Rule) Modal State
   const [selectionModalOpen, setSelectionModalOpen] = useState(false);
@@ -51,48 +51,23 @@ export default function EmployerApplicantsPage({
       let fetchedJobs = [];
       if (dataJobs.success && Array.isArray(dataJobs.data)) {
         fetchedJobs = dataJobs.data;
-        setJobs(fetchedJobs);
-      } else if (DEFAULT_EMPLOYER_JOBS) {
-        setJobs(DEFAULT_EMPLOYER_JOBS);
-        fetchedJobs = DEFAULT_EMPLOYER_JOBS;
       }
+      setJobs(fetchedJobs);
 
-      // 2. Fetch Proposals (GET /api/proposals/employer-proposals)
-      try {
-        const resProp = await fetch(`${API_BASE}/proposals/employer-proposals`, { headers });
-        const dataProp = await resProp.json();
-        if (dataProp.success && Array.isArray(dataProp.data)) {
-          setProposals(dataProp.data);
-        }
-      } catch (err) {
-        console.warn('Error fetching proposals:', err);
-      }
-
-      // 3. Fetch Applications from jobs
-      let compiledApps = [];
-      try {
-        const jobsToCheck = fetchedJobs.slice(0, 5);
-        for (const j of jobsToCheck) {
-          if (!j.id) continue;
+      // 2. Tải hồ sơ ứng tuyển của tất cả tin (song song)
+      const results = await Promise.all(fetchedJobs.filter(j => j.id).map(async (j) => {
+        try {
           const resApp = await fetch(`${API_BASE}/applications/job/${j.id}`, { headers });
           const dataApp = await resApp.json();
-          if (dataApp.success && Array.isArray(dataApp.data)) {
-            compiledApps.push(...dataApp.data.map(a => ({ ...a, job_title: j.title, job_id: j.id })));
-          }
+          return dataApp.success && Array.isArray(dataApp.data)
+            ? dataApp.data.map(a => ({ ...a, job_title: j.title, job_id: j.id }))
+            : [];
+        } catch (err) {
+          console.warn('Error fetching job apps:', err);
+          return [];
         }
-      } catch (err) {
-        console.warn('Error fetching job apps:', err);
-      }
-
-      if (compiledApps.length === 0 && DEFAULT_APPLICANTS_KETOAN) {
-        compiledApps = DEFAULT_APPLICANTS_KETOAN.map(a => ({
-          ...a,
-          job_id: fetchedJobs[0]?.id || 1,
-          job_title: fetchedJobs[0]?.title || 'Nhân viên kế toán part-time'
-        }));
-      }
-
-      setApplications(compiledApps);
+      }));
+      setApplications(results.flat());
     } catch (err) {
       console.error(err);
     } finally {
@@ -108,11 +83,7 @@ export default function EmployerApplicantsPage({
   useEffect(() => {
     if (selectedJob) {
       setCurrentJobId(selectedJob.id);
-      if (selectedJob.work_type === 'FREELANCE') {
-        setActiveTab('proposals');
-      } else {
-        setActiveTab('applications');
-      }
+      setActiveTab('applications');
     }
   }, [selectedJob]);
 
@@ -126,17 +97,6 @@ export default function EmployerApplicantsPage({
       return true;
     });
   }, [applications, currentJobId, appFilter]);
-
-  // Filtered Proposals (WF-E07)
-  const filteredProposals = useMemo(() => {
-    return proposals.filter(p => {
-      if (currentJobId !== 'ALL' && String(p.job_id) !== String(currentJobId)) return false;
-      if (propFilter === 'SUBMITTED' && p.status !== 'SUBMITTED' && p.status !== 'PENDING') return false;
-      if (propFilter === 'REVIEWING' && p.status !== 'REVIEWING') return false;
-      if (propFilter === 'REJECTED' && p.status !== 'REJECTED') return false;
-      return true;
-    });
-  }, [proposals, currentJobId, propFilter]);
 
   // Handle Mark Shortlist / Reviewing
   const handleUpdateApplicationStatus = async (appId, newStatus) => {
@@ -179,10 +139,7 @@ export default function EmployerApplicantsPage({
 
     try {
       setSubmittingSelection(true);
-      const isFreelance = targetJobForSelection.work_type === 'FREELANCE';
-      const payload = isFreelance
-        ? { proposalIds: [parseInt(selectedCandidateId, 10)] }
-        : { applicationIds: [parseInt(selectedCandidateId, 10)] };
+      const payload = { applicationIds: [parseInt(selectedCandidateId, 10)] };
 
       const res = await fetch(`${API_BASE}/jobs/${targetJobForSelection.id}/selections`, {
         method: 'POST',
@@ -227,7 +184,7 @@ export default function EmployerApplicantsPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>
-            QUẢN LÝ ỨNG VIÊN & ĐỀ XUẤT
+            QUẢN LÝ ỨNG VIÊN
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
             Hồ sơ Ứng tuyển & Tuyển chọn Ứng viên
@@ -299,7 +256,7 @@ export default function EmployerApplicantsPage({
         </div>
       </div>
 
-      {/* Tabs: Applications vs Proposals */}
+      {/* Tabs */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-border)', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', gap: 10 }}>
           <button
@@ -324,28 +281,6 @@ export default function EmployerApplicantsPage({
             </span>
           </button>
 
-          {/* Tab Đề xuất Freelance đã tắt: JobNest chỉ có Part-time/Full-time */}
-          {false && <button
-            onClick={() => setActiveTab('proposals')}
-            style={{
-              padding: '10px 18px',
-              fontSize: 14,
-              fontWeight: 700,
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === 'proposals' ? '3px solid var(--color-primary)' : '3px solid transparent',
-              color: activeTab === 'proposals' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8
-            }}
-          >
-            <FileText size={16} /> Đề xuất Freelance
-            <span style={{ fontSize: 11, background: '#E2E8F0', padding: '2px 8px', borderRadius: 10, color: '#334155' }}>
-              {filteredProposals.length}
-            </span>
-          </button>}
         </div>
 
         {/* CTA to WF-E08 Candidate Selection */}
@@ -493,10 +428,10 @@ export default function EmployerApplicantsPage({
                             borderRadius: 16,
                             fontSize: 12,
                             fontWeight: 700,
-                            background: app.status === 'SHORTLISTED' ? '#ECFDF5' : app.status === 'REJECTED' ? '#FEE2E2' : '#FEF3C7',
-                            color: app.status === 'SHORTLISTED' ? '#047857' : app.status === 'REJECTED' ? '#B91C1C' : '#B45309'
+                            background: (STATUS_BADGE[app.status] || STATUS_BADGE.PENDING).bg,
+                            color: (STATUS_BADGE[app.status] || STATUS_BADGE.PENDING).color
                           }}>
-                            {app.status === 'SHORTLISTED' ? 'Rút gọn' : app.status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt'}
+                            {(STATUS_BADGE[app.status] || STATUS_BADGE.PENDING).label}
                           </span>
                         )}
                       </td>
@@ -511,14 +446,16 @@ export default function EmployerApplicantsPage({
                             Xem hồ sơ
                           </button>
 
-                          {app.status !== 'WITHDRAWN' ? (
+                          {['PENDING', 'REVIEWING', 'SHORTLISTED'].includes(app.status) ? (
                             <>
-                              <button
-                                onClick={() => handleUpdateApplicationStatus(app.id, 'SHORTLISTED')}
-                                style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 700, color: '#047857', cursor: 'pointer' }}
-                              >
-                                Rút gọn
-                              </button>
+                              {app.status !== 'SHORTLISTED' && (
+                                <button
+                                  onClick={() => handleUpdateApplicationStatus(app.id, 'SHORTLISTED')}
+                                  style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 700, color: '#047857', cursor: 'pointer' }}
+                                >
+                                  Rút gọn
+                                </button>
+                              )}
 
                               <button
                                 onClick={() => handleUpdateApplicationStatus(app.id, 'REJECTED')}
@@ -529,133 +466,9 @@ export default function EmployerApplicantsPage({
                             </>
                           ) : (
                             <span style={{ fontSize: 11.5, color: '#94A3B8', fontStyle: 'italic', padding: '5px 4px' }}>
-                              Đã hủy
+                              {app.status === 'WITHDRAWN' ? 'Đã hủy' : 'Đã xử lý'}
                             </span>
                           )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ================= TAB 2: WF-E07 — PROPOSAL MANAGEMENT ================= */}
-      {activeTab === 'proposals' && (
-        <div>
-          {/* Status Filter Pills */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-            {[
-              { id: 'ALL', label: 'Tất cả đề xuất' },
-              { id: 'SUBMITTED', label: 'Mới nộp (SUBMITTED)' },
-              { id: 'REVIEWING', label: 'Đang xem xét (REVIEWING)' },
-              { id: 'REJECTED', label: 'Từ chối (REJECTED)' },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setPropFilter(tab.id)}
-                style={{
-                  background: propFilter === tab.id ? 'var(--color-primary)' : '#ffffff',
-                  color: propFilter === tab.id ? '#ffffff' : 'var(--color-text-secondary)',
-                  border: '1px solid',
-                  borderColor: propFilter === tab.id ? 'var(--color-primary)' : 'var(--color-border)',
-                  borderRadius: 20,
-                  padding: '5px 14px',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {filteredProposals.length === 0 ? (
-            <EmptyState
-              title="Chưa có đề xuất Freelance nào"
-              description="Hiện tại chưa có sinh viên nộp báo giá dự án theo tiêu chí lọc này."
-            />
-          ) : (
-            <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
-                <thead>
-                  <tr style={{ background: '#FAFAFD', borderBottom: '2px solid #F1F5F9', color: 'var(--color-text-secondary)', fontSize: 12.5, textTransform: 'uppercase' }}>
-                    <th style={{ padding: '14px 16px', fontWeight: 700 }}>Freelancer / Sinh viên</th>
-                    <th style={{ padding: '14px 16px', fontWeight: 700 }}>Dự án Freelance</th>
-                    <th style={{ padding: '14px 16px', fontWeight: 700 }}>Thời gian dự kiến</th>
-                    <th style={{ padding: '14px 16px', fontWeight: 700 }}>Giá đề xuất (VNĐ)</th>
-                    <th style={{ padding: '14px 16px', fontWeight: 700 }}>Trạng thái</th>
-                    <th style={{ padding: '14px 16px', fontWeight: 700, textAlign: 'right' }}>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProposals.map((prop, index) => (
-                    <tr key={prop.id || index} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            background: '#EEF2FF',
-                            color: '#4F46E5',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 14,
-                            fontWeight: 800
-                          }}>
-                            {prop.student_name?.charAt(0) || 'F'}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 700, color: 'var(--color-text)' }}>
-                              {prop.student_name || 'Vũ Thu Nam'}
-                            </div>
-                            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
-                              {prop.university || 'Đại học Văn Lang'}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td style={{ padding: '14px 16px', fontWeight: 600 }}>
-                        {prop.job_title || 'Thiết kế Banner Sự Kiện'}
-                      </td>
-
-                      <td style={{ padding: '14px 16px', color: 'var(--color-text-secondary)' }}>
-                        {prop.estimated_duration || '7 ngày'}
-                      </td>
-
-                      <td style={{ padding: '14px 16px', fontWeight: 800, color: 'var(--color-primary)' }}>
-                        {prop.proposed_price ? `${Number(prop.proposed_price).toLocaleString()} đ` : '3.200.000 đ'}
-                      </td>
-
-                      <td style={{ padding: '14px 16px' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '3px 10px',
-                          borderRadius: 16,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          background: prop.status === 'REVIEWING' ? '#EEF2FF' : prop.status === 'REJECTED' ? '#FEE2E2' : '#FEF3C7',
-                          color: prop.status === 'REVIEWING' ? '#4F46E5' : prop.status === 'REJECTED' ? '#B91C1C' : '#B45309'
-                        }}>
-                          {prop.status === 'REVIEWING' ? 'Đang xem xét' : prop.status === 'REJECTED' ? 'Từ chối' : 'Mới nộp'}
-                        </span>
-                      </td>
-
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: 6 }}>
-                          <button
-                            onClick={() => handleViewStudentProfile(prop)}
-                            style={{ background: '#ffffff', border: '1px solid var(--color-border)', borderRadius: 6, padding: '5px 10px', fontSize: 12, fontWeight: 700, color: 'var(--color-primary)', cursor: 'pointer' }}
-                          >
-                            Hồ sơ (WF-E13)
-                          </button>
                         </div>
                       </td>
                     </tr>
@@ -739,7 +552,7 @@ export default function EmployerApplicantsPage({
 
             {/* Candidate Radio List */}
             <div style={{ maxHeight: 260, overflowY: 'auto', border: '1px solid var(--color-border)', borderRadius: 10, marginBottom: 20 }}>
-              {(targetJobForSelection.work_type === 'FREELANCE' ? proposals : applications).map(candidate => {
+              {applications.filter(a => String(a.job_id) === String(targetJobForSelection.id)).map(candidate => {
                 const isSelected = String(selectedCandidateId) === String(candidate.id);
                 return (
                   <div
@@ -850,7 +663,7 @@ export default function EmployerApplicantsPage({
                 Giới thiệu bản thân
               </div>
               <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', lineHeight: 1.6, margin: 0 }}>
-                {viewingStudent.cover_letter || viewingStudent.proposal_text || 'Sinh viên năng động, có tinh thần trách nhiệm cao, có thể linh hoạt sắp xếp lịch học và lịch làm việc thực tế.'}
+                {viewingStudent.cover_letter || 'Sinh viên năng động, có tinh thần trách nhiệm cao, có thể linh hoạt sắp xếp lịch học và lịch làm việc thực tế.'}
               </p>
             </div>
 

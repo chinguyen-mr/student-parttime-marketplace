@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import {
-  AlertTriangle, Lock, Clock, Home, Search,
-  ArrowLeft, LogIn, RefreshCw, HelpCircle, ChevronRight, ServerCrash
-} from 'lucide-react';
+import { AlertTriangle, Lock, Clock, Home, Search, RefreshCw, ServerCrash } from 'lucide-react';
 
 export default function ErrorPage({
   type = '404', // '404' | '403' | 'expired' | 'server'

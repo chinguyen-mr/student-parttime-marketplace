@@ -1,7 +1,7 @@
 {
   "name": "chuyen-de-tot-nghiep-2-marketplace",
   "version": "1.0.0",
-  "description": "Nền tảng quản lý freelance / marketplace việc làm part-time cho sinh viên (Chuyên đề tốt nghiệp 2 - Khoa CNTT - Đại học Văn Lang)",
+  "description": "Nền tảng việc làm part-time / full-time cho sinh viên (Chuyên đề tốt nghiệp 2 - Khoa CNTT - Đại học Văn Lang)",
   "scripts": {
     "setup": "npm run install:all && npm run connect:db",
     "connect:db": "node connect_db.js",
@@ -29,12 +29,11 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^10.5.0",
-    "pg": "^8.13.1",
-    "xlsx": "^0.18.5"
+    "pg": "^8.13.1"
   },
   "keywords": [
     "marketplace",
-    "freelance",
+    "full-time",
     "part-time",
     "sinh-vien",
     "chuyen-de-2",

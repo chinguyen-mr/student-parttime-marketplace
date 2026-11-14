@@ -82,20 +82,14 @@ AUTO_BOOTSTRAP=check
 Từ **root** của dự án (đảm bảo `03_backend/.env` đã đúng và database đã tồn tại):
 
 ```powershell
-# Tạo bảng (chạy toàn bộ migration)
-npm run migrate
+# Tạo bảng (schema đầy đủ, cần psql trong PATH — ví dụ C:\Program Files\PostgreSQL\17\bin)
+psql -U postgres -d cd2_marketplace_dev -v ON_ERROR_STOP=1 -f 02_database/jobnest_schema.sql
 
-# Nạp dữ liệu mẫu
-npm run seed
+# Nạp dữ liệu demo (cần Python + pip install psycopg2-binary openpyxl; đọc kết nối từ 03_backend/.env)
+python scripts/data_v3/import_data_v3.py --yes
 ```
 
-**Cách thay thế** — nạp toàn bộ dump một lần (nhanh hơn, cần `psql` trong PATH):
-
-```powershell
-psql -U postgres -d cd2_marketplace_dev -f 02_database/cd2_marketplace_full_dump.sql
-```
-
-Nhập mật khẩu PostgreSQL khi được hỏi.
+Nhập mật khẩu PostgreSQL khi được hỏi. Tài khoản demo: mật khẩu `Jobnest@2026` cho `admin.test@vlu.edu.vn`, `employer.test@vlu.edu.vn`, `student.test@vlu.edu.vn`.
 
 ## 7. Chạy backend
 

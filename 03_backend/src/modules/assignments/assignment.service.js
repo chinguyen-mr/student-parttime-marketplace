@@ -26,13 +26,11 @@ class AssignmentService {
                     j.title AS job_title, j.category, j.work_type, j.location, j.salary, j.salary_type,
                     emp.full_name AS employer_name, emp.email AS employer_email, emp.phone AS employer_phone,
                     app.cover_letter,
-                    prop.proposal_text, prop.proposed_price, prop.estimated_duration,
                     myr.rating AS my_review_rating, myr.comment AS my_review_comment, myr.created_at AS my_review_at
              FROM work_assignments wa
              JOIN jobs j ON j.id = wa.job_id
              JOIN users emp ON emp.id = j.employer_id
              LEFT JOIN applications app ON app.id = wa.application_id
-             LEFT JOIN freelance_proposals prop ON prop.id = wa.proposal_id
              LEFT JOIN LATERAL (SELECT rating, comment, created_at FROM reviews rv
                                 WHERE rv.job_id = wa.job_id AND rv.reviewer_id = wa.student_id AND rv.reviewee_id = j.employer_id
                                 ORDER BY rv.id DESC LIMIT 1) myr ON true
@@ -53,14 +51,12 @@ class AssignmentService {
                     stu.full_name AS student_name, stu.email AS student_email, stu.phone AS student_phone,
                     pr.school AS university, pr.major, pr.avatar_url AS student_avatar,
                     app.cover_letter,
-                    prop.proposal_text, prop.proposed_price, prop.estimated_duration,
                     myr.rating AS my_review_rating, myr.comment AS my_review_comment, myr.created_at AS my_review_at
              FROM work_assignments wa
              JOIN jobs j ON j.id = wa.job_id
              JOIN users stu ON stu.id = wa.student_id
              LEFT JOIN student_profiles pr ON pr.user_id = stu.id
              LEFT JOIN applications app ON app.id = wa.application_id
-             LEFT JOIN freelance_proposals prop ON prop.id = wa.proposal_id
              LEFT JOIN LATERAL (SELECT rating, comment, created_at FROM reviews rv
                                 WHERE rv.job_id = wa.job_id AND rv.reviewer_id = j.employer_id AND rv.reviewee_id = wa.student_id
                                 ORDER BY rv.id DESC LIMIT 1) myr ON true
@@ -82,15 +78,13 @@ class AssignmentService {
                     emp.full_name AS employer_name, emp.email AS employer_email, emp.phone AS employer_phone,
                     stu.full_name AS student_name, stu.email AS student_email, stu.phone AS student_phone,
                     pr.school AS university, pr.major,
-                    app.cover_letter,
-                    prop.proposal_text, prop.proposed_price, prop.estimated_duration
+                    app.cover_letter
              FROM work_assignments wa
              JOIN jobs j ON j.id = wa.job_id
              JOIN users emp ON emp.id = j.employer_id
              JOIN users stu ON stu.id = wa.student_id
              LEFT JOIN student_profiles pr ON pr.user_id = stu.id
              LEFT JOIN applications app ON app.id = wa.application_id
-             LEFT JOIN freelance_proposals prop ON prop.id = wa.proposal_id
              WHERE wa.id = $1`,
             [id]
         );

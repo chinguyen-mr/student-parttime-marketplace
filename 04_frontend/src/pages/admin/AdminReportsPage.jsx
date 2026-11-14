@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  AlertTriangle, ShieldAlert, CheckCircle2, XCircle, 
-  ArrowLeft, RefreshCw, Eye, User, Briefcase, Clock, 
-  Send, History, Shield, AlertCircle
-} from 'lucide-react';
+import { CheckCircle2, ArrowLeft, RefreshCw, Eye, Clock, Send } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import ExportMenu from '../../components/common/ExportMenu';

@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Building2, MapPin, DollarSign, Clock, Calendar, 
-  FileText, CheckCircle2, Award, Send, X, AlertCircle, ChevronDown, Check
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { AnimatedModal, Button, CustomDropdown } from '../ui';
+import { Building2, MapPin, DollarSign, Send, X, AlertCircle, ChevronDown } from 'lucide-react';
+import { AnimatedModal, Button } from '../ui';
 import { API_BASE, SERVER_BASE, formatApiError } from '../../config/api';
 
 /**

@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Building2, MapPin, DollarSign, Clock, Calendar, 
-  ArrowLeft, Send, Bookmark, CheckCircle2, Award, Briefcase, 
-  GraduationCap, Users, ExternalLink, Share2, ShieldCheck, 
-  ChevronRight, Sparkles, AlertCircle, FileText, Globe, Check, Edit3, Flag
+import {
+  Building2,
+  Clock,
+  ArrowLeft,
+  Send,
+  Bookmark,
+  Award,
+  ExternalLink,
+  Share2,
+  ShieldCheck,
+  ChevronRight,
+  Sparkles,
+  AlertCircle,
+  FileText,
+  Edit3,
+  Flag
 } from 'lucide-react';
-import { motion } from 'motion/react';
 import { Button } from '../../components/ui';
 import CompanyLogo from '../../components/CompanyLogo';
 import { getJobBannerUrl } from '../../utils/bannerHelper';
 import JobLocationMap from '../../components/JobLocationMap';
 import JobReviewsSection from '../../components/reviews/JobReviewsSection';
-import ProposalModal from '../../components/forms/ProposalModal';
 import { API_BASE } from '../../config/api';
 import { updateSEO, cleanupSEO } from '../../utils/seoHelper';
 
@@ -41,7 +50,6 @@ export default function JobDetailPage({
   const [relatedJobs, setRelatedJobs] = useState([]);
   const [loading, setLoading] = useState(!initialJob && !fallbackJob);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [proposalModalOpen, setProposalModalOpen] = useState(false);
 
   // Fallback to initialJob if job state is empty
   const currentJob = job || initialJob || fallbackJob;
@@ -273,8 +281,6 @@ export default function JobDetailPage({
     // 3. Nếu là STUDENT -> Điều hướng qua handleOpenApplyModal để kiểm tra hồ sơ
     if (onApply) {
       onApply(currentJob);
-    } else if (currentJob.work_type === 'FREELANCE' || currentJob.job_type === 'FREELANCE') {
-      setProposalModalOpen(true);
     }
   };
 
@@ -824,33 +830,6 @@ export default function JobDetailPage({
                 >
                   <Clock size={16} /> Đã hết hạn ứng tuyển
                 </button>
-              ) : currentJob.work_type === 'FREELANCE' || currentJob.job_type === 'FREELANCE' ? (
-                /* Nút Gửi Proposal cho Freelance (k177) */
-                <button
-                  type="button"
-                  onClick={handleApplyClick}
-                  style={{
-                    width: '100%',
-                    background: '#047857',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: 10,
-                    padding: '12px 20px',
-                    fontSize: 14.5,
-                    fontWeight: 800,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(4, 120, 87, 0.3)',
-                    transition: 'all 0.15s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#065F46'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#047857'}
-                >
-                  <Send size={16} /> Gửi Proposal ngay
-                </button>
               ) : (
                 /* Nút Ứng tuyển ngay cho Part-time / Seasonal (k176) */
                 <button
@@ -1202,17 +1181,6 @@ export default function JobDetailPage({
         </div>
       )}
 
-      {/* Proposal Modal for Freelance Jobs */}
-      <ProposalModal
-        isOpen={proposalModalOpen}
-        onClose={() => setProposalModalOpen(false)}
-        job={currentJob}
-        currentUser={currentUser}
-        onSuccess={() => {
-          if (showToast) showToast('Đã nộp đề xuất Freelance thành công (WF-S07)!');
-        }}
-        showToast={showToast}
-      />
     </div>
   );
 }

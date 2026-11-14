@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, Briefcase, FileText, AlertTriangle, ShieldCheck, 
-  Clock, CheckCircle2, XCircle, ArrowRight, RefreshCw, 
-  TrendingUp, BarChart2, Shield, Eye, AlertCircle
+import {
+  Users,
+  Briefcase,
+  FileText,
+  AlertTriangle,
+  ShieldCheck,
+  Clock,
+  CheckCircle2,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';

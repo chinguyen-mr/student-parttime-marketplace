@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Building2, Plus, Search, Filter, Eye, Edit3, XCircle, 
-  CheckCircle2, Clock, AlertCircle, RefreshCw, Calendar, Users,
-  ChevronRight, AlertTriangle
-} from 'lucide-react';
+import { Plus, Search, Eye, Edit3, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import StatusBadge from '../../components/common/StatusBadge';

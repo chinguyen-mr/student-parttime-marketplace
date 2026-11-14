@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { 
-  Phone, Mail, MapPin, Clock, MessageSquare, 
-  Send, CheckCircle2, X, Headphones, HelpCircle 
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Phone, MapPin, Clock, MessageSquare, Send, CheckCircle2, X, Headphones } from 'lucide-react';
+import { motion } from 'motion/react';
 import { AnimatedModal, Button, CustomDropdown } from '../ui';
 
 export default function SupportModal({

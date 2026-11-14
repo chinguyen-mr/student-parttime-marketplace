@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FolderPlus, Edit3, Trash2, CheckCircle2, XCircle, 
-  RefreshCw, Plus, Save, X, Eye, EyeOff, Tag
-} from 'lucide-react';
+import { Edit3, Trash2, CheckCircle2, XCircle, RefreshCw, Plus, Save, X, Eye, EyeOff, Tag } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import ExportMenu from '../../components/common/ExportMenu';

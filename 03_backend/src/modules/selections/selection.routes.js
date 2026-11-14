@@ -8,8 +8,7 @@ const { verifyToken, requireRoles } = require('../../middleware/auth.middleware'
 router.post('/:jobId/selections', verifyToken, requireRoles('EMPLOYER'), validateSelections, async (req, res, next) => {
     try {
         const jobId = parseInt(req.params.jobId, 10);
-        const { applicationIds, proposalIds } = req.body;
-        const result = await selectionService.createSelections(jobId, req.user.id, { applicationIds, proposalIds });
+        const result = await selectionService.createSelections(jobId, req.user.id, { applicationIds: req.body.applicationIds });
 
         res.status(200).json({
             success: true,

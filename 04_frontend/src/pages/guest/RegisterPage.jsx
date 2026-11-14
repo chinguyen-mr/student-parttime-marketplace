@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { 
-  User, Building2, Mail, Lock, Eye, EyeOff, 
-  CheckCircle2, AlertCircle, ArrowRight, ShieldCheck,
-  Calendar, Phone, MapPin, Briefcase, FileText, Upload,
-  GraduationCap, Award, Globe, Plus, Trash2, Camera,
-  Check, Sparkles, ArrowLeft, Info, HelpCircle
+import {
+  User,
+  Building2,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  AlertCircle,
+  ArrowRight,
+  ShieldCheck,
+  MapPin,
+  Briefcase,
+  FileText,
+  Upload,
+  GraduationCap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { API_BASE, formatApiError } from '../../config/api';

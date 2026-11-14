@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Briefcase, Users, FileText, Clock, CheckCircle2, 
-  XCircle, AlertCircle, ArrowRight, Plus, RefreshCw, 
-  Eye, Calendar, DollarSign, Building2, User, ChevronRight,
-  ShieldCheck, AlertTriangle, ExternalLink, Filter, Search,
-  Bell, LayoutDashboard, Award, Star, GraduationCap, Settings
+import {
+  Briefcase,
+  Users,
+  FileText,
+  Building2,
+  User,
+  AlertTriangle,
+  Bell,
+  LayoutDashboard,
+  Star,
+  Settings
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 
@@ -16,7 +21,6 @@ import { LEGAL_STATUS_UI } from '../../components/employer/CompanyVerificationSe
 import EmployerJobsPage from './EmployerJobsPage';                       // WF-E04 (Job list with 7 filters & moderation_reason)
 import EmployerCreateJobPage from './EmployerCreateJobPage';             // WF-E05 (Create/Edit Job with PT/SS/FL variants & verification gate)
 import EmployerApplicantsPage from './EmployerApplicantsPage';           // WF-E06 (Part-time applicants, no Accept button)
-import EmployerProposalsPage from './EmployerProposalsPage';             // WF-E07 (Freelance proposals, no Accept button)
 import EmployerCandidateSelectionPage from './EmployerCandidateSelectionPage'; // WF-E08 (Rule A3 Selection & Work Assignment)
 import EmployerAssignmentsPage from './EmployerAssignmentsPage';         // WF-E09 (Assignment management by student)
 import EmployerDeliverableReviewPage from './EmployerDeliverableReviewPage'; // WF-E10 (Deliverable review v1/v2, mandatory revision reason)
@@ -43,7 +47,6 @@ export default function EmployerPortal({
   // 'jobs' (WF-E04)
   // 'create_job' (WF-E05)
   // 'applicants' (WF-E06)
-  // 'proposals' (WF-E07)
   // 'selection' (WF-E08)
   // 'assignments' (WF-E09)
   // 'deliverable' (WF-E10)
@@ -51,7 +54,7 @@ export default function EmployerPortal({
   // 'notifications' (WF-E12)
   // Tải lại trang vẫn mở đúng mục (trừ mục cần dữ liệu đang chọn như sửa tin / chọn ứng viên)
   const [activeTab, setActiveTab] = useRememberedTab('employer', initialTab,
-    ['dashboard', 'profile', 'verification', 'representative', 'jobs', 'applicants', 'proposals', 'assignments', 'reviews', 'notifications', 'settings']);
+    ['dashboard', 'profile', 'verification', 'representative', 'jobs', 'applicants', 'assignments', 'reviews', 'notifications', 'settings']);
   const [editingJob, setEditingJob] = useState(initialEditingJob);
   const [selectedJobForApplicants, setSelectedJobForApplicants] = useState(null);
   const [selectedAssignmentForSubflow, setSelectedAssignmentForSubflow] = useState(null);
@@ -372,7 +375,6 @@ export default function EmployerPortal({
               currentUser={currentUser}
               onNavigateTab={(tab) => {
                 if (tab === 'employer_jobs' || tab === 'jobs') setActiveTab('jobs');
-                else if (tab === 'employer_proposals' || tab === 'proposals') setActiveTab('proposals');
                 else if (tab === 'employer_assignments' || tab === 'assignments') setActiveTab('assignments');
                 else if (tab === 'employer_profile' || tab === 'profile') setActiveTab('profile');
                 else setActiveTab(tab);
@@ -461,20 +463,6 @@ export default function EmployerPortal({
             />
           )}
 
-          {/* WF-E07: Proposal Management (Freelance proposals, no Accept button) */}
-          {activeTab === 'proposals' && (
-            <EmployerProposalsPage
-              currentUser={currentUser}
-              selectedJob={selectedJobForApplicants}
-              onNavigateSelection={(job) => {
-                setSelectedJobForApplicants(job);
-                setActiveTab('selection');
-              }}
-              onNavigateAssignments={() => setActiveTab('assignments')}
-              showToast={showToast}
-            />
-          )}
-
           {/* WF-E08: Candidate Selection (Single approval entry point enforcing Rule A3) */}
           {activeTab === 'selection' && (
             <EmployerCandidateSelectionPage
@@ -536,7 +524,6 @@ export default function EmployerPortal({
               showToast={showToast}
               onNavigateTab={(tab) => {
                 if (tab === 'employer_jobs' || tab === 'jobs') setActiveTab('jobs');
-                else if (tab === 'employer_proposals' || tab === 'proposals') setActiveTab('proposals');
                 else if (tab === 'employer_assignments' || tab === 'assignments') setActiveTab('assignments');
                 else setActiveTab(tab);
               }}

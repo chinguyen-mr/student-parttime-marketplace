@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Bell, CheckCircle2, Clock, Check, RefreshCw, Filter, 
-  Briefcase, Send, Star, AlertCircle
-} from 'lucide-react';
+import { Bell, CheckCircle2, Clock, Check, RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Button } from '../../components/ui';
 import { API_BASE, formatApiError } from '../../config/api';

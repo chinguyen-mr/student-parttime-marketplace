@@ -1,6 +1,5 @@
 import React from 'react';
-import { SearchX, RefreshCw, Briefcase, Filter } from 'lucide-react';
-import { Button } from './Button';
+import { SearchX, Filter } from 'lucide-react';
 
 /**
  * EmptyState - Reusable empty state component following JOBNEST Wireframes

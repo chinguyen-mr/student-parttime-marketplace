@@ -1,20 +1,32 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRememberedTab } from '../../utils/rememberedTab';
-import { 
-  User, Briefcase, FileText, Bookmark, Clock, CheckCircle2, 
-  XCircle, AlertCircle, ArrowRight, Save, Trash2, ExternalLink,
-  Building2, MapPin, DollarSign, Calendar, UploadCloud, Plus, X,
-  GraduationCap, Award, RefreshCw, Send, Check, Bell, Star,
-  ShieldCheck, CheckCheck, Upload, Download, Eye, AlertTriangle, Sparkles,
+import {
+  User,
+  Briefcase,
+  FileText,
+  Bookmark,
+  Clock,
+  CheckCircle2,
+  ArrowRight,
+  Calendar,
+  X,
+  GraduationCap,
+  RefreshCw,
+  Check,
+  Bell,
+  Star,
+  Upload,
+  Download,
+  Eye,
+  AlertTriangle,
+  Sparkles,
   Settings
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Button, AnimatedModal } from '../../components/ui';
 import JobCard from '../../components/common/JobCard';
 import EmptyState from '../../components/common/EmptyState';
 import StatusBadge from '../../components/common/StatusBadge';
 import ExportMenu from '../../components/common/ExportMenu';
-import CompanyLogo from '../../components/CompanyLogo';
 import { API_BASE, SERVER_BASE, formatApiError, resolveFileUrl } from '../../config/api';
 import MyAssignmentsPage from './MyAssignmentsPage';
 import NotificationsPage from './NotificationsPage';

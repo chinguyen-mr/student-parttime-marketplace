@@ -5,11 +5,15 @@ Mỗi sheet = 1 bảng DB, hàng tiêu đề = tên cột DB → import_data_v3.
 Dữ liệu liên kết nhất quán: ứng tuyển → phân công → tiến độ → đánh giá → thông báo,
 vi phạm → khiếu nại, báo cáo → xử lý, nhật ký admin.
 
-Chạy:  python scripts/data_v3/generate_data_v3.py
-Ra:    02_database/JobNest_Data_v3.xlsx
+Kèm file thật (logo, ảnh bìa, ảnh văn phòng, ảnh đại diện, CV PDF, giấy tờ pháp lý PDF) trong
+02_database/data_v3_files/ — sheet file_uploads trỏ tới các file này (xem assets_v3.py).
+
+Chạy: xem scripts/data_v3/README.md (cần Pillow + fpdf2 → dùng Docker)
+Ra:    02_database/JobNest_Data_v3.xlsx + 02_database/data_v3_files/
 """
 import json
 import random
+import secrets
 import sys
 import unicodedata
 from datetime import datetime, timedelta, date, time
@@ -19,12 +23,15 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
+import assets_v3 as A
+
 if sys.platform.startswith('win'):
     sys.stdout.reconfigure(encoding='utf-8')
 
 R = random.Random(2026)
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / '02_database' / 'JobNest_Data_v3.xlsx'
+A.FILES_DIR = ROOT / '02_database' / 'data_v3_files'
 
 NOW = datetime(2026, 11, 15, 9, 0, 0)
 START = datetime(2026, 6, 1, 8, 0, 0)
@@ -57,6 +64,15 @@ def slug(s):
 
 def phone():
     return R.choice(['090', '091', '093', '094', '096', '097', '098', '070', '077', '079', '083', '085']) + ''.join(str(R.randint(0, 9)) for _ in range(7))
+
+
+def upload(owner, kind, name, mime, rel_size, at):
+    """Thêm 1 dòng file_uploads; cột data là đường dẫn file (tương đối thư mục chứa Excel)."""
+    rel, size = rel_size
+    fid = nid('file_uploads')
+    add('file_uploads', dict(id=fid, owner_id=owner, kind=kind, original_name=name, mime_type=mime, size_bytes=size,
+                             data=f'data_v3_files/{rel}', created_at=at))
+    return fid
 
 
 # ───────────────────────── DANH MỤC ─────────────────────────
@@ -101,6 +117,24 @@ MAJOR_TO_PREF = {
     'Quản trị khách sạn': 'Dịch vụ & F&B (Nhà hàng, Quán cafe)', 'Sư phạm Toán': 'Gia sư, Trợ giảng & Đào tạo',
 }
 
+EXPERIENCE_POOL = [
+    ('Highlands Coffee', 'Nhân viên phục vụ part-time', 'Phục vụ khách, pha chế đồ uống cơ bản, đóng ca và kiểm kê nguyên liệu cuối ngày.'),
+    ('Circle K', 'Thu ngân ca tối', 'Tính tiền, đối soát két cuối ca, sắp xếp hàng hóa và hỗ trợ khách thanh toán ví điện tử.'),
+    ('Trung tâm Anh ngữ ILA', 'Trợ giảng', 'Hỗ trợ giáo viên quản lý lớp 15 học viên, chấm bài và tổ chức hoạt động tương tác.'),
+    ('Shopee Xpress', 'Nhân viên phân loại hàng', 'Quét mã, phân loại bưu kiện theo tuyến, đảm bảo đúng thời gian bàn giao.'),
+    ('CLB Truyền thông khoa', 'Trưởng ban nội dung', 'Lên kế hoạch nội dung fanpage, viết bài và quay dựng video cho các sự kiện của khoa.'),
+    ('Đoàn – Hội sinh viên trường', 'Tình nguyện viên Mùa hè xanh', 'Tham gia chiến dịch tình nguyện, dạy học cho trẻ em và hỗ trợ xây dựng nhà văn hóa.'),
+    ('Lotteria', 'Nhân viên phục vụ', 'Nhận order, chuẩn bị món, giữ vệ sinh khu vực bán hàng theo tiêu chuẩn của chuỗi.'),
+    ('Công ty TNHH Phần mềm Sao Mai', 'Thực tập sinh lập trình', 'Tham gia dự án web nội bộ, viết API và kiểm thử chức năng dưới sự hướng dẫn của mentor.'),
+    ('Agency Sóng Media', 'Cộng tác viên thiết kế', 'Thiết kế ấn phẩm mạng xã hội và banner quảng cáo theo brief của khách hàng.'),
+]
+ACTIVITY_POOL = [
+    'Chứng chỉ Tin học văn phòng MOS Excel', 'Chứng chỉ TOEIC 650', 'Giải Khuyến khích cuộc thi Ý tưởng khởi nghiệp cấp trường',
+    'Thành viên đội tình nguyện Xuân tình nguyện 2025', 'Hoàn thành khóa Kỹ năng giao tiếp và làm việc nhóm',
+    'Học bổng khuyến khích học tập học kỳ 1 năm 2025', 'Chứng chỉ Google Digital Marketing', 'Ban tổ chức Ngày hội việc làm của khoa',
+    'Chứng chỉ IELTS 6.5', 'Hoàn thành khóa Vệ sinh an toàn thực phẩm',
+]
+
 # (phường/quận, đường, lat, lng) — TP.HCM
 PLACES = [
     ('Phường Bến Nghé, Quận 1', 'Lê Lợi', 10.7745, 106.7010), ('Phường Bến Thành, Quận 1', 'Lê Thánh Tôn', 10.7725, 106.6980),
@@ -143,22 +177,22 @@ JOB_TEMPLATES = {
         ('Nhân viên Kho bán lẻ cuối tuần', 'Nhận hàng, kiểm đếm, sắp xếp kệ và cập nhật tồn kho trên phần mềm.', 'Sức khỏe tốt, cẩn thận, biết Excel cơ bản.', 'Lương tuần, hỗ trợ gửi xe.', ['Quản lý kho', 'Nhập liệu'], (25000, 30000), 'HOURLY', 'weekend'),
     ],
     'Công nghệ thông tin': [
-        ('Thực tập sinh Frontend ReactJS', 'Xây dựng giao diện web theo thiết kế Figma, kết nối REST API, viết component tái sử dụng.', 'Nắm HTML/CSS, JavaScript, ReactJS cơ bản; biết dùng Git.', 'Phụ cấp thực tập, mentor 1-1, xác nhận thực tập, cơ hội lên chính thức.', ['ReactJS', 'JavaScript', 'Git'], (3000000, 5000000), 'MONTHLY', 'office'),
-        ('Cộng tác viên Kiểm thử phần mềm (Tester)', 'Viết test case, kiểm thử chức năng web/mobile, ghi nhận lỗi lên Jira.', 'Tư duy logic, cẩn thận; ưu tiên sinh viên CNTT năm 3-4.', 'Làm việc hybrid, được đào tạo quy trình kiểm thử.', ['Kiểm thử phần mềm', 'SQL'], (35000, 45000), 'HOURLY', 'office'),
+        ('Thực tập sinh Frontend ReactJS', 'Xây dựng giao diện web theo thiết kế Figma, kết nối REST API, viết component tái sử dụng.', 'Nắm HTML/CSS, JavaScript, ReactJS cơ bản; biết dùng Git.', 'Phụ cấp thực tập, mentor 1-1, xác nhận thực tập, cơ hội lên chính thức.', ['ReactJS', 'JavaScript', 'Git'], (3000000, 5000000), 'MONTHLY', 'morning'),
+        ('Cộng tác viên Kiểm thử phần mềm (Tester)', 'Viết test case, kiểm thử chức năng web/mobile, ghi nhận lỗi lên Jira.', 'Tư duy logic, cẩn thận; ưu tiên sinh viên CNTT năm 3-4.', 'Làm việc hybrid, được đào tạo quy trình kiểm thử.', ['Kiểm thử phần mềm', 'SQL'], (35000, 45000), 'HOURLY', 'afternoon'),
         ('Nhân viên Hỗ trợ IT Helpdesk part-time', 'Cài đặt phần mềm, xử lý sự cố máy tính, mạng nội bộ cho nhân viên văn phòng.', 'Hiểu biết phần cứng, Windows, mạng LAN cơ bản.', 'Phụ cấp ăn trưa, giờ làm cố định buổi sáng.', ['Hỗ trợ kỹ thuật IT'], (30000, 38000), 'HOURLY', 'morning'),
-        ('Thực tập sinh Backend Node.js', 'Phát triển API với Node.js/Express và PostgreSQL, viết unit test.', 'Biết JavaScript, SQL; hiểu REST API.', 'Phụ cấp 4–6 triệu, laptop làm việc, review code hằng tuần.', ['Node.js', 'PostgreSQL', 'REST API'], (4000000, 6000000), 'MONTHLY', 'office'),
+        ('Thực tập sinh Backend Node.js', 'Phát triển API với Node.js/Express và PostgreSQL, viết unit test.', 'Biết JavaScript, SQL; hiểu REST API.', 'Phụ cấp 4–6 triệu, laptop làm việc, review code hằng tuần.', ['Node.js', 'PostgreSQL', 'REST API'], (4000000, 6000000), 'MONTHLY', 'afternoon'),
     ],
     'Giáo dục / Đào tạo': [
         ('Trợ giảng tiếng Anh thiếu nhi', 'Hỗ trợ giáo viên chính trong lớp, quản lý lớp, chấm bài và tổ chức trò chơi học tập.', 'Phát âm chuẩn, IELTS 6.0+ hoặc tương đương; yêu trẻ.', 'Đào tạo phương pháp giảng dạy, lương theo buổi, thưởng học viên tái đăng ký.', ['Trợ giảng', 'Tiếng Anh giao tiếp'], (80000, 120000), 'HOURLY', 'evening'),
         ('Gia sư Toán THCS', 'Kèm 1-1 học sinh lớp 8-9 tại nhà, 3 buổi/tuần, theo giáo trình trung tâm.', 'Sinh viên khối ngành sư phạm/kỹ thuật, giỏi Toán.', 'Hỗ trợ đi lại, tài liệu giảng dạy có sẵn.', ['Gia sư', 'Kỹ năng sư phạm'], (100000, 150000), 'HOURLY', 'evening'),
     ],
     'Marketing / Truyền thông': [
-        ('Cộng tác viên Viết nội dung (Content)', 'Viết bài fanpage, blog chuẩn SEO theo kế hoạch nội dung hằng tuần.', 'Viết tốt, sáng tạo; ưu tiên biết Canva.', 'Làm online, nhuận bút theo bài, được đào tạo SEO.', ['Content Marketing', 'Viết bài chuẩn SEO'], (2500000, 4000000), 'MONTHLY', 'remote'),
+        ('Cộng tác viên Viết nội dung (Content)', 'Viết bài fanpage, blog chuẩn SEO theo kế hoạch nội dung hằng tuần.', 'Viết tốt, sáng tạo; ưu tiên biết Canva.', 'Làm online, nhuận bút theo bài, được đào tạo SEO.', ['Content Marketing', 'Viết bài chuẩn SEO'], (2500000, 4000000), 'MONTHLY', 'afternoon'),
         ('Nhân viên Tổ chức sự kiện cuối tuần', 'Setup, check-in khách, điều phối hoạt động tại sự kiện ra mắt sản phẩm.', 'Năng động, giao tiếp tốt, chịu được cường độ cao.', 'Lương theo ngày, có suất ăn, giấy chứng nhận tham gia.', ['Tổ chức sự kiện'], (30000, 40000), 'HOURLY', 'weekend'),
-        ('Thực tập sinh Quản lý Fanpage & TikTok', 'Lên lịch đăng bài, quay dựng video ngắn, báo cáo chỉ số tương tác hằng tuần.', 'Hiểu xu hướng mạng xã hội, biết CapCut.', 'Phụ cấp thực tập, được làm chiến dịch thật.', ['Quản lý fanpage', 'TikTok Marketing', 'CapCut'], (3000000, 4500000), 'MONTHLY', 'office'),
+        ('Thực tập sinh Quản lý Fanpage & TikTok', 'Lên lịch đăng bài, quay dựng video ngắn, báo cáo chỉ số tương tác hằng tuần.', 'Hiểu xu hướng mạng xã hội, biết CapCut.', 'Phụ cấp thực tập, được làm chiến dịch thật.', ['Quản lý fanpage', 'TikTok Marketing', 'CapCut'], (3000000, 4500000), 'MONTHLY', 'afternoon'),
     ],
     'Logistics / Giao nhận': [
-        ('Nhân viên Phân loại hàng ca đêm', 'Quét mã, phân loại bưu kiện theo tuyến, đóng bao và bàn giao cho tài xế.', 'Sức khỏe tốt, có thể làm ca 22h-2h.', 'Phụ cấp ca đêm 20%, bao ăn khuya, lương tuần.', ['Quản lý kho'], (28000, 35000), 'HOURLY', 'night'),
+        ('Nhân viên Phân loại hàng ca tối', 'Quét mã, phân loại bưu kiện theo tuyến, đóng bao và bàn giao cho tài xế.', 'Sức khỏe tốt, có thể làm ca 18h–22h.', 'Phụ cấp ca tối, bao ăn tối, lương tuần.', ['Quản lý kho'], (28000, 35000), 'HOURLY', 'evening'),
         ('Nhân viên Nhập liệu đơn hàng', 'Nhập đơn, đối soát COD, cập nhật trạng thái vận đơn trên hệ thống.', 'Gõ phím nhanh, thành thạo Excel.', 'Môi trường văn phòng, giờ giấc ổn định.', ['Nhập liệu', 'Excel nâng cao'], (25000, 30000), 'HOURLY', 'morning'),
     ],
     'Hàng tiêu dùng / FMCG': [
@@ -167,10 +201,10 @@ JOB_TEMPLATES = {
     ],
     'Hành chính / Văn phòng': [
         ('Trợ lý hành chính part-time', 'Soạn thảo văn bản, lưu trữ hồ sơ, tiếp khách và nghe điện thoại.', 'Thành thạo Word/Excel, cẩn thận.', 'Làm giờ hành chính buổi sáng, phụ cấp ăn trưa.', ['Soạn thảo văn bản', 'Nhập liệu'], (25000, 30000), 'HOURLY', 'morning'),
-        ('Cộng tác viên Kế toán nhập chứng từ', 'Nhập hóa đơn, chứng từ vào phần mềm MISA, đối chiếu công nợ.', 'Sinh viên kế toán năm 3-4, biết MISA.', 'Được kèm cặp bởi kế toán trưởng, xác nhận thực tập.', ['Phần mềm MISA', 'Nhập liệu chứng từ'], (3500000, 5000000), 'MONTHLY', 'office'),
+        ('Cộng tác viên Kế toán nhập chứng từ', 'Nhập hóa đơn, chứng từ vào phần mềm MISA, đối chiếu công nợ.', 'Sinh viên kế toán năm 3-4, biết MISA.', 'Được kèm cặp bởi kế toán trưởng, xác nhận thực tập.', ['Phần mềm MISA', 'Nhập liệu chứng từ'], (3500000, 5000000), 'MONTHLY', 'morning'),
     ],
     'Thiết kế / Multimedia': [
-        ('Cộng tác viên Thiết kế đồ họa', 'Thiết kế banner, ấn phẩm social, menu theo brief của khách hàng.', 'Thành thạo Photoshop/Illustrator, có portfolio.', 'Làm từ xa, giao việc qua Trello, thưởng theo dự án.', ['Adobe Photoshop', 'Adobe Illustrator'], (3000000, 6000000), 'MONTHLY', 'remote'),
+        ('Cộng tác viên Thiết kế đồ họa', 'Thiết kế banner, ấn phẩm social, menu theo brief của khách hàng.', 'Thành thạo Photoshop/Illustrator, có portfolio.', 'Làm từ xa, giao việc qua Trello, thưởng theo dự án.', ['Adobe Photoshop', 'Adobe Illustrator'], (3000000, 6000000), 'MONTHLY', 'afternoon'),
         ('Trợ lý quay dựng video', 'Hỗ trợ setup ánh sáng, quay và dựng video ngắn cho thương hiệu.', 'Biết Premiere/CapCut, có máy ảnh là lợi thế.', 'Học nghề trực tiếp, phụ cấp theo buổi quay.', ['Quay dựng video', 'CapCut'], (35000, 50000), 'HOURLY', 'weekend'),
     ],
     'Sản xuất / Kỹ thuật': [
@@ -178,21 +212,36 @@ JOB_TEMPLATES = {
     ],
 }
 
-SHIFTS = {  # (ngày trong tuần 1=T2..7=CN, giờ bắt đầu, giờ kết thúc)
-    'morning': ([1, 2, 3, 4, 5], '07:30', '11:30'), 'evening': ([1, 2, 3, 4, 5, 6], '18:00', '22:00'),
-    'weekend': ([6, 7], '08:00', '17:00'), 'night': ([1, 3, 5, 6], '22:00', '23:59'),
-    'office': ([1, 2, 3, 4, 5], '08:30', '12:00'), 'remote': ([2, 4, 6], '13:30', '17:30'),
-    'flexible': ([2, 4, 6, 7], '08:00', '12:00'),
+# Tin Full-time (dành cho sinh viên năm cuối / mới tốt nghiệp): lương theo tháng, giờ hành chính
+FULLTIME_TEMPLATES = {
+    'Công nghệ thông tin': [
+        ('Lập trình viên Frontend (Fresher) – Full-time', 'Phát triển giao diện web ReactJS cho sản phẩm SaaS, phối hợp với backend và designer theo quy trình Scrum.', 'Sinh viên năm cuối hoặc mới tốt nghiệp CNTT; nắm vững JavaScript, ReactJS, Git.', 'Lương 10–14 triệu, BHXH đầy đủ, 13 ngày phép/năm, laptop làm việc, đánh giá lương 6 tháng/lần.', ['ReactJS', 'JavaScript', 'Git'], (10000000, 14000000), 'MONTHLY', 'fulltime'),
+        ('Kỹ sư Kiểm thử phần mềm (Junior QA) – Full-time', 'Lập kế hoạch kiểm thử, viết test case, kiểm thử API và giao diện, báo cáo lỗi trên Jira.', 'Tốt nghiệp CNTT; biết SQL, Postman; ưu tiên có chứng chỉ ISTQB.', 'Lương 9–12 triệu, BHXH, thưởng dự án, đào tạo kiểm thử tự động.', ['Kiểm thử phần mềm', 'SQL', 'REST API'], (9000000, 12000000), 'MONTHLY', 'fulltime'),
+    ],
+    'Logistics / Giao nhận': [('Nhân viên Điều phối vận đơn – Full-time', 'Điều phối tài xế theo tuyến, theo dõi trạng thái giao hàng, xử lý đơn phát sinh với khách hàng.', 'Tốt nghiệp khối Kinh tế/Logistics; thành thạo Excel, giao tiếp tốt.', 'Lương 8–10 triệu + phụ cấp, BHXH, du lịch công ty hằng năm.', ['Lập kế hoạch', 'Excel nâng cao'], (8000000, 10000000), 'MONTHLY', 'fulltime')],
+    'Bán lẻ': [('Cửa hàng trưởng tập sự – Full-time', 'Quản lý ca, sắp xếp nhân sự, kiểm soát tồn kho và doanh thu cửa hàng dưới sự hướng dẫn của quản lý khu vực.', 'Tốt nghiệp Cao đẳng/Đại học; ưu tiên từng làm bán hàng part-time.', 'Lương 9–11 triệu + thưởng doanh số, lộ trình lên Cửa hàng trưởng sau 6 tháng.', ['Bán hàng', 'Quản lý kho', 'Chăm sóc khách hàng'], (9000000, 11000000), 'MONTHLY', 'fulltime')],
+    'Marketing / Truyền thông': [('Nhân viên Digital Marketing – Full-time', 'Lập kế hoạch và chạy quảng cáo Facebook/Google, đo lường hiệu quả chiến dịch, phối hợp đội nội dung.', 'Tốt nghiệp Marketing; đã chạy quảng cáo thực tế là lợi thế.', 'Lương 9–12 triệu + KPI, BHXH, ngân sách học khóa học chuyên môn.', ['Facebook Ads', 'Google Analytics', 'Content Marketing'], (9000000, 12000000), 'MONTHLY', 'fulltime')],
+    'Hành chính / Văn phòng': [('Nhân viên Hành chính – Nhân sự – Full-time', 'Quản lý hồ sơ nhân sự, chấm công, soạn thảo hợp đồng, hỗ trợ tuyển dụng.', 'Tốt nghiệp Quản trị nhân lực/Luật/Kinh tế; cẩn thận, thành thạo tin học văn phòng.', 'Lương 8–10 triệu, BHXH, 12 ngày phép, môi trường ổn định.', ['Soạn thảo văn bản', 'Nhập liệu'], (8000000, 10000000), 'MONTHLY', 'fulltime')],
+    'Giáo dục / Đào tạo': [('Giáo viên tiếng Anh thiếu nhi – Full-time', 'Giảng dạy lớp tiếng Anh thiếu nhi theo giáo trình trung tâm, theo dõi tiến độ học viên và trao đổi với phụ huynh.', 'Tốt nghiệp Ngôn ngữ Anh/Sư phạm Anh; IELTS 7.0+.', 'Lương 11–15 triệu, BHXH, đào tạo phương pháp giảng dạy quốc tế.', ['Tiếng Anh giao tiếp', 'Kỹ năng sư phạm'], (11000000, 15000000), 'MONTHLY', 'fulltime')],
+    'F&B / Dịch vụ ăn uống': [('Quản lý ca nhà hàng – Full-time', 'Điều hành ca, phân công nhân viên, xử lý phản hồi khách, kiểm soát chất lượng món và vệ sinh.', 'Tốt nghiệp Quản trị Nhà hàng – Khách sạn; có kinh nghiệm phục vụ là lợi thế.', 'Lương 9–12 triệu + service charge, bao ăn, BHXH.', ['Phục vụ bàn', 'Chăm sóc khách hàng'], (9000000, 12000000), 'MONTHLY', 'fulltime')],
+    'Hàng tiêu dùng / FMCG': [('Nhân viên Kinh doanh kênh siêu thị – Full-time', 'Chăm sóc hệ thống siêu thị khu vực, theo dõi trưng bày, đặt hàng và triển khai khuyến mãi.', 'Tốt nghiệp khối Kinh tế; có xe máy, chịu khó di chuyển.', 'Lương 8–10 triệu + hoa hồng, phụ cấp xăng xe, BHXH.', ['Bán hàng', 'Đàm phán', 'Nghiên cứu thị trường'], (8000000, 10000000), 'MONTHLY', 'fulltime')],
+    'Thiết kế / Multimedia': [('Graphic Designer – Full-time', 'Thiết kế nhận diện thương hiệu, ấn phẩm in và nội dung mạng xã hội cho khách hàng của studio.', 'Tốt nghiệp Thiết kế đồ họa; portfolio tốt; thành thạo Photoshop, Illustrator, Figma.', 'Lương 9–13 triệu, BHXH, thiết bị làm việc cấu hình cao.', ['Adobe Photoshop', 'Adobe Illustrator', 'Figma'], (9000000, 13000000), 'MONTHLY', 'fulltime')],
+    'Sản xuất / Kỹ thuật': [('Kỹ thuật viên QA/QC – Full-time', 'Kiểm soát chất lượng đầu vào và thành phẩm, lập báo cáo lỗi, đề xuất cải tiến quy trình.', 'Tốt nghiệp Kỹ thuật/Công nghệ in; cẩn thận, chịu được áp lực.', 'Lương 8–10 triệu, bao ăn ca, BHXH, thưởng năng suất.', ['Kiểm kê'], (8000000, 10000000), 'MONTHLY', 'fulltime')],
+}
+
+# Ca làm theo quy ước của web: day_of_week 1 = Chủ nhật, 2 = Thứ 2 … 7 = Thứ 7.
+# Giờ trùng 3 ca chuẩn của trang "Lịch rảnh" (Sáng 07:30–11:30, Chiều 13:00–17:00, Tối 18:00–22:00).
+SANG, CHIEU, TOI = ('07:30', '11:30'), ('13:00', '17:00'), ('18:00', '22:00')
+SHIFTS = {
+    'morning': ([2, 3, 4, 5, 6], [SANG]), 'afternoon': ([2, 3, 4, 5, 6], [CHIEU]), 'evening': ([2, 3, 4, 5, 6, 7], [TOI]),
+    'weekend': ([7, 1], [SANG, CHIEU]), 'flexible': ([3, 5, 7, 1], [SANG]), 'fulltime': ([2, 3, 4, 5, 6], [SANG, CHIEU]),
 }
 SHIFT_TEXT = {
-    'morning': 'Ca sáng 7h30–11h30, Thứ 2 – Thứ 6', 'evening': 'Ca tối 18h–22h, Thứ 2 – Thứ 7',
-    'weekend': 'Cuối tuần 8h–17h (Thứ 7, Chủ nhật)', 'night': 'Ca đêm 22h–24h, 4 buổi/tuần',
-    'office': 'Buổi sáng 8h30–12h, Thứ 2 – Thứ 6', 'remote': 'Online, 3 buổi chiều/tuần',
-    'flexible': 'Linh hoạt, tối thiểu 4 buổi/tuần',
+    'morning': 'Ca sáng 7h30–11h30, Thứ 2 – Thứ 6', 'afternoon': 'Ca chiều 13h–17h, Thứ 2 – Thứ 6',
+    'evening': 'Ca tối 18h–22h, Thứ 2 – Thứ 7', 'weekend': 'Cuối tuần (Thứ 7, Chủ nhật), 7h30–11h30 và 13h–17h',
+    'flexible': 'Linh hoạt, buổi sáng Thứ 3, Thứ 5, Thứ 7, Chủ nhật', 'fulltime': 'Giờ hành chính 7h30–17h, Thứ 2 – Thứ 6',
 }
-BANNERS = ['photo-1554118811-1e0d58224f24', 'photo-1521737604893-d14cc237f11d', 'photo-1517694712202-14dd9538aa97',
-           'photo-1556761175-b413da4baf72', 'photo-1600880292203-757bb62b4baf', 'photo-1586528116311-ad8dd3c8310d',
-           'photo-1497366216548-37526070297c', 'photo-1513258496099-48168024aec0']
+DAY_NAME = {1: 'CN', 2: 'T2', 3: 'T3', 4: 'T4', 5: 'T5', 6: 'T6', 7: 'T7'}
 
 # ───────────────────────── 1. CATEGORIES ─────────────────────────
 for i, c in enumerate(CATEGORIES, 1):
@@ -250,12 +299,13 @@ for idx, (kind, brand, cat, industry) in enumerate(company_specs):
     p = add('employer_profiles', dict(
         id=nid('employer_profiles'), user_id=u['id'], display_name=display,
         bio=f"{display} hoạt động trong lĩnh vực {cat.lower()} tại TP. Hồ Chí Minh từ năm {founded}. Chúng tôi ưu tiên tuyển sinh viên làm bán thời gian, xếp ca theo lịch học và đào tạo từ đầu.",
-        location=addr, avatar_url=None, email_verified_at=created + timedelta(minutes=5), phone_verified_at=None,
+        location=addr, avatar_url=None, email_verified_at=created + timedelta(minutes=5),
+        phone_verified_at=created + timedelta(minutes=8) if v == 'VERIFIED' else None,
         created_at=created, updated_at=rand_dt(created, NOW),
         account_type='Hộ kinh doanh / Cá nhân' if household else 'Doanh nghiệp / Công ty',
         tax_code=str(R.randint(3100000000, 3199999999)) if not household else str(R.randint(8000000000, 8999999999)),
         website=None if household else f"https://{s}.vn", business_license_file=None,
-        representative_name=rep, representative_title=R.choice(['Giám đốc', 'Chủ hộ kinh doanh' if household else 'Trưởng phòng Nhân sự', 'Quản lý cửa hàng']),
+        representative_name=rep, representative_title='Chủ hộ kinh doanh' if household else 'Giám đốc',
         company_name=legal, company_type=ctype, industry=industry, company_size=size, province='TP. Hồ Chí Minh', detailed_address=addr,
         cover_url=None, recruiter_name=rep, recruiter_email=email,
         work_environment_desc='Không gian mở, đội ngũ trẻ, quản lý ca hỗ trợ tận tình. Có phòng nghỉ và khu ăn uống cho nhân viên.',
@@ -278,6 +328,27 @@ for idx, (kind, brand, cat, industry) in enumerate(company_specs):
         verification_note={'NEEDS_INFO': 'Giấy phép kinh doanh bị mờ, vui lòng tải lại bản rõ nét.',
                            'REJECTED': 'Mã số thuế không khớp với tên doanh nghiệp trên cổng thông tin thuế.'}.get(v),
         verification_submitted_at=sub, verification_reviewed_at=rev))
+    # ── Ảnh & giấy tờ của doanh nghiệp
+    uid = u['id']
+    ekey = f'emp_{uid:03d}'
+    fid = upload(uid, 'AVATAR', 'logo.png', 'image/png', A.logo(ekey, brand, idx), created + timedelta(hours=1))
+    p['avatar_url'] = f'/api/files/{fid}'
+    pool = A.PHOTOS[cat][:]
+    R.shuffle(pool)
+    fid = upload(uid, 'COVER', 'cover.jpg', 'image/jpeg', A.photo(pool[0], 'cover'), created + timedelta(hours=1))
+    p['cover_url'] = f'/api/files/{fid}'
+    p['office_images'] = [f"/api/files/{upload(uid, 'OFFICE_IMAGE', 'office.jpg', 'image/jpeg', A.photo(pid, 'office'), created + timedelta(hours=2))}"
+                          for pid in pool[1:4]]
+    fid = upload(uid, 'REP_AVATAR', 'representative.jpg', 'image/jpeg', A.avatar(f'rep_{uid:03d}', rep, None, 'reps'), created + timedelta(hours=1))
+    p['representative_avatar_url'] = f'/api/files/representative-avatar?v={fid}'
+    if v != 'UNVERIFIED':
+        lic = f"Giay_chung_nhan_DKDN_{slug(brand).replace(' ', '_')}.pdf"
+        upload(uid, 'LEGAL_DOC', lic, 'application/pdf',
+               A.legal_pdf(ekey, dict(household=household, tax_code=p['tax_code'], founded=founded, legal_name=legal, brand=brand,
+                                      company_type=ctype, address=addr, industry=industry, rep=rep, rep_title=p['representative_title'],
+                                      phone=u['phone'])), sub)
+        upload(uid, 'LEGAL_DOC', 'Anh_mat_tien_tru_so.jpg', 'image/jpeg', A.photo(pool[0], 'office'), sub)
+        p['business_license_file'] = lic
     employers.append(dict(user=u, profile=p, cat=cat, lat=p['latitude'], lng=p['longitude'], addr=addr))
     add('employer_profile_changes', dict(id=nid('employer_profile_changes'), employer_id=u['id'], changed_by=u['id'], section='COMPANY',
                                          changes={'bio': {'from': None, 'to': 'cập nhật giới thiệu'}}, created_at=created + timedelta(hours=2)))
@@ -298,10 +369,10 @@ for i in range(N_STUDENTS):
     gender, name = person()
     uni, code, dom = R.choice(UNIS) if i else UNIS[0]
     major = R.choice(list(MAJORS))
-    year = R.choice(['Năm 1', 'Năm 2', 'Năm 2', 'Năm 3', 'Năm 3', 'Năm 4', 'Đã tốt nghiệp'])
+    year = 'Năm 3' if i == 0 else R.choice(['Năm 1', 'Năm 2', 'Năm 2', 'Năm 3', 'Năm 3', 'Năm 4', 'Đã tốt nghiệp'])
     sid = f"{R.choice(['21', '22', '23', '24'])}{code[:2]}{R.randint(100000, 999999)}"
     email = 'student.test@vlu.edu.vn' if i == 0 else f"{slug(name.split()[-1])}.{sid.lower()}@{dom}"
-    created = rand_dt(START - timedelta(days=20), NOW - timedelta(days=5))
+    created = START - timedelta(days=25) if i == 0 else rand_dt(START - timedelta(days=20), NOW - timedelta(days=5))
     status = 'ACTIVE'
     u = mk_user(email, name, 'STUDENT', created, status)
     skills = R.sample(MAJORS[major], k=min(len(MAJORS[major]), R.randint(2, 5)))
@@ -310,7 +381,7 @@ for i in range(N_STUDENTS):
         langs.append({'language': R.choice(['Tiếng Trung', 'Tiếng Nhật', 'Tiếng Hàn']), 'level': 'Cơ bản'})
     ward, street, _, _ = R.choice(PLACES)
     grad = {'Năm 1': 2030, 'Năm 2': 2029, 'Năm 3': 2028, 'Năm 4': 2027, 'Đã tốt nghiệp': 2026}[year]
-    complete = R.random() < 0.75
+    complete = i == 0 or R.random() < 0.8
     sp = add('student_profiles', dict(
         id=nid('student_profiles'), user_id=u['id'], full_name=name, date_of_birth=date(grad - 22, R.randint(1, 12), R.randint(1, 28)),
         school=uni, major=major,
@@ -319,30 +390,53 @@ for i in range(N_STUDENTS):
         experience=None, default_cv_url=None, skills=skills, gender=gender, province='TP. Hồ Chí Minh',
         interested_category=MAJOR_TO_PREF[major], desired_position=None, detailed_address=f"{R.randint(5, 300)} {street}",
         languages=langs, desired_salary=R.choice(['25.000 – 30.000đ/giờ', '30.000 – 40.000đ/giờ', '3 – 5 triệu/tháng', 'Thỏa thuận']),
-        desired_work_type='PART_TIME', profile_completion_rate=R.choice([80, 90, 100]) if complete else R.choice([30, 45, 60]),
+        desired_work_type='FULL_TIME' if year == 'Đã tốt nghiệp' else 'PART_TIME', profile_completion_rate=R.choice([80, 90, 100]) if complete else R.choice([30, 45, 60]),
         is_profile_completed=complete, year_of_study=year, graduation_year=grad,
         gpa=round(R.uniform(6.5, 9.2), 2) if R.random() < 0.85 else None, ward=ward.split(',')[0]))
     for sk in skills:
         add('student_skills', dict(id=nid('student_skills'), student_profile_id=sp['id'], skill_name=sk))
     add('student_educations', dict(id=nid('student_educations'), student_profile_id=sp['id'], institution=uni,
                                    degree=f"Cử nhân {major}", start_date=date(grad - 4, 9, 5), end_date=date(grad, 6, 30)))
-    if R.random() < 0.6:
-        org = R.choice(['Highlands Coffee', 'Circle K', 'Trung tâm Anh ngữ ILA', 'Lotteria', 'Shopee Xpress', 'CLB Truyền thông khoa', 'Đoàn – Hội sinh viên trường'])
-        st = date(2025, R.randint(1, 9), 1)
-        add('student_experiences', dict(id=nid('student_experiences'), student_profile_id=sp['id'],
-                                        title=R.choice(['Nhân viên phục vụ', 'Cộng tác viên', 'Tình nguyện viên', 'Thu ngân', 'Trợ giảng']),
-                                        organization=org, description='Làm theo ca, phối hợp đội nhóm, được đánh giá chuyên cần tốt.',
-                                        start_date=st, end_date=st + timedelta(days=R.randint(60, 240))))
-    if complete:
-        fname = f"CV_{slug(name).replace(' ', '_').title()}.pdf"
-        add('student_cvs', dict(id=nid('student_cvs'), student_profile_id=sp['id'], file_key=f"cv/{u['id']}/{fname}", original_name=fname,
-                                mime_type='application/pdf', size_bytes=R.randint(120000, 900000), is_default=True, created_at=created + timedelta(days=1)))
-        sp['default_cv_url'] = f"cv/{u['id']}/{fname}"
-    shift = R.choice(['morning', 'evening', 'weekend', 'evening', 'flexible'])
-    days, a, b = SHIFTS[shift]
-    for d in days:
+    exps = []
+    for _ in range(2 if i == 0 else R.choice([0, 1, 1, 2])):
+        org, title, desc = R.choice(EXPERIENCE_POOL)
+        st = date(R.choice([2024, 2025]), R.randint(1, 10), 1)
+        ex = add('student_experiences', dict(id=nid('student_experiences'), student_profile_id=sp['id'], title=title, organization=org,
+                                             description=desc, start_date=st, end_date=st + timedelta(days=R.randint(60, 240))))
+        exps.append(ex)
+    # Lịch rảnh: 1–2 ca chuẩn (trùng giờ với ca của tin để gợi ý khớp lịch)
+    slots = set()
+    for key in R.sample(['morning', 'afternoon', 'evening', 'weekend'], k=R.choice([1, 2, 2])):
+        days, times = SHIFTS[key]
+        slots.update((d, a, b) for d in days for a, b in times)
+    for d, a, b in sorted(slots):
         add('student_availabilities', dict(id=nid('student_availabilities'), student_id=u['id'], day_of_week=d, start_time=a, end_time=b,
                                            is_active=True, created_at=created, updated_at=created))
+    # Ảnh đại diện + CV PDF thật (link có khóa ngẫu nhiên, xem /api/files/cv/:key)
+    ukey = f'stu_{u["id"]:03d}'
+    av = A.avatar(ukey, name, gender)
+    sp['avatar_url'] = f"/api/files/{upload(u['id'], 'AVATAR', 'avatar.jpg', 'image/jpeg', av, created + timedelta(hours=1))}"
+    if complete:
+        fname = f"CV_{slug(name).title().replace(' ', '_')}.pdf"
+        by_day = {}
+        for d, a, b in sorted(slots):
+            by_day.setdefault(f'{a}–{b}', []).append(DAY_NAME[d])
+        cv = A.cv_pdf(ukey, dict(
+            name=name, position=f"Ứng tuyển: {sp['interested_category']}", year=year, major=major, school=uni.replace('Trường ', ''),
+            phone=u['phone'], email=email, address=f"{sp['detailed_address']}, {ward}, TP. HCM", dob=sp['date_of_birth'].strftime('%d/%m/%Y'),
+            gender=gender, skills=skills, languages=langs,
+            availability=[f"{', '.join(ds)}: {t}" for t, ds in by_day.items()],
+            objective=f"Sinh viên {year.lower()} ngành {major}, mong muốn tìm công việc {'toàn thời gian' if sp['desired_work_type'] == 'FULL_TIME' else 'bán thời gian phù hợp lịch học'} trong lĩnh vực {sp['interested_category'].lower()}, "
+                      f"phát huy kỹ năng {', '.join(skills[:2]).lower()} và tích lũy kinh nghiệm thực tế.",
+            degree=f"Cử nhân {major}", edu_years=f"{grad - 4} – {grad}", gpa=str(sp['gpa']).replace('.', ',') if sp['gpa'] else None, code=sid,
+            experiences=[dict(title=e['title'], organization=e['organization'], description=e['description'],
+                              period=f"{e['start_date']:%m/%Y} – {e['end_date']:%m/%Y}") for e in exps],
+            activities=R.sample(ACTIVITY_POOL, 3)), f'avatars/{ukey}.jpg')
+        fid = upload(u['id'], 'CV', fname, 'application/pdf', cv, created + timedelta(days=1))
+        key = f"/api/files/cv/{fid}-{secrets.token_hex(16)}"
+        add('student_cvs', dict(id=nid('student_cvs'), student_profile_id=sp['id'], file_key=key, original_name=fname,
+                                mime_type='application/pdf', size_bytes=cv[1], is_default=True, created_at=created + timedelta(days=1)))
+        sp['default_cv_url'] = key
     students.append(dict(user=u, profile=sp, major=major, pref=MAJOR_TO_PREF[major]))
 
 # ───────────────────────── 3. JOBS ─────────────────────────
@@ -355,9 +449,16 @@ PREF_TO_CATS = {
 }
 posting_emps = [e for e in employers if e['profile']['verification_status'] in ('VERIFIED', 'PENDING', 'UNVERIFIED', 'NEEDS_INFO')]
 for e in posting_emps:
-    n = R.randint(3, 6) if e['profile']['verification_status'] == 'VERIFIED' else R.randint(1, 2)
-    for _ in range(n):
-        tpl = R.choice(JOB_TEMPLATES[e['cat']])
+    verified = e['profile']['verification_status'] == 'VERIFIED'
+    n = 6 if e['user']['email'] == 'employer.test@vlu.edu.vn' else (R.randint(3, 6) if verified else R.randint(1, 2))
+    plan = [('PART_TIME', R.choice(JOB_TEMPLATES[e['cat']])) for _ in range(n)]
+    # Doanh nghiệp đã xác minh: ~60% có thêm tin Full-time (NTD test luôn có 2 tin)
+    ft = FULLTIME_TEMPLATES[e['cat']]
+    if e['user']['email'] == 'employer.test@vlu.edu.vn':
+        plan += [('FULL_TIME', t) for t in ft]
+    elif verified and R.random() < 0.6:
+        plan.append(('FULL_TIME', R.choice(ft)))
+    for work_type, tpl in plan:
         title, desc, req, ben, skills, (smin, smax), stype, shift = tpl
         created = rand_dt(max(e['user']['created_at'], START), NOW - timedelta(days=1))
         age = (NOW - created).days
@@ -378,25 +479,27 @@ for e in posting_emps:
         deadline_d = (created + timedelta(days=R.choice([21, 30, 45]))).date()
         if status == 'OPEN' and deadline_d < NOW.date():
             deadline_d = (NOW + timedelta(days=R.randint(5, 25))).date()
-        days, a, b = SHIFTS[shift]
+        days, times = SHIFTS[shift]
         job = add('jobs', dict(
             id=nid('jobs'), employer_id=e['user']['id'], title=title,
             description=f"{desc}\n\nĐịa điểm: {e['addr']}.\nThời gian: {SHIFT_TEXT[shift]}.",
-            requirements=req, category=e['cat'], location=e['addr'], salary_type=stype, salary=salary, work_type='PART_TIME',
+            requirements=req, category=e['cat'], location=e['addr'], salary_type=stype, salary=salary, work_type=work_type,
             status=status, moderation_status=mod, created_at=created, updated_at=rand_dt(created, NOW), benefits=ben,
-            experience=R.choice(['Không yêu cầu kinh nghiệm', 'Không yêu cầu kinh nghiệm', 'Dưới 1 năm']),
+            experience='Dưới 1 năm' if work_type == 'FULL_TIME' else R.choice(['Không yêu cầu kinh nghiệm', 'Không yêu cầu kinh nghiệm', 'Dưới 1 năm']),
             education='Đại học / Cao đẳng', headcount=R.choice([1, 2, 2, 3, 5]), level='Thực tập sinh' if 'Thực tập' in title else 'Nhân viên',
             deadline=deadline_d, work_schedule=SHIFT_TEXT[shift], banner_url=None, work_address=e['addr'],
             latitude=round(e['lat'] + R.uniform(-0.002, 0.002), 7), longitude=round(e['lng'] + R.uniform(-0.002, 0.002), 7),
             application_deadline=datetime.combine(deadline_d, time(23, 59)),
-            job_banner_url=f"https://images.unsplash.com/{R.choice(BANNERS)}?w=1200", moderation_reason=mreason))
+            job_banner_url=A.photo_url(R.choice(A.PHOTOS[e['cat']])), moderation_reason=mreason))
         for d in days:
-            add('job_work_schedules', dict(id=nid('job_work_schedules'), job_id=job['id'], day_of_week=d, start_time=a, end_time=b,
-                                           min_hours_per_shift=4 if shift != 'night' else 2, is_mandatory=True, created_at=created, updated_at=created))
+            for a, b in times:
+                add('job_work_schedules', dict(id=nid('job_work_schedules'), job_id=job['id'], day_of_week=d, start_time=a, end_time=b,
+                                               min_hours_per_shift=4, is_mandatory=True, created_at=created, updated_at=created))
         for sk in skills:
             add('job_skills', dict(job_id=job['id'], skill_name=sk))
-        add('part_time_details', dict(job_id=job['id'], shift_description=SHIFT_TEXT[shift], weekly_schedule=', '.join(f"T{d+1}" if d < 7 else 'CN' for d in days),
-                                      hours_per_week=len(days) * 4))
+        if work_type == 'PART_TIME':
+            add('part_time_details', dict(job_id=job['id'], shift_description=SHIFT_TEXT[shift],
+                                          weekly_schedule=', '.join(DAY_NAME[d] for d in days), hours_per_week=len(days) * len(times) * 4))
         if mod != 'PENDING':
             add('admin_logs', dict(id=0, admin_id=R.choice(ADMIN_IDS[:2]), action='APPROVE_JOB' if mod == 'APPROVED' else 'REJECT_JOB', target_type='JOB',
                                    target_id=job['id'], metadata={'title': title, 'moderation_status': mod, **({'reason': mreason} if mreason else {})},
@@ -418,13 +521,21 @@ open_jobs = [j for j in jobs if j['job']['moderation_status'] == 'APPROVED']
 assignments = []
 for s in students:
     pref_cats = PREF_TO_CATS[s['pref']]
-    pool = [j for j in open_jobs if j['job']['category'] in pref_cats and j['job']['created_at'] < NOW - timedelta(hours=6)]
-    others = [j for j in open_jobs if j not in pool]
+    senior = s['profile']['year_of_study'] in ('Năm 4', 'Đã tốt nghiệp')
+    eligible = [j for j in open_jobs if senior or j['job']['work_type'] == 'PART_TIME']
+    pool = [j for j in eligible if j['job']['category'] in pref_cats and j['job']['created_at'] < NOW - timedelta(hours=6)]
+    if s['profile']['desired_work_type'] == 'FULL_TIME':  # SV đã tốt nghiệp ưu tiên tin Full-time
+        pool = [j for j in pool if j['job']['work_type'] == 'FULL_TIME'] + [j for j in pool if j['job']['work_type'] == 'PART_TIME'][:2]
+    others = [j for j in eligible if j not in pool]
     k = R.randint(1, 6)
     picks = R.sample(pool, k=min(len(pool), k)) + R.sample(others, k=R.randint(0, 2))
+    forced = None
     if s['user']['email'] == 'student.test@vlu.edu.vn':
-        picks = R.sample(open_jobs, 8)
-    for j in picks:
+        test_pool = [j for j in open_jobs if j['job']['work_type'] == 'PART_TIME' and j['job']['created_at'] < NOW - timedelta(days=3)]
+        picks = R.sample([j for j in test_pool if j['job']['status'] in ('COMPLETED', 'CLOSED', 'FILLED')], 4) + \
+            R.sample([j for j in test_pool if j['job']['status'] == 'OPEN'], 6)
+        forced = ['ACCEPTED', 'ACCEPTED', 'ACCEPTED', 'REJECTED', 'ACCEPTED', 'PENDING', 'REVIEWING', 'SHORTLISTED', 'REJECTED', 'WITHDRAWN']
+    for pick_no, j in enumerate(picks):
         job = j['job']
         lo = max(job['created_at'], s['user']['created_at'])
         hi = min(job['application_deadline'], NOW - timedelta(hours=2), lo + timedelta(days=20))
@@ -438,6 +549,8 @@ for s in students:
         else:
             st = ('PENDING' if r < 0.30 else 'REVIEWING' if r < 0.45 else 'SHORTLISTED' if r < 0.58 else
                   'ACCEPTED' if r < 0.75 else 'REJECTED' if r < 0.92 else 'WITHDRAWN')
+        if forced:
+            st = forced[pick_no]
         sp = s['profile']
         app = add('applications', dict(
             id=nid('applications'), job_id=job['id'], student_id=s['user']['id'],
@@ -755,13 +868,13 @@ for tb in ('notifications', 'admin_logs'):
         r['id'] = i
 
 # ───────────────────────── GHI EXCEL ─────────────────────────
-ORDER = ['categories', 'users', 'employer_profiles', 'employer_profile_changes', 'student_profiles', 'student_skills', 'student_educations',
+ORDER = ['categories', 'users', 'file_uploads', 'employer_profiles', 'employer_profile_changes', 'student_profiles', 'student_skills', 'student_educations',
          'student_experiences', 'student_cvs', 'student_availabilities', 'jobs', 'job_work_schedules', 'job_skills', 'part_time_details',
          'job_saved', 'job_views', 'applications', 'application_histories', 'work_assignments', 'work_progress', 'reviews',
          'company_reviews', 'job_reviews', 'review_replies', 'review_reports', 'review_moderation_logs', 'notifications', 'reports',
          'report_actions', 'user_violations', 'user_appeals', 'admin_logs', 'password_reset_tokens', 'verification_tokens']
 DESC = {
-    'categories': 'Danh mục ngành nghề', 'users': 'Tài khoản (Admin / Nhà tuyển dụng / Sinh viên)', 'employer_profiles': 'Hồ sơ doanh nghiệp + xác minh pháp lý',
+    'categories': 'Danh mục ngành nghề', 'file_uploads': 'File (logo, ảnh bìa, ảnh văn phòng, ảnh đại diện, CV, giấy tờ) — cột data trỏ tới data_v3_files/', 'users': 'Tài khoản (Admin / Nhà tuyển dụng / Sinh viên)', 'employer_profiles': 'Hồ sơ doanh nghiệp + xác minh pháp lý',
     'employer_profile_changes': 'Lịch sử thay đổi hồ sơ doanh nghiệp', 'student_profiles': 'Hồ sơ sinh viên', 'student_skills': 'Kỹ năng sinh viên',
     'student_educations': 'Học vấn', 'student_experiences': 'Kinh nghiệm', 'student_cvs': 'CV đã tải lên (metadata)',
     'student_availabilities': 'Lịch rảnh của sinh viên', 'jobs': 'Tin tuyển dụng', 'job_work_schedules': 'Ca làm việc của tin',

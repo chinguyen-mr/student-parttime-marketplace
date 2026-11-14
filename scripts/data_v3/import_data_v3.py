@@ -82,6 +82,8 @@ def main():
                 return json.loads(v) if isinstance(v, str) else v
             if t in ('json', 'jsonb') and not isinstance(v, str):
                 return json.dumps(v, ensure_ascii=False)
+            if t == 'bytea':  # đường dẫn file tương đối thư mục chứa Excel (VD data_v3_files/cv/stu_001.pdf)
+                return psycopg2.Binary((Path(a.file).parent / v).read_bytes())
             return v
 
         data = [tuple(conv(c, v) for c, v in zip(cols, r)) for r in rows if any(x is not None for x in r)]

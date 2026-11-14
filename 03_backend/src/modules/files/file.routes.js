@@ -97,6 +97,22 @@ router.get('/legal-documents/:id(\\d+)', verifyToken, requireRoles('EMPLOYER', '
     } catch (err) { next(err); }
 });
 
+// GET /api/files/cv/:key — CV PDF qua link có khóa (xem file.service getCvFile)
+router.get('/cv/:key', async (req, res, next) => {
+    try {
+        const file = await fileService.getCvFile(req.params.key);
+        res.set({
+            'Content-Type': file.mime_type,
+            'Content-Disposition': `inline; filename*=UTF-8''${encodeURIComponent(file.original_name || 'CV.pdf')}`,
+            'X-Content-Type-Options': 'nosniff',
+            'Cache-Control': 'private, max-age=3600',
+        });
+        res.send(file.data);
+    } catch (err) {
+        next(err);
+    }
+});
+
 // GET /api/files/:id — ảnh công khai (avatar, ảnh bìa, ảnh văn phòng, ảnh đánh giá)
 router.get('/:id(\\d+)', async (req, res, next) => {
     try {

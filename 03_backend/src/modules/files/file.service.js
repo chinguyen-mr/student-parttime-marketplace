@@ -309,6 +309,23 @@ class FileService {
         return doc;
     }
 
+    /**
+     * CV dạng "link có khóa": /api/files/cv/<id>-<token ngẫu nhiên>. Chỉ ai được chia sẻ link
+     * (chính sinh viên, nhà tuyển dụng nhận hồ sơ, quản trị viên) mới mở được; id đoán được nhưng token thì không.
+     */
+    async getCvFile(key) {
+        const m = /^(\d+)-([a-f0-9]{32,64})$/.exec(String(key || ''));
+        if (!m) throw new NotFoundError('Không tìm thấy CV.');
+        const res = await db.query(
+            `SELECT f.original_name, f.mime_type, f.data FROM file_uploads f
+             WHERE f.id = $1 AND f.kind = 'CV'
+               AND EXISTS (SELECT 1 FROM student_cvs c WHERE c.file_key = $2)`,
+            [parseInt(m[1], 10), `/api/files/cv/${key}`]
+        );
+        if (!res.rows[0]) throw new NotFoundError('Không tìm thấy CV.');
+        return res.rows[0];
+    }
+
     /** File công khai: ảnh đại diện, ảnh bìa, ảnh văn phòng, ảnh đánh giá. CV và ảnh gốc avatar không phát công khai. */
     async getPublicFile(fileId) {
         const res = await db.query(

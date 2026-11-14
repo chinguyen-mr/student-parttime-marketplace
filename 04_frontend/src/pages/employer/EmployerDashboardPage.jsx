@@ -8,7 +8,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
-import { API_BASE, formatApiError } from '../../config/api';
+import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
 import { DEFAULT_EMPLOYER_JOBS, DEFAULT_APPLICANTS_KETOAN } from '../../App';
 
 export default function EmployerDashboardPage({
@@ -678,9 +678,12 @@ export default function EmployerDashboardPage({
                               justifyContent: 'center',
                               fontSize: 14,
                               fontWeight: 800,
-                              flexShrink: 0
+                              flexShrink: 0,
+                              overflow: 'hidden'
                             }}>
-                              {item.student_name ? item.student_name.charAt(0) : 'S'}
+                              {item.student_avatar
+                                ? <img src={resolveFileUrl(item.student_avatar)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                : (item.student_name ? item.student_name.charAt(0) : 'S')}
                             </div>
                             <div>
                               <div style={{ fontWeight: 700, color: 'var(--color-text)' }}>

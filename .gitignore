@@ -67,3 +67,6 @@ Tài Liệu/
 
 # Bản sao lưu database cục bộ (chứa dữ liệu người dùng)
 02_database/backups/
+
+# Ảnh tải về để sinh dữ liệu demo (tái tạo được)
+02_database/data_v3_files/_cache/

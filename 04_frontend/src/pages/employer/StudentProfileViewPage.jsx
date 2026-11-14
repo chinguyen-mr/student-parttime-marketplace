@@ -4,7 +4,7 @@ import {
   Clock, Download, ArrowLeft, ExternalLink, ShieldCheck, 
   Briefcase, Award, CheckCircle2, AlertCircle, RefreshCw, ChevronRight
 } from 'lucide-react';
-import { API_BASE, formatApiError } from '../../config/api';
+import { API_BASE, formatApiError, resolveFileUrl, cvDisplayName } from '../../config/api';
 
 export default function StudentProfileViewPage({
   studentId,
@@ -423,13 +423,13 @@ export default function StudentProfileViewPage({
                         <Download size={22} color="#7565A8" />
                         <div>
                           <strong style={{ display: 'block', fontSize: 13.5, color: '#0F172A' }}>
-                            {(student.default_cv_url || student.cv_url).split('/').pop() || 'Curriculum_Vitae.pdf'}
+                            {cvDisplayName(student.default_cv_url || student.cv_url, student.full_name)}
                           </strong>
                           <span style={{ fontSize: 12, color: '#64748B' }}>Tài liệu CV chính thức</span>
                         </div>
                       </div>
                       <a
-                        href={student.default_cv_url || student.cv_url}
+                        href={resolveFileUrl(student.default_cv_url || student.cv_url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{

@@ -15,7 +15,7 @@ import EmptyState from '../../components/common/EmptyState';
 import StatusBadge from '../../components/common/StatusBadge';
 import ExportMenu from '../../components/common/ExportMenu';
 import CompanyLogo from '../../components/CompanyLogo';
-import { API_BASE, formatApiError } from '../../config/api';
+import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
 import MyAssignmentsPage from './MyAssignmentsPage';
 import NotificationsPage from './NotificationsPage';
 import AccountSettingsPage from './AccountSettingsPage';
@@ -1534,7 +1534,7 @@ export default function StudentDashboardPage({
                 <div style={{ display: 'flex', gap: 8 }}>
                   {defaultCvUrl && (
                     <a
-                      href={defaultCvUrl}
+                      href={resolveFileUrl(defaultCvUrl)}
                       target="_blank"
                       rel="noreferrer"
                       style={{

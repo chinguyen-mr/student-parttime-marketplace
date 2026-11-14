@@ -24,7 +24,7 @@ import EmployerReviewStudentPage from './EmployerReviewStudentPage';     // WF-E
 import EmployerNotificationsPage from './EmployerNotificationsPage';     // WF-E12 (Notification list read/unread)
 import EmployerReviewsPage from './EmployerReviewsPage';                 // Đánh giá doanh nghiệp & công việc (phản hồi / báo cáo)
 import AccountSettingsPage from '../student/AccountSettingsPage';         // WF-X03 (Account Settings & Security)
-import { API_BASE } from '../../config/api';
+import { API_BASE, resolveFileUrl } from '../../config/api';
 import { useRememberedTab } from '../../utils/rememberedTab';
 
 export default function EmployerPortal({
@@ -256,7 +256,7 @@ export default function EmployerPortal({
               overflow: 'hidden'
             }}>
               {profileData?.avatar_url ? (
-                <img src={profileData.avatar_url} alt={displayedName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={resolveFileUrl(profileData.avatar_url)} alt={displayedName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 displayedAvatarLetter
               )}

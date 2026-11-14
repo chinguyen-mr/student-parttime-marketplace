@@ -48,7 +48,7 @@ import ApplicationDetailPage from './pages/student/ApplicationDetailPage';
 import StudentProfileViewPage from './pages/employer/StudentProfileViewPage';
 import ReportViolationModal from './components/forms/ReportViolationModal';
 import AccountSettingsPage from './pages/student/AccountSettingsPage';
-import { API_BASE, checkBackendConnection, formatApiError } from './config/api';
+import { API_BASE, checkBackendConnection, formatApiError, resolveFileUrl } from './config/api';
 import { takeRestoredTab, rememberTab, clearRememberedTabs } from './utils/rememberedTab';
 import { isImeComposing } from './utils/ime';
 
@@ -4866,7 +4866,7 @@ export default function App() {
               </div>
 
               <a
-                href={selectedApplicant.cv_url || '#'}
+                href={resolveFileUrl(selectedApplicant.cv_url) || '#'}
                 target="_blank"
                 rel="noreferrer"
                 style={{

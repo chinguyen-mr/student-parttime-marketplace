@@ -15,6 +15,13 @@ export const HEALTH_ENDPOINT = `${SERVER_BASE}/health`;
 /** File tải lên được lưu dạng đường dẫn tương đối "/api/files/:id" → ghép với địa chỉ backend. */
 export const resolveFileUrl = (url) => (url && url.startsWith('/api/') ? `${SERVER_BASE}${url}` : url || null);
 
+/** Tên hiển thị của CV: link có khóa "/api/files/cv/<id>-<token>" không chứa tên file → dùng "CV_<Tên>.pdf". */
+export const cvDisplayName = (url, ownerName) => {
+  if (!url) return '';
+  if (url.startsWith('/api/files/cv/')) return ownerName ? `CV_${String(ownerName).trim().replace(/\s+/g, '_')}.pdf` : 'CV.pdf';
+  return url.split('/').pop() || 'CV.pdf';
+};
+
 /**
  * Checks if the backend server is reachable and database is healthy
  * @param {number} timeoutMs 

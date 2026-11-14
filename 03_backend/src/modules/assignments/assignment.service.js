@@ -36,7 +36,7 @@ class AssignmentService {
             `SELECT wa.*, 
                     j.title AS job_title, j.category, j.work_type, j.location,
                     stu.full_name AS student_name, stu.email AS student_email, stu.phone AS student_phone,
-                    pr.school AS university, pr.major,
+                    pr.school AS university, pr.major, pr.avatar_url AS student_avatar,
                     app.cover_letter,
                     prop.proposal_text, prop.proposed_price, prop.estimated_duration
              FROM work_assignments wa

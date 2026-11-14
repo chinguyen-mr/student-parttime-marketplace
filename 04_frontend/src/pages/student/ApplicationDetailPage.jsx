@@ -5,7 +5,7 @@ import {
   Clock, XCircle, AlertCircle, RefreshCw, ChevronRight, User, AlertTriangle, X
 } from 'lucide-react';
 import { Button, AnimatedModal } from '../../components/ui';
-import { API_BASE, formatApiError } from '../../config/api';
+import { API_BASE, formatApiError, resolveFileUrl, cvDisplayName } from '../../config/api';
 import ProfileSnapshotView from '../../components/student/ProfileSnapshotView';
 
 export default function ApplicationDetailPage({
@@ -428,12 +428,12 @@ export default function ApplicationDetailPage({
                     <FileText size={24} color="#7565A8" />
                     <div style={{ flex: 1, overflow: 'hidden' }}>
                       <span style={{ display: 'block', fontSize: 13.5, fontWeight: 600, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {application.cv_url.split('/').pop() || 'Curriculum_Vitae.pdf'}
+                        {cvDisplayName(application.cv_url)}
                       </span>
                       <span style={{ fontSize: 11.5, color: '#64748B' }}>Định dạng PDF đã tải lên</span>
                     </div>
                     <a
-                      href={application.cv_url}
+                      href={resolveFileUrl(application.cv_url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{

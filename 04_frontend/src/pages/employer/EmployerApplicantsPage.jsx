@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Button, AnimatedModal } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
-import { API_BASE, formatApiError } from '../../config/api';
+import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
 import { DEFAULT_APPLICANTS_KETOAN, DEFAULT_EMPLOYER_JOBS } from '../../App';
 import ExportMenu from '../../components/common/ExportMenu';
 
@@ -318,7 +318,7 @@ export default function EmployerApplicantsPage({
               gap: 8
             }}
           >
-            <Users size={16} /> Đơn ứng tuyển Part-time
+            <Users size={16} /> Đơn ứng tuyển (Part-time & Full-time)
             <span style={{ fontSize: 11, background: '#E2E8F0', padding: '2px 8px', borderRadius: 10, color: '#334155' }}>
               {filteredApplications.length}
             </span>
@@ -428,9 +428,13 @@ export default function EmployerApplicantsPage({
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontSize: 14,
-                            fontWeight: 800
+                            fontWeight: 800,
+                            overflow: 'hidden',
+                            flexShrink: 0
                           }}>
-                            {app.student_name?.charAt(0) || 'S'}
+                            {app.student_avatar
+                              ? <img src={resolveFileUrl(app.student_avatar)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              : (app.student_name?.charAt(0) || 'S')}
                           </div>
                           <div>
                             <div style={{ fontWeight: 700, color: 'var(--color-text)' }}>
@@ -449,7 +453,7 @@ export default function EmployerApplicantsPage({
 
                       <td style={{ padding: '14px 16px' }}>
                         <a
-                          href={app.cv_url || '#'}
+                          href={resolveFileUrl(app.cv_url) || '#'}
                           target="_blank"
                           rel="noreferrer"
                           style={{ color: 'var(--color-primary)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
@@ -818,9 +822,13 @@ export default function EmployerApplicantsPage({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 24,
-                fontWeight: 800
+                fontWeight: 800,
+                overflow: 'hidden',
+                flexShrink: 0
               }}>
-                {viewingStudent.student_name?.charAt(0) || 'S'}
+                {viewingStudent.student_avatar
+                  ? <img src={resolveFileUrl(viewingStudent.student_avatar)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : (viewingStudent.student_name?.charAt(0) || 'S')}
               </div>
 
               <div>
@@ -863,7 +871,7 @@ export default function EmployerApplicantsPage({
             {/* CV Link & Action */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, borderTop: '1px solid var(--color-border)' }}>
               <a
-                href={viewingStudent.cv_url || 'https://jobnest.vn/uploads/cv/CV_NguyenVanChi_Default.pdf'}
+                href={resolveFileUrl(viewingStudent.cv_url) || '#'}
                 target="_blank"
                 rel="noreferrer"
                 style={{

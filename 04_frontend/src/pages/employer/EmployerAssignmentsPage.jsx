@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button, AnimatedModal } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import ExportMenu from '../../components/common/ExportMenu';
-import { API_BASE, formatApiError } from '../../config/api';
+import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
 
 export default function EmployerAssignmentsPage({
   currentUser,
@@ -543,9 +543,12 @@ export default function EmployerAssignmentsPage({
                             justifyContent: 'center',
                             fontSize: 14.5,
                             fontWeight: 800,
-                            flexShrink: 0
+                            flexShrink: 0,
+                            overflow: 'hidden'
                           }}>
-                            {assign.student_name?.charAt(0) || 'S'}
+                            {assign.student_avatar
+                              ? <img src={resolveFileUrl(assign.student_avatar)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              : (assign.student_name?.charAt(0) || 'S')}
                           </div>
                           <div>
                             <div style={{ fontWeight: 800, color: 'var(--color-text)', fontSize: 14 }}>

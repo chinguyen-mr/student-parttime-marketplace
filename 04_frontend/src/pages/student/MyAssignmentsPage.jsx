@@ -390,7 +390,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                   gap: 6
                 }}
               >
-                <Clock size={16} /> WF-S08: Chi tiết & Timeline tiến độ
+                <Clock size={16} /> Chi tiết & Timeline tiến độ
               </button>
               <button
                 type="button"
@@ -409,7 +409,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                   gap: 6
                 }}
               >
-                <UploadCloud size={16} /> WF-S09: Nộp sản phẩm bàn giao (Deliverable)
+                <UploadCloud size={16} /> Nộp sản phẩm bàn giao
               </button>
             </div>
 
@@ -480,9 +480,6 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                     <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)' }}>
                       Timeline tiến độ (Date — Update note — Actor)
                     </div>
-                    <span style={{ fontSize: 11.5, color: '#64748B' }}>
-                      Chuẩn wireframe WF-S08
-                    </span>
                   </div>
 
                   <div style={{

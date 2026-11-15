@@ -8,7 +8,6 @@ import {
   FileText,
   ShieldCheck,
   Lock,
-  Map,
   ArrowLeft,
   CheckCircle2,
   Send,
@@ -55,7 +54,6 @@ export default function AboutPage({
     { id: 'terms', label: 'Thỏa thuận sử dụng', icon: FileText, desc: 'Điều khoản dịch vụ' },
     { id: 'privacy', label: 'Quy định bảo mật', icon: Lock, desc: 'Bảo vệ dữ liệu cá nhân' },
     { id: 'regulations', label: 'Quy chế sàn giao dịch', icon: ShieldCheck, desc: 'Giải quyết tranh chấp' },
-    { id: 'sitemap', label: 'Sơ đồ website', icon: Map, desc: 'Bản đồ tính năng nền tảng' },
   ];
 
   const handleContactSubmit = (e) => {
@@ -868,7 +866,7 @@ export default function AboutPage({
                   <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>Chuẩn mực sàn</span>
                 </div>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
-                  Quy Chế Hoạt Động & Cơ Chế Xử Lý Tranh Chấp (UC-09 & UC-10)
+                  Quy Chế Hoạt Động & Cơ Chế Xử Lý Tranh Chấp
                 </h2>
 
                 <p style={{ fontSize: 14.5, lineHeight: 1.7, color: '#374151', marginBottom: 16 }}>
@@ -891,79 +889,6 @@ export default function AboutPage({
               </div>
             )}
 
-            {/* =========================================================================
-                SECTION 9: SƠ ĐỒ TRANG WEB
-                ========================================================================= */}
-            {activeSection === 'sitemap' && (
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ background: 'rgba(117, 101, 168, 0.1)', color: '#7565A8', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-                    Mục 09
-                  </span>
-                  <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>Cấu trúc hệ thống</span>
-                </div>
-                <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
-                  Sơ Đồ Trang Web & Bản Đồ Tính Năng Nền Tảng
-                </h2>
-
-                <p style={{ fontSize: 14.5, lineHeight: 1.7, color: '#374151', marginBottom: 20 }}>
-                  Tổng hợp cấu trúc phân hệ chức năng trên hệ thống JobNest:
-                </p>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-                  <div style={{ background: '#F8FAFC', border: '1.5px solid #000000', borderRadius: 10, padding: 16 }}>
-                    <div style={{ fontWeight: 800, color: '#111827', fontSize: 15, marginBottom: 8 }}>
-                      🌐 Công khai (Khách vãng lai)
-                    </div>
-                    <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13, color: '#4B5563', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <li>Trang chủ & Banner tìm việc</li>
-                      <li>Khám phá việc làm theo ngành</li>
-                      <li>Bộ lọc tìm kiếm đa tiêu chí</li>
-                      <li>Trung tâm giới thiệu & quy chế</li>
-                      <li>Cổng đăng nhập / Đăng ký</li>
-                    </ul>
-                  </div>
-
-                  <div style={{ background: '#FAF8FC', border: '1.5px solid #7565A8', borderRadius: 10, padding: 16 }}>
-                    <div style={{ fontWeight: 800, color: '#7565A8', fontSize: 15, marginBottom: 8 }}>
-                      🎓 Không gian Sinh viên
-                    </div>
-                    <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13, color: '#4B5563', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <li>Quản lý lịch học & lịch rảnh</li>
-                      <li>Gợi ý việc làm theo điểm so khớp</li>
-                      <li>Theo dõi hồ sơ ứng tuyển</li>
-                      <li>Hồ sơ năng lực & CV cá nhân</li>
-                      <li>Đánh giá doanh nghiệp & hợp đồng</li>
-                    </ul>
-                  </div>
-
-                  <div style={{ background: '#FFF9F6', border: '1.5px solid #F4B99D', borderRadius: 10, padding: 16 }}>
-                    <div style={{ fontWeight: 800, color: '#C86B43', fontSize: 15, marginBottom: 8 }}>
-                      🏢 Không gian Doanh nghiệp
-                    </div>
-                    <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13, color: '#4B5563', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <li>Đăng tin tuyển dụng ca làm</li>
-                      <li>Quản lý danh sách tin đăng</li>
-                      <li>Duyệt hồ sơ & chọn ứng viên</li>
-                      <li>Đánh giá sinh viên sau dự án</li>
-                    </ul>
-                  </div>
-
-                  <div style={{ background: '#FEF2F2', border: '1.5px solid #F87171', borderRadius: 10, padding: 16 }}>
-                    <div style={{ fontWeight: 800, color: '#B91C1C', fontSize: 15, marginBottom: 8 }}>
-                      🛡️ Quản trị hệ thống (Admin)
-                    </div>
-                    <ul style={{ paddingLeft: 18, margin: 0, fontSize: 13, color: '#4B5563', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <li>Quản trị người dùng & phân quyền</li>
-                      <li>Phê duyệt & kiểm duyệt tin đăng</li>
-                      <li>Xử lý báo cáo tranh chấp</li>
-                      <li>Báo cáo thống kê cơ sở dữ liệu</li>
-                      <li>Nhật ký hệ thống (Audit Logs)</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
 
           </main>
         </div>

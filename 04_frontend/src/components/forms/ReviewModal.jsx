@@ -46,7 +46,7 @@ export default function ReviewModal({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
               <span className="badge badge-primary">JOBNEST REVIEWS</span>
-              <span className="badge badge-success">UC-09: Đánh giá hai chiều</span>
+              <span className="badge badge-success">Đánh giá hai chiều</span>
             </div>
             <h3 style={{ fontSize: 19, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
               ĐÁNH GIÁ SAU CÔNG VIỆC

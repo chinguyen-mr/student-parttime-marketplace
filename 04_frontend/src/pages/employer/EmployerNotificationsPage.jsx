@@ -109,7 +109,7 @@ export default function EmployerNotificationsPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>
-            THÔNG BÁO DOANH NGHIỆP (WF-E12)
+            THÔNG BÁO DOANH NGHIỆP
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
             Thông báo hoạt động tuyển dụng

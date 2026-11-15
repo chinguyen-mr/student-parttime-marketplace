@@ -483,7 +483,7 @@ export default function StudentProfileViewPage({
               }}
             >
               <span style={{ fontSize: 13, color: '#64748B' }}>
-                Lưu ý: Để chấp nhận và tuyển dụng ứng viên này, vui lòng chuyển sang mục <strong>Quản lý ứng viên / Chọn ứng viên (WF-E08)</strong>.
+                Lưu ý: Để chấp nhận và tuyển dụng ứng viên này, vui lòng chuyển sang mục <strong>Quản lý ứng viên / Chọn ứng viên</strong>.
               </span>
 
               <button

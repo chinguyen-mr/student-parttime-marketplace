@@ -17,7 +17,6 @@ import Footer from './components/Footer';
 import AccountMenu from './components/layout/AccountMenu';
 import { applyBlockReason, salaryOptionsFor, matchesSalaryFilter } from './utils/jobDisplay';
 import FloatingActions from './components/FloatingActions';
-import PolicyModal from './components/PolicyModal';
 import SupportModal from './components/SupportModal';
 import ComingSoonPage from './pages/ComingSoonPage';
 import HomePage from './pages/HomePage';
@@ -32,7 +31,6 @@ import AdminPortal from './pages/admin/AdminPortal';
 import NotificationsPage from './pages/student/NotificationsPage';
 import AboutPage from './pages/guest/AboutPage';
 import EmployerPublicProfilePage from './pages/guest/EmployerPublicProfilePage';
-import StaticContentPage from './pages/guest/StaticContentPage';
 import RegisterSuccessPage from './pages/guest/RegisterSuccessPage';
 import ErrorPage from './pages/common/ErrorPage';
 import ApplicationDetailPage from './pages/student/ApplicationDetailPage';
@@ -60,7 +58,7 @@ function loadStoredSession() {
   }
 }
 // Trang khách xem được khi chưa đăng nhập; trang khác chỉ khôi phục khi còn phiên
-const PUBLIC_TABS = ['home', 'jobs', 'about', 'static_content', 'job_detail', 'employer_public_profile', 'coming_soon', 'login', 'register'];
+const PUBLIC_TABS = ['home', 'jobs', 'about', 'job_detail', 'employer_public_profile', 'coming_soon', 'login', 'register'];
 // Trang cần mã đối tượng đang xem → thiếu mã thì không khôi phục
 const TAB_SELECTION = { job_detail: 'jobId', employer_public_profile: 'employerId', application_detail: 'applicationId', student_profile_view: 'studentId' };
 let appRestore;
@@ -155,8 +153,7 @@ export default function App() {
     'search',
     'featured_jobs',
     'about',
-    'employer_public_profile',
-    'static_content'
+    'employer_public_profile'
   ].includes(activeTab) && !isEmployerWorkspace && !isAdminWorkspace;
 
   const isEmployerOperationalScreen = isEmployerWorkspace || isAdminWorkspace || (
@@ -205,8 +202,6 @@ export default function App() {
   const [applyTargetJob, setApplyTargetJob] = useState(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false); // Screen 13
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false); // Screen 3
-  const [policyModalOpen, setPolicyModalOpen] = useState(false);
-  const [policyInitialTab, setPolicyInitialTab] = useState('terms');
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [headerIntroMenuOpen, setHeaderIntroMenuOpen] = useState(false);
   const [aboutSection, setAboutSection] = useState('about');
@@ -821,7 +816,7 @@ export default function App() {
       } else if (urlTab === 'account_settings') {
         setActiveTab('account_settings');
       } else if (urlTab === 'static_content') {
-        setActiveTab('static_content');
+        setActiveTab('about');
       } else if (urlTab === 'employer_public_profile') {
         setActiveTab('employer_public_profile');
       }
@@ -1531,11 +1526,6 @@ export default function App() {
                         label: 'Quy chế hoạt động sàn giao dịch', 
                         desc: 'Quy tắc & giải quyết tranh chấp',
                         action: () => handleNavigateAbout('regulations')
-                      },
-                      { 
-                        label: 'Sơ đồ trang web', 
-                        desc: 'Cấu trúc các tính năng',
-                        action: () => handleNavigateAbout('sitemap')
                       }
                     ].map((item) => (
                       <button
@@ -2450,32 +2440,6 @@ export default function App() {
             )}
 
             {/* ========================================================================= */}
-            {/* WF-G07: TRANG TĨNH (GIỚI THIỆU / LIÊN HỆ / ĐIỀU KHOẢN)                     */}
-            {/* ========================================================================= */}
-            {activeTab === 'static_content' && (
-              <StaticContentPage
-                initialTab="about"
-                currentUser={currentUser}
-                onNavigateHome={() => {
-                  setActiveTab('home');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onNavigateJobs={() => {
-                  setActiveTab('jobs');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onOpenAuth={(mode, targetJob) => {
-                  if (targetJob || selectedJob) {
-                    setPendingApplyJob(targetJob || selectedJob);
-                  }
-                  setActiveTab('login');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                showToast={showToast}
-              />
-            )}
-
-            {/* ========================================================================= */}
             {/* WF-S12: CHI TIẾT APPLICATION / PROPOSAL DÀNH CHO SINH VIÊN                 */}
             {/* ========================================================================= */}
             {activeTab === 'application_detail' && (
@@ -2909,10 +2873,6 @@ export default function App() {
           }}
           onOpenStudentProfile={() => (currentUser?.role === 'STUDENT' ? openStudentTab('profile') : setActiveTab('login'))}
           onOpenEmployerProfile={() => setActiveTab(currentUser?.role === 'EMPLOYER' ? 'employer_profile' : 'login')}
-          onOpenPolicy={(tab) => {
-            setPolicyInitialTab(tab || 'terms');
-            setPolicyModalOpen(true);
-          }}
           onOpenSupport={() => setSupportModalOpen(true)}
           onOpenAuth={(mode) => {
             setAuthModalMode(mode || 'login');
@@ -2927,13 +2887,6 @@ export default function App() {
       {/* FLOATING ACTION BUTTONS (Back to top, Quick Support, Notifications) */}
       <FloatingActions
         onOpenSupport={() => setSupportModalOpen(true)}
-      />
-
-      {/* POLICY & LEGAL MODAL */}
-      <PolicyModal
-        isOpen={policyModalOpen}
-        onClose={() => setPolicyModalOpen(false)}
-        initialTab={policyInitialTab}
       />
 
       {/* SUPPORT & HOTLINE MODAL */}

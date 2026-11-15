@@ -167,23 +167,12 @@ export default function EmployerCreateJobPage({
               marginBottom: 6
             }}
           >
-            <ArrowLeft size={14} /> Quay lại danh sách tin (WF-E04)
+            <ArrowLeft size={14} /> Quay lại danh sách tin
           </button>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
-            {editingJob ? 'Chỉnh sửa tin tuyển dụng' : 'Đăng tin tuyển dụng mới (WF-E05)'}
+            {editingJob ? 'Chỉnh sửa tin tuyển dụng' : 'Đăng tin tuyển dụng mới'}
           </h1>
         </div>
-
-        <span style={{
-          fontSize: 12,
-          fontWeight: 700,
-          background: 'var(--color-primary-light)',
-          color: 'var(--color-primary)',
-          padding: '4px 12px',
-          borderRadius: 16
-        }}>
-          WF-E05 Form động
-        </span>
       </div>
 
       <form onSubmit={handleSubmit} style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', padding: '28px', boxShadow: 'var(--shadow-sm)' }}>

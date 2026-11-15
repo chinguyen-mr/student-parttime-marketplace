@@ -139,7 +139,7 @@ class SelectionService {
             job_id: jobId,
             accepted_count: validApplications.length,
             assignments: createdAssignments,
-            message: `Lựa chọn thành công ${validApplications.length} ứng viên và đã khởi tạo hợp đồng làm việc (A3 Rule)`
+            message: `Lựa chọn thành công ${validApplications.length} ứng viên và đã khởi tạo hợp đồng làm việc`
         };
     }
 }

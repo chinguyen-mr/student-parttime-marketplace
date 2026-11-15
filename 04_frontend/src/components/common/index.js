@@ -8,7 +8,6 @@ export { default as JobDetailModal } from './JobDetailModal';
 export { default as JobLocationMap } from './JobLocationMap';
 export { default as JobQuickPreview } from './JobQuickPreview';
 export { default as NotificationsDropdown } from './NotificationsDropdown';
-export { default as PolicyModal } from './PolicyModal';
 export { default as SupportModal } from './SupportModal';
 export { default as JobCardSkeleton } from './JobCardSkeleton';
 export { default as JobListSkeleton } from './JobListSkeleton';

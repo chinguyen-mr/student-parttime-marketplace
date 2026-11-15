@@ -167,7 +167,7 @@ export default function EmployerApplicantsPage({
         throw new Error(data.message || 'Lỗi tuyển chọn ứng viên');
       }
     } catch (err) {
-      if (showToast) showToast(formatApiError(err, 'Lỗi kích hoạt hợp đồng (Rule A3)'), 'error');
+      if (showToast) showToast(formatApiError(err, 'Lỗi kích hoạt hợp đồng'), 'error');
     } finally {
       setSubmittingSelection(false);
     }
@@ -293,7 +293,7 @@ export default function EmployerApplicantsPage({
             }}
             style={{ padding: '8px 16px', fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6, boxShadow: 'var(--shadow-sm)' }}
           >
-            <UserCheck size={16} /> Tuyển chọn ứng viên chính thức (WF-E08 A3)
+            <UserCheck size={16} /> Tuyển chọn ứng viên chính thức
           </Button>
         )}
       </div>

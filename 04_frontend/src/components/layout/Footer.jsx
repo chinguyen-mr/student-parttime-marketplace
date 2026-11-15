@@ -4,7 +4,6 @@ export default function Footer({
   onSelectCategory,
   onSelectLocation,
   onNavigateTab,
-  onOpenPolicy,
   onOpenSupport,
   onNavigateAbout
 }) {
@@ -62,14 +61,13 @@ export default function Footer({
             </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
-                { label: 'Về JobNest', action: () => onNavigateAbout ? onNavigateAbout('about') : (onOpenPolicy ? onOpenPolicy('about') : handleNav('coming_soon')) },
-                { label: 'Giới thiệu nền tảng', action: () => onNavigateAbout ? onNavigateAbout('platform') : (onOpenPolicy ? onOpenPolicy('about') : handleNav('coming_soon')) },
-                { label: 'Liên hệ', action: () => onNavigateAbout ? onNavigateAbout('contact') : (onOpenSupport ? onOpenSupport() : handleNav('coming_soon')) },
-                { label: 'Hỏi đáp (FAQ)', action: () => onNavigateAbout ? onNavigateAbout('faq') : (onOpenSupport ? onOpenSupport() : handleNav('coming_soon')) },
-                { label: 'Thỏa thuận sử dụng', action: () => onNavigateAbout ? onNavigateAbout('terms') : (onOpenPolicy ? onOpenPolicy('terms') : handleNav('coming_soon')) },
-                { label: 'Quy định bảo mật', action: () => onNavigateAbout ? onNavigateAbout('privacy') : (onOpenPolicy ? onOpenPolicy('privacy') : handleNav('coming_soon')) },
-                { label: 'Quy chế hoạt động sàn giao dịch', action: () => onNavigateAbout ? onNavigateAbout('regulations') : (onOpenPolicy ? onOpenPolicy('terms') : handleNav('coming_soon')) },
-                { label: 'Sơ đồ trang web', action: () => onNavigateAbout ? onNavigateAbout('sitemap') : handleNav('home') }
+                { label: 'Về JobNest', action: () => onNavigateAbout('about') },
+                { label: 'Giới thiệu nền tảng', action: () => onNavigateAbout('platform') },
+                { label: 'Liên hệ', action: () => onNavigateAbout('contact') },
+                { label: 'Hỏi đáp (FAQ)', action: () => onNavigateAbout('faq') },
+                { label: 'Thỏa thuận sử dụng', action: () => onNavigateAbout('terms') },
+                { label: 'Quy định bảo mật', action: () => onNavigateAbout('privacy') },
+                { label: 'Quy chế hoạt động sàn giao dịch', action: () => onNavigateAbout('regulations') }
               ].map(item => (
                 <li key={item.label}>
                   <button

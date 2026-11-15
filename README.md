@@ -420,6 +420,7 @@ Xem log chi tiết: terminal đang chạy `npm run dev:backend`, hoặc `docker 
 
 | Tài liệu | Nội dung |
 |---|---|
+| [`BUGLOG.md`](BUGLOG.md) | Nhật ký lỗi: hiện tượng, nguyên nhân, cách sửa, kiểm chứng |
 | [`DOCKER.md`](DOCKER.md) | Chi tiết cấu hình Docker |
 | [`SETUP.md`](SETUP.md) | Chi tiết cài đặt thủ công |
 | [`PRODUCT.md`](PRODUCT.md) · [`DESIGN.md`](DESIGN.md) | Đặc tả sản phẩm · hệ thống thiết kế |

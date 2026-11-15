@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Client, Pool } = require('pg');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 async function runMigration() {
     const dbName = process.env.DB_NAME || 'cd2_marketplace_db';

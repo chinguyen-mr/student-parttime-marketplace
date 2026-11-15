@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 const authRoutes = require('./modules/auth/auth.routes');
 const profileRoutes = require('./modules/auth/profile.routes');

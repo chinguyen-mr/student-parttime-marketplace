@@ -1,13 +1,18 @@
 const { Pool } = require('pg');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), quiet: true });
 
 function createPool() {
     if (process.env.DATABASE_URL) {
         const isLocal = process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1');
+        // Bỏ sslmode khỏi URL: pg tự đổi sslmode=require thành kiểm tra chứng chỉ đầy đủ (ssl: {}),
+        // ghi đè tùy chọn ssl bên dưới và in "SECURITY WARNING" mỗi lần khởi động.
+        // ssl: {} giữ đúng cách kết nối đang dùng (xác thực chứng chỉ của Neon).
+        const url = new URL(process.env.DATABASE_URL);
+        url.searchParams.delete('sslmode');
         return new Pool({
-            connectionString: process.env.DATABASE_URL,
-            ssl: isLocal ? false : { rejectUnauthorized: false },
+            connectionString: url.toString(),
+            ssl: isLocal ? false : {},
             max: 10,
             idleTimeoutMillis: 30000,
             connectionTimeoutMillis: 10000,

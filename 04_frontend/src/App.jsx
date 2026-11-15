@@ -1415,8 +1415,7 @@ export default function App() {
                 type="button"
                 onClick={() => {
                   if (currentUser?.role === 'STUDENT') {
-                    setActiveTab('student_dashboard');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    openStudentTab('availability');
                   } else {
                     navigateToSection('schedule-matching');
                   }

@@ -5,7 +5,8 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   build: {
-    chunkSizeWarningLimit: 600,
+    // exceljs (~930 kB) chỉ tải khi bấm "Xuất Excel" (import động) nên không ảnh hưởng lần tải trang đầu.
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks(id) {

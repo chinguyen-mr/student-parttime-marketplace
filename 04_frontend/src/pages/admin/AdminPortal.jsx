@@ -157,7 +157,7 @@ export default function AdminPortal({
         display: 'none',
         padding: '10px 16px',
         background: '#ffffff',
-        borderBottom: '1.5px solid #000000',
+        borderBottom: '1px solid var(--color-border-hover)',
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
@@ -173,7 +173,7 @@ export default function AdminPortal({
           style={{
             padding: '6px 14px',
             borderRadius: 6,
-            border: '1.5px solid #000000',
+            border: '1px solid var(--color-border-hover)',
             background: mobileMenuOpen ? '#0F172A' : '#ffffff',
             color: mobileMenuOpen ? '#ffffff' : '#0F172A',
             fontSize: 12.5,
@@ -199,7 +199,7 @@ export default function AdminPortal({
           style={{
             width: 260,
             background: '#ffffff',
-            borderRight: '1.5px solid #000000',
+            borderRight: '1px solid var(--color-border-hover)',
             padding: '24px 16px',
             boxSizing: 'border-box',
             position: 'sticky',

@@ -28,7 +28,7 @@ export default function RegisterSuccessPage({
           maxWidth: 620,
           background: '#ffffff',
           borderRadius: 20,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border-hover)',
           boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.08)',
           overflow: 'hidden',
           textAlign: 'center'
@@ -56,7 +56,7 @@ export default function RegisterSuccessPage({
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)',
-              border: '2px solid #000000'
+              border: '1px solid var(--color-border-hover)'
             }}
           >
             <CheckCircle2 size={44} />

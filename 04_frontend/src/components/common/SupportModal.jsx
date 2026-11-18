@@ -89,7 +89,7 @@ export default function SupportModal({
         {/* Modal Body */}
         <div style={{ padding: '24px 28px', overflowY: 'auto', flex: 1 }}>
           {/* Dual Hotline Contact Cards (Inspired by Vieclam24h pattern) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14, marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 14, marginBottom: 20 }}>
             {/* Card 1: Hỗ trợ sinh viên */}
             <div style={{
               background: '#FBFAFD',

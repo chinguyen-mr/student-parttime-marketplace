@@ -79,7 +79,7 @@ export default function AboutPage({
       {/* Top Breadcrumb & Header Banner */}
       <div style={{
         background: '#ffffff',
-        borderBottom: '1.5px solid #000000',
+        borderBottom: '1px solid var(--color-border-hover)',
         padding: '24px 36px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
@@ -125,29 +125,13 @@ export default function AboutPage({
                 Minh bạch pháp lý, hướng dẫn vận hành và cam kết bảo vệ tối đa quyền lợi cho học tập và việc làm sinh viên.
               </p>
             </div>
-
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: 'rgba(117, 101, 168, 0.08)',
-              border: '1.5px solid rgba(117, 101, 168, 0.3)',
-              borderRadius: 20,
-              padding: '6px 14px',
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#7565A8'
-            }}>
-              <ShieldCheck size={16} />
-              <span>Cập nhật: Tháng 11/2026 (v2.4)</span>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Main 2-Column Content Container */}
       <div style={{ maxWidth: 1200, margin: '32px auto 0 auto', padding: '0 24px' }}>
-        <div style={{
+        <div className="jn-stack-md" style={{
           display: 'grid',
           gridTemplateColumns: '290px 1fr',
           gap: 28,
@@ -156,7 +140,7 @@ export default function AboutPage({
           {/* Left Navigation Sidebar */}
           <aside style={{
             background: '#ffffff',
-            border: '1.5px solid #000000',
+            border: '1px solid var(--color-border-hover)',
             borderRadius: 12,
             padding: '12px 8px',
             boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
@@ -224,7 +208,7 @@ export default function AboutPage({
           {/* Right Main Content Card */}
           <main style={{
             background: '#ffffff',
-            border: '1.5px solid #000000',
+            border: '1px solid var(--color-border-hover)',
             borderRadius: 14,
             padding: '36px 40px',
             boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
@@ -257,7 +241,7 @@ export default function AboutPage({
                   <strong>JOBNEST</strong> là sàn thương mại dịch vụ việc làm bán thời gian (Part-time) và toàn thời gian (Full-time) tiên phong tại Việt Nam, ra đời từ đề tài tốt nghiệp chuyên sâu nhằm giải quyết triệt để bài toán: <em>Làm sao để sinh viên có thu nhập trang trải cuộc sống mà không bị xung đột, gián đoạn hay trễ nải việc học trên giảng đường?</em>
                 </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16, marginBottom: 28 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: 16, marginBottom: 28 }}>
                   <div style={{ background: '#FAF8FC', border: '1.5px solid #EAE5F0', borderRadius: 12, padding: 18 }}>
                     <div style={{ fontSize: 16, fontWeight: 800, color: '#7565A8', marginBottom: 8 }}>
                       🎯 Sứ mệnh của chúng tôi
@@ -281,7 +265,7 @@ export default function AboutPage({
                   4 Giá Trị Cốt Lõi Khác Biệt
                 </h3>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginBottom: 24 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 14, marginBottom: 24 }}>
                   {[
                     { title: '1. Lịch học là ưu tiên số 1', desc: 'Không cần dò tìm thủ công. Hệ thống tự loại bỏ mọi công việc trùng khung giờ lên lớp hay lịch thi học kỳ.' },
                     { title: '2. 100% Không thu phí sinh viên', desc: 'Sinh viên tìm việc, nhận gợi ý AI và ứng tuyển hoàn toàn miễn phí, tuyệt đối không có phí cọc hay phí môi giới.' },
@@ -354,7 +338,7 @@ export default function AboutPage({
                       <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.55, marginBottom: 8 }}>
                         Các công việc vượt qua Tầng 1 sẽ được tính điểm mức độ phù hợp (tối đa 100%) theo công thức trọng số tiêu chuẩn:
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 130px), 1fr))', gap: 8 }}>
                         <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', padding: 8, borderRadius: 6, textAlign: 'center' }}>
                           <div style={{ fontWeight: 800, color: '#166534', fontSize: 15 }}>50%</div>
                           <div style={{ fontSize: 11.5, color: '#15803D' }}>Khớp thời gian rảnh</div>
@@ -496,7 +480,7 @@ export default function AboutPage({
                 </p>
 
                 {/* Contact Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 28 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: 14, marginBottom: 28 }}>
                   <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 16 }}>
                     <MapPin size={22} color="#7565A8" style={{ marginBottom: 8 }} />
                     <div style={{ fontWeight: 800, fontSize: 14, color: '#111827' }}>Địa chỉ văn phòng</div>
@@ -523,14 +507,14 @@ export default function AboutPage({
                 </div>
 
                 {/* Direct Contact Form */}
-                <div style={{ background: '#FAF8FC', border: '1.5px solid #000000', borderRadius: 12, padding: 24 }}>
+                <div style={{ background: '#FAF8FC', border: '1px solid var(--color-border-hover)', borderRadius: 12, padding: 24 }}>
                   <h3 style={{ fontSize: 17, fontWeight: 800, color: '#111827', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Send size={18} color="#7565A8" />
                     <span>Gửi Yêu Cầu Hỗ Trợ Trực Tuyến</span>
                   </h3>
 
                   <form onSubmit={handleContactSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 14 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: 14, marginBottom: 14 }}>
                       <div>
                         <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6 }}>
                           Họ và tên của bạn *
@@ -574,7 +558,7 @@ export default function AboutPage({
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 14 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: 14, marginBottom: 14 }}>
                       <div>
                         <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6 }}>
                           Bạn là ai?
@@ -829,7 +813,7 @@ export default function AboutPage({
                   JobNest cam kết thực hiện nghiêm túc các quy định bảo vệ dữ liệu cá nhân theo <strong>Nghị định 13/2023/NĐ-CP</strong> của Chính phủ Việt Nam và tiêu chuẩn quốc tế GDPR:
                 </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginBottom: 20 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 14, marginBottom: 20 }}>
                   <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: 14 }}>
                     <div style={{ fontWeight: 800, color: '#7565A8', marginBottom: 4 }}>🔐 Mã hóa dữ liệu</div>
                     <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.55 }}>

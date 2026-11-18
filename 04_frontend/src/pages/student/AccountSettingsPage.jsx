@@ -97,7 +97,7 @@ export default function AccountSettingsPage({
             style={{
               background: '#ffffff',
               borderRadius: 16,
-              border: '1.5px solid #000000',
+              border: '1px solid var(--color-border-hover)',
               padding: '32px',
               boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
             }}

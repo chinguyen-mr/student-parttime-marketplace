@@ -140,7 +140,7 @@ export default function EmployerReviewsPage({ currentUser, showToast }) {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))', gap: 12 }}>
         <StatCard icon={Star} label="Điểm doanh nghiệp" value={c.total ? `${formatRating(c.average_overall)} / 5` : '—'} hint={c.total ? `${c.total} đánh giá doanh nghiệp` : 'Chưa có đánh giá được duyệt'} />
         <StatCard icon={Briefcase} label="Điểm công việc" value={j.total ? `${formatRating(j.average_overall)} / 5` : '—'} hint={j.total ? `${j.total} đánh giá công việc` : 'Chưa có đánh giá được duyệt'} />
         <StatCard icon={Bell} label="Đánh giá mới (30 ngày)" value={overview.new_last_30_days} />

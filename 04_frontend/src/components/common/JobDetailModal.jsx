@@ -485,7 +485,7 @@ export default function JobDetailModal({
                     </span>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10, marginBottom: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: 10, marginBottom: 16 }}>
                     <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
                       <div style={{ fontSize: 11.5, color: '#64748b' }}>Hạn nhận hồ sơ</div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{formData.deadline || '30/11/2026'}</div>

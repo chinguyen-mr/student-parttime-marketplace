@@ -79,13 +79,20 @@ export async function exportExcel(spec) {
 
   if (summary.length) {
     ws.addRow([]);
-    // Thống kê: mỗi dòng 1 cặp nhãn – giá trị
+    // Thống kê: mỗi dòng 1 cặp nhãn – giá trị. Nhãn gộp qua nhiều cột khi cột đầu hẹp (VD cột ID) để không bị cắt chữ.
+    const labelWidth = Math.max(...summary.map(([l]) => String(l).length)) + 2;
+    let labelEnd = 2;
+    for (let w = columns[0]?.width || 12; w < labelWidth && labelEnd < ncol - 1; labelEnd++) w += columns[labelEnd - 1]?.width || 12;
+    const valueCol = labelEnd + 1;
     summary.forEach(([label, value]) => {
-      const r = ws.addRow(['', label, value]);
+      const r = ws.addRow([]);
+      r.getCell(2).value = label;
+      r.getCell(valueCol).value = value;
+      if (labelEnd > 2) ws.mergeCells(r.number, 2, r.number, labelEnd);
       r.getCell(2).font = { size: 10.5, color: { argb: 'FF334155' } };
-      r.getCell(3).font = { bold: true, size: 11, color: { argb: `FF${BRAND}` } };
-      r.getCell(3).alignment = { horizontal: 'left' };
-      [2, 3].forEach(c => { r.getCell(c).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: `FF${BRAND_SOFT}` } }; r.getCell(c).border = { bottom: thin }; });
+      r.getCell(valueCol).font = { bold: true, size: 11, color: { argb: `FF${BRAND}` } };
+      r.getCell(valueCol).alignment = { horizontal: 'left' };
+      [2, valueCol].forEach(c => { r.getCell(c).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: `FF${BRAND_SOFT}` } }; r.getCell(c).border = { bottom: thin }; });
     });
   }
   ws.addRow([]);

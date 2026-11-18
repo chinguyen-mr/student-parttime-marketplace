@@ -65,8 +65,6 @@ export default function AdminAppealsPage({ currentUser, showToast }) {
                 { header: 'Nội dung khiếu nại', value: r => r.appeal_reason, width: 44 },
                 { header: 'Gửi lúc', value: r => r.created_at, type: 'datetime', width: 16 },
                 { header: 'Kết quả', value: r => STATUS_LABEL[r.status] || r.status, width: 20 },
-                { header: 'Phản hồi của quản trị', value: r => r.admin_response, width: 36 },
-                { header: 'Xử lý lúc', value: r => r.resolved_at, type: 'datetime', width: 16 },
               ],
               rows,
             })}

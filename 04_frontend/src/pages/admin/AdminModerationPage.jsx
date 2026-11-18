@@ -167,7 +167,7 @@ export default function AdminModerationPage({
           <div style={{
             background: '#ffffff',
             borderRadius: 14,
-            border: '1.5px solid #000000',
+            border: '1px solid var(--color-border-hover)',
             padding: 24,
             boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
           }}>
@@ -204,7 +204,7 @@ export default function AdminModerationPage({
             {/* Quick Meta */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
               gap: 12,
               padding: '14px',
               background: '#F8FAFC',
@@ -279,7 +279,7 @@ export default function AdminModerationPage({
           <div style={{
             background: '#ffffff',
             borderRadius: 14,
-            border: '2px solid #000000',
+            border: '1px solid var(--color-border-hover)',
             padding: 24,
             boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
             position: 'sticky',
@@ -298,7 +298,7 @@ export default function AdminModerationPage({
                 width: '100%',
                 padding: '12px 18px',
                 borderRadius: 8,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 background: '#10B981',
                 color: '#ffffff',
                 fontSize: 14.5,
@@ -355,7 +355,7 @@ export default function AdminModerationPage({
                 width: '100%',
                 padding: '12px 18px',
                 borderRadius: 8,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 background: isRejectDisabled ? '#F1F5F9' : '#DC2626',
                 color: isRejectDisabled ? '#94A3B8' : '#ffffff',
                 fontSize: 14,
@@ -458,7 +458,7 @@ export default function AdminModerationPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 12,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         padding: '14px 20px',
         display: 'flex',
         alignItems: 'center',
@@ -482,7 +482,7 @@ export default function AdminModerationPage({
                 style={{
                   padding: '6px 14px',
                   borderRadius: 6,
-                  border: '1.5px solid #000000',
+                  border: '1px solid var(--color-border-hover)',
                   background: workTypeFilter === tab.id ? '#94A3B8' : '#ffffff',
                   color: '#000000',
                   fontSize: 13,
@@ -521,7 +521,7 @@ export default function AdminModerationPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
@@ -539,7 +539,7 @@ export default function AdminModerationPage({
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
-                <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #000000', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
+                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-hover)', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
                   <th style={{ padding: '14px 16px', width: 60 }}>ID</th>
                   <th style={{ padding: '14px 16px' }}>Tiêu đề tin tuyển dụng</th>
                   <th style={{ padding: '14px 16px', width: 130 }}>Loại</th>
@@ -603,7 +603,7 @@ export default function AdminModerationPage({
                         style={{
                           padding: '7px 14px',
                           borderRadius: 6,
-                          border: '1.5px solid #000000',
+                          border: '1px solid var(--color-border-hover)',
                           background: '#ffffff',
                           color: '#000000',
                           fontSize: 12.5,

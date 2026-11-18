@@ -36,6 +36,7 @@ import {
 import JobListSkeleton from '../../components/common/JobListSkeleton';
 import EmptyState from '../../components/common/EmptyState';
 import JobCard from '../../components/common/JobCard';
+import { useTilt, Reveal, trackSpotlight } from '../../components/motion';
 
 // 8 Job Categories aligned with real DB categories
 const POPULAR_CATEGORIES = [
@@ -48,6 +49,11 @@ const POPULAR_CATEGORIES = [
   { id: 'event', name: 'Sự kiện / PG / PB', dbCategory: 'Sự kiện / PG / PB', icon: Users, desc: 'Hoạt náo viên, Lễ tân, Check-in' },
   { id: 'admin', name: 'Hành chính / Văn phòng', dbCategory: 'Hành chính / Văn phòng', icon: Layers, desc: 'Nhập liệu, Trợ lý part-time, Soạn thảo' }
 ];
+
+// Tiêu đề hero tách từng từ để hiện dần; [từ, có tô màu nhấn]
+const HERO_WORDS = 'Tìm việc làm thêm |phù hợp với lịch học| của bạn.'
+  .split('|')
+  .flatMap((part, idx) => part.trim().split(/\s+/).filter(Boolean).map(w => [w, idx === 1]));
 
 export default function HomePage({
   jobs = [],
@@ -68,6 +74,9 @@ export default function HomePage({
   onViewCompany,
   onOpenStudentTab
 }) {
+  // Nghiêng nhẹ thẻ minh họa trong hero theo chuột (parallax tinh tế)
+  const { ref: heroRef, onPointerMove: onHeroMove, onPointerLeave: onHeroLeave } = useTilt(3);
+
   // Featured Jobs Tab Filter: 'ALL' | 'PART_TIME' | 'FULL_TIME'
   const [featuredTab, setFeaturedTab] = useState('ALL');
 
@@ -136,19 +145,26 @@ export default function HomePage({
           SECTION 02: HERO BANNER (STUDENT-FIRST, CONVERSION-FOCUSED)
           Thông điệp: "Tìm việc làm thêm phù hợp với lịch học của bạn."
           ========================================================================= */}
-      <section 
-        className="home-hero-section"
+      <section
+        className="home-hero-section jn-hero"
+        ref={heroRef}
+        onPointerMove={onHeroMove}
+        onPointerLeave={onHeroLeave}
         style={{
           background: '#4E3E6B',
-          borderRadius: 16,
-          padding: '36px 40px 32px 40px',
+          borderRadius: 20,
+          padding: '40px 40px 36px 40px',
           marginBottom: 36,
           color: '#ffffff'
         }}
       >
-        <div style={{
+        {/* Lớp nền trang trí: lưới mờ + 2 quầng sáng lavender/đào (chỉ CSS, không WebGL) */}
+        <div className="jn-hero-grid" aria-hidden="true" />
+        <div className="jn-hero-glow jn-hero-glow--peach" aria-hidden="true" />
+        <div className="jn-hero-glow jn-hero-glow--lav" aria-hidden="true" />
+        <div className="jn-stack-md" style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1.25fr) minmax(320px, 0.95fr)',
+          gridTemplateColumns: 'minmax(0, 1.25fr) minmax(0, 0.95fr)',
           gap: 36,
           alignItems: 'center'
         }}>
@@ -182,7 +198,12 @@ export default function HomePage({
               margin: '0 0 14px 0',
               letterSpacing: '-0.025em'
             }}>
-              Tìm việc làm thêm <span style={{ color: '#F4B99D', textDecoration: 'underline', textDecorationColor: 'rgba(244, 185, 157, 0.5)' }}>phù hợp với lịch học</span> của bạn.
+              {/* Chữ hiện dần từng từ (CSS animation, đọc được ngay cả khi tắt chuyển động) */}
+              {HERO_WORDS.map(([w, accent], i) => (
+                <React.Fragment key={i}>
+                  <span className={accent ? 'jn-word jn-gradient-text' : 'jn-word'} style={{ '--i': i }}>{w}</span>{' '}
+                </React.Fragment>
+              ))}
             </h1>
 
             {/* Subheadline */}
@@ -226,11 +247,12 @@ export default function HomePage({
               <button
                 type="button"
                 onClick={onExploreAllJobs}
+                className="jn-shine"
                 style={{
                   background: '#F4B99D',
                   color: '#29263A',
                   border: 'none',
-                  borderRadius: 10,
+                  borderRadius: 12,
                   padding: '13px 26px',
                   fontSize: '15px',
                   fontWeight: 800,
@@ -238,7 +260,7 @@ export default function HomePage({
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
-                  boxShadow: 'none',
+                  boxShadow: '0 10px 24px -8px rgba(244, 185, 157, 0.7)',
                   transition: 'background-color 0.15s ease, transform 0.15s ease'
                 }}
                 onMouseEnter={(e) => {
@@ -305,11 +327,18 @@ export default function HomePage({
             </div>
           </div>
 
-          {/* Right Column: Interactive Schedule Matching Showcase */}
-          <div style={{
+          {/* Right Column: Interactive Schedule Matching Showcase — nghiêng 3D nhẹ + 2 chip nổi */}
+          <div className="jn-hero-stage">
+          <span className="jn-float-chip" style={{ top: -16, right: 18 }} aria-hidden="true">
+            <CheckCircle2 size={14} color="#269A73" /> Không trùng lịch học
+          </span>
+          <span className="jn-float-chip" style={{ bottom: -14, left: -14, animationDelay: '-3s' }} aria-hidden="true">
+            <Sparkles size={14} color="#7565A8" /> Gợi ý theo lịch rảnh
+          </span>
+          <div className="jn-hero-showcase" style={{
             background: '#FFFFFF',
             color: '#1F2937',
-            borderRadius: 12,
+            borderRadius: 16,
             padding: '20px 22px',
             border: 'none',
             boxShadow: 'none'
@@ -396,6 +425,7 @@ export default function HomePage({
               💡 <strong>Lý do đề xuất:</strong> Trùng ca rảnh buổi sáng, địa điểm cách trường ĐH Văn Lang dưới 3km, không trùng ca học buổi chiều.
             </div>
           </div>
+          </div>
         </div>
       </section>
 
@@ -403,7 +433,7 @@ export default function HomePage({
           SECTION 04: GIẢI THÍCH GIÁ TRỊ CỐT LÕI (SCHEDULE MATCHING EXPLAINER)
           Điểm khác biệt lớn nhất: So khớp theo lịch rảnh, không chỉ từ khóa
           ========================================================================= */}
-      <section 
+      <Reveal as="section" 
         id="schedule-matching"
         style={{
           scrollMarginTop: '90px',
@@ -444,7 +474,7 @@ export default function HomePage({
         {/* 3 Step Process Cards */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: 20,
           marginBottom: 32
         }}>
@@ -570,7 +600,7 @@ export default function HomePage({
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
             gap: 20
           }}>
             {personalMatches ? personalMatches.map((job, idx) => (
@@ -689,13 +719,13 @@ export default function HomePage({
             )}
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* =========================================================================
           SECTION 05: VIỆC LÀM PHÙ HỢP VỚI SINH VIÊN (FEATURED JOBS LISTING)
           Sử dụng JobCard component chính thức từ design system
           ========================================================================= */}
-      <section id="featured-jobs" style={{ marginBottom: 48 }}>
+      <Reveal as="section" id="featured-jobs" style={{ marginBottom: 48 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 20, flexWrap: 'wrap', gap: 14 }}>
           <div>
             <div style={{
@@ -798,7 +828,7 @@ export default function HomePage({
         ) : (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 360px), 1fr))',
             gap: 20
           }}>
             {featuredJobs.map((job) => (
@@ -849,12 +879,12 @@ export default function HomePage({
             <ChevronRight size={17} />
           </button>
         </div>
-      </section>
+      </Reveal>
 
       {/* =========================================================================
           SECTION 06: DANH MỤC NGÀNH NGHỀ (JOB CATEGORIES)
           ========================================================================= */}
-      <section id="categories" style={{ marginBottom: 48 }}>
+      <Reveal as="section" id="categories" style={{ marginBottom: 48 }}>
         <div style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 28px auto' }}>
           <h2 style={{ fontSize: 'clamp(20px, 2.5vw, 26px)', fontWeight: 800, color: 'var(--color-text)', margin: '0 0 8px 0' }}>
             Khám phá theo ngành nghề phổ biến
@@ -866,7 +896,7 @@ export default function HomePage({
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(285px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 285px), 1fr))',
           gap: 16
         }}>
           {POPULAR_CATEGORIES.map((cat) => {
@@ -876,7 +906,13 @@ export default function HomePage({
             return (
               <div
                 key={cat.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`Xem việc làm ngành ${cat.name}`}
                 onClick={() => onSelectCategory && onSelectCategory(cat.dbCategory)}
+                onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && onSelectCategory) { e.preventDefault(); onSelectCategory(cat.dbCategory); } }}
+                onPointerMove={trackSpotlight}
+                className="jn-lift jn-spotlight"
                 style={{
                   background: '#ffffff',
                   border: '1.5px solid var(--color-border, #EAE7F0)',
@@ -886,18 +922,7 @@ export default function HomePage({
                   alignItems: 'center',
                   gap: 14,
                   cursor: 'pointer',
-                  transition: 'border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease',
                   boxShadow: '0 2px 8px rgba(41, 38, 58, 0.03)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary, #7565A8)';
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(117, 101, 168, 0.14)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-border, #EAE7F0)';
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(41, 38, 58, 0.03)';
                 }}
               >
                 <div style={{
@@ -929,12 +954,12 @@ export default function HomePage({
             );
           })}
         </div>
-      </section>
+      </Reveal>
 
       {/* =========================================================================
           SECTION 07: VÌ SAO SINH VIÊN NÊN CHỌN JOBNEST?
           ========================================================================= */}
-      <section style={{
+      <Reveal as="section" style={{
         background: '#FAF8FC',
         border: '1px solid #EAE7F0',
         borderRadius: 20,
@@ -967,7 +992,7 @@ export default function HomePage({
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
           gap: 20
         }}>
           {[
@@ -1037,12 +1062,12 @@ export default function HomePage({
             );
           })}
         </div>
-      </section>
+      </Reveal>
 
       {/* =========================================================================
           SECTION 08: QUY TRÌNH SỬ DỤNG (5 BƯỚC ĐƠN GIẢN)
           ========================================================================= */}
-      <section id="how-it-works" style={{ scrollMarginTop: '90px', marginBottom: 48 }}>
+      <Reveal as="section" id="how-it-works" style={{ scrollMarginTop: '90px', marginBottom: 48 }}>
         <div style={{ textAlign: 'center', maxWidth: 480, margin: '0 auto 32px auto' }}>
           <h2 style={{ fontSize: 'clamp(20px, 2.5vw, 26px)', fontWeight: 800, color: 'var(--color-text)', margin: '0 0 8px 0' }}>
             Quy trình tìm việc dễ dàng qua 5 bước
@@ -1054,7 +1079,7 @@ export default function HomePage({
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
           gap: 16,
           position: 'relative'
         }}>
@@ -1097,12 +1122,12 @@ export default function HomePage({
             </div>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* =========================================================================
           SECTION 09: CTA CUỐI TRANG (CONVERSION BANNER)
           ========================================================================= */}
-      <section 
+      <Reveal as="section" 
         style={{
           background: '#4E3E6B',
           borderRadius: 16,
@@ -1191,12 +1216,12 @@ export default function HomePage({
             )}
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* =========================================================================
           SECTION 10: BANNER DÀNH CHO NHÀ TUYỂN DỤNG
           ========================================================================= */}
-      <section 
+      <Reveal as="section" 
         style={{
           background: '#F8FAFC',
           border: '1px solid #E2E8F0',
@@ -1243,7 +1268,7 @@ export default function HomePage({
         >
           Đăng tin tuyển dụng miễn phí
         </button>
-      </section>
+      </Reveal>
 
     </div>
   );

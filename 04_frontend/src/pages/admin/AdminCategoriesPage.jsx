@@ -259,7 +259,7 @@ export default function AdminCategoriesPage({
         <div style={{
           background: '#ffffff',
           borderRadius: 14,
-          border: '2px solid #000000',
+          border: '1px solid var(--color-border-hover)',
           padding: 24,
           boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
         }}>
@@ -276,7 +276,7 @@ export default function AdminCategoriesPage({
             </button>
           </div>
 
-          <form onSubmit={handleSaveCategory} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, alignItems: 'end' }}>
+          <form onSubmit={handleSaveCategory} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 16, alignItems: 'end' }}>
             {/* Tên danh mục */}
             <div>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>
@@ -292,7 +292,7 @@ export default function AdminCategoriesPage({
                   width: '100%',
                   height: 38,
                   borderRadius: 8,
-                  border: '1.5px solid #000000',
+                  border: '1px solid var(--color-border-hover)',
                   padding: '0 12px',
                   fontSize: 13.5,
                   boxSizing: 'border-box'
@@ -355,7 +355,7 @@ export default function AdminCategoriesPage({
                   height: 38,
                   padding: '0 20px',
                   borderRadius: 8,
-                  border: '1.5px solid #000000',
+                  border: '1px solid var(--color-border-hover)',
                   background: '#0F172A',
                   color: '#ffffff',
                   fontSize: 13.5,
@@ -387,7 +387,7 @@ export default function AdminCategoriesPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
@@ -407,7 +407,7 @@ export default function AdminCategoriesPage({
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
-                <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #000000', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
+                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-hover)', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
                   <th style={{ padding: '14px 16px', width: 60 }}>ID</th>
                   <th style={{ padding: '14px 16px' }}>Tên danh mục (Tên)</th>
                   <th style={{ padding: '14px 16px', width: 200 }}>Danh mục cha (Cha)</th>
@@ -493,7 +493,7 @@ export default function AdminCategoriesPage({
                             style={{
                               padding: '5px 10px',
                               borderRadius: 6,
-                              border: '1px solid #000000',
+                              border: '1px solid var(--color-border-hover)',
                               background: '#ffffff',
                               fontSize: 12,
                               fontWeight: 700,

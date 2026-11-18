@@ -210,7 +210,6 @@ export default function AdminUsersPage({
                   { header: 'Email', value: u => u.email, width: 32 },
                   { header: 'Số điện thoại', value: u => u.phone, width: 14 },
                   { header: 'Vai trò', value: u => ROLE[u.role] || u.role, width: 16 },
-                  { header: 'Loại tài khoản', value: u => u.account_type, width: 22 },
                   { header: 'Trạng thái', value: u => STATUS[u.status] || u.status, width: 14 },
                   { header: 'Ngày đăng ký', value: u => u.created_at, type: 'date', width: 13 },
                 ],
@@ -234,7 +233,7 @@ export default function AdminUsersPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 12,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         padding: '16px 20px',
         display: 'flex',
         alignItems: 'center',
@@ -322,7 +321,7 @@ export default function AdminUsersPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
@@ -341,7 +340,7 @@ export default function AdminUsersPage({
             <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
-                <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #000000', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
+                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-hover)', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
                   <th style={{ padding: '14px 16px', width: 60 }}>ID</th>
                   <th style={{ padding: '14px 16px' }}>Email & Họ tên</th>
                   <th style={{ padding: '14px 16px', width: 140 }}>Vai trò</th>
@@ -470,7 +469,7 @@ export default function AdminUsersPage({
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: 4,
-                              border: '1.5px solid #000000',
+                              border: '1px solid var(--color-border-hover)',
                               background: isLocked ? '#10B981' : '#ffffff',
                               color: isLocked ? '#ffffff' : '#DC2626'
                             }}
@@ -591,7 +590,7 @@ export default function AdminUsersPage({
           <div style={{
             background: '#ffffff',
             borderRadius: 16,
-            border: '2px solid #000000',
+            border: '1px solid var(--color-border-hover)',
             maxWidth: 460,
             width: '100%',
             padding: 24,
@@ -673,7 +672,7 @@ export default function AdminUsersPage({
                   fontSize: 13.5,
                   fontWeight: 800,
                   cursor: 'pointer',
-                  border: '1.5px solid #000000',
+                  border: '1px solid var(--color-border-hover)',
                   background: actionType === 'LOCK' ? '#DC2626' : '#10B981',
                   color: '#ffffff'
                 }}

@@ -35,6 +35,7 @@ import AvailabilityEditor, { normalizeSlots } from '../../components/student/Ava
 import AvatarUploader from '../../components/common/AvatarUploader';
 import StudentProfileForm from '../../components/student/StudentProfileForm';
 import MyExperienceReviews from '../../components/reviews/MyExperienceReviews';
+import { CountUp } from '../../components/motion';
 
 // Nhãn tiếng Việt cho trạng thái đơn ứng tuyển
 const APPLICATION_STATUS_LABEL = {
@@ -711,7 +712,7 @@ export default function StudentDashboardPage({
               ) : (
                 <>
                   {/* 4 Metric Stat Cards matching WF-S01 exactly */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 16, marginBottom: 24 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 210px), 1fr))', gap: 16, marginBottom: 24 }}>
                     {/* 1. Đơn đang chờ duyệt */}
                     <div 
                       onClick={() => setActiveTab('applications')}
@@ -740,7 +741,7 @@ export default function StudentDashboardPage({
                         </div>
                       </div>
                       <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)' }}>
-                        {pendingCount}
+                        <CountUp value={pendingCount} />
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
                         Đang chờ nhà tuyển dụng phản hồi
@@ -775,7 +776,7 @@ export default function StudentDashboardPage({
                         </div>
                       </div>
                       <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)' }}>
-                        {acceptedCount}
+                        <CountUp value={acceptedCount} />
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
                         Đơn được nhà tuyển dụng chấp nhận
@@ -810,7 +811,7 @@ export default function StudentDashboardPage({
                         </div>
                       </div>
                       <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)' }}>
-                        {savedJobIds.length}
+                        <CountUp value={savedJobIds.length} />
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
                         Việc làm bạn đang quan tâm
@@ -845,7 +846,7 @@ export default function StudentDashboardPage({
                         </div>
                       </div>
                       <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)' }}>
-                        {unreadNotifsCount}
+                        <CountUp value={unreadNotifsCount} />
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
                         Cập nhật kết quả & Tin nhắn mới
@@ -1045,7 +1046,7 @@ export default function StudentDashboardPage({
                     ) : (
                       <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
                         gap: 16
                       }}>
                         {recommendedJobs.slice(0, 6).map((job) => (
@@ -1128,7 +1129,7 @@ export default function StudentDashboardPage({
                 ) : (
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
                     gap: 16
                   }}>
                     {(previewJobs ?? recommendedJobs).map((job) => (
@@ -1444,7 +1445,7 @@ export default function StudentDashboardPage({
                   onAction={onNavigateJobs}
                 />
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: 16 }}>
                   {savedJobsList.map((j) => (
                     <JobCard
                       key={j.id}
@@ -1889,7 +1890,7 @@ export default function StudentDashboardPage({
               {/* ===============================================================
                   3. LỊCH SỬ ĐÁNH GIÁ ĐÃ GỬI & ĐÁNH GIÁ TỪ NHÀ TUYỂN DỤNG
                   =============================================================== */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 18 }}>
                 {/* Reviews You Sent */}
                 <div style={{ border: '1px solid var(--color-border)', borderRadius: 12, padding: '18px 20px', background: '#ffffff' }}>
                   <h4 style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 12px 0' }}>

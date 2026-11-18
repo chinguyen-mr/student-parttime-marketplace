@@ -69,7 +69,7 @@ export default function ReviewFormModal({ isOpen, onClose, type, targetId, targe
         <div style={{ padding: '16px 20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 18 }}>
           <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
             <legend style={label}>{type === 'job' ? '1. Bạn đã trải nghiệm công việc này dưới hình thức nào?' : '1. Trạng thái trải nghiệm của bạn với doanh nghiệp'}</legend>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 130px), 1fr))', gap: 8 }}>
               {experiences.map(x => {
                 const active = form.experience_type === x;
                 return (

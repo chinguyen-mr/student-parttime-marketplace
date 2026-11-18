@@ -128,7 +128,7 @@ export default function AdminLogsPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 12,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         padding: '14px 20px',
         display: 'flex',
         alignItems: 'center',
@@ -165,7 +165,7 @@ export default function AdminLogsPage({
             style={{
               height: 38,
               borderRadius: 8,
-              border: '1.5px solid #000000',
+              border: '1px solid var(--color-border-hover)',
               padding: '0 10px',
               fontSize: 13,
               fontWeight: 600,
@@ -183,7 +183,7 @@ export default function AdminLogsPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
@@ -201,7 +201,7 @@ export default function AdminLogsPage({
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
-                <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #000000', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
+                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-hover)', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
                   <th style={{ padding: '14px 16px', width: 170 }}>Thời gian</th>
                   <th style={{ padding: '14px 16px', width: 180 }}>Người thực hiện</th>
                   <th style={{ padding: '14px 16px', width: 200 }}>Hành động</th>

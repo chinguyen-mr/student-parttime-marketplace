@@ -112,7 +112,7 @@ export default function EmployerReviewStudentPage({
               fontSize: 13,
               fontWeight: 700,
               background: '#ffffff',
-              border: '1.5px solid #000000',
+              border: '1px solid var(--color-border-hover)',
               borderRadius: 8,
               cursor: 'pointer',
               display: 'inline-flex',
@@ -129,7 +129,7 @@ export default function EmployerReviewStudentPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         padding: 24,
         boxShadow: 'var(--shadow-sm)'
       }}>
@@ -140,7 +140,7 @@ export default function EmployerReviewStudentPage({
         <div style={{ overflowX: 'auto', marginBottom: 24 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
             <thead>
-              <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #000000' }}>
+              <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-hover)' }}>
                 <th style={{ padding: '12px 14px', fontWeight: 800 }}>Student</th>
                 <th style={{ padding: '12px 14px', fontWeight: 800 }}>Công việc</th>
                 <th style={{ padding: '12px 14px', fontWeight: 800, textAlign: 'right' }}>Chọn đánh giá</th>
@@ -196,7 +196,7 @@ export default function EmployerReviewStudentPage({
         {currentItem && <div style={{
           background: '#F8FAFC',
           borderRadius: 12,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border-hover)',
           padding: 24
         }}>
           <div style={{ fontSize: 16, fontWeight: 800, color: '#000000', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -256,7 +256,7 @@ export default function EmployerReviewStudentPage({
                   width: '100%',
                   padding: '12px 14px',
                   borderRadius: 8,
-                  border: '1.5px solid #000000',
+                  border: '1px solid var(--color-border-hover)',
                   fontSize: 13.5,
                   outline: 'none',
                   resize: 'vertical',

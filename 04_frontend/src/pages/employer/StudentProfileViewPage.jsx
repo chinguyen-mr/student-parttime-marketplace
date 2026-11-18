@@ -165,7 +165,7 @@ export default function StudentProfileViewPage({
               style={{
                 background: '#ffffff',
                 borderRadius: 16,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 padding: '28px 32px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
               }}
@@ -178,7 +178,7 @@ export default function StudentProfileViewPage({
                       width: 90,
                       height: 90,
                       borderRadius: '50%',
-                      border: '2px solid #000000',
+                      border: '1px solid var(--color-border-hover)',
                       background: '#EDE9FE',
                       color: '#7565A8',
                       display: 'flex',
@@ -310,11 +310,11 @@ export default function StudentProfileViewPage({
             </div>
 
             {/* Grid Sections: Skills, Experience & CV */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 24 }}>
               {/* Left Column: Skills & Availability */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {/* Skills */}
-                <div style={{ background: '#ffffff', borderRadius: 16, border: '1.5px solid #000000', padding: '24px 28px' }}>
+                <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border-hover)', padding: '24px 28px' }}>
                   <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 14 }}>
                     Kỹ năng chuyên môn
                   </h3>
@@ -343,7 +343,7 @@ export default function StudentProfileViewPage({
                 </div>
 
                 {/* Availability Schedule */}
-                <div style={{ background: '#ffffff', borderRadius: 16, border: '1.5px solid #000000', padding: '24px 28px' }}>
+                <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border-hover)', padding: '24px 28px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                     <Calendar size={18} color="#7565A8" />
                     <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
@@ -403,7 +403,7 @@ export default function StudentProfileViewPage({
               {/* Right Column: Work Experience & CV */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {/* Work Experience */}
-                <div style={{ background: '#ffffff', borderRadius: 16, border: '1.5px solid #000000', padding: '24px 28px' }}>
+                <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border-hover)', padding: '24px 28px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                     <Briefcase size={18} color="#7565A8" />
                     <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
@@ -423,7 +423,7 @@ export default function StudentProfileViewPage({
                 </div>
 
                 {/* CV Attachment View */}
-                <div style={{ background: '#ffffff', borderRadius: 16, border: '1.5px solid #000000', padding: '24px 28px' }}>
+                <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border-hover)', padding: '24px 28px' }}>
                   <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>
                     Hồ sơ CV đính kèm
                   </h3>

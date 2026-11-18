@@ -246,7 +246,7 @@ export default function ApplicationDetailPage({
               style={{
                 background: '#ffffff',
                 borderRadius: 16,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 padding: '24px 28px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
               }}
@@ -323,7 +323,7 @@ export default function ApplicationDetailPage({
                   Tiến trình xét duyệt hồ sơ
                 </h4>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 12 }}>
                   <div style={{ padding: 14, borderRadius: 10, background: '#DCFCE7', border: '1px solid #86EFAC' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#166534', fontWeight: 700, fontSize: 13.5, marginBottom: 4 }}>
                       <CheckCircle2 size={16} /> 1. Đã nộp đơn
@@ -410,7 +410,7 @@ export default function ApplicationDetailPage({
               style={{
                 background: '#ffffff',
                 borderRadius: 16,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 padding: '24px 28px'
               }}
             >

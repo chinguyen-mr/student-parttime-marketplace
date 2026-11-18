@@ -1158,8 +1158,8 @@ export default function App() {
 
       {/* ================= MAIN NAVBAR (Header matching Wireframe WF-G01 100% - Full Browser Width) ================= */}
       <header className="app-header" style={{
-        background: '#ffffff',
-        borderBottom: '1.5px solid #000000',
+        background: 'rgba(255, 255, 255, 0.86)', backdropFilter: 'saturate(160%) blur(12px)', WebkitBackdropFilter: 'saturate(160%) blur(12px)',
+        borderBottom: '1px solid var(--color-border)',
         padding: '0 36px',
         position: 'sticky',
         top: 0,
@@ -1172,7 +1172,7 @@ export default function App() {
         justifyContent: 'center',
         boxSizing: 'border-box'
       }}>
-        <div style={{
+        <div className="jn-header-row" style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -1181,7 +1181,7 @@ export default function App() {
           minHeight: 74
         }}>
           {/* Bên trái: Logo hình tròn + Text "JOBNEST" in đậm + Role badge (CHỈ HIỆN KHI ĐÃ ĐĂNG NHẬP CÓ TOKEN) */}
-          <div 
+          <div className="jn-header-brand"
             onClick={() => setActiveTab('home')}
             style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', flexShrink: 0 }}
           >
@@ -1190,7 +1190,7 @@ export default function App() {
               width: 48,
               height: 48,
               borderRadius: '50%',
-              border: '2px solid #000000',
+              border: '2px solid var(--color-lavender-light)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -1210,10 +1210,10 @@ export default function App() {
             </div>
 
             {/* Text "JOBNEST" in đậm - Kích thước tăng lên 24px */}
-            <span style={{
+            <span className="jn-wordmark" style={{
               fontSize: 24,
               fontWeight: 800,
-              color: '#000000',
+              color: 'var(--color-text)',
               letterSpacing: '-0.5px'
             }}>
               JOBNEST
@@ -1287,8 +1287,8 @@ export default function App() {
                     }}
                     style={{
                       background: '#ffffff',
-                      color: '#000000',
-                      border: '1.5px solid #000000',
+                      color: 'var(--color-text)',
+                      border: '1.5px solid var(--color-border-hover)',
                       borderRadius: 8,
                       padding: '5px 14px',
                       fontSize: 13,
@@ -1313,7 +1313,7 @@ export default function App() {
           {/* Ở giữa: Điều hướng Header - Tách biệt rõ ràng TRƯỜNG 1 (Workspace) vs TRƯỜNG 2 (Marketplace) */}
           {(isEmployerWorkspace || isAdminWorkspace) ? (
             /* TRƯỜNG 1: KHÔNG GIAN QUẢN LÝ (WORKSPACE) -> Tối giản header, ẩn các link Trang chủ, Việc làm, Danh mục */
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div className="jn-header-nav" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <button
                 type="button"
                 onClick={() => {
@@ -1361,7 +1361,7 @@ export default function App() {
             </div>
           ) : (
             /* TRƯỜNG 2: KHÔNG GIAN NGHIÊN CỨU & KHÁCH / SINH VIÊN -> Hiển thị đầy đủ menu công khai */
-            <nav style={{
+            <nav className="jn-header-nav" aria-label="Điều hướng chính" style={{
               display: 'flex',
               alignItems: 'center',
               gap: 28,
@@ -1376,7 +1376,7 @@ export default function App() {
                   border: 'none',
                   fontSize: 15,
                   fontWeight: activeTab === 'home' ? 800 : 600,
-                  color: activeTab === 'home' ? 'var(--color-primary, #7565A8)' : '#000000',
+                  color: activeTab === 'home' ? 'var(--color-primary, #7565A8)' : 'var(--color-text)',
                   cursor: 'pointer',
                   padding: '8px 4px',
                   borderBottom: activeTab === 'home' ? '2.5px solid var(--color-primary, #7565A8)' : '2.5px solid transparent',
@@ -1395,7 +1395,7 @@ export default function App() {
                   border: 'none',
                   fontSize: 15,
                   fontWeight: activeTab === 'jobs' ? 800 : 600,
-                  color: activeTab === 'jobs' ? 'var(--color-primary, #7565A8)' : '#000000',
+                  color: activeTab === 'jobs' ? 'var(--color-primary, #7565A8)' : 'var(--color-text)',
                   cursor: 'pointer',
                   padding: '8px 4px',
                   borderBottom: activeTab === 'jobs' ? '2.5px solid var(--color-primary, #7565A8)' : '2.5px solid transparent',
@@ -1452,7 +1452,7 @@ export default function App() {
                     border: 'none',
                     fontSize: 15,
                     fontWeight: activeTab === 'about' ? 800 : (headerIntroMenuOpen ? 700 : 500),
-                    color: (activeTab === 'about' || headerIntroMenuOpen) ? 'var(--color-primary, #7565A8)' : '#000000',
+                    color: (activeTab === 'about' || headerIntroMenuOpen) ? 'var(--color-primary, #7565A8)' : 'var(--color-text)',
                     borderBottom: activeTab === 'about' ? '2.5px solid var(--color-primary, #7565A8)' : '2.5px solid transparent',
                     cursor: 'pointer',
                     padding: '8px 4px',
@@ -1463,7 +1463,7 @@ export default function App() {
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary, #7565A8)'}
                   onMouseLeave={(e) => {
-                    if (!headerIntroMenuOpen && activeTab !== 'about') e.currentTarget.style.color = '#000000';
+                    if (!headerIntroMenuOpen && activeTab !== 'about') e.currentTarget.style.color = 'var(--color-text)';
                   }}
                 >
                   <span>Giới thiệu</span>
@@ -1584,7 +1584,7 @@ export default function App() {
                   border: 'none',
                   fontSize: 15,
                   fontWeight: 500,
-                  color: '#000000',
+                  color: 'var(--color-text)',
                   cursor: 'pointer',
                   padding: '8px 2px',
                   transition: 'color 0.15s ease'
@@ -1596,7 +1596,7 @@ export default function App() {
           )}
 
           {/* Bên phải: Nút action tăng kích thước (height 42px), chuẩn chuyên nghiệp */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          <div className="jn-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
             {/* TRƯỜNG 2: Nút ← Về trang Quản lý nổi bật khi Nhà tuyển dụng đang xem Marketplace */}
             {currentUser?.token && currentUser?.role === 'ADMIN' && !isAdminWorkspace && (
               <button
@@ -1667,8 +1667,8 @@ export default function App() {
                 onClick={() => setActiveTab('create_job')}
                 style={{
                   background: '#ffffff',
-                  color: '#000000',
-                  border: '1.5px solid #000000',
+                  color: 'var(--color-text)',
+                  border: '1.5px solid var(--color-border-hover)',
                   borderRadius: 8,
                   height: 42,
                   padding: '0 18px',
@@ -1699,8 +1699,8 @@ export default function App() {
                       height: 42,
                       borderRadius: '50%',
                       background: notificationsOpen ? '#F3F4F6' : '#ffffff',
-                      color: '#000000',
-                      border: '1.5px solid #000000',
+                      color: 'var(--color-text)',
+                      border: '1.5px solid var(--color-border-hover)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1760,13 +1760,13 @@ export default function App() {
               /* When GUEST (WF-G01 Screen): [Đăng nhập] (trắng viền đen) & [Đăng ký] (đen chữ trắng) - Kích thước tăng lên height 42px, font 14.5px */
               <>
                 {/* Nút: Đăng nhập (nền trắng, viền đen) */}
-                <button
+                <button className="jn-header-auth-btn"
                   type="button"
                   onClick={() => { setActiveTab('login'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   style={{
                     background: '#ffffff',
-                    color: '#000000',
-                    border: '1.5px solid #000000',
+                    color: 'var(--color-text)',
+                    border: '1.5px solid var(--color-border-hover)',
                     borderRadius: 8,
                     height: 42,
                     padding: '0 20px',
@@ -1783,13 +1783,13 @@ export default function App() {
                 </button>
 
                 {/* Nút: Đăng ký (nền đen, chữ trắng) */}
-                <button
+                <button className="jn-header-auth-btn jn-shine"
                   type="button"
                   onClick={() => { setActiveTab('register'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   style={{
-                    background: '#000000',
+                    background: 'var(--color-primary)',
                     color: '#ffffff',
-                    border: '1.5px solid #000000',
+                    border: '1.5px solid transparent', boxShadow: '0 6px 16px -6px rgba(117, 101, 168, 0.6)',
                     borderRadius: 8,
                     height: 42,
                     padding: '0 22px',
@@ -1799,8 +1799,8 @@ export default function App() {
                     transition: 'all 0.15s ease',
                     whiteSpace: 'nowrap'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#2B2B2B'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#000000'}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-primary-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-primary)'}
                 >
                   Đăng ký
                 </button>
@@ -2307,7 +2307,7 @@ export default function App() {
                 ) : (
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))',
                     gap: 16,
                   }}>
                     {pagedJobs.map((job) => (
@@ -2743,7 +2743,7 @@ export default function App() {
           <div style={{
             background: '#ffffff',
             borderRadius: 20,
-            border: '2px solid #000000',
+            border: '1px solid var(--color-border-hover)',
             maxWidth: 480,
             width: '100%',
             padding: '32px 28px',

@@ -92,8 +92,7 @@ export default function AdminEmployerVerificationPage({ currentUser, showToast }
                   { header: 'Email', value: r => r.email, width: 28 },
                   { header: 'Tên pháp nhân', value: r => r.company_name, width: 34 },
                   { header: 'Mã số thuế', value: r => r.tax_code, width: 14 },
-                  { header: 'Loại tài khoản', value: r => r.account_type, width: 22 },
-                  { header: 'Số tài liệu', value: r => r.document_count, type: 'number', width: 11 },
+                  { header: 'Tài liệu doanh nghiệp', value: r => r.document_count, type: 'number', width: 14 },
                   { header: 'Gửi lúc', value: r => r.verification_submitted_at, type: 'datetime', width: 16 },
                   { header: 'Trạng thái', value: r => LEGAL[r.verification_status] || r.verification_status, width: 14 },
                 ],
@@ -113,7 +112,7 @@ export default function AdminEmployerVerificationPage({ currentUser, showToast }
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5, minWidth: 720 }}>
             <thead>
               <tr style={{ textAlign: 'left', background: '#F8FAFC', color: '#475569' }}>
-                {['Doanh nghiệp', 'Tên pháp nhân / MST', 'Tài liệu', 'Gửi lúc', 'Trạng thái', ''].map(h => <th key={h} style={{ padding: '10px 14px', fontWeight: 700 }}>{h}</th>)}
+                {['Doanh nghiệp', 'Tên pháp nhân / MST', 'Tài liệu doanh nghiệp', 'Gửi lúc', 'Trạng thái', ''].map(h => <th key={h} style={{ padding: '10px 14px', fontWeight: 700 }}>{h}</th>)}
               </tr>
             </thead>
             <tbody>

@@ -333,7 +333,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
             {media.office.length === 0 ? (
               <div style={{ fontSize: 13, color: '#94A3B8', padding: 16, border: '1px dashed #E2E8F0', borderRadius: 10, textAlign: 'center' }}>Chưa có ảnh.</div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 150px), 1fr))', gap: 10 }}>
                 {media.office.map((url, i) => (
                   <figure key={url} style={{ margin: 0, position: 'relative', aspectRatio: '4 / 3', borderRadius: 10, overflow: 'hidden', background: '#F1F5F9' }}>
                     <img src={resolveFileUrl(url)} alt={`Ảnh thư viện ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -409,7 +409,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
         <div style={card}>
           <h3 style={sectionTitle}>Giới thiệu & văn hóa</h3>
           <p style={{ ...hintStyle, marginTop: 0, marginBottom: 14 }}>Viết ngắn gọn, cụ thể. Mục để trống sẽ không hiển thị.</p>
-          <div style={{ ...grid, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+          <div style={{ ...grid, gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))' }}>
             {ABOUT_FIELDS.map(([key, label, hint]) => (
               <Field key={key} label={label} hint={hint}>{textArea(key, form[key], set(key), key === 'bio' ? 6 : 4)}</Field>
             ))}
@@ -422,7 +422,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
         <div style={card}>
           <h3 style={sectionTitle}>Chính sách nhân sự</h3>
           <p style={{ ...hintStyle, marginTop: 0, marginBottom: 14 }}>Ưu tiên thông tin sinh viên quan tâm. Chỉ điền chính sách doanh nghiệp thực sự áp dụng — mục trống sẽ được ẩn.</p>
-          <div style={{ ...grid, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+          <div style={{ ...grid, gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))' }}>
             {POLICY_FIELDS.map(([key, label, hint]) => (
               <Field key={key} label={label} hint={hint}>
                 {textArea(key, POLICY_DETAIL_KEYS.includes(key) ? form.hr_policy_details[key] : form[key], setPolicy(key), 3)}

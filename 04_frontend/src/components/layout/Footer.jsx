@@ -49,11 +49,7 @@ export default function Footer({
         margin: '0 auto',
         padding: '48px 24px 36px 24px'
       }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(5, 1fr)',
-          gap: '28px'
-        }}>
+        <div className="footer-grid">
           {/* CỘT 1: JobNest */}
           <div>
             <h3 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>
@@ -137,7 +133,7 @@ export default function Footer({
             </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
-                { label: 'Hồ Chí Minh', val: 'TP.HCM' },
+                { label: 'Hồ Chí Minh', val: 'TP. Hồ Chí Minh' },
                 { label: 'Hà Nội', val: 'Hà Nội' },
                 { label: 'Hải Phòng', val: 'Hải Phòng' },
                 { label: 'Đà Nẵng', val: 'Đà Nẵng' },

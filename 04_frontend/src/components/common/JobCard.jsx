@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { MapPin, Heart, Sparkles, BadgeCheck, CalendarClock, Users } from 'lucide-react';
 import { motion } from 'motion/react';
 import CompanyLogo from './CompanyLogo';
+import useTilt from '../motion/useTilt';
 import { salaryAmount, formatSalary, salaryCaption, workTypeLabel, shortLocation, postedLabel, deadlineInfo } from '../../utils/jobDisplay';
 
 export default function JobCard({
@@ -15,6 +16,7 @@ export default function JobCard({
   onViewCompany,
 }) {
   const cardRef = useRef(null);
+  const { ref: tiltRef, onPointerMove: onTiltMove, onPointerLeave: onTiltLeave } = useTilt(4);
   const onHoverEndRef = useRef(onHoverEnd);
   onHoverEndRef.current = onHoverEnd;
   const jobRef = useRef(job);
@@ -122,15 +124,22 @@ export default function JobCard({
   };
 
   return (
+    // Lớp ngoài: animation xuất hiện + sự kiện xem nhanh (đo vị trí bằng cardRef, không bị xoay)
+    // Lớp trong: phần nhìn thấy, nghiêng 3D nhẹ + spotlight theo chuột (chỉ trình bày)
     <motion.div
       ref={cardRef}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -3, transition: { duration: 0.15 } }}
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={() => onSelectJob && onSelectJob(job)}
+      className="jn-tilt-scene"
+    >
+    <div
+      ref={tiltRef}
+      onPointerMove={onTiltMove}
+      onPointerLeave={onTiltLeave}
       style={{
         background: 'var(--color-surface)',
         border: '1px solid var(--color-border)',
@@ -139,13 +148,11 @@ export default function JobCard({
         display: 'flex',
         flexDirection: 'column',
         cursor: 'pointer',
-        position: 'relative',
-        transition: 'border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
         boxShadow: 'var(--shadow-sm)',
         height: '100%',
         boxSizing: 'border-box',
       }}
-      className="job-card-hover"
+      className="jn-job-card jn-tilt jn-spotlight"
     >
       {/* Đầu thẻ: logo, tên việc, doanh nghiệp, thời gian đăng, nút lưu */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
@@ -323,27 +330,16 @@ export default function JobCard({
 
         <button
           type="button"
+          className="jn-job-card-cta"
           onClick={(e) => {
             e.stopPropagation();
             onSelectJob && onSelectJob(job);
-          }}
-          style={{
-            width: '100%', background: 'var(--color-surface, #ffffff)', border: '1.5px solid var(--color-primary, #594675)',
-            color: 'var(--color-primary, #594675)', fontSize: 13.5, fontWeight: 700, borderRadius: 10, padding: '9px 12px',
-            cursor: 'pointer', transition: 'background-color 0.15s ease, color 0.15s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-primary, #594675)';
-            e.currentTarget.style.color = '#ffffff';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-surface, #ffffff)';
-            e.currentTarget.style.color = 'var(--color-primary, #594675)';
           }}
         >
           Xem chi tiết công việc
         </button>
       </div>
+    </div>
     </motion.div>
   );
 }

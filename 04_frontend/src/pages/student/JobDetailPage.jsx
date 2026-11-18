@@ -309,22 +309,22 @@ export default function JobDetailPage({
           gap: 12,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)', minWidth: 0 }}>
           <span
-            style={{ cursor: 'pointer', color: 'var(--color-primary)', fontWeight: 600 }}
+            style={{ cursor: 'pointer', color: 'var(--color-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}
             onClick={handleBack}
           >
             Trang chủ
           </span>
           <ChevronRight size={13} color="#CBD5E1" />
           <span
-            style={{ cursor: 'pointer', color: 'var(--color-primary)', fontWeight: 600 }}
+            style={{ cursor: 'pointer', color: 'var(--color-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}
             onClick={handleBack}
           >
             Danh sách việc làm
           </span>
           <ChevronRight size={13} color="#CBD5E1" />
-          <span style={{ color: 'var(--color-text)', fontWeight: 700, maxWidth: 360, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <span style={{ color: 'var(--color-text)', fontWeight: 700, maxWidth: 360, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {currentJob.title}
           </span>
         </div>
@@ -534,7 +534,7 @@ export default function JobDetailPage({
           Cột trái (w=736 / 68%): Mô tả, Yêu cầu, Quyền lợi
           Cột phải (w=369 / 32%): Thông tin tóm tắt, Mức lương, Hạn chót, Nút Ứng tuyển & Nhà tuyển dụng
           ========================================================================= */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: 24, alignItems: 'flex-start' }} className="job-detail-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 360px', gap: 24, alignItems: 'flex-start' }} className="job-detail-grid jn-stack-md">
         
         {/* =====================================================================
             CỘT TRÁI: NỘI DUNG JOB (WF-G03: k165)
@@ -1120,7 +1120,7 @@ export default function JobDetailPage({
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: 16 }}>
             {relatedJobs.map((relJob) => {
               const relCompany = relJob.company_name || relJob.employer_name || 'Doanh nghiệp JobNest';
               const relSalary = Number(relJob.salary || 0);

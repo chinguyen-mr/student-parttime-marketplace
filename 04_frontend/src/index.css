@@ -50,6 +50,54 @@
   --shadow-md: 0 4px 12px -2px rgba(117, 101, 168, 0.08), 0 2px 6px -2px rgba(41, 38, 58, 0.03);
   --shadow-lg: 0 16px 36px -4px rgba(41, 38, 58, 0.12), 0 6px 12px -4px rgba(117, 101, 168, 0.05);
   --shadow-accent: 0 4px 14px rgba(244, 185, 157, 0.35);
+
+  /* ===== Premium layer (v3) — mở rộng token sẵn có, KHÔNG đổi màu thương hiệu ===== */
+  --color-primary-strong: #594675;   /* Lavender đậm: chữ trên nền sáng, nền hero */
+  --color-primary-deep: #3F315A;     /* Nền tối nhất của hero/gradient */
+  --color-surface-elevated: #FFFFFF;
+  --color-surface-glass: rgba(255, 255, 255, 0.72);
+  --color-info: #4F6BD8;
+  --color-info-bg: #EEF2FD;
+  --color-info-border: #C3CFF6;
+  --color-text-on-accent: #29263A;   /* Peach quá sáng cho chữ trắng → dùng chữ tối */
+  --gradient-brand: linear-gradient(135deg, #7565A8 0%, #8F7CC0 48%, #F4B99D 100%);
+  --gradient-hero: radial-gradient(120% 140% at 0% 0%, #6A5A9E 0%, #4E3E6B 45%, #3F315A 100%);
+
+  /* Typography — ưu tiên đọc tiếng Việt (line-height rộng hơn cho dấu) */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --text-display: clamp(28px, 3.6vw, 44px);
+  --text-page: clamp(22px, 2.4vw, 28px);
+  --text-section: clamp(19px, 1.9vw, 24px);
+  --text-card: 16px;
+  --text-body: 14.5px;
+  --text-caption: 12.5px;
+  --text-label: 13px;
+  --leading-tight: 1.25;
+  --leading-body: 1.6;
+
+  /* Spacing (4px grid) */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
+
+  /* Radius */
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-pill: 9999px;
+
+  /* Elevation */
+  --elevation-0: none;
+  --elevation-1: var(--shadow-sm);
+  --elevation-2: var(--shadow-md);
+  --elevation-3: var(--shadow-lg);
+  --elevation-glow: 0 18px 40px -12px rgba(117, 101, 168, 0.35);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-base: 240ms;
+  --duration-slow: 480ms;
+
+  /* Layer */
+  --z-header: 100; --z-dropdown: 200; --z-modal: 1000; --z-toast: 1100;
 }
 
 * {
@@ -59,7 +107,7 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   background-color: var(--color-background);
   color: var(--color-text);
   line-height: 1.55;
@@ -170,7 +218,7 @@ input::placeholder, textarea::placeholder {
 /* Peach Accent CTA Button */
 .btn-accent {
   background: var(--color-accent);
-  color: #ffffff;
+  color: var(--color-text-on-accent);
   border: 1px solid transparent;
 }
 .btn-accent:hover {
@@ -725,4 +773,192 @@ input::placeholder, textarea::placeholder {
 }
 @media (max-width: 560px) {
   .review-summary { grid-template-columns: 1fr; padding: 14px; }
+}
+
+/* ==========================================================================
+   JOBNEST PREMIUM LAYER (v3) — motion, 3D tinh tế, responsive header
+   Xem docs/JOBNEST_PREMIUM_DESIGN_SYSTEM.md
+   ========================================================================== */
+
+/* Focus nhìn thấy rõ cho bàn phím (không hiện khi bấm chuột) */
+:where(button, a, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Nút: phản hồi khi nhấn + vệt sáng nhẹ cho CTA chính */
+.btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.btn-primary, .jn-shine { position: relative; overflow: hidden; isolation: isolate; }
+.btn-primary::after, .jn-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.7s var(--ease-out);
+  pointer-events: none;
+}
+.btn-primary:hover::after, .jn-shine:hover::after { transform: translateX(120%); }
+
+/* ---------- Header responsive (header dùng inline style nên cần !important) ---------- */
+.jn-header-nav button { white-space: nowrap; }
+@media (max-width: 1140px) {
+  .app-header { padding: 0 20px !important; }
+  .jn-header-row { flex-wrap: wrap !important; min-height: 0 !important; row-gap: 4px !important; padding: 10px 0 8px; gap: 12px !important; }
+  .jn-header-brand { flex-shrink: 1 !important; min-width: 0; flex-wrap: wrap; gap: 10px !important; }
+  .jn-header-actions { margin-left: auto; }
+  .jn-header-nav { order: 3; width: 100%; flex-wrap: wrap !important; gap: 2px 18px !important; }
+}
+@media (max-width: 640px) {
+  /* Header nhiều dòng trên điện thoại → không dính để không che nội dung */
+  .app-header { padding: 0 12px !important; position: relative !important; }
+  .company-nav { top: 0 !important; }
+  .jn-header-brand > div:first-child { width: 38px !important; height: 38px !important; }
+  .jn-wordmark { font-size: 19px !important; }
+  .jn-header-actions { gap: 8px !important; }
+  .jn-header-auth-btn { height: 36px !important; padding: 0 12px !important; font-size: 13.5px !important; }
+  .jn-header-nav { gap: 0 12px !important; }
+  .jn-header-nav > button, .jn-header-nav > div > button { font-size: 13.5px !important; }
+}
+@media (max-width: 380px) {
+  .jn-wordmark { display: none; }
+}
+
+/* ---------- Tilt 3D theo con trỏ (biến CSS do hook useTilt ghi) ---------- */
+.jn-tilt-scene { perspective: 900px; height: 100%; }
+.jn-tilt {
+  --rx: 0deg; --ry: 0deg; --lift: 0px;
+  transform: rotateX(var(--rx)) rotateY(var(--ry)) translate3d(0, var(--lift), 0);
+  transition: transform 0.45s var(--ease-out), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.jn-tilt.is-tilting { transition: transform 0.08s linear, box-shadow 0.3s ease, border-color 0.3s ease; }
+
+/* ---------- Spotlight theo con trỏ ---------- */
+.jn-spotlight { position: relative; isolation: isolate; --mx: 50%; --my: 50%; }
+.jn-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* trên nền thẻ, dưới nội dung */
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(420px circle at var(--mx) var(--my), rgba(169, 151, 197, 0.16), transparent 42%);
+}
+
+/* Hover chỉ áp cho thiết bị có chuột — màn hình cảm ứng không bị "kẹt hover" */
+@media (hover: hover) and (pointer: fine) {
+  .jn-job-card:hover {
+    --lift: -4px;
+    border-color: rgba(117, 101, 168, 0.45) !important;
+    box-shadow: var(--elevation-glow) !important;
+  }
+  .jn-spotlight:hover::before { opacity: 1; }
+  .jn-lift { transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) ease, border-color var(--duration-base) ease; }
+  .jn-lift:hover { transform: translateY(-4px); box-shadow: var(--elevation-glow) !important; border-color: rgba(117, 101, 168, 0.4) !important; }
+}
+.jn-job-card-cta {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: 13.5px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease, transform var(--duration-fast) ease;
+}
+.jn-job-card-cta:hover { background: var(--color-primary); color: #fff; }
+.jn-job-card-cta:active { transform: scale(0.98); }
+
+/* ---------- Scroll reveal: chỉ ẩn khi JS đã gắn .is-pending (không có JS → vẫn hiện) ---------- */
+.jn-reveal { transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out); transition-delay: var(--reveal-delay, 0ms); }
+.jn-reveal.is-pending { opacity: 0; transform: translate3d(0, 18px, 0); }
+
+/* ---------- Hero ---------- */
+.jn-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--gradient-hero) !important;
+  box-shadow: 0 30px 60px -30px rgba(63, 49, 90, 0.55);
+}
+.jn-hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.5;
+}
+.jn-hero-glow--peach { width: 360px; height: 360px; right: -80px; top: -120px; background: #F4B99D; animation: jn-drift 16s ease-in-out infinite alternate; }
+.jn-hero-glow--lav { width: 420px; height: 420px; left: -140px; bottom: -200px; background: #A997C5; animation: jn-drift 20s ease-in-out infinite alternate-reverse; }
+.jn-hero-grid {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 30% 20%, #000 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at 30% 20%, #000 0%, transparent 70%);
+}
+.jn-hero-stage { position: relative; perspective: 1000px; }
+.jn-hero-showcase {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s var(--ease-out);
+  box-shadow: 0 24px 50px -20px rgba(20, 12, 40, 0.55) !important;
+}
+.jn-float-chip {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  font-size: 12px; font-weight: 700;
+  color: var(--color-text);
+  background: #fff;
+  box-shadow: 0 12px 28px -10px rgba(20, 12, 40, 0.45);
+  animation: jn-float 6s ease-in-out infinite;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.jn-gradient-text {
+  background: linear-gradient(90deg, #F4B99D, #FBD9C6 60%, #F4B99D);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+@keyframes jn-drift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(40px, 30px, 0) scale(1.12); } }
+@keyframes jn-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes jn-word-in { from { opacity: 0; transform: translateY(0.4em); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+.jn-word { display: inline-block; animation: jn-word-in 0.7s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 45ms); }
+
+/* Số KPI: chữ số cùng độ rộng → count-up không làm nhảy layout */
+.jn-kpi-number { font-variant-numeric: tabular-nums; }
+
+/* Lưới tự co giãn an toàn mobile: min() tránh tràn khi màn hình hẹp hơn min-width */
+.jn-auto-grid { display: grid; gap: var(--grid-gap, 16px); grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--grid-min, 300px)), 1fr)); }
+
+/* Bố cục 2 cột (nội dung + sidebar) xếp chồng 1 cột trên tablet/mobile */
+@media (max-width: 900px) {
+  .jn-stack-md { grid-template-columns: minmax(0, 1fr) !important; }
+}
+
+@media (max-width: 640px) {
+  .jn-hero { padding: 24px 18px 22px !important; }
+  .jn-float-chip { display: none; }
+  .jn-hero-glow { opacity: 0.3; }
+}
+
+/* ---------- Giảm chuyển động theo cài đặt hệ điều hành ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .jn-tilt, .jn-hero-showcase { transform: none !important; }
+  .jn-reveal.is-pending { opacity: 1; transform: none; }
 }

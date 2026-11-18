@@ -14,6 +14,7 @@ import {
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
+import { CountUp } from '../../components/motion';
 
 export default function EmployerDashboardPage({
   currentUser,
@@ -397,11 +398,11 @@ export default function EmployerDashboardPage({
       {/* ================= 1. 4 KPI STATS CARDS (1 HÀNG TRÊN DESKTOP) ================= */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
         gap: 20
       }}>
             {/* KPI 1: Job đã đăng */}
-            <div style={{
+            <div className="jn-lift" style={{
               background: '#ffffff',
               borderRadius: 14,
               border: '1px solid var(--color-border)',
@@ -432,7 +433,7 @@ export default function EmployerDashboardPage({
                 <div style={{ height: 38, width: 70, background: '#F1F5F9', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
               ) : (
                 <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.2, marginBottom: 6 }}>
-                  {kpiStats.totalJobs}
+                  <CountUp value={kpiStats.totalJobs} />
                 </div>
               )}
 
@@ -443,7 +444,7 @@ export default function EmployerDashboardPage({
             </div>
 
             {/* KPI 2: Application chờ xử lý */}
-            <div style={{
+            <div className="jn-lift" style={{
               background: '#ffffff',
               borderRadius: 14,
               border: '1px solid var(--color-border)',
@@ -474,7 +475,7 @@ export default function EmployerDashboardPage({
                 <div style={{ height: 38, width: 70, background: '#F1F5F9', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
               ) : (
                 <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.2, marginBottom: 6 }}>
-                  {kpiStats.pendingApplications}
+                  <CountUp value={kpiStats.pendingApplications} />
                 </div>
               )}
 
@@ -484,7 +485,7 @@ export default function EmployerDashboardPage({
             </div>
 
             {/* KPI 4: Assignment đang thực hiện */}
-            <div style={{
+            <div className="jn-lift" style={{
               background: '#ffffff',
               borderRadius: 14,
               border: '1px solid var(--color-border)',
@@ -515,7 +516,7 @@ export default function EmployerDashboardPage({
                 <div style={{ height: 38, width: 70, background: '#F1F5F9', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s infinite' }} />
               ) : (
                 <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.2, marginBottom: 6 }}>
-                  {kpiStats.inProgressAssignments}
+                  <CountUp value={kpiStats.inProgressAssignments} />
                 </div>
               )}
 
@@ -795,7 +796,7 @@ export default function EmployerDashboardPage({
             </div>
 
             {loading ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 16 }}>
                 {[1, 2].map(idx => (
                   <div key={idx} style={{ height: 140, background: '#F8F7FB', borderRadius: 12, animation: 'pulse 1.5s infinite' }} />
                 ))}
@@ -810,7 +811,7 @@ export default function EmployerDashboardPage({
             ) : (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
                 gap: 16
               }}>
                 {runningJobs.slice(0, 4).map((job) => {

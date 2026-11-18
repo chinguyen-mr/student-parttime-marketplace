@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, CheckCircle2, RotateCcw, ArrowLeft, Clock, History, Send, Loader2, AlertTriangle } from 'lucide-react';
+import { ExternalLink, CheckCircle2, RotateCcw, ArrowLeft, Clock, History, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { API_BASE, formatApiError } from '../../config/api';
 
@@ -18,10 +18,8 @@ const card = { background: '#fff', border: '1px solid var(--color-border)', bord
  */
 export default function EmployerDeliverableReviewPage({ currentUser, assignment, onBack, showToast }) {
   const [state, setState] = useState({ loading: true, error: null, progress: [], deliverables: [] });
-  const [note, setNote] = useState('');
   const [reasons, setReasons] = useState({});
   const [busy, setBusy] = useState(null);
-  const active = ['NOT_STARTED', 'IN_PROGRESS'].includes(assignment?.status);
 
   const api = async (path, options = {}) => {
     const res = await fetch(`${API_BASE}/assignments/${assignment.id}${path}`, {
@@ -51,18 +49,6 @@ export default function EmployerDeliverableReviewPage({ currentUser, assignment,
       </div>
     );
   }
-
-  const addNote = async (e) => {
-    e.preventDefault();
-    if (note.trim().length < 3) { showToast?.('Nội dung cần ít nhất 3 ký tự', 'error'); return; }
-    setBusy('note');
-    try {
-      await api('/progress', { method: 'POST', body: JSON.stringify({ description: note.trim() }) });
-      setNote('');
-      await load();
-      showToast?.('Đã lưu ghi chú tiến độ. Sinh viên đã được thông báo.', 'success');
-    } catch (err) { showToast?.(formatApiError(err), 'error'); } finally { setBusy(null); }
-  };
 
   const review = async (d, decision) => {
     const comment = (reasons[d.id] || '').trim();
@@ -95,7 +81,7 @@ export default function EmployerDeliverableReviewPage({ currentUser, assignment,
       )}
 
       {!state.loading && !state.error && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: 18, alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: 18, alignItems: 'start' }}>
           {/* Sản phẩm bàn giao */}
           <section style={card}>
             <h2 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -145,18 +131,6 @@ export default function EmployerDeliverableReviewPage({ currentUser, assignment,
           {/* Tiến độ công việc */}
           <section style={card}>
             <h2 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 12px' }}>Nhật ký tiến độ ({state.progress.length})</h2>
-            {active && (
-              <form onSubmit={addNote} style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-                <textarea rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} aria-label="Ghi chú tiến độ"
-                  placeholder="Ghi chú cho sinh viên (VD: tuần sau đổi sang ca chiều Thứ 5)…"
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid var(--color-border)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button type="submit" variant="primary" disabled={busy === 'note'} style={{ padding: '7px 14px', fontSize: 12.5, gap: 6 }}>
-                    <Send size={13} /> {busy === 'note' ? 'Đang lưu…' : 'Thêm ghi chú'}
-                  </Button>
-                </div>
-              </form>
-            )}
             {state.progress.length === 0 && <p style={{ color: '#94A3B8', fontSize: 13, margin: 0 }}>Chưa có cập nhật tiến độ.</p>}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {state.progress.map(p => (

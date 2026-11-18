@@ -134,7 +134,7 @@ export default function EmployerJobsPage({
           </h1>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <ExportMenu
             disabled={loading || jobs.length === 0}
             onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}

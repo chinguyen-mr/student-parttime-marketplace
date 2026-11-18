@@ -419,7 +419,7 @@ export default function EmployerAssignmentsPage({
       </div>
 
       {/* ================= THỐNG KÊ NHANH (QUICK STAT CARDS) ================= */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 14, marginBottom: 24 }}>
         <div style={{ background: '#ffffff', border: '1px solid var(--color-border)', borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-xs)' }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: 'var(--color-lavender-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
             <FileText size={20} />

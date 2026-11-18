@@ -91,7 +91,7 @@ function ReviewDetail({ type, id, token, onClose, onChanged, showToast }) {
         <button type="button" onClick={onClose} aria-label="Đóng chi tiết" style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={18} /></button>
       </div>
 
-      <div style={{ fontSize: 13, color: '#334155', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '4px 16px' }}>
+      <div style={{ fontSize: 13, color: '#334155', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '4px 16px' }}>
         <div><b>Người viết:</b> {r.reviewer_name} ({r.reviewer_email}){r.is_anonymous ? ' — đăng ẩn danh' : ''}</div>
         <div><b>Doanh nghiệp:</b> {r.employer_name} (#{r.employer_id})</div>
         {type === 'job' && <div><b>Công việc:</b> {r.job_title} (#{r.job_id})</div>}

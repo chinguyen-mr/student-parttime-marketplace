@@ -95,7 +95,7 @@ export default function CategoryJobsModal({ category, token, adminName, onClose,
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: 10 }}>
             {stats.map(([label, value, Icon, color]) => (
               <div key={label} style={{ border: '1px solid #E2E8F0', borderRadius: 12, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Icon size={20} color={color} />

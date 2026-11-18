@@ -62,7 +62,7 @@ export default function ReviewCard({ review, onReport, onOpenJob, children }) {
         {showCriteria ? <ChevronUp size={14} /> : <ChevronDown size={14} />} Điểm theo tiêu chí
       </button>
       {showCriteria && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '4px 18px', marginTop: 6 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '4px 18px', marginTop: 6 }}>
           {criteria.map(([k, label]) => (
             <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 12.5, color: '#475569' }}>
               <span>{label}</span><RatingStars value={review[k]} size={12} />

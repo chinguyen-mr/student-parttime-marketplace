@@ -262,7 +262,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 360px), 1fr))', gap: 16 }}>
           {filtered.map(assignment => (
             <motion.div
               key={assignment.id}
@@ -426,7 +426,7 @@ export default function MyAssignmentsPage({ currentUser, showToast, onOpenReview
                   padding: '16px 18px',
                   marginBottom: 22,
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))',
                   gap: 14
                 }}>
                   <div>

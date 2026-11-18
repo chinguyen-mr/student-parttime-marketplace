@@ -73,7 +73,7 @@ export default function AccountMenu({ currentUser, onNavigate, onLogout }) {
         <span style={{
           width: 42, height: 42, borderRadius: '50%', overflow: 'hidden',
           background: role === 'STUDENT' ? '#7565A8' : '#000000', color: '#ffffff',
-          border: '1.5px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          border: '1px solid var(--color-border-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 16, fontWeight: 800, boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}>
           {currentUser?.avatar_url

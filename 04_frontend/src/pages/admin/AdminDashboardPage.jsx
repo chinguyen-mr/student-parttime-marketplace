@@ -14,6 +14,7 @@ import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import { API_BASE, formatApiError } from '../../config/api';
 import { describeAdminLog, TONE_STYLE } from '../../utils/adminLogDisplay';
+import { CountUp } from '../../components/motion';
 
 export default function AdminDashboardPage({
   currentUser,
@@ -145,10 +146,10 @@ export default function AdminDashboardPage({
       {/* ================= 1. 6 THẺ KPI STATS (CHUẨN WIREFRAME WF-A01) ================= */}
       <div className="admin-kpi-grid">
         {/* KPI 1: Student */}
-        <div style={{
+        <div className="jn-lift" style={{
           background: '#ffffff',
           borderRadius: 12,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border)',
           padding: '16px 18px',
           boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
           display: 'flex',
@@ -165,7 +166,7 @@ export default function AdminDashboardPage({
               </div>
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', lineHeight: 1.15, marginBottom: 4 }}>
-              {loading ? '...' : studentCount}
+              {loading ? '...' : <CountUp value={studentCount} />}
             </div>
           </div>
           <div style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -174,10 +175,10 @@ export default function AdminDashboardPage({
         </div>
 
         {/* KPI 2: Employer */}
-        <div style={{
+        <div className="jn-lift" style={{
           background: '#ffffff',
           borderRadius: 12,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border)',
           padding: '16px 18px',
           boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
           display: 'flex',
@@ -194,7 +195,7 @@ export default function AdminDashboardPage({
               </div>
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', lineHeight: 1.15, marginBottom: 4 }}>
-              {loading ? '...' : employerCount}
+              {loading ? '...' : <CountUp value={employerCount} />}
             </div>
           </div>
           <div style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -203,10 +204,10 @@ export default function AdminDashboardPage({
         </div>
 
         {/* KPI 3: Tổng Job */}
-        <div style={{
+        <div className="jn-lift" style={{
           background: '#ffffff',
           borderRadius: 12,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border)',
           padding: '16px 18px',
           boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
           display: 'flex',
@@ -223,7 +224,7 @@ export default function AdminDashboardPage({
               </div>
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', lineHeight: 1.15, marginBottom: 4 }}>
-              {loading ? '...' : totalJobsCount}
+              {loading ? '...' : <CountUp value={totalJobsCount} />}
             </div>
           </div>
           <div style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -232,10 +233,10 @@ export default function AdminDashboardPage({
         </div>
 
         {/* KPI 4: Tổng Application */}
-        <div style={{
+        <div className="jn-lift" style={{
           background: '#ffffff',
           borderRadius: 12,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border)',
           padding: '16px 18px',
           boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
           display: 'flex',
@@ -252,7 +253,7 @@ export default function AdminDashboardPage({
               </div>
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', lineHeight: 1.15, marginBottom: 4 }}>
-              {loading ? '...' : totalAppsCount}
+              {loading ? '...' : <CountUp value={totalAppsCount} />}
             </div>
           </div>
           <div style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -261,11 +262,11 @@ export default function AdminDashboardPage({
         </div>
 
         {/* KPI 5: Job chờ duyệt */}
-        <div 
+        <div className="jn-lift"
           style={{
             background: pendingJobsCount > 0 ? '#FEF2F2' : '#ffffff',
             borderRadius: 12,
-            border: pendingJobsCount > 0 ? '1.5px solid #EF4444' : '1.5px solid #000000',
+            border: pendingJobsCount > 0 ? '1.5px solid #EF4444' : '1px solid var(--color-border)',
             padding: '16px 18px',
             boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
             display: 'flex',
@@ -285,7 +286,7 @@ export default function AdminDashboardPage({
               </div>
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, color: pendingJobsCount > 0 ? '#DC2626' : '#0F172A', lineHeight: 1.15, marginBottom: 4 }}>
-              {loading ? '...' : pendingJobsCount}
+              {loading ? '...' : <CountUp value={pendingJobsCount} />}
             </div>
           </div>
           <div style={{ fontSize: 11.5, color: pendingJobsCount > 0 ? '#B91C1C' : '#64748B', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -294,11 +295,11 @@ export default function AdminDashboardPage({
         </div>
 
         {/* KPI 6: Report chờ xử lý */}
-        <div 
+        <div className="jn-lift"
           style={{
             background: openReportsCount > 0 ? '#FFFBEB' : '#ffffff',
             borderRadius: 12,
-            border: openReportsCount > 0 ? '1.5px solid #F59E0B' : '1.5px solid #000000',
+            border: openReportsCount > 0 ? '1.5px solid #F59E0B' : '1px solid var(--color-border)',
             padding: '16px 18px',
             boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
             display: 'flex',
@@ -318,7 +319,7 @@ export default function AdminDashboardPage({
               </div>
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, color: openReportsCount > 0 ? '#D97706' : '#0F172A', lineHeight: 1.15, marginBottom: 4 }}>
-              {loading ? '...' : openReportsCount}
+              {loading ? '...' : <CountUp value={openReportsCount} />}
             </div>
           </div>
           <div style={{ fontSize: 11.5, color: openReportsCount > 0 ? '#B45309' : '#64748B', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -330,7 +331,7 @@ export default function AdminDashboardPage({
       {/* ================= 2. 2 KHỐI PHÂN PHỐI CHUẨN WIREFRAME WF-A01 ================= */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
         gap: 20,
         width: '100%',
         boxSizing: 'border-box'
@@ -339,7 +340,7 @@ export default function AdminDashboardPage({
         <div style={{
           background: '#ffffff',
           borderRadius: 14,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border-hover)',
           padding: '20px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
           display: 'flex',
@@ -391,7 +392,7 @@ export default function AdminDashboardPage({
         <div style={{
           background: '#ffffff',
           borderRadius: 14,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border-hover)',
           padding: '20px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
           display: 'flex',
@@ -443,7 +444,7 @@ export default function AdminDashboardPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         padding: '20px 24px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>

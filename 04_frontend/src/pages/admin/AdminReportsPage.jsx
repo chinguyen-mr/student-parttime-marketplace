@@ -189,7 +189,7 @@ export default function AdminReportsPage({
               <div style={{
                 background: '#ffffff',
                 borderRadius: 14,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 padding: 24,
                 boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
               }}>
@@ -253,7 +253,7 @@ export default function AdminReportsPage({
               <div style={{
                 background: '#ffffff',
                 borderRadius: 14,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 padding: 24,
                 boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
               }}>
@@ -303,7 +303,7 @@ export default function AdminReportsPage({
               <div style={{
                 background: '#ffffff',
                 borderRadius: 14,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 padding: 24,
                 boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
               }}>
@@ -361,7 +361,7 @@ export default function AdminReportsPage({
             <div style={{
               background: '#ffffff',
               borderRadius: 14,
-              border: '2px solid #000000',
+              border: '1px solid var(--color-border-hover)',
               padding: 24,
               boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
               position: 'sticky',
@@ -383,7 +383,7 @@ export default function AdminReportsPage({
                     width: '100%',
                     height: 40,
                     borderRadius: 8,
-                    border: '1.5px solid #000000',
+                    border: '1px solid var(--color-border-hover)',
                     padding: '0 10px',
                     fontSize: 13.5,
                     fontWeight: 700,
@@ -427,7 +427,7 @@ export default function AdminReportsPage({
                   width: '100%',
                   padding: '11px 18px',
                   borderRadius: 8,
-                  border: '1.5px solid #000000',
+                  border: '1px solid var(--color-border-hover)',
                   background: '#0F172A',
                   color: '#ffffff',
                   fontSize: 14,
@@ -565,7 +565,7 @@ export default function AdminReportsPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 12,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         padding: '14px 20px',
         display: 'flex',
         alignItems: 'center',
@@ -584,7 +584,7 @@ export default function AdminReportsPage({
               style={{
                 height: 36,
                 borderRadius: 6,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 padding: '0 10px',
                 fontSize: 13,
                 fontWeight: 600,
@@ -606,7 +606,7 @@ export default function AdminReportsPage({
               style={{
                 height: 36,
                 borderRadius: 6,
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 padding: '0 10px',
                 fontSize: 13,
                 fontWeight: 600,
@@ -626,7 +626,7 @@ export default function AdminReportsPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
@@ -644,7 +644,7 @@ export default function AdminReportsPage({
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
-                <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #000000', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
+                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-hover)', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
                   <th style={{ padding: '14px 16px', width: 90 }}>Report ID</th>
                   <th style={{ padding: '14px 16px' }}>Reporter</th>
                   <th style={{ padding: '14px 16px', width: 180 }}>Target</th>
@@ -727,7 +727,7 @@ export default function AdminReportsPage({
                         style={{
                           padding: '7px 14px',
                           borderRadius: 6,
-                          border: '1.5px solid #000000',
+                          border: '1px solid var(--color-border-hover)',
                           background: '#ffffff',
                           color: '#000000',
                           fontSize: 12.5,

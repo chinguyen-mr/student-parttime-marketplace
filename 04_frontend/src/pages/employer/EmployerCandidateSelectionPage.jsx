@@ -149,7 +149,7 @@ export default function EmployerCandidateSelectionPage({
               fontSize: 13,
               fontWeight: 700,
               background: '#ffffff',
-              border: '1.5px solid #000000',
+              border: '1px solid var(--color-border-hover)',
               borderRadius: 8,
               cursor: 'pointer',
               display: 'inline-flex',
@@ -165,14 +165,14 @@ export default function EmployerCandidateSelectionPage({
       {/* Top 2 Cards: Job Info & Chỉ tiêu matching WF-E08 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
         gap: 20
       }}>
         {/* Card Job */}
         <div style={{
           background: '#ffffff',
           borderRadius: 14,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border-hover)',
           padding: 20,
           boxShadow: 'var(--shadow-sm)'
         }}>
@@ -191,7 +191,7 @@ export default function EmployerCandidateSelectionPage({
         <div style={{
           background: '#ffffff',
           borderRadius: 14,
-          border: '1.5px solid #000000',
+          border: '1px solid var(--color-border-hover)',
           padding: 20,
           boxShadow: 'var(--shadow-sm)'
         }}>
@@ -212,7 +212,7 @@ export default function EmployerCandidateSelectionPage({
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
-        border: '1.5px solid #000000',
+        border: '1px solid var(--color-border-hover)',
         padding: 24,
         boxShadow: 'var(--shadow-sm)'
       }}>
@@ -230,7 +230,7 @@ export default function EmployerCandidateSelectionPage({
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
             <thead>
-              <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #000000' }}>
+              <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-hover)' }}>
                 <th style={{ padding: '12px 14px', width: 80, fontWeight: 800 }}>Chọn</th>
                 <th style={{ padding: '12px 14px', fontWeight: 800 }}>Student</th>
                 <th style={{ padding: '12px 14px', fontWeight: 800 }}>Nguồn</th>
@@ -317,7 +317,7 @@ export default function EmployerCandidateSelectionPage({
                 style={{
                   background: '#ffffff',
                   color: '#000000',
-                  border: '1.5px solid #000000',
+                  border: '1px solid var(--color-border-hover)',
                   borderRadius: 8,
                   padding: '9px 20px',
                   fontSize: 13.5,
@@ -336,7 +336,7 @@ export default function EmployerCandidateSelectionPage({
               style={{
                 background: '#000000',
                 color: '#ffffff',
-                border: '1.5px solid #000000',
+                border: '1px solid var(--color-border-hover)',
                 borderRadius: 8,
                 padding: '9px 24px',
                 fontSize: 13.5,

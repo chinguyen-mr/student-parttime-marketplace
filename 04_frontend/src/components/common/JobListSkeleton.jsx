@@ -12,7 +12,7 @@ export default function JobListSkeleton({ count = 6 }) {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
         gap: 20,
         width: '100%',
         marginBottom: 32,

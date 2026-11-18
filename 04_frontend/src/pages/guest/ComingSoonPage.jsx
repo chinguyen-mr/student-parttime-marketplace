@@ -26,38 +26,6 @@ export default function ComingSoonPage({
         fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
-      {/* Top Left Floating Back Button to where user came from */}
-      {onBack && (
-        <button
-          type="button"
-          onClick={onBack}
-          style={{
-            position: 'absolute',
-            top: 24,
-            left: 28,
-            zIndex: 100,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '9px 18px',
-            borderRadius: 9999,
-            background: 'rgba(255, 255, 255, 0.12)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 255, 255, 0.25)',
-            color: '#FFFFFF',
-            fontSize: 13.5,
-            fontWeight: 700,
-            cursor: 'pointer',
-            transition: 'all 0.15s ease'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.22)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'}
-        >
-          <ArrowLeft size={16} />
-          <span>Trở về {prevTabLabel}</span>
-        </button>
-      )}
-
       {/* ===================================================================== */}
       {/* 1. FULL-SCREEN BACKGROUND SVG: PEELED PAPER ARTWORK                   */}
       {/* (Inspired directly by the reference image: Left dark, Right peeled)  */}

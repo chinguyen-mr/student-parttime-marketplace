@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Search, Shield, MapPin, DollarSign, Bell, ArrowLeft, ArrowRight, Briefcase, Filter, Sparkles, Home
+  Search, Eye, MapPin, DollarSign, Bell, ArrowLeft, ArrowRight, Briefcase, Filter, Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, AnimatedToast, CustomDropdown } from './components/ui';
@@ -765,10 +765,8 @@ export default function App() {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (searchKeyword) params.append('keyword', searchKeyword);
-      if (selectedCategory) params.append('category', selectedCategory);
-      if (selectedLocation) params.append('location', selectedLocation);
-      // Lọc & phân trang làm ở phía giao diện → cần tải đủ tin (API mặc định chỉ trả 20)
+      // Lọc & phân trang làm ở phía giao diện (filteredJobs) → luôn tải đủ tin, không gửi bộ lọc lên API.
+      // Gửi bộ lọc ở đây sẽ dùng giá trị cũ (fetchJobs thường được gọi ngay sau setState) và làm rỗng danh sách gốc.
       params.append('limit', '500');
 
       const res = await fetch(`${API_BASE}/jobs?${params.toString()}`);
@@ -1809,51 +1807,23 @@ export default function App() {
           </div>
         </div>
 
-        {/* Global Navigation Tabs – Dành riêng cho Quản trị viên Admin (Cấu trúc Header -> Navigation -> Sidebar + Content) */}
-        {currentUser?.token && currentUser?.role === 'ADMIN' && (
-          <nav 
-            className="app-nav-container" 
-            style={{ 
-              width: '100%', 
-              maxWidth: 'none', 
-              margin: 0, 
-              padding: '8px 24px', 
-              display: 'flex', 
-              gap: 10, 
-              alignItems: 'center',
-              background: '#ffffff',
-              borderTop: '1px solid #F1F5F9',
-              boxSizing: 'border-box'
-            }}
-          >
-            <Button 
-              onClick={() => {
-                setActiveTab('home');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              variant={activeTab === 'home' ? 'primary' : 'secondary'}
-              style={{ padding: '7px 16px', fontSize: 13, whiteSpace: 'nowrap', flexShrink: 0, gap: 6 }}>
-              <Home size={15} /> Trang chủ
-            </Button>
-            <Button 
-              onClick={() => {
-                setActiveTab('jobs');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              variant={activeTab === 'jobs' ? 'primary' : 'secondary'}
-              style={{ padding: '7px 16px', fontSize: 13, whiteSpace: 'nowrap', flexShrink: 0, gap: 6 }}>
-              <Search size={15} /> Tìm việc làm
-            </Button>
-            <Button 
-              onClick={() => {
-                setActiveTab('admin');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              variant={activeTab === 'admin' ? 'primary' : 'secondary'}
-              style={{ padding: '7px 16px', fontSize: 13, whiteSpace: 'nowrap', flexShrink: 0, gap: 6 }}>
-              <Shield size={15} /> Bảng Quản Trị
-            </Button>
-          </nav>
+        {/* Admin xem trang công khai: chỉ để kiểm tra hiển thị, không thao tác như sinh viên/NTD */}
+        {currentUser?.token && currentUser?.role === 'ADMIN' && !isAdminWorkspace && (
+          <div style={{
+            width: '100%',
+            padding: '7px 24px',
+            background: '#F5F3FA',
+            borderTop: '1px solid #E9E5F3',
+            color: '#5B4E8A',
+            fontSize: 13,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            boxSizing: 'border-box'
+          }}>
+            <Eye size={15} />
+            <span>Bạn đang xem trang công khai với vai trò <strong>Quản trị viên</strong> — chế độ chỉ xem, không lưu tin hay ứng tuyển.</span>
+          </div>
         )}
       </header>
 
@@ -1924,7 +1894,7 @@ export default function App() {
                 onSelectJob={handleNavigateToJobDetail}
                 onApply={handleOpenApplyModal}
                 isSaved={(id) => savedJobIds.includes(id)}
-                onToggleSave={handleToggleSaveJob}
+                onToggleSave={currentUser?.role === 'ADMIN' ? undefined : handleToggleSaveJob}
                 onSearch={({ keyword, location, workType, category, salary, experience }) => {
                   setSearchKeyword(keyword || '');
                   setSelectedLocation(location || '');
@@ -2249,7 +2219,7 @@ export default function App() {
                       </span>
                     </button>
 
-                    <button
+                    {currentUser?.role !== 'ADMIN' && <button
                       onClick={() => setShowSavedOnly(true)}
                       style={{
                         padding: '8px 16px',
@@ -2278,7 +2248,7 @@ export default function App() {
                       }}>
                         {savedJobIds.length}
                       </span>
-                    </button>
+                    </button>}
                   </div>
 
                   <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
@@ -2315,7 +2285,7 @@ export default function App() {
                         key={job.id}
                         job={job}
                         isSaved={savedJobIds.includes(job.id)}
-                        onToggleSave={handleToggleSaveJob}
+                        onToggleSave={currentUser?.role === 'ADMIN' ? undefined : handleToggleSaveJob}
                         onSelectJob={handleNavigateToJobDetail}
                         onApply={handleOpenApplyModal}
                         onHoverStart={handlePreviewHoverStart}
@@ -2374,7 +2344,7 @@ export default function App() {
                 jobId={viewingJobId || selectedJob?.id || 4}
                 fallbackJob={selectedJob || jobs.find(j => j.id === (viewingJobId || 4)) || jobs[0]}
                 isSaved={savedJobIds.includes(viewingJobId || selectedJob?.id || 4)}
-                onToggleSave={handleToggleSaveJob}
+                onToggleSave={currentUser?.role === 'ADMIN' ? undefined : handleToggleSaveJob}
                 onBackToList={() => {
                   setActiveTab('jobs');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2418,7 +2388,7 @@ export default function App() {
                 employerId={selectedEmployerId}
                 currentUser={currentUser}
                 savedJobIds={savedJobIds}
-                onToggleSave={handleToggleSaveJob}
+                onToggleSave={currentUser?.role === 'ADMIN' ? undefined : handleToggleSaveJob}
                 onNavigateHome={() => {
                   setActiveTab('home');
                   window.scrollTo({ top: 0, behavior: 'smooth' });

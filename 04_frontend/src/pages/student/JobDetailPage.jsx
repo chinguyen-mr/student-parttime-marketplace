@@ -214,6 +214,7 @@ export default function JobDetailPage({
 
   // NTD role & ownership check
   const isEmployerRole = currentUser?.role === 'EMPLOYER';
+  const isAdminRole = currentUser?.role === 'ADMIN';
   const isMyJob = Boolean(
     isEmployerRole && (
       (currentJob?.employer_id && String(currentJob.employer_id) === String(currentUser?.id)) ||
@@ -740,7 +741,21 @@ export default function JobDetailPage({
 
             {/* NÚT ỨNG TUYỂN / NỘP ĐỀ XUẤT / ĐIỀU KIỆN TRƯỜNG 2 NHÀ TUYỂN DỤNG */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {isEmployerRole ? (
+              {isAdminRole ? (
+                /* Admin chỉ xem để kiểm tra tin, không ứng tuyển / lưu tin */
+                <div style={{
+                  background: '#F5F3FA',
+                  border: '1px solid #E9E5F3',
+                  color: '#5B4E8A',
+                  borderRadius: 10,
+                  padding: '12px 14px',
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  textAlign: 'center'
+                }}>
+                  Chế độ xem của Quản trị viên — không ứng tuyển hay lưu tin
+                </div>
+              ) : isEmployerRole ? (
                 isMyJob ? (
                   /* Trường 2: Tin của chính NTD -> Hiện nút Chỉnh sửa tin này (dẫn về Workspace) */
                   (() => {
@@ -860,7 +875,7 @@ export default function JobDetailPage({
               )}
 
               {/* NÚT LƯU VIỆC LÀM (k178: icon Bookmark, đổi màu, lưu LocalStorage) */}
-              <button
+              {!isAdminRole && <button
                 type="button"
                 onClick={handleBookmarkToggle}
                 style={{
@@ -888,7 +903,7 @@ export default function JobDetailPage({
               >
                 <Bookmark size={16} fill={isSaved ? '#7565A8' : 'none'} color={isSaved ? '#7565A8' : '#29263A'} />
                 {isSaved ? 'Đã lưu việc làm' : 'Lưu việc làm'}
-              </button>
+              </button>}
 
               <button
                 type="button"

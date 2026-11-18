@@ -207,11 +207,11 @@ export default function JobCard({
           )}
         </div>
 
-        <button
+        {onToggleSave && <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onToggleSave && onToggleSave(job);
+            onToggleSave(job);
           }}
           aria-label={isSaved ? 'Bỏ lưu việc làm' : 'Lưu việc làm'}
           aria-pressed={Boolean(isSaved)}
@@ -225,7 +225,7 @@ export default function JobCard({
           title={isSaved ? 'Đã lưu việc làm này' : 'Lưu việc làm'}
         >
           <Heart size={16} fill={isSaved ? 'currentColor' : 'none'} />
-        </button>
+        </button>}
       </div>
 
         {/* AI Schedule Matching Score Banner & Explainable Reasons (P0-03 & P0-05) */}

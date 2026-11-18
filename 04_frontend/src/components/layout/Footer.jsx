@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { API_BASE } from '../../config/api';
 
 export default function Footer({
   onSelectCategory,
@@ -7,6 +8,15 @@ export default function Footer({
   onOpenSupport,
   onNavigateAbout
 }) {
+  // Ngành nghề lấy từ danh mục admin quản lý (đã sắp theo số tin đang tuyển) → admin đổi thì footer đổi theo
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    fetch(`${API_BASE}/jobs/categories`)
+      .then(res => res.json())
+      .then(data => { if (data.success) setCategories(data.data.slice(0, 5)); })
+      .catch(() => {});
+  }, []);
+
   const handleNav = (tab) => {
     if (onNavigateTab) {
       onNavigateTab(tab);
@@ -191,17 +201,11 @@ export default function Footer({
               Việc làm theo ngành nghề
             </h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {[
-                { label: 'Kế toán', val: 'Kế toán' },
-                { label: 'Ngân hàng', val: 'Ngân hàng' },
-                { label: 'Phần mềm máy tính', val: 'Công nghệ thông tin' },
-                { label: 'IT Support / Help Desk', val: 'Công nghệ thông tin' },
-                { label: 'Thiết kế đồ họa', val: 'Thiết kế đồ họa' }
-              ].map(item => (
-                <li key={item.label}>
+              {categories.map(item => (
+                <li key={item.id}>
                   <button
                     type="button"
-                    onClick={() => handleCategory(item.val)}
+                    onClick={() => handleCategory(item.name)}
                     style={{
                       background: 'none',
                       border: 'none',
@@ -215,7 +219,7 @@ export default function Footer({
                     onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
                     onMouseLeave={(e) => e.currentTarget.style.color = '#C4B5FD'}
                   >
-                    {item.label}
+                    {item.name}
                   </button>
                 </li>
               ))}

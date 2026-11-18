@@ -192,6 +192,25 @@ router.get('/sitemap.xml', async (req, res) => {
     }
 });
 
+// GET /api/jobs/categories — ngành nghề đang hoạt động (do admin quản lý) kèm số tin đang tuyển
+router.get('/categories', async (req, res, next) => {
+    try {
+        const result = await db.query(`
+            SELECT c.id, c.name,
+                   (SELECT COUNT(*)::int FROM jobs j
+                     WHERE j.category = c.name
+                       AND (j.status = 'OPEN' OR j.status = 'PUBLISHED')
+                       AND j.moderation_status = 'APPROVED') AS job_count
+            FROM categories c
+            WHERE c.is_active = TRUE
+            ORDER BY job_count DESC, c.name ASC
+        `);
+        res.status(200).json({ success: true, data: result.rows });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // GET /api/jobs/:id/related (Lấy các công việc liên quan cùng ngành nghề / địa điểm)
 router.get('/:id/related', async (req, res, next) => {
     try {

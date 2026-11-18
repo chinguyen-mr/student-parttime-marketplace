@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Home, Sparkles } from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function ComingSoonPage({
@@ -205,27 +205,12 @@ export default function ComingSoonPage({
             alignItems: 'flex-start',
             textAlign: 'left',
             boxSizing: 'border-box',
+            // Nền giấy riêng cho khối chữ: chữ tối luôn nằm trên nền sáng (kể cả màn hẹp, khi phần tối của hình nền lấn vào)
+            backgroundColor: '#FFFFFF',
+            borderRadius: 20,
+            padding: 'clamp(20px, 3vw, 36px)',
           }}
         >
-          {/* Status Badge */}
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              backgroundColor: 'rgba(89, 70, 117, 0.08)',
-              border: '1px solid rgba(89, 70, 117, 0.2)',
-              borderRadius: 20,
-              padding: '6px 14px',
-              fontSize: 12.5,
-              fontWeight: 700,
-              color: '#594675',
-              marginBottom: 16,
-            }}
-          >
-            <Sparkles size={14} color="#F2A184" />
-            <span>Chức năng đang hoàn thiện</span>
-          </div>
 
           {/* COMING SOON Heading (Bold & Impactful) */}
           <h1
@@ -237,7 +222,6 @@ export default function ComingSoonPage({
               letterSpacing: '-0.04em',
               margin: '0 0 12px 0',
               textTransform: 'uppercase',
-              textShadow: '0 2px 6px rgba(34, 24, 51, 0.1)',
             }}
           >
             COMING
@@ -282,7 +266,6 @@ export default function ComingSoonPage({
               padding: '8px 18px',
               borderRadius: 10,
               marginBottom: 16,
-              boxShadow: '0 2px 8px rgba(242, 161, 132, 0.25)',
               maxWidth: '100%',
               lineHeight: 1.4,
             }}
@@ -336,7 +319,7 @@ export default function ComingSoonPage({
                   fontSize: 15,
                   fontWeight: 800,
                   cursor: 'pointer',
-                  boxShadow: '0 8px 24px rgba(89, 70, 117, 0.35)',
+                  boxShadow: '0 1px 2px rgba(15, 23, 42, 0.12)',
                   transition: 'all 0.2s ease',
                 }}
               >
@@ -362,7 +345,7 @@ export default function ComingSoonPage({
                 fontSize: 15,
                 fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: onBack ? '0 2px 8px rgba(0,0,0,0.06)' : '0 8px 24px rgba(89, 70, 117, 0.35)',
+                boxShadow: '0 1px 2px rgba(15, 23, 42, 0.12)',
                 transition: 'all 0.2s ease',
               }}
             >

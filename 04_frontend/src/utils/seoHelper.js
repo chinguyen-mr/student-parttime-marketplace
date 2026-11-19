@@ -202,7 +202,7 @@ export function formatJobDescription(job) {
   const title = job.title || 'Việc làm Part-time';
   const employer = job.employer_name || job.company_name || 'Doanh nghiệp uy tín';
   const location = job.location || 'TP.HCM';
-  const salary = job.salary_range || (job.salary ? `${job.salary} VNĐ` : 'Thỏa thuận');
+  const salary = job.salary_range || (Number(job.salary) ? `${Number(job.salary).toLocaleString('vi-VN')} đ` : 'Thỏa thuận');
   return `${title} tại ${employer}. Mức lương: ${salary}. Khu vực: ${location}. Ứng tuyển ngay trên JobNest.`;
 }
 

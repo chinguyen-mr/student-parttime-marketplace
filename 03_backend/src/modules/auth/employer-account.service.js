@@ -33,6 +33,7 @@ function validateLegalInfo(body = {}) {
     const company_name = str(body.company_name, 255);
     const errors = [];
     if (!company_name || company_name.length < 2) errors.push('Cần nhập tên pháp nhân (theo giấy chứng nhận đăng ký doanh nghiệp).');
+    else if (String(body.company_name).trim().replace(/\s+/g, ' ').length > 255) errors.push('Tên pháp nhân tối đa 255 ký tự.');
     const tax_code = normalizeTaxCode(body.tax_code);
     if (!tax_code) errors.push('Mã số thuế phải gồm 10 chữ số (hoặc 10 số + "-" + 3 số với chi nhánh).');
     if (errors.length) throw new AppError(errors[0], 400, errors);

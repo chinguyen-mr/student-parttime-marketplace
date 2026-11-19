@@ -10,7 +10,7 @@ export default function AccountAppealPanel({ email, password, appeal, apiBase = 
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [state, setState] = useState({ busy: false, error: '', done: false });
-  const pending = state.done || appeal?.status === 'PENDING';
+  const pending = state.done || appeal?.status === 'PENDING' || appeal?.status === 'IN_REVIEW';
 
   const submit = async () => {
     if (text.trim().length < 10) { setState(s => ({ ...s, error: 'Vui lòng trình bày nội dung khiếu nại (ít nhất 10 ký tự).' })); return; }
@@ -34,7 +34,7 @@ export default function AccountAppealPanel({ email, password, appeal, apiBase = 
   if (pending) {
     return (
       <div style={box} role="status">
-        <Clock3 size={15} style={{ verticalAlign: -3, color: '#B45309' }} /> <strong>Khiếu nại đang chờ Quản trị viên xử lý.</strong> Khi được chấp nhận, bạn có thể đăng nhập lại bình thường.
+        <Clock3 size={15} style={{ verticalAlign: -3, color: '#B45309' }} /> <strong>{appeal?.status === 'IN_REVIEW' ? 'Quản trị viên đang xem xét khiếu nại của bạn.' : 'Khiếu nại đang chờ Quản trị viên xử lý.'}</strong> Khi được chấp nhận, bạn có thể đăng nhập lại bình thường.
       </div>
     );
   }

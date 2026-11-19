@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { API_BASE } from '../../config/api';
 import { SHIFTS, normalizeSlots } from '../../components/student/AvailabilityEditor';
 import { DAY_SHORT, WEEK_ORDER } from '../../utils/jobDisplay';
+import useJobCategories from '../../hooks/useJobCategories';
 
 /** Tóm tắt lịch rảnh: "Sáng T2, T4 · Tối T5" */
 function summarizeSlots(slots) {
@@ -31,24 +32,33 @@ import {
   ChevronRight,
   Eye,
   HeartHandshake,
-  Layers
+  Layers,
+  Truck,
+  Factory,
+  ShoppingBag
 } from 'lucide-react';
 import JobListSkeleton from '../../components/common/JobListSkeleton';
 import EmptyState from '../../components/common/EmptyState';
 import JobCard from '../../components/common/JobCard';
 import { useTilt, Reveal, trackSpotlight } from '../../components/motion';
 
-// 8 Job Categories aligned with real DB categories
-const POPULAR_CATEGORIES = [
-  { id: 'it', name: 'Công nghệ thông tin', dbCategory: 'Công nghệ thông tin', icon: Code2, desc: 'Lập trình viên, Web, Tester, Data' },
-  { id: 'fnb', name: 'Nhà hàng / F&B', dbCategory: 'Nhà hàng / F&B', icon: Utensils, desc: 'Phục vụ, Pha chế, Phụ bếp' },
-  { id: 'sales', name: 'Bán hàng / Thu ngân', dbCategory: 'Bán hàng / Thu ngân', icon: Store, desc: 'Cửa hàng tiện lợi, Siêu thị, Shop' },
-  { id: 'tutor', name: 'Gia sư / Giáo dục', dbCategory: 'Gia sư / Giáo dục', icon: GraduationCap, desc: 'Dạy kèm Toán, Tiếng Anh, Trợ giảng' },
-  { id: 'design', name: 'Thiết kế đồ họa', dbCategory: 'Thiết kế đồ họa', icon: Palette, desc: 'Banner, Poster, Video Editor, UI' },
-  { id: 'marketing', name: 'Marketing / Truyền thông', dbCategory: 'Marketing / Truyền thông', icon: Megaphone, desc: 'Content Creator, Fanpage, Seeding' },
-  { id: 'event', name: 'Sự kiện / PG / PB', dbCategory: 'Sự kiện / PG / PB', icon: Users, desc: 'Hoạt náo viên, Lễ tân, Check-in' },
-  { id: 'admin', name: 'Hành chính / Văn phòng', dbCategory: 'Hành chính / Văn phòng', icon: Layers, desc: 'Nhập liệu, Trợ lý part-time, Soạn thảo' }
+// Biểu tượng + mô tả gợi ý cho thẻ ngành nghề (khớp theo từ khóa trong tên ngành do Admin đặt)
+const CATEGORY_HINTS = [
+  [/công nghệ|it\b|phần mềm/i, Code2, 'Lập trình, Web, Tester, Data'],
+  [/f&b|ăn uống|nhà hàng/i, Utensils, 'Phục vụ, Pha chế, Phụ bếp'],
+  [/bán lẻ|bán hàng|thu ngân/i, Store, 'Cửa hàng tiện lợi, Siêu thị, Thu ngân'],
+  [/giáo dục|đào tạo|gia sư/i, GraduationCap, 'Gia sư, Trợ giảng, Dạy kèm'],
+  [/thiết kế|multimedia|đồ họa/i, Palette, 'Banner, Video, Chỉnh sửa ảnh'],
+  [/marketing|truyền thông/i, Megaphone, 'Content, Fanpage, Sự kiện'],
+  [/hành chính|văn phòng/i, Layers, 'Nhập liệu, Trợ lý, Soạn thảo'],
+  [/logistics|giao nhận|kho/i, Truck, 'Giao hàng, Kho bãi, Đóng gói'],
+  [/sản xuất|kỹ thuật/i, Factory, 'Vận hành, Kiểm tra chất lượng'],
+  [/tiêu dùng|fmcg/i, ShoppingBag, 'PG/PB, Trưng bày, Khảo sát'],
 ];
+const categoryHint = (name) => {
+  const hit = CATEGORY_HINTS.find(([re]) => re.test(name || ''));
+  return hit ? { icon: hit[1], desc: hit[2] } : { icon: Briefcase, desc: 'Việc làm bán thời gian cho sinh viên' };
+};
 
 // Tiêu đề hero tách từng từ để hiện dần; [từ, có tô màu nhấn]
 const HERO_WORDS = 'Tìm việc làm thêm |phù hợp với lịch học| của bạn.'
@@ -119,6 +129,7 @@ export default function HomePage({
   }, [jobs, featuredTab]);
 
   // Compute category job counts from actual open jobs
+  const jobCategories = useJobCategories();
   const categoryCounts = useMemo(() => {
     const counts = {};
     if (Array.isArray(jobs)) {
@@ -152,17 +163,19 @@ export default function HomePage({
         onPointerLeave={onHeroLeave}
         style={{
           background: '#4E3E6B',
-          borderRadius: 20,
-          padding: '40px 40px 36px 40px',
-          marginBottom: 36,
+          // Dải tràn hết chiều ngang, sát header (bù padding 28px của main + 16px của container)
+          // → hero là nền trang, không phải "thẻ" bao lấy thẻ minh họa
+          margin: '-44px calc(50% - 50vw) 36px',
+          padding: '56px 40px 52px 40px',
           color: '#ffffff'
         }}
       >
-        {/* Lớp nền trang trí: lưới mờ + 2 quầng sáng lavender/đào (chỉ CSS, không WebGL) */}
-        <div className="jn-hero-grid" aria-hidden="true" />
+        {/* Lớp nền trang trí: 2 quầng sáng lavender/đào (chỉ CSS, không WebGL) */}
         <div className="jn-hero-glow jn-hero-glow--peach" aria-hidden="true" />
         <div className="jn-hero-glow jn-hero-glow--lav" aria-hidden="true" />
         <div className="jn-stack-md" style={{
+          maxWidth: 1160,
+          margin: '0 auto',
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 1.25fr) minmax(0, 0.95fr)',
           gap: 36,
@@ -201,7 +214,7 @@ export default function HomePage({
               {/* Chữ hiện dần từng từ (CSS animation, đọc được ngay cả khi tắt chuyển động) */}
               {HERO_WORDS.map(([w, accent], i) => (
                 <React.Fragment key={i}>
-                  <span className={accent ? 'jn-word jn-gradient-text' : 'jn-word'} style={{ '--i': i }}>{w}</span>{' '}
+                  <span className={accent ? 'jn-word jn-accent-text' : 'jn-word'} style={{ '--i': i }}>{w}</span>{' '}
                 </React.Fragment>
               ))}
             </h1>
@@ -260,7 +273,6 @@ export default function HomePage({
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
-                  boxShadow: '0 10px 24px -8px rgba(244, 185, 157, 0.7)',
                   transition: 'background-color 0.15s ease, transform 0.15s ease'
                 }}
                 onMouseEnter={(e) => {
@@ -327,14 +339,8 @@ export default function HomePage({
             </div>
           </div>
 
-          {/* Right Column: Interactive Schedule Matching Showcase — nghiêng 3D nhẹ + 2 chip nổi */}
+          {/* Right Column: Interactive Schedule Matching Showcase — nghiêng 3D nhẹ */}
           <div className="jn-hero-stage">
-          <span className="jn-float-chip" style={{ top: -16, right: 18 }} aria-hidden="true">
-            <CheckCircle2 size={14} color="#269A73" /> Không trùng lịch học
-          </span>
-          <span className="jn-float-chip" style={{ bottom: -14, left: -14, animationDelay: '-3s' }} aria-hidden="true">
-            <Sparkles size={14} color="#7565A8" /> Gợi ý theo lịch rảnh
-          </span>
           <div className="jn-hero-showcase" style={{
             background: '#FFFFFF',
             color: '#1F2937',
@@ -899,8 +905,10 @@ export default function HomePage({
           gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 285px), 1fr))',
           gap: 16
         }}>
-          {POPULAR_CATEGORIES.map((cat) => {
-            const IconComponent = cat.icon || Briefcase;
+          {jobCategories.map((dbCat) => {
+            const hint = categoryHint(dbCat.name);
+            const cat = { id: dbCat.id, name: dbCat.name, dbCategory: dbCat.name, desc: hint.desc };
+            const IconComponent = hint.icon;
             const count = categoryCounts[cat.dbCategory] || 0;
 
             return (

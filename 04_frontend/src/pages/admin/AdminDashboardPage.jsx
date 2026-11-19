@@ -169,7 +169,7 @@ export default function AdminDashboardPage({
               {loading ? '...' : <CountUp value={studentCount} />}
             </div>
           </div>
-          <div style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontSize: 13, color: '#64748B' }}>
             Tài khoản sinh viên
           </div>
         </div>
@@ -198,7 +198,7 @@ export default function AdminDashboardPage({
               {loading ? '...' : <CountUp value={employerCount} />}
             </div>
           </div>
-          <div style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontSize: 13, color: '#64748B' }}>
             Doanh nghiệp & NTD
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function AdminDashboardPage({
               {loading ? '...' : <CountUp value={totalJobsCount} />}
             </div>
           </div>
-          <div style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontSize: 13, color: '#64748B' }}>
             Tin đã tạo trên hệ thống
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function AdminDashboardPage({
               {loading ? '...' : <CountUp value={totalAppsCount} />}
             </div>
           </div>
-          <div style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontSize: 13, color: '#64748B' }}>
             Hồ sơ đã tiếp nhận
           </div>
         </div>
@@ -289,7 +289,7 @@ export default function AdminDashboardPage({
               {loading ? '...' : <CountUp value={pendingJobsCount} />}
             </div>
           </div>
-          <div style={{ fontSize: 11.5, color: pendingJobsCount > 0 ? '#B91C1C' : '#64748B', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontSize: 13, color: pendingJobsCount > 0 ? '#B91C1C' : '#64748B', fontWeight: 700 }}>
             {pendingJobsCount > 0 ? 'Cần duyệt ngay →' : 'Không có tin chờ duyệt'}
           </div>
         </div>
@@ -322,7 +322,7 @@ export default function AdminDashboardPage({
               {loading ? '...' : <CountUp value={openReportsCount} />}
             </div>
           </div>
-          <div style={{ fontSize: 11.5, color: openReportsCount > 0 ? '#B45309' : '#64748B', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontSize: 13, color: openReportsCount > 0 ? '#B45309' : '#64748B', fontWeight: 700 }}>
             {openReportsCount > 0 ? 'Cần giải quyết →' : 'Đã xử lý tất cả'}
           </div>
         </div>
@@ -351,9 +351,9 @@ export default function AdminDashboardPage({
         }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
                 Phân bố người dùng
-              </h3>
+              </h2>
               <button
                 type="button"
                 onClick={() => onNavigateTab && onNavigateTab('users')}
@@ -403,9 +403,9 @@ export default function AdminDashboardPage({
         }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
                 Tin tuyển dụng theo loại
-              </h3>
+              </h2>
               <button
                 type="button"
                 onClick={() => onNavigateTab && onNavigateTab('moderation')}
@@ -449,9 +449,9 @@ export default function AdminDashboardPage({
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
             Hoạt động quản trị gần đây
-          </h3>
+          </h2>
           <button
             onClick={() => onNavigateTab && onNavigateTab('logs')}
             style={{ fontSize: 12.5, fontWeight: 700, color: '#4F46E5', cursor: 'pointer', background: 'none', border: 'none' }}

@@ -10,7 +10,9 @@ export default function ForgotPasswordModal({
   initialEmail = '',
   apiBase = API_BASE,
 }) {
-  const [step, setStep] = useState('form'); // 'form' | 'completed'
+  const [step, setStep] = useState('form'); // 'form' (nhập email) | 'code' (mã + mật khẩu mới) | 'completed'
+  const [otp, setOtp] = useState('');
+  const [info, setInfo] = useState('');
   const [email, setEmail] = useState(initialEmail);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -31,6 +33,8 @@ export default function ForgotPasswordModal({
   const handleResetAndClose = () => {
     setStep('form');
     setEmail(initialEmail);
+    setOtp('');
+    setInfo('');
     setNewPassword('');
     setConfirmPassword('');
     setError('');
@@ -38,10 +42,10 @@ export default function ForgotPasswordModal({
     onClose();
   };
 
-  const handleDirectResetSubmit = async (e) => {
-    e.preventDefault();
+  // Bước 1: gửi mã xác nhận 6 số tới email
+  const sendCode = async () => {
     setError('');
-
+    setInfo('');
     const cleanEmail = email.trim();
     if (!cleanEmail) {
       setError('Vui lòng nhập địa chỉ email của bạn.');
@@ -51,8 +55,44 @@ export default function ForgotPasswordModal({
       setError('Định dạng email không hợp lệ. Vui lòng kiểm tra lại.');
       return;
     }
-    if (!newPassword || newPassword.length < 6) {
-      setError('Mật khẩu mới phải có ít nhất 6 ký tự.');
+    try {
+      setLoading(true);
+      const res = await fetch(`${apiBase}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.message || 'Không gửi được mã xác nhận. Vui lòng thử lại.');
+        return;
+      }
+      setOtp('');
+      setInfo(data.message || 'Đã gửi mã xác nhận tới email của bạn.');
+      setStep('code');
+    } catch (err) {
+      setError(formatApiError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bước 2: xác nhận mã và đặt mật khẩu mới
+  const handleDirectResetSubmit = async (e) => {
+    e.preventDefault();
+    if (step === 'form') {
+      sendCode();
+      return;
+    }
+    setError('');
+
+    const cleanEmail = email.trim();
+    if (!/^\d{6}$/.test(otp.trim())) {
+      setError('Mã xác nhận gồm 6 chữ số trong email.');
+      return;
+    }
+    if (!newPassword || newPassword.length < 8) {
+      setError('Mật khẩu mới phải có ít nhất 8 ký tự.');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -67,13 +107,14 @@ export default function ForgotPasswordModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: cleanEmail,
+          otp: otp.trim(),
           new_password: newPassword,
         }),
       });
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data.message || 'Không thể đặt lại mật khẩu. Vui lòng kiểm tra lại email.');
+        setError(data.message || 'Không thể đặt lại mật khẩu. Vui lòng kiểm tra lại mã xác nhận.');
         return;
       }
 
@@ -111,12 +152,12 @@ export default function ForgotPasswordModal({
             </div>
             <div>
               <h3 style={{ fontSize: 17, fontWeight: 800, color: '#30283A', margin: 0 }}>
-                {step === 'completed' ? 'Đặt Lại Mật Khẩu Thành Công' : 'Đặt Lại Mật Khẩu Nhanh'}
+                {step === 'completed' ? 'Đặt Lại Mật Khẩu Thành Công' : 'Quên Mật Khẩu'}
               </h3>
               <p style={{ fontSize: 12, color: '#777080', margin: '2px 0 0 0' }}>
-                {step === 'completed' 
-                  ? 'Tài khoản của bạn đã được cập nhật mật khẩu mới' 
-                  : 'Nhập email và thiết lập mật khẩu mới ngay'}
+                {step === 'completed'
+                  ? 'Tài khoản của bạn đã được cập nhật mật khẩu mới'
+                  : step === 'code' ? 'Nhập mã 6 số đã gửi tới email và mật khẩu mới' : 'Nhập email để nhận mã xác nhận'}
               </p>
             </div>
           </div>
@@ -149,8 +190,14 @@ export default function ForgotPasswordModal({
           </div>
         )}
 
-        {/* ================= BƯỚC 1: FORM ĐẶT LẠI MẬT KHẨU (KHÔNG CẦN OTP) ================= */}
-        {step === 'form' && (
+        {info && !error && step === 'code' && (
+          <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', borderRadius: 8, padding: '10px 14px', fontSize: 13, marginBottom: 16 }}>
+            {info}
+          </div>
+        )}
+
+        {/* ================= BƯỚC 1–2: EMAIL → MÃ XÁC NHẬN + MẬT KHẨU MỚI ================= */}
+        {(step === 'form' || step === 'code') && (
           <form onSubmit={handleDirectResetSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {/* Input Email */}
             <div>
@@ -164,6 +211,7 @@ export default function ForgotPasswordModal({
                   required
                   placeholder="ví dụ: student.test@vlu.edu.vn"
                   value={email}
+                  readOnly={step === 'code'}
                   onChange={(e) => setEmail(e.target.value)}
                   style={{
                     width: '100%',
@@ -182,6 +230,31 @@ export default function ForgotPasswordModal({
               </div>
             </div>
 
+            {step === 'code' && (<>
+            {/* Input Mã xác nhận */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                <label htmlFor="fp-otp" style={{ fontSize: 13, fontWeight: 700, color: '#334155' }}>
+                  Mã xác nhận <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <button type="button" onClick={sendCode} disabled={loading}
+                  style={{ background: 'none', border: 'none', padding: 0, fontSize: 12.5, fontWeight: 600, color: '#7565A8', textDecoration: 'underline', cursor: 'pointer' }}>
+                  Gửi lại mã
+                </button>
+              </div>
+              <input
+                id="fp-otp"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                required
+                placeholder="6 chữ số trong email"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                style={{ width: '100%', height: 40, padding: '0 14px', borderRadius: 8, border: '1.5px solid #cbd5e1', fontSize: 15, letterSpacing: otp ? 4 : 'normal', outline: 'none', background: '#ffffff' }}
+              />
+            </div>
+
             {/* Input Mật khẩu mới */}
             <div>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
@@ -192,7 +265,7 @@ export default function ForgotPasswordModal({
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  placeholder="Tối thiểu 6 ký tự"
+                  placeholder="Tối thiểu 8 ký tự"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   style={{
@@ -258,6 +331,8 @@ export default function ForgotPasswordModal({
               </div>
             </div>
 
+            </>)}
+
             <Button
               type="submit"
               variant="primary"
@@ -271,7 +346,7 @@ export default function ForgotPasswordModal({
                 borderColor: '#7565A8'
               }}
             >
-              Đặt lại mật khẩu
+              {step === 'form' ? 'Gửi mã xác nhận' : 'Đặt lại mật khẩu'}
             </Button>
 
             <div style={{ textAlign: 'center', marginTop: 6 }}>

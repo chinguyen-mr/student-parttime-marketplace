@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { formatSalary } from '../../utils/jobDisplay';
 import {
   Briefcase,
   Users,
@@ -231,10 +232,11 @@ export default function EmployerDashboardPage({
             gap: 4,
             padding: '4px 10px',
             borderRadius: 20,
-            fontSize: 12,
+            fontSize: 12.5,
             fontWeight: 700,
-            background: 'var(--color-warning-bg)',
-            color: 'var(--color-warning)',
+            whiteSpace: 'nowrap',
+            background: '#FEF3C7',
+            color: '#78350F',
             border: '1px solid var(--color-warning-border)'
           }}>
             <Clock size={12} /> Chờ duyệt
@@ -248,10 +250,11 @@ export default function EmployerDashboardPage({
             gap: 4,
             padding: '4px 10px',
             borderRadius: 20,
-            fontSize: 12,
+            fontSize: 12.5,
             fontWeight: 700,
-            background: 'var(--color-success-bg)',
-            color: 'var(--color-success)',
+            whiteSpace: 'nowrap',
+            background: '#DCFCE7',
+            color: '#14532D',
             border: '1px solid var(--color-success-border)'
           }}>
             <CheckCircle2 size={12} /> Đã chấp thuận
@@ -265,10 +268,11 @@ export default function EmployerDashboardPage({
             gap: 4,
             padding: '4px 10px',
             borderRadius: 20,
-            fontSize: 12,
+            fontSize: 12.5,
             fontWeight: 700,
-            background: 'var(--color-danger-bg)',
-            color: 'var(--color-danger)',
+            whiteSpace: 'nowrap',
+            background: '#FEE2E2',
+            color: '#7F1D1D',
             border: '1px solid var(--color-danger-border)'
           }}>
             <XCircle size={12} /> Từ chối
@@ -282,10 +286,11 @@ export default function EmployerDashboardPage({
             gap: 4,
             padding: '4px 10px',
             borderRadius: 20,
-            fontSize: 12,
+            fontSize: 12.5,
             fontWeight: 700,
+            whiteSpace: 'nowrap',
             background: '#F5F3FF',
-            color: '#6D28D9',
+            color: '#4C1D95',
             border: '1px solid #DDD6FE'
           }}>
             <ShieldCheck size={12} /> Hoàn thành
@@ -299,7 +304,8 @@ export default function EmployerDashboardPage({
             fontSize: 12,
             fontWeight: 600,
             background: '#F1F5F9',
-            color: '#64748B'
+            color: '#334155',
+            border: '1px solid #CBD5E1'
           }}>
             {{ REVIEWING: 'Đang xem xét', SHORTLISTED: 'Rút gọn', WITHDRAWN: 'Đã rút đơn' }[status] || status || 'Mới'}
           </span>
@@ -437,9 +443,9 @@ export default function EmployerDashboardPage({
                 </div>
               )}
 
-              <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ fontSize: 13, color: '#14532D', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-success)', display: 'inline-block' }} />
-                {kpiStats.activeJobs} tin đang tuyển dụng (RECRUITING)
+                {kpiStats.activeJobs} tin đang tuyển dụng
               </div>
             </div>
 
@@ -543,7 +549,7 @@ export default function EmployerDashboardPage({
               marginBottom: 18
             }}>
               <div>
-                <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
                   Hồ sơ ứng tuyển mới
                 </h2>
                 <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: 0 }}>
@@ -672,10 +678,11 @@ export default function EmployerDashboardPage({
                             display: 'inline-block',
                             padding: '3px 10px',
                             borderRadius: 12,
-                            fontSize: 11.5,
+                            fontSize: 12.5,
                             fontWeight: 700,
+                            whiteSpace: 'nowrap',
                             background: 'var(--color-accent-bg)',
-                            color: 'var(--color-primary)',
+                            color: '#594675',
                             border: '1px solid var(--color-secondary)'
                           }}>
                             Hồ sơ ứng tuyển
@@ -714,7 +721,7 @@ export default function EmployerDashboardPage({
                               fontWeight: 700,
                               color: 'var(--color-primary)',
                               cursor: 'pointer',
-                              display: 'inline-flex',
+                              display: 'inline-flex', whiteSpace: 'nowrap',
                               alignItems: 'center',
                               gap: 4,
                               transition: 'all 0.15s ease'
@@ -778,7 +785,7 @@ export default function EmployerDashboardPage({
               marginBottom: 18
             }}>
               <div>
-                <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
                   Tin tuyển dụng đang chạy
                 </h2>
                 <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: 0 }}>
@@ -869,19 +876,19 @@ export default function EmployerDashboardPage({
                         </div>
 
                         {/* Title */}
-                        <h4 style={{
-                          fontSize: 15,
+                        <h3 style={{
+                          fontSize: 16,
                           fontWeight: 800,
                           color: 'var(--color-text)',
                           margin: '0 0 6px 0',
                           lineHeight: 1.3
                         }}>
                           {job.title}
-                        </h4>
+                        </h3>
 
                         {/* Salary / Wage */}
                         <div style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 700, marginBottom: 8 }}>
-                          {job.salary || job.budget || 'Thỏa thuận theo năng lực'}
+                          {formatSalary(job)}
                         </div>
                       </div>
 

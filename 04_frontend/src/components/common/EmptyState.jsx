@@ -46,7 +46,7 @@ export default function EmptyState({
         <IconComponent size={32} />
       </div>
 
-      <h3
+      <h2
         style={{
           fontSize: 18,
           fontWeight: 700,
@@ -55,7 +55,7 @@ export default function EmptyState({
         }}
       >
         {title}
-      </h3>
+      </h2>
 
       <p
         style={{

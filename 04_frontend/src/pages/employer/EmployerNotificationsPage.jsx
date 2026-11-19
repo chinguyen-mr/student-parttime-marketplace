@@ -200,7 +200,7 @@ export default function EmployerNotificationsPage({
           }
         />
       ) : (
-        <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', padding: '4px 8px 8px', boxShadow: 'var(--shadow-sm)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
             <thead>
               <tr style={{ background: '#FAFAFD', borderBottom: '2px solid #F1F5F9', color: 'var(--color-text-secondary)', fontSize: 12.5, textTransform: 'uppercase' }}>
@@ -261,10 +261,12 @@ export default function EmployerNotificationsPage({
                         display: 'inline-block',
                         padding: '3px 10px',
                         borderRadius: 14,
-                        fontSize: 11.5,
+                        fontSize: 12.5,
                         fontWeight: 700,
+                        whiteSpace: 'nowrap',
                         background: isUnread ? '#FEF3C7' : '#F1F5F9',
-                        color: isUnread ? '#B45309' : '#64748B'
+                        color: isUnread ? '#78350F' : '#334155',
+                        border: isUnread ? '1px solid #FCD34D' : '1px solid #CBD5E1'
                       }}>
                         {isUnread ? 'Chưa đọc' : 'Đã đọc'}
                       </span>

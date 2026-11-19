@@ -70,3 +70,8 @@ Tài Liệu/
 
 # Ảnh tải về để sinh dữ liệu demo (tái tạo được)
 02_database/data_v3_files/_cache/
+
+# Wireframe: dữ liệu chụp & SVG sinh tự động (dựng lại bằng scripts/wireframes)
+05_wireframes/_capture/
+05_wireframes/screens/
+05_wireframes/figma/*.svg

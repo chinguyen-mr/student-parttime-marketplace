@@ -1,0 +1,1895 @@
+{
+ "R": "mwntv21x",
+ "results": [
+  {
+   "id": "TC_REG_STU_001",
+   "status": "PASS",
+   "note": "Tab Ứng viên mặc định, 6 ô nhập, có nút Đăng ký",
+   "src": "final_checks"
+  },
+  {
+   "id": "TC_REG_STU_002",
+   "status": "PASS",
+   "note": "400 Dữ liệu đăng ký không hợp lệ",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_STU_003",
+   "status": "PASS",
+   "note": "409 Email đã được sử dụng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_STU_004",
+   "status": "PASS",
+   "note": "Tạo 1 bản ghi",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_STU_005",
+   "status": "PASS",
+   "note": "role=STUDENT",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_STU_006",
+   "status": "PASS",
+   "note": "bcrypt hash",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_STU_007",
+   "status": "PASS",
+   "note": "400 sai định dạng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_STU_008",
+   "status": "PASS",
+   "note": "7→400, 8→201, 9→201",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_REG_STU_009",
+   "status": "PASS",
+   "note": "Lưu đúng dấu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_STU_010",
+   "status": "PASS",
+   "note": "Từ chối role=ADMIN (400)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_STU_001",
+   "status": "PASS",
+   "note": "Form Email + Mật khẩu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_STU_002",
+   "status": "PASS",
+   "note": "Đăng nhập, role STUDENT",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_STU_003",
+   "status": "PASS",
+   "note": "401 không lộ mật khẩu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_STU_004",
+   "status": "PASS",
+   "note": "403 vào API quản trị",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_STU_005",
+   "status": "PASS",
+   "note": "20 lần, p95=71ms, max=72ms, lỗi=0 (ngưỡng 1,5s)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_STU_006",
+   "status": "PASS",
+   "note": "400 thiếu mật khẩu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_STU_007",
+   "status": "PASS",
+   "note": "401 Email hoặc mật khẩu không chính xác",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_STU_008",
+   "status": "PASS",
+   "note": "401, không lộ lỗi SQL",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_STU_009",
+   "status": "PASS",
+   "note": "Mã 401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_STU_001",
+   "status": "PASS",
+   "note": "Menu có Đăng xuất",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_STU_002",
+   "status": "PASS",
+   "note": "logout 200, token cũ 401, đăng nhập lại dùng được",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_LOGOUT_STU_003",
+   "status": "PASS",
+   "note": "Về trạng thái khách, xóa phiên trình duyệt",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_STU_004",
+   "status": "PASS",
+   "note": "Đăng xuất 200; token cũ: /auth/me 401, API riêng tư 401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_STU_005",
+   "status": "PASS",
+   "note": "Trước khi đăng xuất thấy \"QA Sinh Viên S1\"; đăng xuất + Back: không còn, về trạng thái khách",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_LOGOUT_STU_006",
+   "status": "PASS",
+   "note": "Lần 1: 200; lần 2: 401 (từ chối an toàn, không cấp token mới); token cũ /auth/me 401",
+   "src": "placeholder_checks"
+  },
+  {
+   "id": "TC_RESET_STU_001",
+   "status": "PASS",
+   "note": "Form nhập Email khôi phục",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_STU_002",
+   "status": "PASS",
+   "note": "Không tìm thấy tài khoản đã đăng ký với địa chỉ email này.",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_RESET_STU_003",
+   "status": "PASS",
+   "note": "Mailpit nhận thư có mã 647036",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_RESET_STU_004",
+   "status": "PASS",
+   "note": "Đổi mật khẩu và đăng nhập bằng mật khẩu mới",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_STU_005",
+   "status": "PASS",
+   "note": "bcrypt hash",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_STU_006",
+   "status": "PASS",
+   "note": "Không OTP→400, OTP sai→400, mật khẩu giữ nguyên",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_RESET_STU_007",
+   "status": "PASS",
+   "note": "400 mã hết hạn",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_STU_008",
+   "status": "PASS",
+   "note": "7→400, 8→200, dùng lại mã→400",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_RESET_STU_009",
+   "status": "PASS",
+   "note": "Cả hai 400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_STU_001",
+   "status": "PASS",
+   "note": "Tìm việc + hồ sơ: 200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_STU_002",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_STU_003",
+   "status": "PASS",
+   "note": "403, dữ liệu giữ nguyên",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_STU_004",
+   "status": "PASS",
+   "note": "401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_STU_005",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_STU_006",
+   "status": "PASS",
+   "note": "Mã 403, không lộ dữ liệu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_EMP_001",
+   "status": "PASS",
+   "note": "Có lựa chọn Nhà tuyển dụng và form",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_EMP_002",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_EMP_003",
+   "status": "PASS",
+   "note": "409",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_EMP_004",
+   "status": "PASS",
+   "note": "Tạo tài khoản",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_EMP_005",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_EMP_006",
+   "status": "PASS",
+   "note": "bcrypt",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_EMP_007",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_EMP_008",
+   "status": "PASS",
+   "note": "Lưu đúng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REG_EMP_009",
+   "status": "PASS",
+   "note": "role=EMPLOYER",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_EMP_001",
+   "status": "PASS",
+   "note": "200, thấy tin của mình",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_EMP_002",
+   "status": "PASS",
+   "note": "403, tin không đổi",
+   "src": "final_checks"
+  },
+  {
+   "id": "TC_RBAC_EMP_003",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_EMP_004",
+   "status": "PASS",
+   "note": "403, trạng thái giữ nguyên",
+   "src": "cv_checks"
+  },
+  {
+   "id": "TC_RBAC_EMP_005",
+   "status": "PASS",
+   "note": "401, không tạo tin",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_EMP_006",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RBAC_EMP_007",
+   "status": "PASS",
+   "note": "id=-1→400, tin người khác→403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_EMP_001",
+   "status": "PASS",
+   "note": "Dùng chung form đăng nhập (tự nhận vai trò theo tài khoản)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_EMP_002",
+   "status": "PASS",
+   "note": "role EMPLOYER",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_EMP_003",
+   "status": "PASS",
+   "note": "401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_EMP_004",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_EMP_005",
+   "status": "PASS",
+   "note": "20 lần, p95=69ms, max=70ms, lỗi=0 (ngưỡng 1,5s)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_EMP_006",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_EMP_007",
+   "status": "PASS",
+   "note": "401, không lộ lỗi SQL",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_EMP_008",
+   "status": "PASS",
+   "note": "Mã 401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_EMP_001",
+   "status": "PASS",
+   "note": "Menu có Đăng xuất",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_EMP_002",
+   "status": "PASS",
+   "note": "logout 200, token cũ 401, đăng nhập lại dùng được",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_LOGOUT_EMP_003",
+   "status": "PASS",
+   "note": "Về trạng thái khách, xóa phiên trình duyệt",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_EMP_004",
+   "status": "PASS",
+   "note": "Đăng xuất 200; token cũ: /auth/me 401, API riêng tư 401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_EMP_005",
+   "status": "PASS",
+   "note": "Trước khi đăng xuất thấy \"Công ty Cầu Nối & Công Nghệ\"; đăng xuất + Back: không còn, về trạng thái khách",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_LOGOUT_EMP_006",
+   "status": "PASS",
+   "note": "Lần 1: 200; lần 2: 401 (từ chối an toàn, không cấp token mới); token cũ /auth/me 401",
+   "src": "placeholder_checks"
+  },
+  {
+   "id": "TC_RESET_EMP_001",
+   "status": "PASS",
+   "note": "Trang Nhà tuyển dụng → Đăng nhập → Quên mật khẩu: có ô Email khôi phục và nút Gửi mã xác nhận",
+   "src": "placeholder_checks"
+  },
+  {
+   "id": "TC_RESET_EMP_002",
+   "status": "PASS",
+   "note": "404 \"Không tìm thấy tài khoản đã đăng ký với địa chỉ email này.\"",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_EMP_003",
+   "status": "PASS",
+   "note": "Mailpit nhận mã 671967, hiệu lực 15 phút",
+   "src": "verify_blocked"
+  },
+  {
+   "id": "TC_RESET_EMP_004",
+   "status": "PASS",
+   "note": "Đổi mật khẩu và đăng nhập bằng mật khẩu mới",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_EMP_005",
+   "status": "PASS",
+   "note": "bcrypt hash",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_EMP_006",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_EMP_007",
+   "status": "PASS",
+   "note": "400 mã hết hạn",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_EMP_008",
+   "status": "PASS",
+   "note": "7 ký tự→400, 8 ký tự→200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_RESET_EMP_009",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_ADM_001",
+   "status": "PASS",
+   "note": "Admin dùng chung form đăng nhập",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_ADM_002",
+   "status": "PASS",
+   "note": "role ADMIN",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_ADM_003",
+   "status": "PASS",
+   "note": "401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_ADM_004",
+   "status": "PASS",
+   "note": "403 Admin không nộp đơn (ngoài quyền)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_ADM_005",
+   "status": "PASS",
+   "note": "20 lần, p95=75ms, max=78ms, lỗi=0 (ngưỡng 1,5s)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_ADM_006",
+   "status": "PASS",
+   "note": "401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_ADM_007",
+   "status": "PASS",
+   "note": "401, không lộ lỗi SQL",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGIN_ADM_008",
+   "status": "PASS",
+   "note": "Mã 401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_ADM_001",
+   "status": "PASS",
+   "note": "Menu có Đăng xuất",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_ADM_002",
+   "status": "PASS",
+   "note": "Đăng xuất 200; token cũ: /auth/me 401, API riêng tư 401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_ADM_003",
+   "status": "PASS",
+   "note": "Về trạng thái khách, xóa phiên trình duyệt",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_ADM_004",
+   "status": "PASS",
+   "note": "Đăng xuất 200; token cũ: /auth/me 401, API riêng tư 401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_LOGOUT_ADM_005",
+   "status": "PASS",
+   "note": "Trước khi đăng xuất thấy \"admin.test@vlu.edu.vn\"; đăng xuất + Back: không còn, về trạng thái khách",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_LOGOUT_ADM_006",
+   "status": "PASS",
+   "note": "Lần 1: 200; lần 2: 401 (từ chối an toàn, không cấp token mới); token cũ /auth/me 401",
+   "src": "placeholder_checks"
+  },
+  {
+   "id": "TC_JOB_CREATE_001",
+   "status": "PASS",
+   "note": "201",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_CREATE_002",
+   "status": "PASS",
+   "note": "Có mô tả, thời gian (hạn chót), lương, địa điểm",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_CREATE_003",
+   "status": "PASS",
+   "note": "400 chỉ rõ Mô tả",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_CREATE_004",
+   "status": "PASS",
+   "note": "Tạo tin",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_CREATE_005",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_CREATE_006",
+   "status": "PASS",
+   "note": "Tin chờ duyệt không có trong danh sách công khai",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_CREATE_007",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_CREATE_008",
+   "status": "PASS",
+   "note": "Cả 3 → 400",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_JOB_CREATE_009",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_CREATE_010",
+   "status": "PASS",
+   "note": "20.000 ký tự lưu đủ (không có giới hạn cấu hình, không cắt)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_CREATE_011",
+   "status": "PASS",
+   "note": "Lưu như văn bản (201), bảng jobs nguyên vẹn",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_001",
+   "status": "PASS",
+   "note": "Không có nút Sửa/Đóng trên tin người khác",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_002",
+   "status": "PASS",
+   "note": "200 (tin quay lại chờ duyệt)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_003",
+   "status": "PASS",
+   "note": "CLOSED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_004",
+   "status": "PASS",
+   "note": "Không còn trong tìm kiếm",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_005",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_006",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_007",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_008",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_009",
+   "status": "PASS",
+   "note": "Mã 200, vẫn CLOSED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_EDIT_010",
+   "status": "PASS",
+   "note": "400, giữ nguyên",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_001",
+   "status": "PASS",
+   "note": "41 tin, tất cả đã duyệt và đang tuyển",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_002",
+   "status": "PASS",
+   "note": "4 kết quả khớp",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_003",
+   "status": "PASS",
+   "note": "Có lọc ngành, khu vực, mức lương",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_004",
+   "status": "PASS",
+   "note": "5 tin CNTT",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_005",
+   "status": "PASS",
+   "note": "200, rỗng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_006",
+   "status": "PASS",
+   "note": "200 không cần token",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_007",
+   "status": "PASS",
+   "note": "20 lần, max=5ms",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_008",
+   "status": "PASS",
+   "note": "200, không lỗi Unicode",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_009",
+   "status": "PASS",
+   "note": "200, 0 kết quả, không lỗi SQL",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_010",
+   "status": "PASS",
+   "note": "0 / 1 / 41 tin, không trùng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_SEARCH_011",
+   "status": "PASS",
+   "note": "Tin đóng/chờ duyệt không lộ",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_FILTER_001",
+   "status": "PASS",
+   "note": "Có lọc ngành, khu vực, mức lương",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_FILTER_002",
+   "status": "PASS",
+   "note": "Đúng ngành",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_FILTER_003",
+   "status": "PASS",
+   "note": "6 tin đáp ứng cả 3 điều kiện",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_FILTER_004",
+   "status": "PASS",
+   "note": "Rỗng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_FILTER_005",
+   "status": "PASS",
+   "note": "20 lần, max=5ms",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_FILTER_006",
+   "status": "PASS",
+   "note": "Đúng địa điểm",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_FILTER_007",
+   "status": "PASS",
+   "note": "21 tin ≥ 80.000",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_FILTER_008",
+   "status": "PASS",
+   "note": "Có tin 80.000, không có 79.999 (≥)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_FILTER_009",
+   "status": "PASS",
+   "note": "-1→400, abc→400, min>max→400 (\"Mức lương lọc không hợp lệ: phải là số không âm\"); 80.000 hợp lệ → 20 tin đều ≥ 80.000",
+   "src": "audit_checks"
+  },
+  {
+   "id": "TC_JOB_DETAIL_001",
+   "status": "PASS",
+   "note": "200 đúng tin",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_DETAIL_002",
+   "status": "PASS",
+   "note": "Trang chi tiết hiện đúng mô tả, lương 30.000, địa điểm, hạn 14/12/2026",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_JOB_DETAIL_003",
+   "status": "PASS",
+   "note": "404",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_DETAIL_004",
+   "status": "PASS",
+   "note": "Khách bấm Ứng tuyển → chuyển sang đăng nhập",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_DETAIL_005",
+   "status": "PASS",
+   "note": "Danh sách → chi tiết → nút ứng tuyển liền mạch",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_DETAIL_006",
+   "status": "PASS",
+   "note": "404 với khách",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_DETAIL_007",
+   "status": "PASS",
+   "note": "Mã 404",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_DETAIL_008",
+   "status": "PASS",
+   "note": "400 tin đã đóng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLY_001",
+   "status": "PASS",
+   "note": "401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLY_002",
+   "status": "PASS",
+   "note": "Tin đang tuyển nhận đơn",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLY_003",
+   "status": "PASS",
+   "note": "Đơn chỉ có CV (không lời giới thiệu) được tiếp nhận",
+   "src": "cv_checks"
+  },
+  {
+   "id": "TC_APPLY_004",
+   "status": "PASS",
+   "note": "Vui lòng đính kèm CV hoặc viết vài dòng giới thiệu bản thân trước khi nộp đơn.",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_APPLY_005",
+   "status": "PASS",
+   "note": "Trạng thái PENDING",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLY_006",
+   "status": "PASS",
+   "note": "409, 1 đơn",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLY_007",
+   "status": "PASS",
+   "note": "20 đơn, max=22ms, lỗi=0",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLY_008",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLY_009",
+   "status": "PASS",
+   "note": "Lưu đơn + đoạn giới thiệu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLY_010",
+   "status": "PASS",
+   "note": "3MB→201, 3MB+1 byte→400",
+   "src": "cv_checks"
+  },
+  {
+   "id": "TC_APPLY_011",
+   "status": "PASS",
+   "note": "400 CV phải là file PDF.",
+   "src": "cv_checks"
+  },
+  {
+   "id": "TC_APPLY_012",
+   "status": "PASS",
+   "note": "Lời giới thiệu chứa thẻ script hiển thị dạng chữ (lưu: \"<script>alert(1)</script> Em có kinh nghiệm p\"), không hộp thoại, không chèn thẻ script vào trang",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_APPLICANTS_001",
+   "status": "PASS",
+   "note": "2 đơn đúng tin",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLICANTS_002",
+   "status": "PASS",
+   "note": "Xem được giới thiệu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLICANTS_003",
+   "status": "PASS",
+   "note": "Mã 403, không trả dữ liệu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLICANTS_004",
+   "status": "PASS",
+   "note": "Rỗng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLICANTS_005",
+   "status": "PASS",
+   "note": "Đơn mới xuất hiện",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLICANTS_006",
+   "status": "PASS",
+   "note": "Mã 404 — không tải được CV không thuộc quyền",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APPLICANTS_007",
+   "status": "PASS",
+   "note": "API: 0/1/25 đơn đúng số, không trùng, khớp DB; giao diện hiện đủ 25 ứng viên khác nhau",
+   "src": "audit_checks"
+  },
+  {
+   "id": "TC_APPLICANTS_008",
+   "status": "PASS",
+   "note": "Có giới thiệu, không có link CV",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_APPROVE_001",
+   "status": "PASS",
+   "note": "Mã 200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_APPROVE_002",
+   "status": "PASS",
+   "note": "409, giữ REJECTED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_APPROVE_003",
+   "status": "PASS",
+   "note": "ACCEPTED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_APPROVE_004",
+   "status": "PASS",
+   "note": "SV nhận thông báo",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_APPROVE_005",
+   "status": "PASS",
+   "note": "403, đơn giữ nguyên",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_APPROVE_006",
+   "status": "PASS",
+   "note": "409, không thông báo lặp",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_APPROVE_007",
+   "status": "PASS",
+   "note": "404",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_APPROVE_008",
+   "status": "PASS",
+   "note": "Lỗi 500; đơn giữ PENDING, 0 thông báo, 0 hợp đồng",
+   "src": "verify_blocked"
+  },
+  {
+   "id": "TC_APP_REJECT_001",
+   "status": "PASS",
+   "note": "200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_REJECT_002",
+   "status": "PASS",
+   "note": "Đơn được nhận qua luồng chọn ứng viên thật (ACCEPTED); từ chối → 409, giữ ACCEPTED",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_APP_REJECT_003",
+   "status": "PASS",
+   "note": "REJECTED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_REJECT_004",
+   "status": "PASS",
+   "note": "SV nhận thông báo",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_REJECT_005",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_REJECT_006",
+   "status": "PASS",
+   "note": "200, không sinh thông báo trùng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_REJECT_007",
+   "status": "PASS",
+   "note": "404",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_APP_REJECT_008",
+   "status": "PASS",
+   "note": "Lỗi 500; đơn giữ PENDING, không phát thông báo",
+   "src": "verify_blocked"
+  },
+  {
+   "id": "TC_JOB_STATUS_001",
+   "status": "PASS",
+   "note": "3 tin thật đi qua luồng (DB OPEN/FILLED/COMPLETED); giao diện hiện đúng nhãn Đang tuyển / Đủ người / Đã hoàn thành. Lưu ý: Đủ người & Hoàn thành do hệ thống tự chuyển, không có nút đổi tay",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_JOB_STATUS_002",
+   "status": "PASS",
+   "note": "FILLED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_STATUS_003",
+   "status": "PASS",
+   "note": "400, giữ OPEN",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_JOB_STATUS_004",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_STATUS_005",
+   "status": "PASS",
+   "note": "COMPLETED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_STATUS_006",
+   "status": "PASS",
+   "note": "200, giữ FILLED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_STATUS_007",
+   "status": "PASS",
+   "note": "400, giữ COMPLETED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_STATUS_008",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_EMP_001",
+   "status": "PASS",
+   "note": "Hợp đồng COMPLETED, mở đánh giá",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_EMP_002",
+   "status": "PASS",
+   "note": "Có quyền (eligibility 200)",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_EMP_003",
+   "status": "PASS",
+   "note": "Form đánh giá NTD có 5 biểu tượng sao chọn được + ô bình luận",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_REVIEW_EMP_004",
+   "status": "PASS",
+   "note": "Lưu đúng job + NTD",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_EMP_005",
+   "status": "PASS",
+   "note": "400 chưa hoàn thành",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_EMP_006",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_EMP_007",
+   "status": "PASS",
+   "note": "0 và 6 sao → 400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_EMP_008",
+   "status": "PASS",
+   "note": "Thẻ script bị loại khi lưu: \"alert(1) Phản hồi nhanh, rõ ràng\"; React escape khi hiển thị",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_STU_001",
+   "status": "PASS",
+   "note": "COMPLETED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_STU_002",
+   "status": "PASS",
+   "note": "NTD khác: 400; chủ tin: 201; chỉ 1 đánh giá trong phạm vi tin",
+   "src": "placeholder_checks"
+  },
+  {
+   "id": "TC_REVIEW_STU_003",
+   "status": "PASS",
+   "note": "Form đánh giá có đúng 5 sao + ô bình luận",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_REVIEW_STU_004",
+   "status": "PASS",
+   "note": "Lưu đánh giá",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_STU_005",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_STU_006",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_STU_007",
+   "status": "PASS",
+   "note": "400/400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_STU_008",
+   "status": "PASS",
+   "note": "Bình luận HTML hiển thị dạng chữ: không chạy onerror, không tạo thẻ <img>",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_NOTICE_STU_001",
+   "status": "PASS",
+   "note": "Có thông báo",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_STU_002",
+   "status": "PASS",
+   "note": "Có thông báo",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_STU_003",
+   "status": "PASS",
+   "note": "Nội dung khớp ACCEPTED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_STU_004",
+   "status": "PASS",
+   "note": "Lỗi 500; đơn giữ PENDING, không phát thông báo",
+   "src": "verify_blocked"
+  },
+  {
+   "id": "TC_NOTICE_STU_005",
+   "status": "PASS",
+   "note": "SV khác không thấy",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_STU_006",
+   "status": "PASS",
+   "note": "Không sinh thông báo",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_EMP_001",
+   "status": "PASS",
+   "note": "Đơn ghi trong DB",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_EMP_002",
+   "status": "PASS",
+   "note": "NTD có thông báo đơn mới",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_EMP_003",
+   "status": "PASS",
+   "note": "Thông báo trỏ APPLICATION#594: \"Một sinh viên vừa nộp hồ sơ ứng tuyển vào vị trí \"[QA-AUTO m\"",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_EMP_004",
+   "status": "PASS",
+   "note": "Không thêm thông báo",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_EMP_005",
+   "status": "PASS",
+   "note": "NTD khác không nhận",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_NOTICE_EMP_006",
+   "status": "PASS",
+   "note": "0 thông báo cho cùng đơn",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_VIEW_001",
+   "status": "PASS",
+   "note": "Hồ sơ của chính mình",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_VIEW_002",
+   "status": "PASS",
+   "note": "Khớp DB",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_VIEW_003",
+   "status": "PASS",
+   "note": "Mã 403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_VIEW_004",
+   "status": "PASS",
+   "note": "200 hồ sơ trống",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_VIEW_005",
+   "status": "PASS",
+   "note": "401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_VIEW_006",
+   "status": "PASS",
+   "note": "Hiển thị đúng dấu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_EDIT_001",
+   "status": "PASS",
+   "note": "Mở form",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_EDIT_002",
+   "status": "PASS",
+   "note": "400 \"Số điện thoại không hợp lệ.\", dữ liệu cũ giữ nguyên",
+   "src": "verify_blocked"
+  },
+  {
+   "id": "TC_PROFILE_STU_EDIT_003",
+   "status": "PASS",
+   "note": "Lưu tên mới",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_EDIT_004",
+   "status": "PASS",
+   "note": "400, giữ dữ liệu cũ",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_EDIT_005",
+   "status": "PASS",
+   "note": "SV khác không bị sửa",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_EDIT_006",
+   "status": "PASS",
+   "note": "255→200, 256→400",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_PROFILE_STU_EDIT_007",
+   "status": "PASS",
+   "note": "Unicode đúng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_STU_EDIT_008",
+   "status": "PASS",
+   "note": "role giữ STUDENT",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_VIEW_001",
+   "status": "PASS",
+   "note": "Hồ sơ NTD",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_VIEW_002",
+   "status": "PASS",
+   "note": "Khớp DB",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_VIEW_003",
+   "status": "PASS",
+   "note": "Mã 200, chỉ dữ liệu công khai",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_VIEW_004",
+   "status": "PASS",
+   "note": "200 hồ sơ ít dữ liệu",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_VIEW_005",
+   "status": "PASS",
+   "note": "401",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_VIEW_006",
+   "status": "PASS",
+   "note": "DB và trang hồ sơ hiển thị nguyên văn \"Công ty Cầu Nối & Công Nghệ\"",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_PROFILE_EMP_EDIT_001",
+   "status": "PASS",
+   "note": "200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_EDIT_002",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_EDIT_003",
+   "status": "PASS",
+   "note": "Lưu tên mới",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_EDIT_004",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_EDIT_005",
+   "status": "PASS",
+   "note": "NTD khác không đổi",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_EDIT_006",
+   "status": "PASS",
+   "note": "Tên hiển thị doanh nghiệp tối đa 255 ký tự.",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_PROFILE_EMP_EDIT_007",
+   "status": "PASS",
+   "note": "Đúng Unicode",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_PROFILE_EMP_EDIT_008",
+   "status": "PASS",
+   "note": "Không đổi role/xác minh",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_MOD_QUEUE_001",
+   "status": "PASS",
+   "note": "200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_MOD_QUEUE_002",
+   "status": "PASS",
+   "note": "Có tin chờ, tất cả PENDING",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_MOD_QUEUE_003",
+   "status": "PASS",
+   "note": "Xem chi tiết",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_MOD_QUEUE_004",
+   "status": "PASS",
+   "note": "Không lộ",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_MOD_QUEUE_005",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_MOD_QUEUE_006",
+   "status": "PASS",
+   "note": "Tạm ẩn 10 tin chờ; API 0 tin, giao diện hiện \"Hàng đợi kiểm duyệt đang trống\"",
+   "src": "verify_blocked"
+  },
+  {
+   "id": "TC_MOD_QUEUE_007",
+   "status": "PASS",
+   "note": "404",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_USER_ADMIN_001",
+   "status": "PASS",
+   "note": "200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_USER_ADMIN_002",
+   "status": "PASS",
+   "note": "Có tài khoản thử",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_USER_ADMIN_003",
+   "status": "PASS",
+   "note": "Không có API xóa / đổi vai trò (404); giao diện không có nút ngoài phạm vi (☰ Chọn mục, Tổng quan, Người dùng, Xác minh doanh nghiệp, Khiếu nại tài khoản, Kiểm duyệt tin…)",
+   "src": "placeholder_checks"
+  },
+  {
+   "id": "TC_USER_ADMIN_004",
+   "status": "PASS",
+   "note": "Khóa → BANNED, mở lại được",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_USER_ADMIN_005",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_USER_ADMIN_006",
+   "status": "PASS",
+   "note": "Rỗng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_USER_ADMIN_007",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_USER_ADMIN_008",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_MODERATE_001",
+   "status": "PASS",
+   "note": "Xuất hiện",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_MODERATE_002",
+   "status": "PASS",
+   "note": "APPROVED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_MODERATE_003",
+   "status": "PASS",
+   "note": "Công khai sau duyệt",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_MODERATE_004",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_MODERATE_005",
+   "status": "PASS",
+   "note": "Lưu lý do",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_MODERATE_006",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_MODERATE_007",
+   "status": "PASS",
+   "note": "404",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_JOB_MODERATE_008",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_EMP_VERIFY_001",
+   "status": "PASS",
+   "note": "Xem chi tiết",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_EMP_VERIFY_002",
+   "status": "PASS",
+   "note": "200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_EMP_VERIFY_003",
+   "status": "PASS",
+   "note": "VERIFIED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_EMP_VERIFY_004",
+   "status": "PASS",
+   "note": "NTD nhận thông báo",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_EMP_VERIFY_005",
+   "status": "PASS",
+   "note": "Lưu REJECTED + lý do \"Giấy phép kinh doanh không khớp mã số thuế\", NTD nhận thông báo (gửi hồ sơ qua API: 200/400, đưa về chờ duyệt bằng SQL)",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_EMP_VERIFY_006",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_EMP_VERIFY_007",
+   "status": "PASS",
+   "note": "400, trạng thái nhất quán",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_EMP_VERIFY_008",
+   "status": "PASS",
+   "note": "Lỗi 500; giữ PENDING, không có thông báo xác minh",
+   "src": "verify_blocked"
+  },
+  {
+   "id": "TC_COMPLAINT_001",
+   "status": "PASS",
+   "note": "200, có khiếu nại thử",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_COMPLAINT_002",
+   "status": "PASS",
+   "note": "Nội dung + tài khoản đúng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_COMPLAINT_003",
+   "status": "PASS",
+   "note": "Nhận xử lý → IN_REVIEW, lọc \"Đang xử lý\" thấy; rồi chấp nhận mở khóa; đã có kết quả không đổi lại được",
+   "src": "verify_blocked"
+  },
+  {
+   "id": "TC_COMPLAINT_004",
+   "status": "PASS",
+   "note": "Lưu APPROVED, tra cứu lại được, tài khoản mở khóa",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_COMPLAINT_005",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_COMPLAINT_006",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_COMPLAINT_007",
+   "status": "PASS",
+   "note": "404",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_VIOLATION_001",
+   "status": "PASS",
+   "note": "200, có báo cáo thử",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_VIOLATION_002",
+   "status": "PASS",
+   "note": "Nội dung đúng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_VIOLATION_003",
+   "status": "PASS",
+   "note": "200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_VIOLATION_004",
+   "status": "PASS",
+   "note": "RESOLVED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_VIOLATION_005",
+   "status": "PASS",
+   "note": "Ghi DISMISS",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_VIOLATION_006",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_VIOLATION_007",
+   "status": "PASS",
+   "note": "404",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_VIOLATION_008",
+   "status": "PASS",
+   "note": "409, số lần xử lý giữ 1",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_REVIEW_MOD_001",
+   "status": "PASS",
+   "note": "200, có đánh giá chờ",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_MOD_002",
+   "status": "PASS",
+   "note": "200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_MOD_003",
+   "status": "PASS",
+   "note": "Không công khai",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_MOD_004",
+   "status": "PASS",
+   "note": "PUBLISHED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_MOD_005",
+   "status": "PASS",
+   "note": "REJECTED",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_MOD_006",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_MOD_007",
+   "status": "PASS",
+   "note": "Không lộ nội dung",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_REVIEW_MOD_008",
+   "status": "PASS",
+   "note": "409",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_CATEGORY_001",
+   "status": "PASS",
+   "note": "200",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_CATEGORY_002",
+   "status": "PASS",
+   "note": "Tạo",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_CATEGORY_003",
+   "status": "PASS",
+   "note": "Đổi tên",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_CATEGORY_004",
+   "status": "PASS",
+   "note": "Xóa ngành chưa dùng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_CATEGORY_005",
+   "status": "PASS",
+   "note": "409, 1 bản ghi",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_CATEGORY_006",
+   "status": "PASS",
+   "note": "400",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_CATEGORY_007",
+   "status": "PASS",
+   "note": "Unicode đúng",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_CATEGORY_008",
+   "status": "PASS",
+   "note": "Không thể xóa: còn 33 tin tuyển dụng thuộc ngành này. Hãy tắt hoạt động ngành thay vì xóa.",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_CATEGORY_009",
+   "status": "PASS",
+   "note": "Ngành nghề \"F&B / DỊCH VỤ ĂN UỐNG\" đã tồn tại.",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_CATEGORY_010",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_AUDIT_LOG_001",
+   "status": "PASS",
+   "note": "50 bản ghi",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_AUDIT_LOG_002",
+   "status": "PASS",
+   "note": "Dòng nhật ký: 00:38:06 20/11/2026 Quản trị viên Hệ thống admin.test@vlu.edu.vn Duyệt tin tuyển dụng Tin tuyển dụng: [QA-AUTO",
+   "src": "strict_checks"
+  },
+  {
+   "id": "TC_AUDIT_LOG_003",
+   "status": "PASS",
+   "note": "22 bản ghi, đều trong khoảng",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_AUDIT_LOG_004",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_AUDIT_LOG_005",
+   "status": "PASS",
+   "note": "Chỉ APPROVE_JOB",
+   "src": "run_api/rerun/run_ui"
+  },
+  {
+   "id": "TC_AUDIT_LOG_006",
+   "status": "PASS",
+   "note": "27 bản ghi trong ngày 2026-11-20",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_AUDIT_LOG_007",
+   "status": "PASS",
+   "note": "Khoảng thời gian không hợp lệ: \"Từ ngày\" phải trước hoặc bằng \"Đến ngày\"",
+   "src": "verify_results"
+  },
+  {
+   "id": "TC_AUDIT_LOG_008",
+   "status": "PASS",
+   "note": "403",
+   "src": "run_api/rerun/run_ui"
+  }
+ ],
+ "ctx": {
+  "JOB_PUBLIC": 259,
+  "JOB_PENDING": 262,
+  "SV1": "qa-sva-mwntv21x@example.test",
+  "E1": "qa-ntda-mwntv21x@example.test"
+ }
+}

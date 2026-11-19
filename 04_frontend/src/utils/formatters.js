@@ -25,6 +25,7 @@ export const STATUS_MAP = {
   OPEN: { label: 'Đang mở', color: '#047857', bg: '#D1FAE5', border: '#A7F3D0' },
   DRAFT: { label: 'Bản nháp', color: '#4B5563', bg: '#F3F4F6', border: '#E5E7EB' },
   CLOSED: { label: 'Đã đóng', color: '#B91C1C', bg: '#FEE2E2', border: '#FECACA' },
+  FILLED: { label: 'Đủ người', color: '#334155', bg: '#F1F5F9', border: '#CBD5E1' },
   EXPIRED: { label: 'Hết hạn', color: '#B45309', bg: '#FEF3C7', border: '#FDE68A' },
 
   // Job Types (chỉ Part-time và Full-time)

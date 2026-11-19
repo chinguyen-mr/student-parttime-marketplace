@@ -1,5 +1,8 @@
 const { AppError } = require('../../utils/app-error');
 
+// Chính sách mật khẩu dùng chung cho đăng ký, khôi phục và đổi mật khẩu
+const MIN_PASSWORD_LENGTH = 8;
+
 function validateRegister(req, res, next) {
     const { 
         email, 
@@ -16,8 +19,8 @@ function validateRegister(req, res, next) {
         errors.push('Email không hợp lệ hoặc bị bỏ trống');
     }
 
-    if (!password || String(password).length < 6) {
-        errors.push('Mật khẩu bắt buộc và phải có ít nhất 6 ký tự');
+    if (!password || String(password).length < MIN_PASSWORD_LENGTH) {
+        errors.push(`Mật khẩu bắt buộc và phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`);
     }
 
     const name = full_name || representative_name;
@@ -74,20 +77,20 @@ function validateForgotPassword(req, res, next) {
 }
 
 function validateResetPassword(req, res, next) {
-    const { token, email, new_password, password } = req.body;
+    const { token, otp, email, new_password, password } = req.body;
     const targetPassword = new_password || password;
     const errors = [];
 
-    if (!token && !email) {
-        errors.push('Vui lòng cung cấp email tài khoản hoặc mã token');
+    if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        errors.push('Địa chỉ email không hợp lệ hoặc bị để trống');
     }
 
-    if (email && (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))) {
-        errors.push('Địa chỉ email không hợp lệ');
+    if (!String(otp || token || '').trim()) {
+        errors.push('Vui lòng nhập mã xác nhận đã gửi tới email');
     }
 
-    if (!targetPassword || typeof targetPassword !== 'string' || targetPassword.length < 6) {
-        errors.push('Mật khẩu mới bắt buộc và phải có ít nhất 6 ký tự');
+    if (!targetPassword || typeof targetPassword !== 'string' || targetPassword.length < MIN_PASSWORD_LENGTH) {
+        errors.push(`Mật khẩu mới bắt buộc và phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`);
     }
 
     if (errors.length > 0) {
@@ -98,6 +101,7 @@ function validateResetPassword(req, res, next) {
 }
 
 module.exports = {
+    MIN_PASSWORD_LENGTH,
     validateRegister,
     validateLogin,
     validateForgotPassword,

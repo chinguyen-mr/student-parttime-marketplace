@@ -6,7 +6,6 @@ import {
   AlertTriangle,
   Tag,
   History,
-  Search,
   Shield,
   Star,
   Building2
@@ -30,7 +29,6 @@ export default function AdminPortal({
   initialTab = 'dashboard',
   onNavigateHome,
   onNavigateLogin,
-  onNavigateMarketplace,
   showToast
 }) {
   // Navigation State inside Admin Workspace:
@@ -148,7 +146,7 @@ export default function AdminPortal({
   return (
     <div className="admin-portal-container" style={{
       width: '100%',
-      minHeight: 'calc(100vh - 116px)',
+      minHeight: 'calc(100vh - var(--app-header-h, 74px))',
       background: '#F8FAFC',
       boxSizing: 'border-box'
     }}>
@@ -189,7 +187,7 @@ export default function AdminPortal({
       <div className="employer-grid-layout" style={{
         display: 'grid',
         gridTemplateColumns: '260px minmax(0, 1fr)',
-        minHeight: 'calc(100vh - 116px)',
+        minHeight: 'calc(100vh - var(--app-header-h, 74px))',
         alignItems: 'stretch',
         width: '100%'
       }}>
@@ -200,70 +198,65 @@ export default function AdminPortal({
             width: 260,
             background: '#ffffff',
             borderRight: '1px solid var(--color-border-hover)',
-            padding: '24px 16px',
+            padding: '18px 14px 16px',
             boxSizing: 'border-box',
+            // Cố định ngay dưới header, cao đúng phần còn lại của màn hình: menu đứng yên khi cuộn nội dung
             position: 'sticky',
-            top: 116,
-            height: 'calc(100vh - 116px)',
+            top: 'var(--app-header-h, 74px)',
+            height: 'calc(100vh - var(--app-header-h, 74px))',
+            display: 'flex',
+            flexDirection: 'column',
             overflowY: 'auto'
           }}
         >
           {/* PHẦN THÔNG TIN TÀI KHOẢN QUẢN TRỊ */}
           <div style={{
-            display: 'flex',
-            flexDirection: 'column',
+            display: 'grid',
+            gridTemplateColumns: '48px minmax(0, 1fr)',
+            columnGap: 12,
+            rowGap: 8,
             alignItems: 'center',
-            textAlign: 'center',
-            paddingBottom: 16,
-            marginBottom: 16,
-            borderBottom: '1.5px solid #E2E8F0'
+            padding: '0 6px 14px',
+            marginBottom: 12,
+            borderBottom: '1px solid #E2E8F0',
+            flexShrink: 0
           }}>
             <div style={{
-              width: 58,
-              height: 58,
+              width: 48,
+              height: 48,
               borderRadius: '50%',
               background: '#7565A8',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: 800,
-              marginBottom: 10,
-              boxShadow: '0 4px 12px rgba(117, 101, 168, 0.25)',
               border: '2px solid #D8B4FE'
             }}>
               {currentUser?.full_name ? currentUser.full_name.trim().charAt(0).toUpperCase() : 'Q'}
             </div>
 
-            <h3 style={{
-              fontSize: 14.5,
-              fontWeight: 800,
-              color: '#0F172A',
-              margin: '0 0 4px 0',
-              lineHeight: 1.3
-            }}>
-              {currentUser?.full_name || 'Quản trị viên Hệ thống'}
-            </h3>
-
-            <div style={{
-              fontSize: 12,
-              color: '#64748B',
-              marginBottom: 8,
-              wordBreak: 'break-all'
-            }}>
-              {currentUser?.email || 'admin.test@vlu.edu.vn'}
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', lineHeight: 1.3, overflowWrap: 'anywhere' }}>
+                {currentUser?.full_name || 'Quản trị viên Hệ thống'}
+              </div>
+              <div style={{ fontSize: 13, color: '#475569', marginTop: 2, overflowWrap: 'anywhere' }}>
+                {currentUser?.email || 'admin.test@vlu.edu.vn'}
+              </div>
             </div>
 
             <span style={{
+              gridColumn: '1 / -1',
+              justifySelf: 'start',
               display: 'inline-flex',
               alignItems: 'center',
               gap: 4,
               background: '#FEE2E2',
               color: '#B91C1C',
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 800,
-              padding: '3px 10px',
+              padding: '4px 10px',
               borderRadius: 12,
               border: '1.5px solid #FCA5A5'
             }}>
@@ -272,7 +265,7 @@ export default function AdminPortal({
           </div>
 
           {/* Sidebar Menu Items */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {[
               { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
               { id: 'users', label: 'Người dùng', icon: Users },
@@ -297,13 +290,13 @@ export default function AdminPortal({
                     display: 'flex',
                     alignItems: 'center',
                     gap: 12,
-                    padding: '10px 14px',
-                    borderRadius: 8,
+                    padding: '11px 14px',
+                    borderRadius: 10,
                     border: isActive ? '1px solid #D8B4FE' : '1px solid transparent',
                     background: isActive ? '#F1EEF8' : 'transparent',
                     color: isActive ? '#7565A8' : '#334155',
                     fontWeight: isActive ? 700 : 500,
-                    fontSize: 13.5,
+                    fontSize: 15,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
                     textAlign: 'left',
@@ -323,51 +316,13 @@ export default function AdminPortal({
                     }
                   }}
                 >
-                  <IconComp size={18} color={isActive ? '#7565A8' : '#64748B'} style={{ flexShrink: 0 }} />
+                  <IconComp size={20} color={isActive ? '#7565A8' : '#64748B'} style={{ flexShrink: 0 }} />
                   <span style={{ flex: 1, whiteSpace: 'nowrap' }}>{item.label}</span>
                 </button>
               );
             })}
           </nav>
 
-          {/* Quick Switch to Marketplace */}
-          <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #E2E8F0' }}>
-            <button
-              type="button"
-              onClick={() => {
-                if (onNavigateMarketplace) onNavigateMarketplace();
-                else if (onNavigateHome) onNavigateHome();
-              }}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                padding: '10px 12px',
-                borderRadius: 8,
-                border: '1.5px dashed #64748B',
-                background: '#F8FAFC',
-                color: '#334155',
-                fontSize: 12.5,
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#F1F5F9';
-                e.currentTarget.style.borderColor = '#000000';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#F8FAFC';
-                e.currentTarget.style.borderColor = '#64748B';
-              }}
-              title="Chuyển sang xem Thị trường việc làm công khai"
-            >
-              <Search size={14} color="#4F46E5" />
-              <span>Khám phá thị trường</span>
-            </button>
-          </div>
         </aside>
 
         {/* ================= RIGHT MAIN CONTENT AREA (FULL REMAINING WIDTH) ================= */}

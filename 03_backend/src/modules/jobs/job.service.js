@@ -39,6 +39,10 @@ class JobService {
         if (job.status === 'COMPLETED' && newStatus === 'OPEN') {
             throw new AppError('Công việc đã hoàn thành không thể chuyển lại trạng thái Đang tuyển', 400);
         }
+        // Phải qua bước Đã nhận người (FILLED) mới được Hoàn thành
+        if (job.status === 'OPEN' && newStatus === 'COMPLETED') {
+            throw new AppError('Tin đang tuyển chưa thể chuyển sang Hoàn thành. Cần nhận đủ người (Đã nhận người) trước', 400);
+        }
 
         return jobRepository.updateStatus(jobId, newStatus);
     }

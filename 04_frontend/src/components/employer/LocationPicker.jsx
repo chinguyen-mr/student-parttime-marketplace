@@ -171,8 +171,9 @@ export default function LocationPicker({ latitude, longitude, address, onChange 
         </div>
       )}
 
-      <div style={{ position: 'relative' }}>
-        <div ref={boxRef} style={{ height: 280, borderRadius: 10, border: '1px solid #E2E8F0', background: '#F1F5F9', zIndex: 0 }} />
+      {/* Khung viền có lề trong: bản đồ không sát viền */}
+      <div style={{ position: 'relative', padding: 4, borderRadius: 12, border: '1px solid #E2E8F0', background: '#ffffff' }}>
+        <div ref={boxRef} className="jn-leaflet-box" style={{ height: 280, borderRadius: 8, background: '#F1F5F9', zIndex: 0 }} />
         {!ready && !loadError && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>
             <Loader2 size={18} className="animate-spin" /> &nbsp;Đang tải bản đồ…

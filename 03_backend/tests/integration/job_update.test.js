@@ -285,8 +285,9 @@ describe('PB-14: Đóng và Chỉnh sửa tin tuyển dụng (Job Update & Closu
         const found = searchResults.some(j => j.id === testJobId);
         assert.equal(found, false, 'Tin đã đóng tuyệt đối không được hiển thị cho sinh viên');
 
-        // Mở lại Job
+        // Mở lại Job; tin đã sửa ở test 1 quay về chờ duyệt → admin duyệt lại mới hiển thị
         await jobService.updateJobStatus(testJobId, employerA.id, 'OPEN');
+        await db.query("UPDATE jobs SET moderation_status = 'APPROVED' WHERE id = $1", [testJobId]);
         const reopenedResults = await jobService.searchJobs({
             keyword: 'Trưởng nhóm phục vụ',
             status: 'OPEN',

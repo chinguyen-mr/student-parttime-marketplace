@@ -4,6 +4,9 @@ const db = require('../../config/db');
 const jobService = require('./job.service');
 const { validateCreateJob, validateJobStatus } = require('./job.validator');
 const { verifyToken, requireRoles } = require('../../middleware/auth.middleware');
+const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('../../config/jwt.config');
+const { NotFoundError, AppError } = require('../../utils/app-error');
 
 // GET /api/jobs (UC-05: Tìm kiếm & Lọc tin tuyển dụng)
 router.get('/', async (req, res, next) => {
@@ -11,12 +14,22 @@ router.get('/', async (req, res, next) => {
         const { keyword, category, location, minSalary, maxSalary, workType, employerId, page = 1, limit = 20 } = req.query;
         const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
 
+        // Mức lương lọc phải là số không âm; giá trị sai không bị bỏ qua âm thầm (trả về toàn bộ tin là kết quả sai)
+        const salaryParam = (v) => (v === undefined || v === '' ? null : Number(v));
+        const min = salaryParam(minSalary), max = salaryParam(maxSalary);
+        if ([min, max].some(v => v !== null && (!Number.isFinite(v) || v < 0))) {
+            throw new AppError('Mức lương lọc không hợp lệ: phải là số không âm', 400);
+        }
+        if (min !== null && max !== null && min > max) {
+            throw new AppError('Mức lương tối thiểu không được lớn hơn mức tối đa', 400);
+        }
+
         const jobs = await jobService.searchJobs({
             keyword,
             category,
             location,
-            minSalary: minSalary ? Number(minSalary) : null,
-            maxSalary: maxSalary ? Number(maxSalary) : null,
+            minSalary: min || null,
+            maxSalary: max || null,
             workType,
             employerId: employerId ? parseInt(employerId, 10) : null,
             status: 'OPEN',
@@ -242,6 +255,21 @@ router.post('/:id/save', verifyToken, async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
     try {
         const job = await jobService.getJobById(parseInt(req.params.id, 10));
+
+        // Tin chưa được Admin duyệt (PENDING/REJECTED) chỉ NTD đăng tin và Admin xem được;
+        // người khác nhận 404 như tin không tồn tại (không lộ tin qua link trực tiếp)
+        if (job.moderation_status !== 'APPROVED') {
+            let viewer = null;
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                try { viewer = jwt.verify(authHeader.split(' ')[1], getJwtSecret()); } catch { viewer = null; }
+            }
+            const canView = viewer && (viewer.role === 'ADMIN' || String(viewer.id) === String(job.employer_id));
+            if (!canView) {
+                throw new NotFoundError('Không tìm thấy tin tuyển dụng này');
+            }
+        }
+
         res.status(200).json({
             success: true,
             data: job,

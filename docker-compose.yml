@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-cd2_marketplace_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # Lần đầu (volume trống): tạo toàn bộ bảng (schema đã gồm migration 001→018).
+      # Lần đầu (volume trống): tạo toàn bộ bảng (schema đã gồm migration 001→020).
       # Dữ liệu demo nạp bằng: docker compose --profile seed run --rm seed
       - ./02_database/jobnest_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     ports:
@@ -48,6 +48,13 @@ services:
       # CORS: cho phép cả Vite dev (5173, 8081, 8082) và frontend Docker (8080)
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080,http://localhost:8081,http://127.0.0.1:8081,http://localhost:8082,http://127.0.0.1:8082}
       AUTO_BOOTSTRAP: off
+      # Email (mã OTP khôi phục mật khẩu): mặc định gửi vào Mailpit chạy trên máy (xem thư tại http://localhost:8025)
+      SMTP_HOST: ${SMTP_HOST:-host.docker.internal}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      # Gửi thư thật qua Gmail: đặt trong .env SMTP_HOST=smtp.gmail.com, SMTP_PORT=465, SMTP_USER, SMTP_PASS (mật khẩu ứng dụng)
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-JobNest Platform <noreply@jobnest.vn>}
     ports:
       - "5000:5000"
     networks:

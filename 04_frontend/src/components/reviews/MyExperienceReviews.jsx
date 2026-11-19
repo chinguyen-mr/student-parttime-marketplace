@@ -26,7 +26,7 @@ export default function MyExperienceReviews({ currentUser, showToast, onSelectJo
   return (
     <div style={{ marginBottom: 24 }}>
       <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)', marginBottom: 4 }}>Đánh giá doanh nghiệp & công việc của bạn</div>
-      <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 10px 0' }}>
+      <p style={{ fontSize: 13, color: '#475569', margin: '0 0 10px 0', maxWidth: '60ch' }}>
         Viết đánh giá tại trang doanh nghiệp (tab “Đánh giá”) hoặc trang chi tiết công việc bạn đã làm.
       </p>
       {error ? (

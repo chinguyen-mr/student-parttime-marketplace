@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { AlertCircle, ArrowLeft, Send, Save } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import MoneyInput from '../../components/common/MoneyInput';
+import { AlertCircle, ArrowLeft, Send, Save, ImagePlus, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui';
-import { API_BASE, formatApiError } from '../../config/api';
+import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
+import { checkImageFile, resizeImageFile } from '../../utils/imageResize';
 
 export default function EmployerCreateJobPage({
   currentUser,
@@ -31,6 +33,8 @@ export default function EmployerCreateJobPage({
     d.setDate(d.getDate() + 30);
     return d.toISOString().split('T')[0];
   });
+  const bannerInput = useRef(null);
+  const [bannerUploading, setBannerUploading] = useState(false);
   const [jobBannerUrl, setJobBannerUrl] = useState(editingJob?.job_banner_url || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800');
 
   const [submitting, setSubmitting] = useState(false);
@@ -64,7 +68,7 @@ export default function EmployerCreateJobPage({
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (selected <= today) {
-        setDeadlineError('Hạn chót ứng tuyển (application_deadline) bắt buộc phải là ngày trong tương lai!');
+        setDeadlineError('Hạn chót ứng tuyển bắt buộc phải là ngày trong tương lai!');
       } else {
         setDeadlineError(null);
       }
@@ -106,7 +110,8 @@ export default function EmployerCreateJobPage({
         description: description.trim(),
         requirements: requirements.trim(),
         work_type: workType,
-        salary_type: salaryType,
+        // Full-time luôn tính theo tháng; Part-time theo giờ hoặc theo tháng
+        salary_type: workType === 'FULL_TIME' ? 'MONTHLY' : (salaryType === 'MONTHLY' ? 'MONTHLY' : 'HOURLY'),
         salary: Number(salary),
         quantity_required: Number(quantityRequired),
         application_deadline: new Date(applicationDeadline).toISOString(),
@@ -130,8 +135,8 @@ export default function EmployerCreateJobPage({
         if (showToast) {
           showToast(
             isEditing 
-              ? 'Cập nhật tin tuyển dụng thành công!' 
-              : 'Đăng tin tuyển dụng thành công! Tin đang chờ kiểm duyệt (PENDING).',
+              ? 'Đã lưu thay đổi! Tin được gửi Admin duyệt lại và tạm ẩn với sinh viên đến khi được duyệt.' 
+              : 'Đăng tin thành công! Tin sẽ hiển thị với sinh viên sau khi Admin duyệt.',
             'success'
           );
         }
@@ -304,13 +309,12 @@ export default function EmployerCreateJobPage({
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 18 }}>
           <div>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-              Mức lương / Thù lao (VNĐ)
+              Mức lương / Thù lao
             </label>
-            <input
-              type="number"
-              step={5000}
+            <MoneyInput
               value={salary}
-              onChange={(e) => setSalary(e.target.value)}
+              onChange={setSalary}
+              placeholder="Ví dụ: 30.000"
               style={{
                 width: '100%',
                 padding: '10px 14px',
@@ -323,11 +327,13 @@ export default function EmployerCreateJobPage({
 
           <div>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-              Hình thức chi trả
+              Tính lương theo
             </label>
+            {/* Part-time: theo giờ hoặc theo tháng; Full-time: theo tháng */}
             <select
-              value={salaryType}
+              value={workType === 'FULL_TIME' ? 'MONTHLY' : salaryType}
               onChange={(e) => setSalaryType(e.target.value)}
+              disabled={workType === 'FULL_TIME'}
               style={{
                 width: '100%',
                 padding: '10px 14px',
@@ -337,17 +343,21 @@ export default function EmployerCreateJobPage({
                 background: '#ffffff'
               }}
             >
-              <option value="HOURLY">Theo giờ (HOURLY)</option>
-              <option value="DAILY">Theo ngày / ca (DAILY)</option>
-              <option value="MONTHLY">Theo tháng (MONTHLY)</option>
+              {workType !== 'FULL_TIME' && <option value="HOURLY">Theo giờ</option>}
+              <option value="MONTHLY">Theo tháng</option>
             </select>
           </div>
+          {workType !== 'FULL_TIME' && (
+            <div style={{ gridColumn: '1 / -1', fontSize: 12.5, color: 'var(--color-text-secondary)', marginTop: -6 }}>
+              Nhận lương cuối ca/trong ngày hay cuối tháng: bạn thỏa thuận với sinh viên sau khi nhận hồ sơ.
+            </div>
+          )}
         </div>
 
         {/* APPLICATION DEADLINE (Validate Future Date - Requirement) */}
         <div style={{ marginBottom: 18 }}>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-            Hạn chót ứng tuyển (application_deadline) <span style={{ color: 'var(--color-danger)' }}>*</span>
+            Hạn chót ứng tuyển <span style={{ color: 'var(--color-danger)' }}>*</span>
           </label>
           <input
             type="date"
@@ -373,24 +383,63 @@ export default function EmployerCreateJobPage({
           )}
         </div>
 
-        {/* Banner URL (Upload / Link) */}
+        {/* Ảnh banner: chọn từ máy, tải lên ngay và hiển thị xem trước */}
         <div style={{ marginBottom: 18 }}>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
-            Đường dẫn Banner việc làm (job_banner_url)
+            Ảnh banner tin tuyển dụng
           </label>
           <input
-            type="url"
-            value={jobBannerUrl}
-            onChange={(e) => setJobBannerUrl(e.target.value)}
-            placeholder="https://.../banner.jpg"
-            style={{
-              width: '100%',
-              padding: '10px 14px',
-              borderRadius: 8,
-              border: '1.5px solid var(--color-border)',
-              fontSize: 14
+            ref={bannerInput}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              e.target.value = '';
+              const err = checkImageFile(file);
+              if (err) { if (showToast) showToast(err, 'error'); return; }
+              setBannerUploading(true);
+              try {
+                const image = await resizeImageFile(file, { maxWidth: 1600, maxHeight: 900 });
+                const res = await fetch(`${API_BASE}/files/job-banner`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${currentUser?.token}` },
+                  body: JSON.stringify({ image })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) throw new Error(data.message || 'Không tải được ảnh');
+                setJobBannerUrl(data.data.url);
+              } catch (ex) {
+                if (showToast) showToast(formatApiError(ex, 'Không tải được ảnh banner'), 'error');
+              } finally {
+                setBannerUploading(false);
+              }
             }}
           />
+          {jobBannerUrl ? (
+            <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--color-border)', aspectRatio: '16 / 6', background: '#F1F5F9' }}>
+              <img src={resolveFileUrl(jobBannerUrl)} alt="Ảnh banner tin tuyển dụng" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <div style={{ position: 'absolute', right: 10, bottom: 10, display: 'flex', gap: 8 }}>
+                <button type="button" disabled={bannerUploading} onClick={() => bannerInput.current?.click()}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 8, border: 'none', background: '#ffffff', color: '#334155', fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 1px 3px rgba(15,23,42,0.2)' }}>
+                  {bannerUploading ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />} Đổi ảnh
+                </button>
+                <button type="button" disabled={bannerUploading} onClick={() => setJobBannerUrl('')}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 8, border: 'none', background: '#ffffff', color: '#B91C1C', fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 1px 3px rgba(15,23,42,0.2)' }}>
+                  <Trash2 size={14} /> Bỏ ảnh
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" disabled={bannerUploading} onClick={() => bannerInput.current?.click()}
+              style={{ width: '100%', aspectRatio: '16 / 4', borderRadius: 12, border: '1.5px dashed #CBD5E1', background: '#F8FAFC', color: '#475569', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              {bannerUploading ? <Loader2 size={22} className="animate-spin" /> : <ImagePlus size={22} />}
+              {bannerUploading ? 'Đang tải ảnh…' : 'Chọn ảnh từ máy'}
+            </button>
+          )}
+          <div style={{ fontSize: 12.5, color: 'var(--color-text-secondary)', marginTop: 6 }}>
+            JPG, PNG hoặc WEBP. Nên dùng ảnh ngang (tỉ lệ khoảng 16:6). Không bắt buộc.
+          </div>
         </div>
 
         {/* Description & Requirements */}

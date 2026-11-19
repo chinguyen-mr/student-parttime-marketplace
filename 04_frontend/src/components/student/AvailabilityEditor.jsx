@@ -80,10 +80,10 @@ export default function AvailabilityEditor({ slots, savedSlots, onChange, onSave
     }}>
       {/* Tiêu đề */}
       <div style={{ marginBottom: 18 }}>
-        <h2 style={{ fontSize: 19, fontWeight: 800, color: 'var(--color-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Calendar size={20} color="#7565A8" /> Lịch rảnh trong tuần
         </h2>
-        <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '6px 0 0 0', lineHeight: 1.5 }}>
+        <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '6px 0 0 0', lineHeight: 1.5, maxWidth: '60ch' }}>
           Chọn các ca bạn có thể đi làm. JobNest dùng lịch này để loại việc trùng giờ học và gợi ý việc phù hợp.
           Bấm vào tên ngày hoặc tên ca để chọn cả cột/hàng.
         </p>
@@ -101,7 +101,7 @@ export default function AvailabilityEditor({ slots, savedSlots, onChange, onSave
       </div>
 
       {/* Lưới 7 ngày × 3 ca */}
-      <div style={{ overflowX: 'auto', border: '1px solid var(--color-border)', borderRadius: 12, opacity: loading ? 0.5 : 1 }}>
+      <div style={{ overflowX: 'auto', border: '1px solid var(--color-border)', borderRadius: 12, padding: '4px 8px 8px', opacity: loading ? 0.5 : 1 }}>
         <table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <thead>
             <tr style={{ background: '#F5F3FF' }}>
@@ -176,7 +176,7 @@ export default function AvailabilityEditor({ slots, savedSlots, onChange, onSave
           <button type="button" onClick={onSave} disabled={saving || !dirty}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 8, border: 'none',
-              background: saving || !dirty ? '#C4B5FD' : '#7565A8', color: '#ffffff', fontSize: 13.5, fontWeight: 700,
+              background: saving || !dirty ? '#E2E8F0' : '#7565A8', color: saving || !dirty ? '#475569' : '#ffffff', fontSize: 13.5, fontWeight: 700,
               cursor: saving || !dirty ? 'not-allowed' : 'pointer'
             }}>
             <Save size={15} /> {saving ? 'Đang lưu...' : 'Lưu lịch rảnh'}

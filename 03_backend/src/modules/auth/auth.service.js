@@ -6,7 +6,10 @@ const userRepository = require('../../database/repositories/user.repository');
 const profileRepository = require('../../database/repositories/profile.repository');
 const emailService = require('../../services/email.service');
 const db = require('../../config/db');
-const { ConflictError, UnauthorizedError, AppError } = require('../../utils/app-error');
+const { ConflictError, UnauthorizedError, AppError, NotFoundError } = require('../../utils/app-error');
+const { MIN_PASSWORD_LENGTH } = require('./auth.validator');
+
+const MAX_RESET_ATTEMPTS = 5;
 
 class AuthService {
     async register(registerData) {
@@ -176,7 +179,7 @@ class AuthService {
         if (reason.length < 10) {
             throw new AppError('Vui lòng trình bày nội dung khiếu nại (ít nhất 10 ký tự).', 400);
         }
-        const pending = await db.query(`SELECT 1 FROM user_appeals WHERE user_id = $1 AND status = 'PENDING' LIMIT 1`, [user.id]);
+        const pending = await db.query(`SELECT 1 FROM user_appeals WHERE user_id = $1 AND status IN ('PENDING', 'IN_REVIEW') LIMIT 1`, [user.id]);
         if (pending.rowCount > 0) {
             throw new ConflictError('Bạn đã có một khiếu nại đang chờ Quản trị viên xử lý.');
         }
@@ -186,18 +189,18 @@ class AuthService {
 
     async forgotPassword(email) {
         const cleanEmail = String(email || '').trim().toLowerCase();
-        const genericMessage = 'Nếu địa chỉ email tồn tại trên hệ thống, liên kết khôi phục mật khẩu đã được gửi đến hộp thư của bạn.';
 
         const user = await userRepository.findByEmail(cleanEmail);
-        if (!user || user.status === 'BANNED') {
-            return {
-                success: true,
-                message: genericMessage
-            };
+        // AC2: báo rõ email chưa đăng ký (giới hạn tần suất ở route hạn chế việc dò email)
+        if (!user) {
+            throw new NotFoundError('Không tìm thấy tài khoản đã đăng ký với địa chỉ email này.');
+        }
+        if (user.status === 'BANNED') {
+            throw new AppError('Tài khoản này đã bị khóa nên không thể khôi phục mật khẩu. Vui lòng gửi khiếu nại tới Quản trị viên.', 403);
         }
 
-        // Sinh token ngẫu nhiên bảo mật 32 bytes (64 hex characters)
-        const rawToken = crypto.randomBytes(32).toString('hex');
+        // Mã OTP 6 chữ số, chỉ lưu bản băm SHA-256
+        const rawToken = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
         const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
 
@@ -218,12 +221,19 @@ class AuthService {
 
         // Gửi email chứa liên kết khôi phục
         const clientUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:8080';
-        const resetUrl = `${clientUrl}/?token=${rawToken}`;
-        await emailService.sendPasswordResetEmail(cleanEmail, resetUrl, rawToken);
+        const resetUrl = `${clientUrl}/login`;
+        try {
+            await emailService.sendPasswordResetEmail(cleanEmail, resetUrl, rawToken);
+        } catch (mailErr) {
+            // Không gửi được thư → hủy mã vừa tạo và báo rõ cho người dùng
+            console.error('[FORGOT-PASSWORD] Gửi email thất bại:', mailErr.message);
+            await db.query('UPDATE password_reset_tokens SET used_at = CURRENT_TIMESTAMP WHERE token_hash = $1', [tokenHash]);
+            throw new AppError('Hệ thống chưa gửi được email chứa mã xác nhận. Vui lòng thử lại sau ít phút.', 503);
+        }
 
         const response = {
             success: true,
-            message: genericMessage
+            message: 'Mã xác nhận gồm 6 chữ số đã được gửi tới email của bạn (hiệu lực 15 phút).'
         };
 
         // Ở môi trường development hoặc test, trả về dev_token để kiểm thử E2E tự động
@@ -235,76 +245,62 @@ class AuthService {
         return response;
     }
 
-    async resetPassword({ token, email, new_password, password }) {
+    async resetPassword({ token, otp, email, new_password, password }) {
         const targetPassword = new_password || password;
-        if (!targetPassword || targetPassword.length < 6) {
-            throw new AppError('Mật khẩu mới bắt buộc và phải có ít nhất 6 ký tự', 400);
+        if (!targetPassword || String(targetPassword).length < MIN_PASSWORD_LENGTH) {
+            throw new AppError(`Mật khẩu mới bắt buộc và phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`, 400);
         }
 
-        const cleanToken = String(token || '').trim();
+        // Bắt buộc cả email lẫn mã OTP đã gửi qua email — không còn đặt lại chỉ bằng email
+        const cleanCode = String(otp || token || '').trim();
         const cleanEmail = String(email || '').trim().toLowerCase();
-
-        // 1. Chế độ đặt lại mật khẩu trực tiếp qua Email (Không cần mã OTP / Token)
-        if (!cleanToken && cleanEmail) {
-            const userRes = await db.query(
-                'SELECT id, email, status FROM users WHERE LOWER(email) = LOWER($1)',
-                [cleanEmail]
-            );
-            if (userRes.rows.length === 0) {
-                throw new AppError('Không tìm thấy tài khoản với địa chỉ email này.', 404);
-            }
-            const user = userRes.rows[0];
-            const password_hash = await bcrypt.hash(targetPassword, 10);
-            await db.query(
-                'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-                [password_hash, user.id]
-            );
-
-            return {
-                success: true,
-                message: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.'
-            };
+        if (!cleanEmail || !cleanCode) {
+            throw new AppError('Vui lòng nhập email và mã xác nhận đã gửi tới email', 400);
         }
 
-        if (!cleanToken) {
-            throw new AppError('Vui lòng cung cấp địa chỉ email tài khoản hoặc mã xác thực', 400);
-        }
-
-        const tokenHash = crypto.createHash('sha256').update(cleanToken).digest('hex');
+        const tokenHash = crypto.createHash('sha256').update(cleanCode).digest('hex');
+        const invalid = 'Mã xác nhận không đúng hoặc đã hết hạn. Vui lòng kiểm tra lại hoặc yêu cầu mã mới';
 
         const client = await db.pool.connect();
         try {
             await client.query('BEGIN');
 
-            // Khóa dòng token để chống race condition (double-spend)
+            // Mã mới nhất còn hiệu lực của tài khoản; khóa dòng để chống dùng trùng (double-spend)
             const res = await client.query(
-                `SELECT * FROM password_reset_tokens 
-                 WHERE token_hash = $1 
-                 FOR UPDATE`,
-                [tokenHash]
+                `SELECT t.* FROM password_reset_tokens t
+                 JOIN users u ON u.id = t.user_id
+                 WHERE LOWER(u.email) = $1 AND t.used_at IS NULL
+                 ORDER BY t.id DESC LIMIT 1
+                 FOR UPDATE OF t`,
+                [cleanEmail]
             );
-
-            if (res.rows.length === 0) {
-                throw new AppError('Mã khôi phục mật khẩu không hợp lệ hoặc không tồn tại', 400);
-            }
-
             const tokenRecord = res.rows[0];
 
-            if (tokenRecord.used_at) {
-                throw new AppError('Mã khôi phục mật khẩu này đã được sử dụng trước đó', 400);
+            if (!tokenRecord || new Date(tokenRecord.expires_at) <= new Date()) {
+                throw new AppError(invalid, 400);
             }
 
-            if (new Date(tokenRecord.expires_at) <= new Date()) {
-                throw new AppError('Mã khôi phục mật khẩu đã hết hạn. Vui lòng yêu cầu mã mới', 400);
+            if (tokenRecord.token_hash !== tokenHash) {
+                // Sai quá MAX_RESET_ATTEMPTS lần thì hủy mã, phải yêu cầu mã mới
+                const attempts = (tokenRecord.attempts || 0) + 1;
+                await client.query(
+                    `UPDATE password_reset_tokens SET attempts = $1,
+                        used_at = CASE WHEN $1 >= ${MAX_RESET_ATTEMPTS} THEN CURRENT_TIMESTAMP ELSE used_at END
+                     WHERE id = $2`,
+                    [attempts, tokenRecord.id]
+                );
+                await client.query('COMMIT');
+                throw new AppError(attempts >= MAX_RESET_ATTEMPTS ? 'Nhập sai mã quá nhiều lần. Vui lòng yêu cầu mã mới' : invalid, 400);
             }
 
             // Băm mật khẩu mới bằng bcrypt với cost factor 10 chuẩn của hệ thống
             const password_hash = await bcrypt.hash(targetPassword, 10);
 
-            // Cập nhật mật khẩu mới cho user
+            // Cập nhật mật khẩu mới và kết thúc mọi phiên đăng nhập cũ
             await client.query(
-                `UPDATE users 
-                 SET password_hash = $1, updated_at = CURRENT_TIMESTAMP 
+                `UPDATE users
+                 SET password_hash = $1, updated_at = CURRENT_TIMESTAMP,
+                     tokens_valid_after = date_trunc('second', NOW())
                  WHERE id = $2`,
                 [password_hash, tokenRecord.user_id]
             );
@@ -339,12 +335,18 @@ class AuthService {
         }
     }
 
+    // Đăng xuất: mọi token phát hành tới thời điểm này bị từ chối ở verifyToken
+    async logout(userId) {
+        await db.query("UPDATE users SET tokens_valid_after = date_trunc('second', NOW()) WHERE id = $1", [userId]);
+        return { success: true, message: 'Đã đăng xuất' };
+    }
+
     async changePassword(userId, { currentPassword, newPassword }) {
         if (!currentPassword || !newPassword) {
             throw new AppError('Vui lòng cung cấp mật khẩu hiện tại và mật khẩu mới', 400);
         }
-        if (newPassword.length < 6) {
-            throw new AppError('Mật khẩu mới phải có ít nhất 6 ký tự', 400);
+        if (String(newPassword).length < MIN_PASSWORD_LENGTH) {
+            throw new AppError(`Mật khẩu mới phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`, 400);
         }
         // findById cố ý không trả password_hash → lấy riêng (trước đây so với undefined nên luôn lỗi 500)
         const user = await userRepository.findCredentialsById(userId);

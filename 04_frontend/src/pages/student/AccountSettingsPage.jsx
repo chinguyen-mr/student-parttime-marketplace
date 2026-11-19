@@ -28,8 +28,8 @@ export default function AccountSettingsPage({
       setPasswordError('Vui lòng nhập mật khẩu hiện tại');
       return;
     }
-    if (!newPassword || newPassword.length < 6) {
-      setPasswordError('Mật khẩu mới phải có ít nhất 6 ký tự');
+    if (!newPassword || newPassword.length < 8) {
+      setPasswordError('Mật khẩu mới phải có ít nhất 8 ký tự');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -111,7 +111,7 @@ export default function AccountSettingsPage({
                   Đổi mật khẩu tài khoản
                 </h2>
                 <span style={{ fontSize: 13, color: '#64748B' }}>
-                  Vui lòng đặt mật khẩu mạnh tối thiểu 6 ký tự để bảo vệ an toàn cho tài khoản
+                  Vui lòng đặt mật khẩu mạnh tối thiểu 8 ký tự để bảo vệ an toàn cho tài khoản
                 </span>
               </div>
             </div>
@@ -185,7 +185,7 @@ export default function AccountSettingsPage({
                     type={showNew ? 'text' : 'password'}
                     autoComplete="new-password"
                     required
-                    placeholder="Tối thiểu 6 ký tự"
+                    placeholder="Tối thiểu 8 ký tự"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     style={{
@@ -324,21 +324,8 @@ export default function AccountSettingsPage({
       </div>
   );
 
-  if (embedded) {
-    return (
-      <div 
-        style={{
-          background: '#ffffff',
-          borderRadius: 16,
-          border: '1px solid var(--color-border, #E2E8F0)',
-          padding: '28px 32px',
-          boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)'
-        }}
-      >
-        {settingsContent}
-      </div>
-    );
-  }
+  // Nhúng trong trang quản lý: không bọc thêm khung (các mục bên trong đã là thẻ riêng → tránh thẻ lồng thẻ)
+  if (embedded) return settingsContent;
 
   return (
     <div style={{ background: '#F8FAFC', minHeight: '100vh', paddingBottom: 60 }}>

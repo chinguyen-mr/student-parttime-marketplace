@@ -196,6 +196,7 @@ function validatePublicInfo(body = {}) {
         social_links: {},
     };
     if (has('display_name') && !out.display_name) errors.push('Tên hiển thị doanh nghiệp không được để trống.');
+    else if (out.display_name && String(body.display_name).trim().length > 255) errors.push('Tên hiển thị doanh nghiệp tối đa 255 ký tự.');
     if (out.website && !isHttpUrl(out.website)) errors.push('Website phải bắt đầu bằng http:// hoặc https://');
     if (out.founded_year !== null && (!Number.isInteger(out.founded_year) || out.founded_year < 1800 || out.founded_year > currentYear)) {
         errors.push(`Năm thành lập phải từ 1800 đến ${currentYear}.`);

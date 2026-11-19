@@ -9,19 +9,17 @@ import {
   FileText,
   AlertTriangle,
   UserX,
-  UserCheck,
-  Mail,
-  GraduationCap
+  UserCheck
 } from 'lucide-react';
 import { Button, AnimatedModal } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import ExportMenu from '../../components/common/ExportMenu';
 import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
+import { formatSalary } from '../../utils/jobDisplay';
 
 export default function EmployerAssignmentsPage({
   currentUser,
-  showToast,
-  onNavigateDeliverable
+  showToast
 }) {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -261,6 +259,7 @@ export default function EmployerAssignmentsPage({
         return (
           <span style={{
             display: 'inline-flex',
+            whiteSpace: 'nowrap',
             alignItems: 'center',
             gap: 6,
             padding: '5px 12px',
@@ -268,7 +267,7 @@ export default function EmployerAssignmentsPage({
             fontSize: 12.5,
             fontWeight: 800,
             background: '#ECFDF5',
-            color: '#059669',
+            color: '#065F46',
             border: '1px solid #A7F3D0'
           }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block' }} />
@@ -279,6 +278,7 @@ export default function EmployerAssignmentsPage({
         return (
           <span style={{
             display: 'inline-flex',
+            whiteSpace: 'nowrap',
             alignItems: 'center',
             gap: 6,
             padding: '5px 12px',
@@ -286,7 +286,7 @@ export default function EmployerAssignmentsPage({
             fontSize: 12.5,
             fontWeight: 800,
             background: '#EFF6FF',
-            color: '#2563EB',
+            color: '#1E40AF',
             border: '1px solid #BFDBFE'
           }}>
             <CheckCircle2 size={13} color="#2563EB" />
@@ -297,6 +297,7 @@ export default function EmployerAssignmentsPage({
         return (
           <span style={{
             display: 'inline-flex',
+            whiteSpace: 'nowrap',
             alignItems: 'center',
             gap: 6,
             padding: '5px 12px',
@@ -304,7 +305,7 @@ export default function EmployerAssignmentsPage({
             fontSize: 12.5,
             fontWeight: 800,
             background: '#FFFBEB',
-            color: '#D97706',
+            color: '#92400E',
             border: '1px solid #FDE68A'
           }}>
             <UserX size={13} color="#D97706" />
@@ -315,6 +316,7 @@ export default function EmployerAssignmentsPage({
         return (
           <span style={{
             display: 'inline-flex',
+            whiteSpace: 'nowrap',
             alignItems: 'center',
             gap: 6,
             padding: '5px 12px',
@@ -322,7 +324,7 @@ export default function EmployerAssignmentsPage({
             fontSize: 12.5,
             fontWeight: 800,
             background: '#FEF2F2',
-            color: '#DC2626',
+            color: '#991B1B',
             border: '1px solid #FECACA'
           }}>
             <AlertTriangle size={13} color="#DC2626" />
@@ -334,14 +336,16 @@ export default function EmployerAssignmentsPage({
         return (
           <span style={{
             display: 'inline-flex',
+            whiteSpace: 'nowrap',
             alignItems: 'center',
             gap: 6,
             padding: '5px 12px',
             borderRadius: 20,
             fontSize: 12.5,
             fontWeight: 700,
+            whiteSpace: 'nowrap',
             background: '#F8FAFC',
-            color: '#64748B',
+            color: '#334155',
             border: '1px solid #E2E8F0'
           }}>
             <Clock size={13} color="#64748B" />
@@ -362,7 +366,7 @@ export default function EmployerAssignmentsPage({
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
             Quản lý hợp đồng lao động
           </h1>
-          <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', margin: 0 }}>
+          <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', margin: 0, maxWidth: '60ch' }}>
             Theo dõi tình trạng làm việc của sinh viên (Đang làm, Đã hoàn thành, Xin nghỉ hoặc Thôi việc) và đánh giá sau khi kết thúc hợp đồng.
           </p>
         </div>
@@ -425,7 +429,7 @@ export default function EmployerAssignmentsPage({
             <FileText size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Tổng hợp đồng</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Tổng hợp đồng</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)' }}>{totalCount}</div>
           </div>
         </div>
@@ -435,7 +439,7 @@ export default function EmployerAssignmentsPage({
             <UserCheck size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#059669' }}>Đang làm việc</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#065F46' }}>Đang làm việc</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#065F46' }}>{inProgressCount}</div>
           </div>
         </div>
@@ -445,7 +449,7 @@ export default function EmployerAssignmentsPage({
             <CheckCircle2 size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#2563EB' }}>Đã hoàn thành</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1E40AF' }}>Đã hoàn thành</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#1E40AF' }}>{completedCount}</div>
           </div>
         </div>
@@ -455,7 +459,7 @@ export default function EmployerAssignmentsPage({
             <UserX size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#DC2626' }}>Đã nghỉ / Cho thôi việc</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#991B1B' }}>Đã nghỉ / Cho thôi việc</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#991B1B' }}>{terminatedCount}</div>
           </div>
         </div>
@@ -504,16 +508,16 @@ export default function EmployerAssignmentsPage({
           description="Hợp đồng làm việc sẽ tự động hiển thị tại đây khi bạn duyệt hồ sơ ứng viên part-time thành công."
         />
       ) : (
-        <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', padding: '4px 8px 8px', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
                 <tr style={{ background: '#F8F7FB', borderBottom: '2px solid #F1F5F9', color: 'var(--color-text-secondary)', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                  <th style={{ padding: '14px 18px', fontWeight: 800 }}>Sinh viên</th>
-                  <th style={{ padding: '14px 18px', fontWeight: 800 }}>Công việc / Vị trí</th>
-                  <th style={{ padding: '14px 18px', fontWeight: 800 }}>Thời gian</th>
-                  <th style={{ padding: '14px 18px', fontWeight: 800 }}>Tình trạng làm việc</th>
-                  <th style={{ padding: '14px 18px', fontWeight: 800 }}>Đánh giá sinh viên</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, minWidth: 170 }}>Sinh viên</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, minWidth: 180 }}>Công việc / Vị trí</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, whiteSpace: 'nowrap' }}>Thời gian</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, minWidth: 140 }}>Tình trạng</th>
+                  <th style={{ padding: '14px 18px', fontWeight: 800, minWidth: 130 }}>Đánh giá</th>
                   <th style={{ padding: '14px 18px', fontWeight: 800, textAlign: 'right' }}>Thao tác</th>
                 </tr>
               </thead>
@@ -548,18 +552,9 @@ export default function EmployerAssignmentsPage({
                               ? <img src={resolveFileUrl(assign.student_avatar)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               : (assign.student_name?.charAt(0) || 'S')}
                           </div>
-                          <div>
-                            <div style={{ fontWeight: 800, color: 'var(--color-text)', fontSize: 14 }}>
-                              {assign.student_name || 'Nguyễn Văn Sinh Viên'}
-                            </div>
-                            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                              <Mail size={11} /> {assign.student_email || 'student@vlu.edu.vn'}
-                            </div>
-                            {assign.university && (
-                              <div style={{ fontSize: 11.5, color: '#64748B', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                                <GraduationCap size={11} /> {assign.university} {assign.major ? `• ${assign.major}` : ''}
-                              </div>
-                            )}
+                          {/* Chỉ hiện tên; email/trường xem trong hồ sơ ứng viên (file xuất báo cáo vẫn có đủ) */}
+                          <div style={{ fontWeight: 800, color: 'var(--color-text)', fontSize: 14 }} title={assign.student_email || undefined}>
+                            {assign.student_name || 'Sinh viên'}
                           </div>
                         </div>
                       </td>
@@ -569,8 +564,8 @@ export default function EmployerAssignmentsPage({
                         <div style={{ fontWeight: 700, color: 'var(--color-text)', fontSize: 13.5 }}>
                           {assign.job_title || 'Nhân viên Bán hàng Part-time'}
                         </div>
-                        <div style={{ fontSize: 12, color: 'var(--color-primary)', fontWeight: 700, marginTop: 3 }}>
-                          {assign.salary ? `${Number(assign.salary).toLocaleString('vi-VN')} đ` : 'Lương theo ca / Thỏa thuận'}
+                        <div style={{ fontSize: 13, color: '#594675', fontWeight: 700, marginTop: 3 }}>
+                          {formatSalary(assign)}
                         </div>
                       </td>
 
@@ -585,7 +580,7 @@ export default function EmployerAssignmentsPage({
                           </span>
                         </div>
                         {assign.completed_at && (
-                          <div style={{ fontSize: 11.5, color: '#059669', marginTop: 2 }}>
+                          <div style={{ fontSize: 12.5, color: '#065F46', marginTop: 2 }}>
                             Xong: {new Date(assign.completed_at).toLocaleDateString('vi-VN')}
                           </div>
                         )}
@@ -595,7 +590,7 @@ export default function EmployerAssignmentsPage({
                       <td style={{ padding: '16px 18px' }}>
                         {renderWorkStatusBadge(assign.status)}
                         {assign.termination_reason && (
-                          <div style={{ fontSize: 11, color: '#DC2626', marginTop: 4, fontStyle: 'italic', maxWidth: 160 }}>
+                          <div style={{ fontSize: 12.5, color: '#991B1B', marginTop: 4, maxWidth: 200 }}>
                             Lý do: {assign.termination_reason}
                           </div>
                         )}
@@ -607,7 +602,7 @@ export default function EmployerAssignmentsPage({
                           isReviewed ? (
                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#FEF3C7', padding: '4px 10px', borderRadius: 8, border: '1px solid #FDE68A' }}>
                               <Star size={13} fill="#F59E0B" color="#F59E0B" />
-                              <span style={{ fontSize: 12, fontWeight: 800, color: '#B45309' }}>
+                              <span style={{ fontSize: 12.5, fontWeight: 800, color: '#92400E', whiteSpace: 'nowrap' }}>
                                 Đã đánh giá ({assign.my_review_rating || '—'}/5 ⭐)
                               </span>
                             </div>
@@ -634,35 +629,15 @@ export default function EmployerAssignmentsPage({
                             </button>
                           )
                         ) : (
-                          <span style={{ fontSize: 12, color: '#94A3B8', fontStyle: 'italic' }}>
-                            {isInProgress ? 'Đánh giá sau khi kết thúc' : 'Chưa đến hạn đánh giá'}
+                          <span style={{ fontSize: 13, color: '#475569' }}>
+                            {isInProgress ? 'Sau khi kết thúc' : 'Chưa đến hạn'}
                           </span>
                         )}
                       </td>
 
                       {/* Cột 6: Thao tác */}
                       <td style={{ padding: '16px 18px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
-                          {/* Xem tiến độ & sản phẩm bàn giao do sinh viên cập nhật (lưu DB) */}
-                          {onNavigateDeliverable && (
-                            <button
-                              onClick={() => onNavigateDeliverable(assign)}
-                              title="Xem tiến độ công việc và duyệt sản phẩm bàn giao"
-                              style={{
-                                background: '#F5F3FB',
-                                border: '1px solid #C4B5FD',
-                                color: '#5B4B8A',
-                                padding: '6px 12px',
-                                borderRadius: 8,
-                                fontSize: 12.5,
-                                fontWeight: 800,
-                                cursor: 'pointer',
-                                whiteSpace: 'nowrap'
-                              }}
-                            >
-                              Tiến độ & bàn giao
-                            </button>
-                          )}
+                        <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 6, alignItems: 'stretch' }}>
                           {/* Chưa bắt đầu -> Bắt đầu làm việc */}
                           {assign.status === 'NOT_STARTED' && (
                             <button
@@ -692,7 +667,7 @@ export default function EmployerAssignmentsPage({
                                 disabled={actionLoading}
                                 title="Xác nhận sinh viên đã hoàn thành thời hạn làm việc và mở đánh giá"
                                 style={{
-                                  background: '#059669',
+                                  background: '#047857',
                                   border: 'none',
                                   color: '#ffffff',
                                   padding: '6px 14px',
@@ -718,7 +693,7 @@ export default function EmployerAssignmentsPage({
                                 style={{
                                   background: '#FFF1F2',
                                   border: '1px solid #FECDD3',
-                                  color: '#E11D48',
+                                  color: '#9F1239',
                                   padding: '6px 10px',
                                   borderRadius: 8,
                                   fontSize: 12,
@@ -778,7 +753,7 @@ export default function EmployerAssignmentsPage({
           <form onSubmit={handleSubmitStudentReview} style={{ padding: '24px 28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <span style={{ fontSize: 11.5, fontWeight: 800, background: '#FEF3C7', color: '#B45309', padding: '3px 10px', borderRadius: 12 }}>
+                <span style={{ fontSize: 12.5, fontWeight: 800, background: '#FEF3C7', color: '#92400E', padding: '3px 10px', borderRadius: 12 }}>
                   ⭐ ĐÁNH GIÁ SINH VIÊN PART-TIME
                 </span>
                 <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>
@@ -923,7 +898,7 @@ export default function EmployerAssignmentsPage({
           <div style={{ padding: '24px 28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <span style={{ fontSize: 11.5, fontWeight: 800, background: '#FEF2F2', color: '#DC2626', padding: '3px 10px', borderRadius: 12 }}>
+                <span style={{ fontSize: 12.5, fontWeight: 800, background: '#FEF2F2', color: '#991B1B', padding: '3px 10px', borderRadius: 12 }}>
                   KẾT THÚC HỢP ĐỒNG SỚM
                 </span>
                 <h2 style={{ fontSize: 19, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>

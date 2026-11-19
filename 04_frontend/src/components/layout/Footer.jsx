@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { API_BASE } from '../../config/api';
+import React from 'react';
+import useJobCategories from '../../hooks/useJobCategories';
 
 export default function Footer({
   onSelectCategory,
@@ -8,14 +8,8 @@ export default function Footer({
   onOpenSupport,
   onNavigateAbout
 }) {
-  // Ngành nghề lấy từ danh mục admin quản lý (đã sắp theo số tin đang tuyển) → admin đổi thì footer đổi theo
-  const [categories, setCategories] = useState([]);
-  useEffect(() => {
-    fetch(`${API_BASE}/jobs/categories`)
-      .then(res => res.json())
-      .then(data => { if (data.success) setCategories(data.data.slice(0, 5)); })
-      .catch(() => {});
-  }, []);
+  // Ngành nghề = đúng danh mục admin quản lý (đang hiển thị), sắp theo số tin đang tuyển
+  const categories = useJobCategories();
 
   const handleNav = (tab) => {
     if (onNavigateTab) {
@@ -47,8 +41,7 @@ export default function Footer({
         color: '#A99EB8',
         fontSize: '13.5px',
         lineHeight: 1.6,
-        marginTop: 'auto',
-        fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+        marginTop: 'auto'
       }}
     >
       {/* =========================================================================

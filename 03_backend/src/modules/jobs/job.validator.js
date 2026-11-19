@@ -23,7 +23,10 @@ function validateCreateJob(req, res, next) {
     }
 
     const { application_deadline } = req.body;
-    if (application_deadline) {
+    // Bắt buộc khi đăng tin mới; khi sửa tin, bỏ trống = giữ hạn nộp cũ
+    if (!application_deadline) {
+        if (req.method === 'POST') errors.push('Hạn nộp hồ sơ không được để trống');
+    } else {
         const deadlineDate = new Date(application_deadline);
         if (isNaN(deadlineDate.getTime())) {
             errors.push('Hạn nộp hồ sơ không đúng định dạng ngày tháng');

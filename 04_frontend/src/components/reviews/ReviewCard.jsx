@@ -3,7 +3,7 @@ import { ShieldCheck, Flag, MessageSquareReply, Briefcase, ChevronDown, ChevronU
 import RatingStars from './RatingStars';
 import { EXPERIENCE_LABEL, COMPANY_CRITERIA, JOB_CRITERIA, reviewDate, formatRating } from '../../utils/reviewDisplay';
 
-const chip = (bg, color, border) => ({ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11.5, fontWeight: 700, padding: '2px 9px', borderRadius: 999, background: bg, color, border: `1px solid ${border}` });
+const chip = (bg, color, border) => ({ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12.5, fontWeight: 700, padding: '2px 9px', borderRadius: 999, background: bg, color, border: `1px solid ${border}` });
 const textStyle = { fontSize: 14, color: '#334155', lineHeight: 1.65, margin: 0, whiteSpace: 'pre-line', overflowWrap: 'anywhere' };
 
 function Labeled({ label, color, children }) {
@@ -46,7 +46,7 @@ export default function ReviewCard({ review, onReport, onOpenJob, children }) {
         </div>
       )}
 
-      {isCompany && <h4 style={{ fontSize: 15.5, fontWeight: 800, color: 'var(--color-text)', margin: '10px 0 0 0', overflowWrap: 'anywhere' }}>{review.title}</h4>}
+      {isCompany && <h3 style={{ fontSize: 15.5, fontWeight: 800, color: 'var(--color-text)', margin: '10px 0 0 0', overflowWrap: 'anywhere' }}>{review.title}</h3>}
       {isCompany ? (
         <>
           <Labeled label="Ưu điểm" color="#047857">{review.pros}</Labeled>
@@ -84,11 +84,11 @@ export default function ReviewCard({ review, onReport, onOpenJob, children }) {
       </div>
 
       {review.reply && (
-        <div style={{ marginTop: 12, background: '#F8F7FB', borderLeft: '3px solid #7565A8', borderRadius: 8, padding: '10px 12px' }}>
+        <div style={{ marginTop: 12, background: '#F8F7FB', border: '1px solid #E9E5F3', borderRadius: 8, padding: '10px 12px' }}>
           <div style={{ fontSize: 12, fontWeight: 800, color: '#594675', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-            <MessageSquareReply size={13} /> Phản hồi từ nhà tuyển dụng · <span style={{ fontWeight: 500, color: '#94A3B8' }}>{reviewDate(review.reply.updated_at)}</span>
+            <MessageSquareReply size={13} /> Phản hồi từ nhà tuyển dụng · <span style={{ fontWeight: 500, color: '#475569' }}>{reviewDate(review.reply.updated_at)}</span>
           </div>
-          <p style={{ ...textStyle, fontSize: 13.5 }}>{review.reply.content}</p>
+          <p style={{ ...textStyle, fontSize: 13.5, maxWidth: '72ch' }}>{review.reply.content}</p>
         </div>
       )}
       {children}

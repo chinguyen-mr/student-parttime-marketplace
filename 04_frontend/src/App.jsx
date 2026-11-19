@@ -40,6 +40,7 @@ import AccountSettingsPage from './pages/student/AccountSettingsPage';
 import { API_BASE, checkBackendConnection, formatApiError } from './config/api';
 import { takeRestoredTab, rememberTab, clearRememberedTabs } from './utils/rememberedTab';
 import { isImeComposing } from './utils/ime';
+import useJobCategories from './hooks/useJobCategories';
 
 // ===== Giữ đăng nhập & vị trí khi tải lại trang =====
 const SESSION_KEY = 'jobnest_session';
@@ -153,7 +154,8 @@ export default function App() {
     'search',
     'featured_jobs',
     'about',
-    'employer_public_profile'
+    'employer_public_profile',
+    'job_detail'
   ].includes(activeTab) && !isEmployerWorkspace && !isAdminWorkspace;
 
   const isEmployerOperationalScreen = isEmployerWorkspace || isAdminWorkspace || (
@@ -679,6 +681,7 @@ export default function App() {
   // Filters for job search (Screen 6)
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const jobCategories = useJobCategories(); // ngành nghề thật (Admin quản lý) cho ô lọc
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedSalary, setSelectedSalary] = useState('');
   const [selectedExperience, setSelectedExperience] = useState('');
@@ -691,6 +694,10 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    // Thu hồi phiên phía server; lỗi mạng không chặn việc đăng xuất ở trình duyệt
+    if (currentUser?.token) {
+      fetch(`${API_BASE}/auth/logout`, { method: 'POST', headers: { Authorization: `Bearer ${currentUser.token}` } }).catch(() => {});
+    }
     setCurrentUser(null);
     showToast('Đã đăng xuất khỏi tài khoản.');
     setActiveTab('jobs');
@@ -900,7 +907,7 @@ export default function App() {
   // Handle Job Info Update (from JobDetailModal Edit mode)
   const handleUpdateJobInfo = async (updatedJob) => {
     setSelectedJob(prev => ({ ...prev, ...updatedJob }));
-    showToast(`Đã lưu thay đổi thông tin tin tuyển dụng "${updatedJob.title}" thành công!`);
+    showToast(`Đã lưu thay đổi tin "${updatedJob.title}". Tin được gửi Admin duyệt lại trước khi hiển thị với sinh viên.`);
     if (typeof updatedJob.id === 'number' || !String(updatedJob.id).startsWith('emp-job-')) {
       try {
         await fetch(`${API_BASE}/jobs/${updatedJob.id}`, {
@@ -1228,7 +1235,7 @@ export default function App() {
                 }}
                 style={{
                   background: '#F1EEF8',
-                  color: '#7565A8',
+                  color: '#4C3D7A',
                   border: '1.5px solid #D8B4FE',
                   borderRadius: 20,
                   padding: '3px 12px',
@@ -1256,7 +1263,7 @@ export default function App() {
                   }}
                   style={{
                     background: '#ECFDF5',
-                    color: '#059669',
+                    color: '#065F46',
                     border: '1.5px solid #A7F3D0',
                     borderRadius: 20,
                     padding: '4px 14px',
@@ -1341,20 +1348,10 @@ export default function App() {
                   e.currentTarget.style.background = '#F8FAFC';
                   e.currentTarget.style.borderColor = '#CBD5E1';
                 }}
-                title="Chuyển sang Trường 2: Không gian Nghiên cứu thị trường / Việc làm công khai"
+                title="Xem trang việc làm công khai"
               >
                 <Search size={16} color="#059669" />
                 <span>Khám phá thị trường</span>
-                <span style={{
-                  fontSize: 11,
-                  background: '#DCFCE7',
-                  color: '#15803D',
-                  padding: '1px 8px',
-                  borderRadius: 10,
-                  fontWeight: 800
-                }}>
-                  Trường 2
-                </span>
               </button>
             </div>
           ) : (
@@ -1565,8 +1562,8 @@ export default function App() {
                 )}
               </div>
 
-              {/* Dành cho nhà tuyển dụng */}
-              <button
+              {/* Dành cho nhà tuyển dụng — ẩn khi NTD đã đăng nhập (đã có nút ← Về trang Quản lý) */}
+              {currentUser?.role !== 'EMPLOYER' && <button
                 type="button"
                 onClick={() => {
                   if (currentUser?.role === 'EMPLOYER') {
@@ -1589,7 +1586,7 @@ export default function App() {
                 }}
               >
                 Dành cho nhà tuyển dụng
-              </button>
+              </button>}
             </nav>
           )}
 
@@ -1654,7 +1651,7 @@ export default function App() {
                 onMouseEnter={(e) => e.currentTarget.style.filter = 'brightness(1.08)'}
                 onMouseLeave={(e) => e.currentTarget.style.filter = 'none'}
               >
-                <span>← Về trang Quản lý</span>
+                <span>← Trang quản lý</span>
               </button>
             )}
 
@@ -1679,7 +1676,7 @@ export default function App() {
                 onMouseEnter={(e) => e.currentTarget.style.background = '#F3F4F6'}
                 onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
               >
-                Đăng tin tuyển dụng
+                Đăng tin
               </button>
             )}
 
@@ -1956,13 +1953,11 @@ export default function App() {
               <div>
                 {/* Search & Filter Hero Banner matching Screen 6 */}
                 <div style={{
-                  background: 'linear-gradient(135deg, #5C4B82 0%, #7565A8 55%, #927FB9 100%)',
+                  background: '#5C4B82',
                   borderRadius: 14,
-                  border: '1px solid rgba(244, 185, 157, 0.35)',
                   padding: '32px 30px',
                   color: '#ffffff',
                   marginBottom: 28,
-                  boxShadow: 'var(--shadow-lg)',
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
                     <div>
@@ -1984,7 +1979,7 @@ export default function App() {
                       <h2 style={{ fontSize: 24, fontWeight: 800, color: '#ffffff', margin: '0 0 6px 0', letterSpacing: '-0.3px' }}>
                         TÌM KIẾM VIỆC LÀM PART-TIME & FULL-TIME
                       </h2>
-                      <p style={{ color: 'var(--color-lavender-light)', fontSize: 13.5, margin: 0, maxWidth: 640, lineHeight: 1.5 }}>
+                      <p style={{ color: '#FFFFFF', fontSize: 14, margin: 0, maxWidth: '60ch', lineHeight: 1.55 }}>
                         Khám phá việc làm bán thời gian và toàn thời gian chất lượng dành riêng cho sinh viên trên hệ thống JobNest. Minh bạch thù lao, hợp đồng rõ ràng và bảo vệ quyền lợi sinh viên tối đa.
                       </p>
                     </div>
@@ -2043,16 +2038,7 @@ export default function App() {
                       searchPlaceholder="Tìm ngành nghề..."
                       options={[
                         { value: '', label: `Tất cả ngành nghề (${jobs.length})` },
-                        { value: 'Công nghệ thông tin', label: 'Công nghệ thông tin' },
-                        { value: 'Thiết kế đồ họa', label: 'Thiết kế đồ họa' },
-                        { value: 'F&B / Dịch vụ ăn uống', label: 'F&B / Dịch vụ ăn uống' },
-                        { value: 'Bán lẻ', label: 'Bán lẻ' },
-                        { value: 'Logistics / Giao nhận', label: 'Logistics / Giao nhận' },
-                        { value: 'Sản xuất / Kỹ thuật', label: 'Sản xuất / Kỹ thuật' },
-                        { value: 'Giáo dục / Đào tạo', label: 'Giáo dục / Đào tạo' },
-                        { value: 'Hàng tiêu dùng / FMCG', label: 'Hàng tiêu dùng / FMCG' },
-                        { value: 'Tài chính / Kế toán', label: 'Tài chính / Kế toán' },
-                        { value: 'Marketing & Sự kiện', label: 'Marketing & Sự kiện' },
+                        ...jobCategories.map(c => ({ value: c.name, label: c.name })),
                       ]}
                     />
 
@@ -2251,7 +2237,7 @@ export default function App() {
                     </button>}
                   </div>
 
-                  <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-text)' }}>
                     Hiển thị <strong>{filteredJobs.length}</strong> vị trí phù hợp
                   </span>
                 </div>

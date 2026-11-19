@@ -179,7 +179,7 @@ export default function JobCard({
           >
             {job.title}
           </h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', columnGap: 5, rowGap: 2, minWidth: 0 }}>
             <span
               onClick={(e) => {
                 if (onViewCompany) {
@@ -190,7 +190,7 @@ export default function JobCard({
               style={{
                 fontSize: 13, color: 'var(--color-text-secondary, #475569)', fontWeight: 600,
                 cursor: onViewCompany ? 'pointer' : 'default',
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0
+                minWidth: 0, overflowWrap: 'anywhere'
               }}
               title={companyDisplayName}
             >
@@ -203,7 +203,7 @@ export default function JobCard({
             )}
           </div>
           {posted && (
-            <div style={{ fontSize: 12, color: 'var(--color-text-muted, #94A3B8)', marginTop: 3 }}>{posted}</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-secondary, #475569)', marginTop: 3 }}>{posted}</div>
           )}
         </div>
 
@@ -282,7 +282,7 @@ export default function JobCard({
                     }}
                   >
                     <span style={{ color: '#15803d', flexShrink: 0, fontWeight: 700 }}>✓</span>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{reason}</span>
+                    <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{reason}</span>
                   </div>
                 ))}
               </div>

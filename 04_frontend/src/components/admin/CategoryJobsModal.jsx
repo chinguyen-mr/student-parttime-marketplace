@@ -84,8 +84,8 @@ export default function CategoryJobsModal({ category, token, adminName, onClose,
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxHeight: '88vh', padding: 24, boxSizing: 'border-box' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#7565A8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Danh mục #{category.id}</div>
-              <h2 style={{ margin: '2px 0 0', fontSize: 21, fontWeight: 800, color: '#0F172A' }}>{category.name}</h2>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#594675', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Ngành nghề #{category.id}</div>
+              <h2 style={{ margin: '2px 0 0', fontSize: 20, fontWeight: 800, color: '#0F172A' }}>{category.name}</h2>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <ExportMenu getReport={getReport} disabled={state.loading || !!state.error} />
@@ -101,7 +101,7 @@ export default function CategoryJobsModal({ category, token, adminName, onClose,
                 <Icon size={20} color={color} />
                 <div>
                   <div style={{ fontSize: 19, fontWeight: 800, color: '#0F172A' }}>{state.loading ? '…' : value}</div>
-                  <div style={{ fontSize: 12, color: '#64748B' }}>{label}</div>
+                  <div style={{ fontSize: 13, color: '#475569' }}>{label}</div>
                 </div>
               </div>
             ))}
@@ -122,9 +122,9 @@ export default function CategoryJobsModal({ category, token, adminName, onClose,
             </label>
           </div>
 
-          <div style={{ overflow: 'auto', border: '1.5px solid #0F172A', borderRadius: 12, minHeight: 200 }}>
+          <div style={{ overflow: 'auto', border: '1px solid #CBD5E1', borderRadius: 12, minHeight: 200, padding: '4px 8px 8px' }}>
             {state.loading ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>
+              <div style={{ padding: 40, textAlign: 'center', color: '#475569' }}>
                 <RefreshCw size={22} className="animate-spin" style={{ margin: '0 auto 10px' }} />Đang tải danh sách tin…
               </div>
             ) : state.error ? (
@@ -134,7 +134,7 @@ export default function CategoryJobsModal({ category, token, adminName, onClose,
                 <button type="button" onClick={load} style={chip(true)}>Thử lại</button>
               </div>
             ) : shown.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>
+              <div style={{ padding: 40, textAlign: 'center', color: '#475569' }}>
                 {jobs.length === 0 ? 'Danh mục này chưa có tin tuyển dụng nào.' : 'Không có tin nào khớp bộ lọc.'}
               </div>
             ) : (
@@ -152,10 +152,10 @@ export default function CategoryJobsModal({ category, token, adminName, onClose,
                     const info = pending ? getStatusInfo('PENDING') : j.moderation_status === 'REJECTED' ? getStatusInfo('REJECTED') : getStatusInfo(j.status);
                     return (
                       <tr key={j.id} style={{ borderBottom: '1px solid #E2E8F0' }}>
-                        <td style={{ padding: '10px 12px', color: '#64748B', fontWeight: 700 }}>#{j.id}</td>
+                        <td style={{ padding: '10px 12px', color: '#475569', fontWeight: 700 }}>#{j.id}</td>
                         <td style={{ padding: '10px 12px' }}>
                           <div style={{ fontWeight: 700, color: '#0F172A' }}>{j.title}</div>
-                          <div style={{ fontSize: 12, color: '#64748B' }}>{j.company_name}</div>
+                          <div style={{ fontSize: 13, color: '#475569' }}>{j.company_name}</div>
                         </td>
                         <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>{formatSalary(j)}</td>
                         <td style={{ padding: '10px 12px' }}>

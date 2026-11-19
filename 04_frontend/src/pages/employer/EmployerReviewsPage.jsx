@@ -13,9 +13,9 @@ const btn = (primary) => ({ display: 'inline-flex', alignItems: 'center', gap: 6
 function StatCard({ icon: Icon, label, value, hint }) {
   return (
     <div style={{ ...card, padding: '14px 16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#64748B', fontSize: 12.5, fontWeight: 700 }}><Icon size={15} color="#7565A8" /> {label}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#475569', fontSize: 13, fontWeight: 700 }}><Icon size={15} color="#7565A8" /> {label}</div>
       <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', marginTop: 6 }}>{value}</div>
-      {hint && <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{hint}</div>}
+      {hint && <div style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>{hint}</div>}
     </div>
   );
 }
@@ -135,8 +135,8 @@ export default function EmployerReviewsPage({ currentUser, showToast }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>Đánh giá từ ứng viên</h1>
-        <p style={{ fontSize: 13, color: '#64748B', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Info size={14} /> Bạn có thể phản hồi công khai hoặc báo cáo đánh giá vi phạm. Doanh nghiệp không thể sửa hay xóa đánh giá của ứng viên.
+        <p style={{ fontSize: 13.5, color: '#475569', margin: '4px 0 0 0', display: 'flex', alignItems: 'flex-start', gap: 6, maxWidth: '60ch' }}>
+          <Info size={14} style={{ flexShrink: 0, marginTop: 3 }} /> Bạn có thể phản hồi công khai hoặc báo cáo đánh giá vi phạm. Doanh nghiệp không thể sửa hay xóa đánh giá của ứng viên.
         </p>
       </div>
 
@@ -147,51 +147,8 @@ export default function EmployerReviewsPage({ currentUser, showToast }) {
         <StatCard icon={MessageSquare} label="Chưa phản hồi" value={overview.unreplied} />
       </div>
 
-      {c.total > 0 && (
-        <div style={card}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 12px 0' }}>Điểm doanh nghiệp theo tiêu chí</h2>
-          <ReviewSummary summary={c} criteria={COMPANY_CRITERIA} compact />
-        </div>
-      )}
-      {j.total > 0 && (
-        <div style={card}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 12px 0' }}>Điểm công việc theo tiêu chí (tính riêng)</h2>
-          <ReviewSummary summary={j} criteria={JOB_CRITERIA} compact />
-        </div>
-      )}
-
-      {months.length > 0 && (
-        <div style={card}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 10px 0' }}>Thống kê theo tháng (12 tháng gần nhất)</h2>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 420 }}>
-              <thead>
-                <tr style={{ textAlign: 'left', color: '#64748B', borderBottom: '1px solid #E2E8F0' }}>
-                  <th style={{ padding: '6px 8px' }}>Tháng</th>
-                  <th style={{ padding: '6px 8px' }}>Đánh giá doanh nghiệp</th>
-                  <th style={{ padding: '6px 8px' }}>Đánh giá công việc</th>
-                </tr>
-              </thead>
-              <tbody>
-                {months.map(m => {
-                  const cr = monthRow('company', m);
-                  const jr = monthRow('job', m);
-                  const cell = (r) => (r ? `${r.total} lượt · TB ${formatRating(r.average)}★` : '—');
-                  return (
-                    <tr key={m} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '6px 8px', fontWeight: 700 }}>{monthLabel(m)}</td>
-                      <td style={{ padding: '6px 8px' }}>{cell(cr)}</td>
-                      <td style={{ padding: '6px 8px' }}>{cell(jr)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
       <div style={card}>
+        <h2 style={{ fontSize: 19, fontWeight: 800, margin: '0 0 12px 0' }}>Đánh giá mới nhất</h2>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12 }}>
           <div role="tablist" aria-label="Loại đánh giá" style={{ display: 'flex', gap: 6 }}>
             {[['company', 'Đánh giá doanh nghiệp'], ['job', 'Đánh giá công việc']].map(([k, text]) => (
@@ -207,7 +164,7 @@ export default function EmployerReviewsPage({ currentUser, showToast }) {
           </select>
         </div>
 
-        {list.loading ? <div aria-busy="true" style={{ color: '#94A3B8', fontSize: 13 }}>Đang tải…</div>
+        {list.loading ? <div aria-busy="true" style={{ color: '#475569', fontSize: 13 }}>Đang tải…</div>
           : list.error ? <div role="alert" style={{ color: '#B91C1C', fontSize: 13 }}>Không tải được danh sách. <button type="button" style={btn(false)} onClick={loadList}>Thử lại</button></div>
           : list.data.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '24px 12px', border: '1px dashed #E2E8F0', borderRadius: 12, color: '#64748B', fontSize: 13.5 }}>
@@ -243,6 +200,50 @@ export default function EmployerReviewsPage({ currentUser, showToast }) {
           </nav>
         )}
       </div>
+
+      {c.total > 0 && (
+        <div style={card}>
+          <h2 style={{ fontSize: 19, fontWeight: 800, margin: '0 0 12px 0' }}>Điểm doanh nghiệp theo tiêu chí</h2>
+          <ReviewSummary summary={c} criteria={COMPANY_CRITERIA} compact />
+        </div>
+      )}
+      {j.total > 0 && (
+        <div style={card}>
+          <h2 style={{ fontSize: 19, fontWeight: 800, margin: '0 0 12px 0' }}>Điểm công việc theo tiêu chí (tính riêng)</h2>
+          <ReviewSummary summary={j} criteria={JOB_CRITERIA} compact />
+        </div>
+      )}
+
+      {months.length > 0 && (
+        <div style={card}>
+          <h2 style={{ fontSize: 19, fontWeight: 800, margin: '0 0 10px 0' }}>Thống kê theo tháng (12 tháng gần nhất)</h2>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 420 }}>
+              <thead>
+                <tr style={{ textAlign: 'left', color: '#475569', borderBottom: '1px solid #E2E8F0' }}>
+                  <th style={{ padding: '6px 8px' }}>Tháng</th>
+                  <th style={{ padding: '6px 8px' }}>Đánh giá doanh nghiệp</th>
+                  <th style={{ padding: '6px 8px' }}>Đánh giá công việc</th>
+                </tr>
+              </thead>
+              <tbody>
+                {months.map(m => {
+                  const cr = monthRow('company', m);
+                  const jr = monthRow('job', m);
+                  const cell = (r) => (r ? `${r.total} lượt · TB ${formatRating(r.average)}★` : '—');
+                  return (
+                    <tr key={m} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                      <td style={{ padding: '6px 8px', fontWeight: 700 }}>{monthLabel(m)}</td>
+                      <td style={{ padding: '6px 8px' }}>{cell(cr)}</td>
+                      <td style={{ padding: '6px 8px' }}>{cell(jr)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <ReportViolationModal
         isOpen={Boolean(reportTarget)}

@@ -246,7 +246,7 @@ export default function EmployerPortal({
               width: 58,
               height: 58,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              background: '#7565A8',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
@@ -254,8 +254,7 @@ export default function EmployerPortal({
               fontSize: 22,
               fontWeight: 800,
               marginBottom: 10,
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
-              border: '2px solid #ffffff',
+              border: '2px solid #D8B4FE',
               overflow: 'hidden'
             }}>
               {profileData?.avatar_url ? (
@@ -266,7 +265,7 @@ export default function EmployerPortal({
             </div>
 
             {/* Tên doanh nghiệp */}
-            <h3 style={{
+            <div style={{
               fontSize: 15,
               fontWeight: 800,
               color: '#0F172A',
@@ -274,7 +273,7 @@ export default function EmployerPortal({
               lineHeight: 1.3
             }}>
               {displayedName}
-            </h3>
+            </div>
 
             {/* Email */}
             <div style={{
@@ -478,10 +477,6 @@ export default function EmployerPortal({
           {activeTab === 'assignments' && (
             <EmployerAssignmentsPage
               currentUser={currentUser}
-              onNavigateDeliverable={(assignment) => {
-                setSelectedAssignmentForSubflow(assignment);
-                setActiveTab('deliverable');
-              }}
               onNavigateReview={(assignment) => {
                 setSelectedAssignmentForSubflow(assignment);
                 setActiveTab('review_student');

@@ -44,7 +44,8 @@ class JobRepository {
     }
 
     async update(jobId, { title, description, requirements, category, location, salary_type, salary, work_type, application_deadline, job_banner_url, work_schedules, headcount }) {
-        // Tin bị Admin từ chối, khi doanh nghiệp sửa lại → tự gửi duyệt lại (PENDING)
+        // Mọi lần doanh nghiệp sửa nội dung tin → gửi Admin duyệt lại (PENDING), tin tạm ẩn khỏi trang sinh viên
+        // (tránh đăng nội dung hợp lệ để được duyệt rồi sửa thành nội dung khác)
         const res = await db.query(
             `UPDATE jobs
              SET title = $1,
@@ -58,7 +59,7 @@ class JobRepository {
                  application_deadline = $9,
                  job_banner_url = $10,
                  headcount = $12,
-                 moderation_status = CASE WHEN moderation_status = 'REJECTED' THEN 'PENDING' ELSE moderation_status END,
+                 moderation_status = 'PENDING',
                  updated_at = CURRENT_TIMESTAMP
              WHERE id = $11
              RETURNING *, headcount AS quantity_required`,

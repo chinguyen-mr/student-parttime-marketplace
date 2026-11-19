@@ -35,6 +35,7 @@ export default function LoginPage({
   // Forgot / Reset states
   const [forgotEmail, setForgotEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
+  const [forgotStep, setForgotStep] = useState('email'); // 'email' → gửi mã | 'code' → nhập mã + mật khẩu mới
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
@@ -100,19 +101,53 @@ export default function LoginPage({
     }
   };
 
-  // 2. Submit Quên mật khẩu (Forgot Password)
-  const handleForgotSubmit = async (e) => {
-    e.preventDefault();
+  // 2a. Quên mật khẩu — bước 1: gửi mã xác nhận 6 số tới email
+  const sendResetCode = async () => {
     setGeneralError('');
     setSuccessMessage('');
-
     if (!forgotEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail.trim())) {
       setGeneralError('Vui lòng nhập địa chỉ email hợp lệ đã đăng ký.');
       return;
     }
+    try {
+      setLoading(true);
+      const res = await fetch(`${apiBase}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setGeneralError(data.message || 'Không gửi được mã xác nhận. Vui lòng thử lại.');
+        return;
+      }
+      setForgotStep('code');
+      setOtpCode('');
+      setSuccessMessage(data.message || 'Đã gửi mã xác nhận tới email của bạn.');
+    } catch (err) {
+      setGeneralError(formatApiError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    if (!newPassword || newPassword.length < 6) {
-      setGeneralError('Mật khẩu mới phải có ít nhất 6 ký tự.');
+  // 2b. Quên mật khẩu — bước 2: nhập mã + mật khẩu mới
+  const handleForgotSubmit = async (e) => {
+    e.preventDefault();
+    if (forgotStep === 'email') {
+      sendResetCode();
+      return;
+    }
+    setGeneralError('');
+    setSuccessMessage('');
+
+    if (!/^\d{6}$/.test(otpCode.trim())) {
+      setGeneralError('Mã xác nhận gồm 6 chữ số trong email.');
+      return;
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      setGeneralError('Mật khẩu mới phải có ít nhất 8 ký tự.');
       return;
     }
 
@@ -128,15 +163,18 @@ export default function LoginPage({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: forgotEmail.trim(),
+          otp: otpCode.trim(),
           new_password: newPassword,
         }),
       });
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setGeneralError(data.message || 'Không thể đặt lại mật khẩu. Vui lòng kiểm tra lại email.');
+        setGeneralError(data.message || 'Không thể đặt lại mật khẩu. Vui lòng kiểm tra lại mã xác nhận.');
         return;
       }
+      setForgotStep('email');
+      setOtpCode('');
 
       setSuccessMessage('Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.');
       setLoginPassword(newPassword);
@@ -484,7 +522,7 @@ export default function LoginPage({
                     }}
                     style={{
                       width: '100%',
-                      height: '42px',
+                      padding: '11px 20px', lineHeight: '20px',
                       borderRadius: '9999px',
                       background: '#FFFFFF',
                       border: '1px solid #D1D5DB',
@@ -512,8 +550,8 @@ export default function LoginPage({
                     Tiếp tục với Google
                   </button>
 
-                  {/* 2. Facebook & LinkedIn Row */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  {/* 2. Facebook & LinkedIn: mỗi nút một hàng, cùng kích thước nút Google */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
                     <button
                       type="button"
                       onClick={() => {
@@ -527,7 +565,7 @@ export default function LoginPage({
                         }
                       }}
                       style={{
-                        height: '40px',
+                        padding: '11px 20px', lineHeight: '20px',
                         borderRadius: '9999px',
                         background: '#FFFFFF',
                         border: '1px solid #D1D5DB',
@@ -535,7 +573,7 @@ export default function LoginPage({
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '8px',
-                        fontSize: '13.5px',
+                        fontSize: '14px',
                         fontWeight: 600,
                         color: '#1F2937',
                         cursor: 'pointer',
@@ -564,7 +602,7 @@ export default function LoginPage({
                         }
                       }}
                       style={{
-                        height: '40px',
+                        padding: '11px 20px', lineHeight: '20px',
                         borderRadius: '9999px',
                         background: '#FFFFFF',
                         border: '1px solid #D1D5DB',
@@ -572,7 +610,7 @@ export default function LoginPage({
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '8px',
-                        fontSize: '13.5px',
+                        fontSize: '14px',
                         fontWeight: 600,
                         color: '#1F2937',
                         cursor: 'pointer',
@@ -644,14 +682,12 @@ export default function LoginPage({
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.18 }}
           >
-            <div style={{ marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: 0 }}>
-                Đặt lại mật khẩu
-              </h3>
-              <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0 0 0' }}>
-                Nhập email tài khoản và thiết lập mật khẩu mới ngay
-              </p>
-            </div>
+            {/* Tiêu đề "Đặt lại mật khẩu" đã có ở phần đầu thẻ → chỉ giữ dòng hướng dẫn */}
+            <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', margin: '0 0 20px 0', textAlign: 'center' }}>
+              {forgotStep === 'email'
+                ? 'Nhập email tài khoản, chúng tôi sẽ gửi mã xác nhận 6 chữ số'
+                : `Nhập mã đã gửi tới ${forgotEmail.trim()} và đặt mật khẩu mới`}
+            </p>
 
             <form onSubmit={handleForgotSubmit}>
               {/* Email */}
@@ -664,12 +700,49 @@ export default function LoginPage({
                   required
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
+                  readOnly={forgotStep === 'code'}
                   placeholder="name@sinhvien.vlu.edu.vn"
                   style={{
                     width: '100%',
                     height: '38px',
                     padding: '0 12px',
                     fontSize: '13.5px',
+                    border: '1px solid var(--color-border-hover)',
+                    borderRadius: '6px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    background: forgotStep === 'code' ? '#F3F4F6' : '#ffffff'
+                  }}
+                />
+              </div>
+
+              {forgotStep === 'code' && (<>
+              {/* Mã xác nhận */}
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
+                  <label htmlFor="reset-otp" style={{ fontSize: '13px', fontWeight: 700, color: '#111827' }}>
+                    Mã xác nhận <span style={{ color: '#DC2626' }}>*</span>
+                  </label>
+                  <button type="button" onClick={sendResetCode} disabled={loading}
+                    style={{ background: 'none', border: 'none', padding: 0, fontSize: '12.5px', fontWeight: 600, color: '#7565A8', textDecoration: 'underline', cursor: 'pointer' }}>
+                    Gửi lại mã
+                  </button>
+                </div>
+                <input
+                  id="reset-otp"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  required
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="6 chữ số trong email"
+                  style={{
+                    width: '100%',
+                    height: '38px',
+                    padding: '0 12px',
+                    fontSize: '15px',
+                    letterSpacing: otpCode ? '4px' : 'normal',
                     border: '1px solid var(--color-border-hover)',
                     borderRadius: '6px',
                     outline: 'none',
@@ -689,7 +762,7 @@ export default function LoginPage({
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Tối thiểu 6 ký tự"
+                    placeholder="Tối thiểu 8 ký tự"
                     style={{
                       width: '100%',
                       height: '38px',
@@ -763,6 +836,7 @@ export default function LoginPage({
                   </button>
                 </div>
               </div>
+              </>)}
 
               {/* Nút Đặt lại mật khẩu & Quay lại */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
@@ -790,14 +864,16 @@ export default function LoginPage({
                   onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#635394'; }}
                   onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#7565A8'; }}
                 >
-                  {loading ? 'Đang cập nhật...' : 'Đặt lại mật khẩu'}
+                  {loading ? 'Đang xử lý...' : forgotStep === 'email' ? 'Gửi mã xác nhận' : 'Đặt lại mật khẩu'}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => {
                     setMode('login');
+                    setForgotStep('email');
                     setGeneralError('');
+                    setSuccessMessage('');
                   }}
                   style={{
                     background: 'none',
@@ -822,7 +898,7 @@ export default function LoginPage({
 
       {/* Footer copyright outside card (matching reference image 2) */}
       <div style={{ marginTop: '28px', textAlign: 'center' }}>
-        <p style={{ margin: 0, fontSize: '12px', color: '#9CA3AF' }}>
+        <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-secondary)' }}>
           &copy; 2026. All Rights Reserved. JobNest Platform.
         </p>
         <button

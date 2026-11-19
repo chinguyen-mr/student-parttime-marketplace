@@ -19,11 +19,16 @@ async function verifyToken(req, res, next) {
         if (decoded.id && !isAppealRoute) {
             try {
                 const userRes = await db.query(
-                    'SELECT id, status, suspension_reason, suspension_expires_at FROM users WHERE id = $1',
+                    'SELECT id, status, suspension_reason, suspension_expires_at, tokens_valid_after FROM users WHERE id = $1',
                     [decoded.id]
                 );
                 if (userRes && userRes.rows && userRes.rows.length > 0) {
                     const currentUser = userRes.rows[0];
+                    // Token phát hành trước/đúng lúc đăng xuất (hoặc đặt lại mật khẩu) đã bị thu hồi
+                    if (currentUser.tokens_valid_after && decoded.iat
+                        && decoded.iat <= Math.floor(new Date(currentUser.tokens_valid_after).getTime() / 1000)) {
+                        return next(new UnauthorizedError('Phiên đăng nhập đã kết thúc. Vui lòng đăng nhập lại'));
+                    }
                     if (currentUser.status === 'BANNED') {
                         return next(new ForbiddenError(`Tài khoản của bạn đã bị khóa bởi Quản trị viên. Lý do: ${currentUser.suspension_reason || 'Vi phạm điều khoản dịch vụ'}`));
                     }

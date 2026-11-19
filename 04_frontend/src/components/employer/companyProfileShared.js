@@ -146,7 +146,7 @@ export const input = {
 };
 export const inputError = { ...input, borderColor: '#DC2626' };
 export const labelStyle = { display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 };
-export const hintStyle = { fontSize: 12, color: '#64748B', margin: '4px 0 0 0', lineHeight: 1.5 };
+export const hintStyle = { fontSize: 12.5, color: '#475569', margin: '4px 0 0 0', lineHeight: 1.5, maxWidth: '55ch' };
 export const errorStyle = { fontSize: 12, color: '#B91C1C', margin: '4px 0 0 0' };
 export const grid = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 };
 export const btn = {
@@ -155,4 +155,4 @@ export const btn = {
 };
 export const btnDanger = { ...btn, borderColor: '#FECACA', color: '#DC2626' };
 export const btnPrimary = { ...btn, border: 'none', background: '#7565A8', color: '#ffffff', padding: '9px 16px', fontSize: 13.5 };
-export const sectionTitle = { fontSize: 16, fontWeight: 800, margin: '0 0 4px 0', color: 'var(--color-text)' };
+export const sectionTitle = { fontSize: 19, fontWeight: 800, margin: '0 0 4px 0', color: 'var(--color-text)' };

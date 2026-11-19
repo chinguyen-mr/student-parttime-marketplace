@@ -176,10 +176,10 @@ describe('JOBNEST — 8 Additional Screens Logic & Security Verification', () =>
             );
         });
 
-        it('2.2. Từ chối nếu mật khẩu mới dưới 6 ký tự', async () => {
+        it('2.2. Từ chối nếu mật khẩu mới dưới 8 ký tự', async () => {
             await assert.rejects(
-                () => authService.changePassword(1, { currentPassword: 'oldPassword123', newPassword: '123' }),
-                /ít nhất 6 ký tự/
+                () => authService.changePassword(1, { currentPassword: 'oldPassword123', newPassword: 'Abc1234' }),
+                /ít nhất 8 ký tự/
             );
         });
 

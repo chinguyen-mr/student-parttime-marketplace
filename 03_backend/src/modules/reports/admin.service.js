@@ -1,7 +1,17 @@
 const userRepository = require('../../database/repositories/user.repository');
 const jobRepository = require('../../database/repositories/job.repository');
 const db = require('../../config/db');
-const { NotFoundError, AppError } = require('../../utils/app-error');
+const { NotFoundError, AppError, ConflictError } = require('../../utils/app-error');
+
+// Tên ngành chuẩn hóa: bỏ khoảng trắng thừa; so trùng không phân biệt hoa thường
+const normalizeCategoryName = (name) => String(name || '').trim().replace(/\s+/g, ' ');
+async function assertCategoryNameFree(name, exceptId = null) {
+    const dup = await db.query(
+        'SELECT id FROM categories WHERE LOWER(name) = LOWER($1) AND ($2::int IS NULL OR id <> $2)',
+        [name, exceptId]
+    );
+    if (dup.rows.length) throw new ConflictError(`Ngành nghề "${name}" đã tồn tại.`);
+}
 
 class AdminService {
     // =========================================================================
@@ -386,7 +396,7 @@ class AdminService {
         let targetPreview = null;
         if (report.target_type === 'JOB') {
             const jobRes = await db.query(`
-                SELECT j.id, j.title, j.description, j.status, j.salary, j.work_type,
+                SELECT j.id, j.title, j.description, j.status, j.salary, j.salary_type, j.work_type,
                        u.full_name as employer_name, u.email as employer_email
                 FROM jobs j
                 LEFT JOIN users u ON j.employer_id = u.id
@@ -426,6 +436,9 @@ class AdminService {
             throw new NotFoundError('Không tìm thấy báo cáo');
         }
         const report = repRes.rows[0];
+        if (report.status === 'RESOLVED') {
+            throw new ConflictError('Báo cáo này đã được xử lý, không thể xử lý lại.');
+        }
 
         // Thực thi hành động tương ứng
         if (action === 'BAN_USER') {
@@ -471,11 +484,9 @@ class AdminService {
     // =========================================================================
     async listCategories() {
         const res = await db.query(`
-            SELECT c.*, 
-                   p.name as parent_name,
+            SELECT c.*,
                    (SELECT COUNT(*) FROM jobs WHERE category = c.name) as job_count
             FROM categories c
-            LEFT JOIN categories p ON c.parent_id = p.id
             ORDER BY c.id ASC
         `);
         return res.rows;
@@ -499,15 +510,18 @@ class AdminService {
         return { category: cat.rows[0], jobs: jobs.rows };
     }
 
-    async createCategory({ name, parent_id = null, is_active = true }, adminId = null) {
-        if (!name || !name.trim()) {
+    // Ngành nghề là danh sách phẳng: không dùng danh mục cha (cột parent_id trong DB được bỏ qua)
+    async createCategory({ name, is_active = true }, adminId = null) {
+        const cleanName = normalizeCategoryName(name);
+        if (!cleanName) {
             throw new AppError('Tên ngành nghề không được để trống', 400);
         }
+        await assertCategoryNameFree(cleanName);
         const res = await db.query(`
-            INSERT INTO categories (name, parent_id, is_active, created_at)
-            VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+            INSERT INTO categories (name, is_active, created_at)
+            VALUES ($1, $2, CURRENT_TIMESTAMP)
             RETURNING *
-        `, [name.trim(), parent_id || null, is_active !== false]);
+        `, [cleanName, is_active !== false]);
         
         const cat = res.rows[0];
         try {
@@ -520,15 +534,16 @@ class AdminService {
         return cat;
     }
 
-    async updateCategory(id, { name, parent_id = null, is_active = true }, adminId = null) {
+    async updateCategory(id, { name, is_active = true }, adminId = null) {
+        name = normalizeCategoryName(name);
+        if (name) await assertCategoryNameFree(name, Number(id));
         const res = await db.query(`
             UPDATE categories
             SET name = COALESCE($1, name),
-                parent_id = $2,
-                is_active = $3
-            WHERE id = $4
+                is_active = $2
+            WHERE id = $3
             RETURNING *
-        `, [name ? name.trim() : null, parent_id || null, is_active, id]);
+        `, [name ? name.trim() : null, is_active, id]);
 
         if (res.rows.length === 0) {
             throw new NotFoundError('Không tìm thấy danh mục');
@@ -549,6 +564,11 @@ class AdminService {
         if (catRes.rows.length === 0) {
             throw new NotFoundError('Không tìm thấy danh mục');
         }
+        // Tin tuyển dụng tham chiếu ngành theo tên → không xóa khi còn tin, chỉ cho ẩn (tắt hoạt động)
+        const used = await db.query('SELECT COUNT(*)::int AS n FROM jobs WHERE category = $1', [catRes.rows[0].name]);
+        if (used.rows[0].n > 0) {
+            throw new ConflictError(`Không thể xóa: còn ${used.rows[0].n} tin tuyển dụng thuộc ngành này. Hãy tắt hoạt động ngành thay vì xóa.`);
+        }
         await db.query('DELETE FROM categories WHERE id = $1', [id]);
         try {
             await db.query(`
@@ -564,7 +584,14 @@ class AdminService {
     // 6. ADMIN SYSTEM LOGS (WF-A08)
     // =========================================================================
     async listAdminLogs(options = {}) {
-        const { action, limit = 50, offset = 0 } = options;
+        const { action, from, to, limit = 50, offset = 0 } = options;
+        const isDay = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v));
+        if ((from && !isDay(from)) || (to && !isDay(to))) {
+            throw new AppError('Ngày lọc không hợp lệ (định dạng YYYY-MM-DD)', 400);
+        }
+        if (from && to && from > to) {
+            throw new AppError('Khoảng thời gian không hợp lệ: "Từ ngày" phải trước hoặc bằng "Đến ngày"', 400);
+        }
         let query = `
             SELECT l.*,
                    u.full_name as admin_name, u.email as admin_email,
@@ -586,6 +613,15 @@ class AdminService {
         if (action && action !== 'ALL') {
             params.push(action);
             query += ` AND l.action = $${params.length}`;
+        }
+        // Lọc theo ngày (giờ Việt Nam), tính trọn cả ngày đầu và ngày cuối
+        if (from) {
+            params.push(from);
+            query += ` AND (l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh')::date >= $${params.length}::date`;
+        }
+        if (to) {
+            params.push(to);
+            query += ` AND (l.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh')::date <= $${params.length}::date`;
         }
 
         params.push(limit, offset);
@@ -737,10 +773,10 @@ class AdminService {
 
     async resolveAppeal(appealId, payload, adminId = null) {
         const { status, admin_response } = payload;
-        if (!['APPROVED', 'REJECTED'].includes(status)) {
-            throw new AppError('Quyết định giải quyết khiếu nại không hợp lệ (APPROVED hoặc REJECTED)', 400);
+        if (!['IN_REVIEW', 'APPROVED', 'REJECTED'].includes(status)) {
+            throw new AppError('Trạng thái khiếu nại không hợp lệ (IN_REVIEW, APPROVED hoặc REJECTED)', 400);
         }
-        if (!admin_response || !admin_response.trim()) {
+        if (status !== 'IN_REVIEW' && (!admin_response || !admin_response.trim())) {
             throw new AppError('Bắt buộc phải nhập phản hồi của Quản trị viên.', 400);
         }
 
@@ -749,6 +785,28 @@ class AdminService {
             throw new NotFoundError('Không tìm thấy đơn khiếu nại');
         }
         const appeal = appealRes.rows[0];
+
+        // Quy tắc: Chờ xử lý → Đang xử lý → Chấp nhận / Từ chối; khiếu nại đã có kết quả thì không đổi nữa
+        if (['APPROVED', 'REJECTED'].includes(appeal.status)) {
+            throw new ConflictError('Khiếu nại này đã có kết quả, không thể cập nhật lại.');
+        }
+        if (status === 'IN_REVIEW') {
+            if (appeal.status !== 'PENDING') {
+                throw new ConflictError('Khiếu nại đã ở trạng thái Đang xử lý.');
+            }
+            const inReview = await db.query(
+                `UPDATE user_appeals SET status = 'IN_REVIEW', resolved_by = $1 WHERE id = $2 RETURNING *`,
+                [adminId, appealId]
+            );
+            try {
+                await db.query(
+                    `INSERT INTO notifications (user_id, type, title, body, target_type, target_id)
+                     VALUES ($1, 'APPEAL_IN_REVIEW', 'Khiếu nại đang được xử lý', $2, 'USER', $1)`,
+                    [appeal.user_id, 'Quản trị viên đã tiếp nhận và đang xem xét khiếu nại của bạn. Kết quả sẽ được thông báo sớm.']
+                );
+            } catch (e) {}
+            return inReview.rows[0];
+        }
 
         const updatedRes = await db.query(
             `UPDATE user_appeals

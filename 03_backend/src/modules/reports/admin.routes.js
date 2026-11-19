@@ -326,10 +326,12 @@ router.delete('/categories/:id', async (req, res, next) => {
 // GET /api/admin/logs
 router.get('/logs', async (req, res, next) => {
     try {
-        const { action, limit = 50, page = 1 } = req.query;
+        const { action, from, to, limit = 50, page = 1 } = req.query;
         const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
         const logs = await adminService.listAdminLogs({
             action,
+            from,
+            to,
             limit: parseInt(limit, 10),
             offset,
         });

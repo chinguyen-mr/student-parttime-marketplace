@@ -9,7 +9,7 @@ function ReadOnlyField({ icon: Icon, label, value, verified }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
-        <span style={labelStyle}>{label} <span style={{ fontWeight: 500, color: '#94A3B8' }}>(chỉ đọc)</span></span>
+        <span style={labelStyle}>{label} <span style={{ fontWeight: 500, color: '#475569' }}>(chỉ đọc)</span></span>
         <span style={{ fontSize: 12, fontWeight: 700, color: verified ? '#047857' : '#B45309', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
           {verified ? <><ShieldCheck size={13} /> Đã xác minh</> : <><CircleDashed size={13} /> Chưa xác minh</>}
         </span>
@@ -135,14 +135,14 @@ export default function EmployerPersonalProfilePage({ currentUser, showToast, on
       <div style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Tài khoản</div>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0' }}>Thông tin người đại diện</h1>
-        <p style={{ margin: '4px 0 0 0', fontSize: 13.5, color: 'var(--color-text-secondary)' }}>
+        <p style={{ margin: '4px 0 0 0', fontSize: 13.5, color: 'var(--color-text-secondary)', maxWidth: '55ch' }}>
           <Lock size={13} style={{ verticalAlign: -2 }} /> Thông tin cá nhân của người quản lý tài khoản. Không hiển thị trên trang công ty và không dùng làm liên hệ tuyển dụng.
         </p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: 20, alignItems: 'start' }}>
         <form onSubmit={save} style={{ ...card, display: 'flex', flexDirection: 'column', gap: 18 }} noValidate>
-          <h3 style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 8 }}><User size={18} /> Hồ sơ người đại diện</h3>
+          <h2 style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 8 }}><User size={18} /> Hồ sơ người đại diện</h2>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ width: 76, height: 76, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: 'linear-gradient(135deg, #7565A8, #A997C5)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 800 }}>
@@ -181,7 +181,7 @@ export default function EmployerPersonalProfilePage({ currentUser, showToast, on
           </p>
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-            <button type="submit" disabled={!dirty || saving} style={{ ...btnPrimary, background: !dirty || saving ? '#C4B5FD' : '#7565A8', cursor: !dirty || saving ? 'not-allowed' : 'pointer' }}>
+            <button type="submit" disabled={!dirty || saving} style={{ ...btnPrimary, background: !dirty || saving ? '#E2E8F0' : '#7565A8', color: !dirty || saving ? '#475569' : '#ffffff', cursor: !dirty || saving ? 'not-allowed' : 'pointer' }}>
               {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Lưu thay đổi
             </button>
             {dirty && <span style={{ fontSize: 12.5, color: '#C2410C', fontWeight: 600 }}>Có thay đổi chưa lưu</span>}
@@ -190,7 +190,7 @@ export default function EmployerPersonalProfilePage({ currentUser, showToast, on
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={card}>
-            <h3 style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 8 }}><ShieldCheck size={18} color="#047857" /> Bảo mật tài khoản</h3>
+            <h2 style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 8 }}><ShieldCheck size={18} color="#047857" /> Bảo mật tài khoản</h2>
             <p style={{ ...hintStyle, marginTop: 0, marginBottom: 12 }}>Đổi mật khẩu và các cài đặt bảo mật nằm ở Cài đặt tài khoản.</p>
             {onNavigateSettings && (
               <button type="button" style={{ ...btn, width: '100%', justifyContent: 'center' }} onClick={onNavigateSettings}>
@@ -204,7 +204,7 @@ export default function EmployerPersonalProfilePage({ currentUser, showToast, on
           </div>
 
           <div style={card}>
-            <h3 style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 8 }}><Building2 size={18} color="#7565A8" /> Thông tin doanh nghiệp</h3>
+            <h2 style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 8 }}><Building2 size={18} color="#7565A8" /> Thông tin doanh nghiệp</h2>
             <p style={{ ...hintStyle, marginTop: 0, marginBottom: 12 }}>Logo, giới thiệu, liên hệ tuyển dụng, chi nhánh và xác minh pháp lý được quản lý riêng.</p>
             {onNavigateCompany && <button type="button" style={{ ...btn, width: '100%', justifyContent: 'center' }} onClick={onNavigateCompany}>Mở Hồ sơ doanh nghiệp</button>}
           </div>

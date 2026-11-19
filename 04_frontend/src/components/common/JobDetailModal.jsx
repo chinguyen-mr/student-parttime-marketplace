@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import MoneyInput from './MoneyInput';
 import { Building2, MapPin, DollarSign, Calendar, FileText, Award, Send, X, Paperclip } from 'lucide-react';
 import { AnimatedModal, Button, CustomDropdown } from '../ui';
 
@@ -204,7 +205,7 @@ export default function JobDetailModal({
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, fontSize: 12.5, color: '#475569' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <DollarSign size={15} color="#10b981" />
-                  <strong style={{ color: '#0f172a' }}>{Number(formData.salary || 0).toLocaleString('vi-VN')} VNĐ</strong>
+                  <strong style={{ color: '#0f172a' }}>{Number(formData.salary || 0).toLocaleString('vi-VN')} đ</strong>
                   <span>/{formData.salary_type === 'HOURLY' ? 'giờ' : 'dự án'}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -294,15 +295,12 @@ export default function JobDetailModal({
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr 1fr', gap: 12 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
-                    Mức lương (VNĐ) (*)
+                    Mức lương (*)
                   </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="1000"
+                  <MoneyInput
                     required
                     value={formData.salary}
-                    onChange={(e) => setFormData(p => ({ ...p, salary: Number(e.target.value) }))}
+                    onChange={(v) => setFormData(p => ({ ...p, salary: v === '' ? 0 : v }))}
                     style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 13.5 }}
                   />
                 </div>
@@ -542,7 +540,7 @@ export default function JobDetailModal({
                       <Building2 size={16} color="#059669" /> Thông tin đơn vị tuyển dụng
                     </h4>
                     <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>
-                      Bạn đang xem tin tuyển dụng của đối tác <strong>{job.employer_name || job.company_name || 'Doanh nghiệp'}</strong> trong Không gian nghiên cứu thị trường (Trường 2).
+                      Bạn đang xem tin tuyển dụng của đối tác <strong>{job.employer_name || job.company_name || 'Doanh nghiệp'}</strong>.
                     </p>
                   </div>
                   <Button

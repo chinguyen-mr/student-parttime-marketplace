@@ -107,6 +107,15 @@ router.post('/change-password', verifyToken, async (req, res, next) => {
     }
 });
 
+// POST /api/auth/logout — thu hồi phiên phía server (token cũ không dùng lại được)
+router.post('/logout', verifyToken, async (req, res, next) => {
+    try {
+        res.status(200).json(await authService.logout(req.user.id));
+    } catch (err) {
+        next(err);
+    }
+});
+
 // GET /api/auth/me (Kiểm tra phiên đăng nhập hiện tại)
 router.get('/me', verifyToken, async (req, res) => {
     res.status(200).json({

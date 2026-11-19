@@ -14,6 +14,7 @@ const AVATAR_SOURCE_MAX_BYTES = 4 * 1024 * 1024;
 const COVER_MAX_BYTES = 3 * 1024 * 1024;
 const OFFICE_IMAGE_MAX_BYTES = 3 * 1024 * 1024;
 const OFFICE_IMAGES_MAX = 8;
+const JOB_BANNER_MAX_BYTES = 3 * 1024 * 1024;
 // Tài liệu pháp lý: PDF hoặc ảnh chụp, tối đa 5 file × 5MB. Không bao giờ phát công khai.
 const LEGAL_DOC_TYPES = { ...IMAGE_TYPES, 'application/pdf': (b) => b.toString('ascii', 0, 5) === '%PDF-' };
 const LEGAL_DOC_MAX_BYTES = 5 * 1024 * 1024;
@@ -144,6 +145,18 @@ class FileService {
         } finally {
             client.release();
         }
+    }
+
+    /** Ảnh banner tin tuyển dụng: lưu ảnh, trả URL công khai để gắn vào job_banner_url khi lưu tin */
+    async uploadJobBanner(userId, dataUrl) {
+        await this.assertEmployer(userId);
+        const { mime, buffer } = decodeImageDataUrl(dataUrl, JOB_BANNER_MAX_BYTES);
+        const ins = await db.query(
+            `INSERT INTO file_uploads (owner_id, kind, original_name, mime_type, size_bytes, data)
+             VALUES ($1, 'JOB_BANNER', 'job-banner', $2, $3, $4) RETURNING id`,
+            [userId, mime, buffer.length, buffer]
+        );
+        return { url: `/api/files/${ins.rows[0].id}` };
     }
 
     async removeCover(userId) {
@@ -375,7 +388,7 @@ class FileService {
     /** File công khai: ảnh đại diện, ảnh bìa, ảnh văn phòng, ảnh đánh giá. CV và ảnh gốc avatar không phát công khai. */
     async getPublicFile(fileId) {
         const res = await db.query(
-            `SELECT mime_type, data FROM file_uploads WHERE id = $1 AND kind IN ('AVATAR', 'REVIEW_IMAGE', 'COVER', 'OFFICE_IMAGE')`,
+            `SELECT mime_type, data FROM file_uploads WHERE id = $1 AND kind IN ('AVATAR', 'REVIEW_IMAGE', 'COVER', 'OFFICE_IMAGE', 'JOB_BANNER')`,
             [fileId]
         );
         if (!res.rows[0]) throw new NotFoundError('Không tìm thấy file.');

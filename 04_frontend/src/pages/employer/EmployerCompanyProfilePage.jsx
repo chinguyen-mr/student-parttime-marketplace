@@ -7,6 +7,7 @@ import { useRememberedTab } from '../../utils/rememberedTab';
 import AvatarUploader from '../../components/common/AvatarUploader';
 import { checkImageFile, resizeImageFile } from '../../utils/imageResize';
 import LocationPicker from '../../components/employer/LocationPicker';
+import JobLocationMap from '../../components/common/JobLocationMap';
 import CompanyVerificationSection, { LegalStatusBadge } from '../../components/employer/CompanyVerificationSection';
 import {
   COMPANY_TYPES, COMPANY_SIZES, INDUSTRIES, SOCIALS, ABOUT_FIELDS, POLICY_FIELDS, POLICY_DETAIL_KEYS, OFFICE_MAX, BRANCHES_MAX,
@@ -47,6 +48,7 @@ function Field({ label, required, hint, error, children }) {
  */
 export default function EmployerCompanyProfilePage({ currentUser, showToast, initialSection = 'media', onDirtyChange, onProfileUpdated }) {
   const token = currentUser?.token;
+  const [editingPin, setEditingPin] = useState(false);
   const [section, setSection] = useRememberedTab('company_section', initialSection, SECTIONS.map(([id]) => id));
   const prevInitialSection = useRef(initialSection); // chỉ đổi phân vùng khi bên ngoài thật sự yêu cầu (giữ phân vùng khôi phục sau F5)
   const [status, setStatus] = useState('loading'); // loading | ready | error
@@ -223,7 +225,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Hồ sơ doanh nghiệp</div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-text)', margin: '4px 0 0 0', overflowWrap: 'anywhere' }}>{saved.display_name || 'Doanh nghiệp'}</h1>
-          <p style={{ margin: '4px 0 0 0', fontSize: 13.5, color: 'var(--color-text-secondary)' }}>
+          <p style={{ margin: '4px 0 0 0', fontSize: 13.5, color: 'var(--color-text-secondary)', maxWidth: '55ch' }}>
             Thông tin ứng viên xem trên trang công ty. Mục để trống sẽ được ẩn. Email/SĐT đăng nhập và thông tin người đại diện không bao giờ hiển thị công khai.
           </p>
         </div>
@@ -234,18 +236,18 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
       </div>
 
       {progress && (
-        <div style={{ ...card, padding: '16px 20px' }}>
+        <div style={{ ...card, padding: '14px 20px', position: 'sticky', top: 'var(--app-header-h, 74px)', zIndex: 6, borderTopLeftRadius: 0, borderTopRightRadius: 0, boxShadow: '0 4px 14px rgba(41, 38, 58, 0.08)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             <strong style={{ fontSize: 14 }}>Mức độ hoàn thiện hồ sơ</strong>
             <span style={{ fontSize: 14, fontWeight: 800, color: '#7565A8' }}>{progress.percent}%</span>
           </div>
           <div role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100} aria-label="Mức độ hoàn thiện hồ sơ doanh nghiệp"
             style={{ height: 8, borderRadius: 999, background: '#F1EEF8', overflow: 'hidden' }}>
-            <div style={{ width: `${progress.percent}%`, height: '100%', background: 'linear-gradient(90deg, #7565A8, #F4B99D)', transition: 'width .3s' }} />
+            <div style={{ width: '100%', height: '100%', background: '#7565A8', transform: `scaleX(${progress.percent / 100})`, transformOrigin: 'left', transition: 'transform .3s' }} />
           </div>
           {progress.missing.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
-              <span style={{ fontSize: 12.5, color: '#64748B', alignSelf: 'center' }}>Còn thiếu:</span>
+              <span style={{ fontSize: 12.5, color: '#475569', alignSelf: 'center' }}>Còn thiếu:</span>
               {progress.missing.map(m => (
                 <button key={m.label} type="button" onClick={() => setSection(m.section)}
                   style={{ fontSize: 12, padding: '3px 10px', borderRadius: 999, border: '1px dashed #CBD5E1', background: '#ffffff', color: '#475569', cursor: 'pointer' }}>
@@ -279,13 +281,13 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
       {section === 'media' && (
         <>
           <div style={card}>
-            <h3 style={sectionTitle}>Logo & ảnh bìa</h3>
+            <h2 style={sectionTitle}>Logo & ảnh bìa</h2>
             <p style={{ ...hintStyle, marginTop: 0, marginBottom: 14 }}>Ảnh được lưu ngay khi bạn xác nhận. JPG, PNG hoặc WEBP; logo vuông ≥ 400px, ảnh bìa tỉ lệ 16:6, rộng ≥ 1200px.</p>
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
               <div style={{ textAlign: 'center' }}>
                 <AvatarUploader token={token} avatarUrl={media.logo} fallbackText={(saved.display_name || 'C').charAt(0)} size={96}
                   showToast={showToast} onChange={(url) => setMedia(m => ({ ...m, logo: url }))} />
-                <div style={{ fontSize: 11.5, color: '#94A3B8', marginTop: 4 }}>Logo doanh nghiệp</div>
+                <div style={{ fontSize: 12.5, color: '#475569', marginTop: 4 }}>Logo doanh nghiệp</div>
               </div>
               <div style={{ flex: 1, minWidth: 240 }}>
                 <div style={{
@@ -321,7 +323,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
 
           <div style={card}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-              <h3 style={{ ...sectionTitle, margin: 0 }}>Thư viện hình ảnh ({media.office.length}/{OFFICE_MAX})</h3>
+              <h2 style={{ ...sectionTitle, margin: 0 }}>Thư viện hình ảnh ({media.office.length}/{OFFICE_MAX})</h2>
               {media.office.length < OFFICE_MAX && (
                 <button type="button" style={btn} disabled={busy === 'office'} onClick={() => officeInput.current?.click()}>
                   {busy === 'office' ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Thêm ảnh
@@ -355,7 +357,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
       {/* C. Thông tin chung */}
       {section === 'general' && (
         <div style={card}>
-          <h3 style={sectionTitle}>Thông tin chung</h3>
+          <h2 style={sectionTitle}>Thông tin chung</h2>
           <p style={{ ...hintStyle, marginTop: 0, marginBottom: 14 }}>Hiển thị công khai, trừ tên pháp nhân và mã số thuế (chỉ dùng để xác minh).</p>
           <div style={grid}>
             <Field label="Tên hiển thị" required hint="Tên ứng viên nhìn thấy trên tin tuyển dụng và trang công ty." error={visibleErrors.display_name}>
@@ -407,7 +409,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
       {/* D. Giới thiệu & văn hóa */}
       {section === 'about' && (
         <div style={card}>
-          <h3 style={sectionTitle}>Giới thiệu & văn hóa</h3>
+          <h2 style={sectionTitle}>Giới thiệu & văn hóa</h2>
           <p style={{ ...hintStyle, marginTop: 0, marginBottom: 14 }}>Viết ngắn gọn, cụ thể. Mục để trống sẽ không hiển thị.</p>
           <div style={{ ...grid, gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))' }}>
             {ABOUT_FIELDS.map(([key, label, hint]) => (
@@ -420,7 +422,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
       {/* E. Chính sách nhân sự */}
       {section === 'policies' && (
         <div style={card}>
-          <h3 style={sectionTitle}>Chính sách nhân sự</h3>
+          <h2 style={sectionTitle}>Chính sách nhân sự</h2>
           <p style={{ ...hintStyle, marginTop: 0, marginBottom: 14 }}>Ưu tiên thông tin sinh viên quan tâm. Chỉ điền chính sách doanh nghiệp thực sự áp dụng — mục trống sẽ được ẩn.</p>
           <div style={{ ...grid, gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))' }}>
             {POLICY_FIELDS.map(([key, label, hint]) => (
@@ -435,7 +437,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
       {/* F. Liên hệ công khai */}
       {section === 'contact' && (
         <div style={card}>
-          <h3 style={sectionTitle}>Liên hệ công khai</h3>
+          <h2 style={sectionTitle}>Liên hệ công khai</h2>
           <p style={{ ...hintStyle, marginTop: 0, marginBottom: 14 }}>
             Chỉ hiển thị khi bạn nhập. Dùng kênh tuyển dụng chung — email và số điện thoại đăng nhập của người đại diện <strong>không</strong> được dùng thay.
           </p>
@@ -463,7 +465,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
       {section === 'branches' && (
         <div style={card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-            <h3 style={{ ...sectionTitle, margin: 0 }}>Chi nhánh ({form.branches.length}/{BRANCHES_MAX})</h3>
+            <h2 style={{ ...sectionTitle, margin: 0 }}>Chi nhánh ({form.branches.length}/{BRANCHES_MAX})</h2>
             {form.branches.length < BRANCHES_MAX && (
               <button type="button" style={btn} onClick={() => setForm(f => ({ ...f, branches: [...f.branches, emptyBranch()] }))}><Plus size={14} /> Thêm chi nhánh</button>
             )}
@@ -510,22 +512,57 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
         </div>
       )}
 
-      {/* H. Vị trí trụ sở */}
-      {section === 'map' && (
-        <div style={card}>
-          <h3 style={sectionTitle}>Vị trí trụ sở trên bản đồ</h3>
-          <p style={{ ...hintStyle, marginTop: 0, marginBottom: 12 }}>
-            Bản đồ tự đưa tới địa chỉ trụ sở nhưng <strong>không tự ghim</strong>. Bấm đúng vị trí tòa nhà/cổng để ghim, rồi bấm Lưu để xác nhận.
-            {form.detailed_address && <><br />Địa chỉ trụ sở: <strong>{form.detailed_address}</strong></>}
-          </p>
-          <LocationPicker
-            latitude={form.latitude}
-            longitude={form.longitude}
-            address={[form.detailed_address, form.province].filter(Boolean).join(', ')}
-            onChange={(lat, lng) => setForm(f => ({ ...f, latitude: lat === null ? '' : String(Math.round(lat * 1e6) / 1e6), longitude: lng === null ? '' : String(Math.round(lng * 1e6) / 1e6) }))}
-          />
-        </div>
-      )}
+      {/* H. Vị trí trụ sở: hiển thị Google Maps như trang công khai; bấm "Sửa vị trí ghim" để chỉnh */}
+      {section === 'map' && (() => {
+        // Ghép địa chỉ + tỉnh/thành, không lặp khi địa chỉ đã có sẵn tên tỉnh/thành
+        const fullAddress = form.province && form.detailed_address && form.detailed_address.toLowerCase().includes(form.province.toLowerCase())
+          ? form.detailed_address
+          : [form.detailed_address, form.province].filter(Boolean).join(', ');
+        const hasPin = form.latitude !== '' && form.latitude !== null && form.latitude !== undefined;
+        const showPicker = editingPin || !hasPin;
+        return (
+          <div style={card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
+              <div>
+                <h2 style={sectionTitle}>Vị trí trụ sở trên bản đồ</h2>
+                <p style={{ ...hintStyle, marginTop: 0 }}>
+                  {hasPin ? 'Ứng viên thấy bản đồ này trên trang công ty của bạn.' : 'Chưa ghim vị trí. Bấm đúng vị trí tòa nhà/cổng trên bản đồ bên dưới, rồi bấm Lưu.'}
+                </p>
+              </div>
+              {hasPin && (
+                <button type="button" style={btn} onClick={() => setEditingPin(v => !v)}>
+                  {editingPin ? 'Xong' : 'Sửa vị trí ghim'}
+                </button>
+              )}
+            </div>
+
+            {hasPin && !editingPin && (
+              <JobLocationMap
+                job={{ title: form.display_name, work_address: fullAddress, location: form.province, latitude: form.latitude, longitude: form.longitude }}
+                title="Vị trí doanh nghiệp"
+                exactLabel="Vị trí do doanh nghiệp ghim"
+                approxLabel="Ước lượng theo địa chỉ"
+                mapHeight={320}
+                strictPrecision
+              />
+            )}
+
+            {showPicker && (
+              <>
+                <p style={{ ...hintStyle, marginTop: 0, marginBottom: 10 }}>
+                  Bản đồ tự đưa tới địa chỉ trụ sở nhưng <strong>không tự ghim</strong>. Bấm đúng vị trí để ghim, rồi bấm Lưu để xác nhận.
+                </p>
+                <LocationPicker
+                  latitude={form.latitude}
+                  longitude={form.longitude}
+                  address={fullAddress}
+                  onChange={(lat, lng) => setForm(f => ({ ...f, latitude: lat === null ? '' : String(Math.round(lat * 1e6) / 1e6), longitude: lng === null ? '' : String(Math.round(lng * 1e6) / 1e6) }))}
+                />
+              </>
+            )}
+          </div>
+        );
+      })()}
 
       {/* I. Xác minh doanh nghiệp (lưu riêng) */}
       <div hidden={section !== 'verification'}>
@@ -550,7 +587,7 @@ export default function EmployerCompanyProfilePage({ currentUser, showToast, ini
           <div style={{ display: 'flex', gap: 8 }}>
             {dirty && <button type="button" style={{ ...btn, borderColor: '#CBD5E1', color: '#475569' }} onClick={() => { setForm(saved); setTouched(false); setServerErrors([]); }}><RotateCcw size={14} /> Hoàn tác</button>}
             <button type="button" onClick={save} disabled={!dirty || saving}
-              style={{ ...btnPrimary, background: !dirty || saving ? '#C4B5FD' : '#7565A8', cursor: !dirty || saving ? 'not-allowed' : 'pointer' }}>
+              style={{ ...btnPrimary, background: !dirty || saving ? '#E2E8F0' : '#7565A8', color: !dirty || saving ? '#475569' : '#ffffff', cursor: !dirty || saving ? 'not-allowed' : 'pointer' }}>
               {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Lưu hồ sơ
             </button>
           </div>

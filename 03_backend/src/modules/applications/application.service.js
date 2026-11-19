@@ -62,6 +62,11 @@ class ApplicationService {
             if (own.rows.length) ownCvUrl = String(cv_url);
         }
 
+        // FR-04: hồ sơ ứng tuyển cần ít nhất CV hoặc phần giới thiệu bản thân
+        if (!ownCvUrl && !String(cover_letter || '').trim()) {
+            throw new AppError('Vui lòng đính kèm CV hoặc viết vài dòng giới thiệu bản thân trước khi nộp đơn.', 400);
+        }
+
         const newApp = await applicationRepository.create(job_id, studentId, { cover_letter, cv_url: ownCvUrl, profile_snapshot });
 
         // Tự động tạo thông báo cho Nhà tuyển dụng (Event: Student nộp đơn ứng tuyển)
@@ -180,6 +185,12 @@ class ApplicationService {
         }
 
         const fromStatus = app.status;
+        // Đơn đã nhận hoặc ứng viên đã rút là trạng thái cuối, không xét duyệt lại
+        if (['ACCEPTED', 'WITHDRAWN'].includes(fromStatus)) {
+            throw new StateTransitionInvalidError(fromStatus === 'ACCEPTED'
+                ? 'Đơn đã được nhận, không thể chuyển sang trạng thái khác'
+                : 'Ứng viên đã rút hồ sơ, không thể xét duyệt đơn này');
+        }
         let updated = await applicationRepository.updateStatus(applicationId, status);
 
         // Nếu từ chối, cập nhật lý do từ chối vào applications

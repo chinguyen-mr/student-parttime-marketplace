@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatSalary as formatJobSalary } from '../../utils/jobDisplay';
 import {
   Building2,
   Clock,
@@ -52,7 +53,8 @@ export default function JobDetailPage({
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Fallback to initialJob if job state is empty
-  const currentJob = job || initialJob || fallbackJob;
+  const [notFound, setNotFound] = useState(false);
+  const currentJob = notFound ? null : (job || initialJob || fallbackJob);
 
   // LocalStorage bookmark state (Requirement: Nút "Lưu việc làm" icon Bookmark & LocalStorage)
   const [isSaved, setIsSaved] = useState(() => {
@@ -89,8 +91,17 @@ export default function JobDetailPage({
       if (!jobId) return;
       try {
         setLoading(true);
+        setNotFound(false);
         // 1. Fetch full job
-        const res = await fetch(`${API_BASE}/jobs/${jobId}`);
+        // Gửi token (nếu có): NTD đăng tin / Admin vẫn xem được tin đang chờ duyệt
+        const res = await fetch(`${API_BASE}/jobs/${jobId}`, {
+          headers: currentUser?.token ? { Authorization: `Bearer ${currentUser.token}` } : {}
+        });
+        // 404: tin không tồn tại hoặc chưa được Admin duyệt → không hiển thị tin dự phòng khác
+        if (res.status === 404) {
+          if (isMounted) setNotFound(true);
+          return;
+        }
         const data = await res.json();
         if (data.success && isMounted) {
           setJob(data.data);
@@ -164,21 +175,7 @@ export default function JobDetailPage({
   // =========================================================================
   // LOGIC 2: ĐỊNH DẠNG MỨC LƯƠNG
   // =========================================================================
-  const formatSalary = () => {
-    const num = Number(currentJob.salary || 0);
-    if (!num) return 'Thỏa thuận';
-    if (currentJob.salary_type === 'HOURLY') {
-      return `${num.toLocaleString('vi-VN')} đ/giờ`;
-    }
-    if (currentJob.salary_type === 'MONTHLY' || num >= 10000000) {
-      const millions = (num / 1000000).toFixed(0);
-      return `${millions} - ${(Number(millions) + 5)} triệu/tháng`;
-    }
-    if (currentJob.salary_type === 'DAILY') {
-      return `${num.toLocaleString('vi-VN')} đ/ngày`;
-    }
-    return `${num.toLocaleString('vi-VN')} đ/dự án`;
-  };
+  const formatSalary = () => formatJobSalary(currentJob);
 
   // Work type label
   const getWorkTypeLabel = () => {
@@ -552,7 +549,7 @@ export default function JobDetailPage({
               boxShadow: '0 1px 3px rgba(89, 70, 117, 0.03)',
             }}
           >
-            <h3
+            <h2
               style={{
                 fontSize: 17,
                 fontWeight: 800,
@@ -566,7 +563,7 @@ export default function JobDetailPage({
               }}
             >
               <FileText size={18} color="var(--color-primary)" /> Mô tả công việc
-            </h3>
+            </h2>
 
             <div style={{ fontSize: 14.5, color: '#334155', lineHeight: 1.75, whiteSpace: 'pre-line' }}>
               {currentJob.description || 'Chưa có thông tin mô tả chi tiết cho công việc này.'}
@@ -583,7 +580,7 @@ export default function JobDetailPage({
               boxShadow: '0 1px 3px rgba(89, 70, 117, 0.03)',
             }}
           >
-            <h3
+            <h2
               style={{
                 fontSize: 17,
                 fontWeight: 800,
@@ -597,7 +594,7 @@ export default function JobDetailPage({
               }}
             >
               <Award size={18} color="var(--color-primary)" /> Yêu cầu công việc
-            </h3>
+            </h2>
 
             <div style={{ fontSize: 14.5, color: '#334155', lineHeight: 1.75, whiteSpace: 'pre-line' }}>
               {currentJob.requirements || '• Sinh viên đang theo học tại các trường Đại học/Cao đẳng tại TP.HCM.\n• Chăm chỉ, đúng giờ, có tinh thần trách nhiệm trong công việc.\n• Giao tiếp tốt, hòa đồng và ham học hỏi.'}
@@ -614,7 +611,7 @@ export default function JobDetailPage({
               boxShadow: '0 1px 3px rgba(89, 70, 117, 0.03)',
             }}
           >
-            <h3
+            <h2
               style={{
                 fontSize: 17,
                 fontWeight: 800,
@@ -628,7 +625,7 @@ export default function JobDetailPage({
               }}
             >
               <Sparkles size={18} color="#F2A184" /> Quyền lợi được hưởng
-            </h3>
+            </h2>
 
             <div style={{ fontSize: 14.5, color: '#334155', lineHeight: 1.75, whiteSpace: 'pre-line' }}>
               {currentJob.benefits || '• Mức thù lao hấp dẫn, cam kết thanh toán sòng phẳng và đúng hạn.\n• Được hỗ trợ dấu thực tập và giấy xác nhận công việc từ doanh nghiệp.\n• Cơ hội trau dồi kinh nghiệm thực chiến và mở rộng mạng lưới quan hệ nghề nghiệp.'}
@@ -645,7 +642,7 @@ export default function JobDetailPage({
               boxShadow: '0 1px 3px rgba(89, 70, 117, 0.03)',
             }}
           >
-            <h3
+            <h2
               style={{
                 fontSize: 17,
                 fontWeight: 800,
@@ -662,7 +659,7 @@ export default function JobDetailPage({
               {currentJob.work_type === 'FULL_TIME'
                 ? 'Thời gian & Lịch làm việc (Full-time)'
                 : 'Thời gian & Lịch làm việc (Part-time)'}
-            </h3>
+            </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14, color: '#475569' }}>
               <div>
@@ -712,9 +709,14 @@ export default function JobDetailPage({
             <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', marginBottom: 4 }}>
               Mức thù lao
             </div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-primary)', marginBottom: 14 }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-primary)', marginBottom: currentJob.work_type === 'FULL_TIME' ? 14 : 4 }}>
               {formatSalary()}
             </div>
+            {currentJob.work_type !== 'FULL_TIME' && (
+              <div style={{ fontSize: 12.5, color: 'var(--color-text-secondary)', lineHeight: 1.5, marginBottom: 14 }}>
+                Nhận lương trong ngày hay cuối tháng: thỏa thuận với nhà tuyển dụng sau khi bạn được nhận.
+              </div>
+            )}
 
             <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: 14, marginBottom: 18, display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13, color: '#475569' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -962,7 +964,7 @@ export default function JobDetailPage({
               />
 
               <div style={{ minWidth: 0, flex: 1 }}>
-                <h5 style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <h5 style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 2px 0', overflowWrap: 'anywhere' }}>
                   {companyDisplayName}
                 </h5>
                 {/* Trạng thái xác minh (k175) */}
@@ -974,9 +976,9 @@ export default function JobDetailPage({
 
             {/* Thông tin mở rộng: account_type, website */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13, color: '#475569', marginBottom: 16, borderTop: '1px solid #F1F5F9', paddingTop: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>Hình thức:</span>
-                <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>{getAccountTypeLabel()}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                <span style={{ color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>Hình thức:</span>
+                <span style={{ fontWeight: 600, color: 'var(--color-text)', textAlign: 'right' }}>{getAccountTypeLabel()}</span>
               </div>
 
               {companyWebsite && (
@@ -993,9 +995,9 @@ export default function JobDetailPage({
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>Địa chỉ:</span>
-                <span style={{ fontWeight: 600, color: 'var(--color-text)', maxWidth: 180, textAlign: 'right', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                <span style={{ color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>Địa chỉ:</span>
+                <span style={{ fontWeight: 600, color: 'var(--color-text)', maxWidth: 200, textAlign: 'right', overflowWrap: 'anywhere' }}>
                   {currentJob.location || 'TP. Hồ Chí Minh'}
                 </span>
               </div>
@@ -1101,10 +1103,10 @@ export default function JobDetailPage({
                 <span
                   key={idx}
                   style={{
-                    fontSize: 11.5,
-                    color: 'var(--color-primary)',
+                    fontSize: 13,
+                    color: '#594675',
                     background: 'var(--color-primary-light)',
-                    padding: '3px 9px',
+                    padding: '4px 10px',
                     borderRadius: 999,
                     border: '1px solid #EDE9FE',
                     fontWeight: 600,
@@ -1126,9 +1128,9 @@ export default function JobDetailPage({
         <div style={{ marginTop: 40, borderTop: '1px solid var(--color-border)', paddingTop: 32 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
             <div>
-              <h3 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
                 Việc làm tương tự
-              </h3>
+              </h2>
               <p style={{ color: 'var(--color-text-secondary)', fontSize: 13, margin: 0 }}>
                 Các vị trí cùng ngành nghề hoặc khu vực có thể phù hợp với bạn
               </p>
@@ -1138,12 +1140,7 @@ export default function JobDetailPage({
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: 16 }}>
             {relatedJobs.map((relJob) => {
               const relCompany = relJob.company_name || relJob.employer_name || 'Doanh nghiệp JobNest';
-              const relSalary = Number(relJob.salary || 0);
-              const salaryFormatted = relSalary
-                ? relJob.salary_type === 'HOURLY'
-                  ? `${relSalary.toLocaleString('vi-VN')} đ/giờ`
-                  : `${(relSalary / 1000000).toFixed(0)} triệu/tháng`
-                : 'Thỏa thuận';
+              const salaryFormatted = formatJobSalary(relJob);
 
               return (
                 <div
@@ -1177,9 +1174,9 @@ export default function JobDetailPage({
                       borderRadius={6}
                     />
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <h4 style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--color-text)', margin: '0 0 2px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <h3 style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--color-text)', margin: '0 0 2px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {relJob.title}
-                      </h4>
+                      </h3>
                       <p style={{ fontSize: 12, color: 'var(--color-text-secondary)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {relCompany}
                       </p>

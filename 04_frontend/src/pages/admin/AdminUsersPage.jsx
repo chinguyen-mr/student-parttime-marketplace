@@ -1,9 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, ShieldCheck, Lock, Unlock, CheckCircle2, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import ExportMenu from '../../components/common/ExportMenu';
 import { API_BASE, formatApiError } from '../../config/api';
+
+const ROLE_LABEL = { STUDENT: 'Sinh viên', EMPLOYER: 'Nhà tuyển dụng', ADMIN: 'Quản trị viên' };
+const ROLE_BADGE = {
+  STUDENT: { background: '#F1EEF8', color: '#4C3D7A', border: '1px solid #C4B5FD' },
+  EMPLOYER: { background: '#ECFDF5', color: '#065F46', border: '1px solid #6EE7B7' },
+  ADMIN: { background: '#FEF2F2', color: '#7F1D1D', border: '1px solid #FCA5A5' }
+};
 
 export default function AdminUsersPage({
   currentUser,
@@ -167,10 +174,33 @@ export default function AdminUsersPage({
     }
   };
 
+  // Chiều cao phần đầu trang (đang ghim) → dòng tiêu đề cột của bảng ghim ngay bên dưới
+  const pageHeadRef = useRef(null);
+  const [pageHeadH, setPageHeadH] = useState(0);
+  useEffect(() => {
+    const el = pageHeadRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(() => setPageHeadH(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const stickyTh = {
+    position: 'sticky',
+    top: `calc(var(--app-header-h, 74px) + ${pageHeadH}px)`,
+    zIndex: 4,
+    background: '#F8FAFC',
+    boxShadow: 'inset 0 -1px 0 var(--color-border-hover)'
+  };
+
   return (
     <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20, width: '100%' }}>
-      {/* ================= HEADER BREADCRUMB ================= */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
+      {/* ================= HEADER: ghim dưới thanh trên cùng ================= */}
+      <div ref={pageHeadRef} style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14,
+        position: 'sticky', top: 'var(--app-header-h, 74px)', zIndex: 6,
+        background: 'var(--color-background)', margin: '-28px 0 0', padding: '28px 0 14px',
+        borderBottom: '1px solid var(--color-border)'
+      }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>
@@ -248,7 +278,7 @@ export default function AdminUsersPage({
             <Search size={16} color="#64748B" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
-              placeholder="Tìm theo email, họ tên, phone..."
+              placeholder="Tìm theo email, họ tên, số điện thoại..."
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
               style={{
@@ -271,7 +301,7 @@ export default function AdminUsersPage({
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
           {/* Lọc Role */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#334155' }}>Role:</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#334155' }}>Vai trò:</span>
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
@@ -286,15 +316,15 @@ export default function AdminUsersPage({
               }}
             >
               <option value="ALL">Tất cả vai trò</option>
-              <option value="STUDENT">STUDENT (Sinh viên)</option>
-              <option value="EMPLOYER">EMPLOYER (Nhà tuyển dụng)</option>
-              <option value="ADMIN">ADMIN (Quản trị viên)</option>
+              <option value="STUDENT">Sinh viên</option>
+              <option value="EMPLOYER">Nhà tuyển dụng</option>
+              <option value="ADMIN">Quản trị viên</option>
             </select>
           </div>
 
           {/* Lọc Status */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#334155' }}>Status:</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#334155' }}>Trạng thái:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -309,8 +339,8 @@ export default function AdminUsersPage({
               }}
             >
               <option value="ALL">Tất cả trạng thái</option>
-              <option value="ACTIVE">ACTIVE (Hoạt động)</option>
-              <option value="BANNED">LOCKED / BANNED (Đã khóa)</option>
+              <option value="ACTIVE">Đang hoạt động</option>
+              <option value="BANNED">Đã khóa</option>
             </select>
           </div>
         </div>
@@ -322,7 +352,7 @@ export default function AdminUsersPage({
         background: '#ffffff',
         borderRadius: 14,
         border: '1px solid var(--color-border-hover)',
-        overflow: 'hidden',
+        overflow: 'clip',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
         {loading ? (
@@ -333,21 +363,21 @@ export default function AdminUsersPage({
         ) : users.length === 0 ? (
           <EmptyState
             title="Không tìm thấy người dùng phù hợp"
-            description="Hãy thử thay đổi từ khóa tìm kiếm hoặc bỏ bớt các bộ lọc Role / Status."
+            description="Hãy thử thay đổi từ khóa tìm kiếm hoặc bỏ bớt bộ lọc vai trò / trạng thái."
           />
         ) : (
           <>
-            <div style={{ overflowX: 'auto' }}>
+            <div className="jn-table-scroll">
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
-                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-hover)', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
-                  <th style={{ padding: '14px 16px', width: 60 }}>ID</th>
-                  <th style={{ padding: '14px 16px' }}>Email & Họ tên</th>
-                  <th style={{ padding: '14px 16px', width: 140 }}>Vai trò</th>
-                  <th style={{ padding: '14px 16px', width: 140 }}>Trạng thái</th>
-                  <th style={{ padding: '14px 16px', width: 140 }}>Xác thực NTD</th>
-                  <th style={{ padding: '14px 16px', width: 120 }}>Ngày tạo</th>
-                  <th style={{ padding: '14px 16px', width: 160, textAlign: 'right' }}>Thao tác</th>
+                <tr style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
+                  <th style={{ ...stickyTh, padding: '12px 16px', width: 60 }}>Mã</th>
+                  <th style={{ ...stickyTh, padding: '12px 16px' }}>Họ tên & liên hệ</th>
+                  <th style={{ ...stickyTh, padding: '12px 16px', width: 140 }}>Vai trò</th>
+                  <th style={{ ...stickyTh, padding: '12px 16px', width: 150 }}>Trạng thái</th>
+                  <th style={{ ...stickyTh, padding: '12px 16px', width: 140 }}>Xác thực NTD</th>
+                  <th style={{ ...stickyTh, padding: '12px 16px', width: 110 }}>Ngày tạo</th>
+                  <th style={{ ...stickyTh, padding: '12px 16px', width: 120, textAlign: 'right' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -365,7 +395,7 @@ export default function AdminUsersPage({
                         transition: 'background 0.1s ease'
                       }}
                     >
-                      <td style={{ padding: '14px 16px', fontWeight: 800, color: '#64748B' }}>
+                      <td style={{ padding: '14px 16px', fontWeight: 800, color: '#475569' }}>
                         {u.id}
                       </td>
 
@@ -373,11 +403,11 @@ export default function AdminUsersPage({
                         <div style={{ fontWeight: 800, color: '#0F172A' }}>
                           {u.full_name || u.display_name || 'Chưa đặt tên'}
                         </div>
-                        <div style={{ fontSize: 12.5, color: '#64748B' }}>
+                        <div style={{ fontSize: 13, color: '#475569', overflowWrap: 'anywhere' }}>
                           {u.email}
                         </div>
                         {u.phone && (
-                          <div style={{ fontSize: 11.5, color: '#94A3B8' }}>
+                          <div style={{ fontSize: 13, color: '#475569' }}>
                             {u.phone}
                           </div>
                         )}
@@ -387,13 +417,12 @@ export default function AdminUsersPage({
                         <span style={{
                           padding: '4px 10px',
                           borderRadius: 6,
-                          fontSize: 11.5,
-                          fontWeight: 800,
-                          background: u.role === 'ADMIN' ? '#FEE2E2' : u.role === 'EMPLOYER' ? '#ECFDF5' : '#EEF2FF',
-                          color: u.role === 'ADMIN' ? '#B91C1C' : u.role === 'EMPLOYER' ? '#059669' : '#4F46E5',
-                          border: `1px solid ${u.role === 'ADMIN' ? '#FCA5A5' : u.role === 'EMPLOYER' ? '#A7F3D0' : '#C7D2FE'}`
+                          fontSize: 12.5,
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap',
+                          ...(ROLE_BADGE[u.role] || ROLE_BADGE.STUDENT)
                         }}>
-                          {u.role}
+                          {ROLE_LABEL[u.role] || u.role}
                         </span>
                       </td>
 
@@ -404,14 +433,15 @@ export default function AdminUsersPage({
                           gap: 4,
                           padding: '4px 10px',
                           borderRadius: 20,
-                          fontSize: 12,
+                          fontSize: 12.5,
                           fontWeight: 700,
+                          whiteSpace: 'nowrap',
                           background: isLocked ? '#FEE2E2' : '#DCFCE7',
-                          color: isLocked ? '#DC2626' : '#15803D',
+                          color: isLocked ? '#7F1D1D' : '#14532D',
                           border: `1px solid ${isLocked ? '#FCA5A5' : '#86EFAC'}`
                         }}>
                           {isLocked ? <Lock size={12} /> : <CheckCircle2 size={12} />}
-                          {isLocked ? 'LOCKED' : 'ACTIVE'}
+                          {isLocked ? 'Đã khóa' : 'Đang hoạt động'}
                         </span>
                       </td>
 
@@ -425,32 +455,33 @@ export default function AdminUsersPage({
                               alignItems: 'center',
                               gap: 4,
                               background: u.is_verified ? '#ECFDF5' : '#F8FAFC',
-                              color: u.is_verified ? '#059669' : '#64748B',
+                              color: u.is_verified ? '#065F46' : '#334155',
                               border: `1.5px solid ${u.is_verified ? '#10B981' : '#CBD5E1'}`,
                               borderRadius: 14,
                               padding: '3px 8px',
-                              fontSize: 11.5,
+                              fontSize: 12.5,
+                              whiteSpace: 'nowrap',
                               fontWeight: 700,
                               cursor: 'pointer'
                             }}
                             title="Bấm để cấp hoặc gỡ tick xanh xác thực uy tín"
                           >
-                            <ShieldCheck size={13} color={u.is_verified ? '#059669' : '#94A3B8'} />
-                            <span>{u.is_verified ? 'Verified' : 'Chưa duyệt'}</span>
+                            <ShieldCheck size={13} color={u.is_verified ? '#059669' : '#64748B'} />
+                            <span>{u.is_verified ? 'Đã xác thực' : 'Chưa xác thực'}</span>
                           </button>
                         ) : (
-                          <span style={{ color: '#94A3B8', fontSize: 12 }}>—</span>
+                          null
                         )}
                       </td>
 
-                      <td style={{ padding: '14px 16px', color: '#64748B', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '14px 16px', color: '#475569', whiteSpace: 'nowrap' }}>
                         {formatDate(u.created_at)}
                       </td>
 
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
                         {isSelf ? (
-                          <span style={{ fontSize: 12, color: '#94A3B8', fontStyle: 'italic' }}>
-                            (Tài khoản của bạn)
+                          <span style={{ fontSize: 13, color: '#475569' }}>
+                            Tài khoản của bạn
                           </span>
                         ) : (
                           <button
@@ -469,9 +500,10 @@ export default function AdminUsersPage({
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: 4,
-                              border: '1px solid var(--color-border-hover)',
-                              background: isLocked ? '#10B981' : '#ffffff',
-                              color: isLocked ? '#ffffff' : '#DC2626'
+                              whiteSpace: 'nowrap',
+                              border: isLocked ? '1px solid #047857' : '1px solid #FCA5A5',
+                              background: isLocked ? '#047857' : '#ffffff',
+                              color: isLocked ? '#ffffff' : '#B91C1C'
                             }}
                           >
                             {isLocked ? (
@@ -480,7 +512,7 @@ export default function AdminUsersPage({
                               </>
                             ) : (
                               <>
-                                <Lock size={13} /> Khóa tài khoản
+                                <Lock size={13} /> Khóa
                               </>
                             )}
                           </button>
@@ -506,7 +538,7 @@ export default function AdminUsersPage({
               gap: 12,
               fontSize: 13
             }}>
-              <div style={{ color: '#64748B' }}>
+              <div style={{ color: '#475569' }}>
                 Hiển thị <strong>{Math.min((currentPage - 1) * pageSize + 1, users.length)}</strong> - <strong>{Math.min(currentPage * pageSize, users.length)}</strong> trên tổng số <strong>{users.length}</strong> tài khoản
               </div>
 
@@ -520,7 +552,7 @@ export default function AdminUsersPage({
                     borderRadius: 6,
                     border: '1px solid #CBD5E1',
                     background: currentPage === 1 ? '#F1F5F9' : '#ffffff',
-                    color: currentPage === 1 ? '#94A3B8' : '#0F172A',
+                    color: currentPage === 1 ? '#475569' : '#0F172A',
                     cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                     fontSize: 13,
                     fontWeight: 600
@@ -560,7 +592,7 @@ export default function AdminUsersPage({
                     borderRadius: 6,
                     border: '1px solid #CBD5E1',
                     background: currentPage === totalPages ? '#F1F5F9' : '#ffffff',
-                    color: currentPage === totalPages ? '#94A3B8' : '#0F172A',
+                    color: currentPage === totalPages ? '#475569' : '#0F172A',
                     cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                     fontSize: 13,
                     fontWeight: 600

@@ -13,6 +13,8 @@ const btn = (variant = 'outline') => ({
   color: variant === 'outline' ? '#334155' : '#fff',
 });
 const REASON_LABEL = Object.fromEntries(REPORT_REASONS);
+const ROLE_LABEL = { STUDENT: 'Sinh viên', EMPLOYER: 'Nhà tuyển dụng', ADMIN: 'Quản trị viên' };
+const REPORT_STATUS_LABEL = { OPEN: 'Chờ xử lý', PENDING: 'Chờ xử lý', RESOLVED: 'Đã xử lý', DISMISSED: 'Đã bác bỏ', ACCEPTED: 'Đã chấp nhận', REJECTED: 'Đã từ chối' };
 const QUEUES = [
   ['PENDING', 'Chờ duyệt', 'pending'],
   ['PUBLISHED', 'Đang công khai', null],
@@ -38,7 +40,7 @@ const LOG_LABEL = {
 
 function StatusPill({ status }) {
   const [text, color, bg] = STATUS_LABEL[status] || ['—', '#475569', '#F1F5F9'];
-  return <span style={{ fontSize: 11.5, fontWeight: 800, color, background: bg, padding: '2px 9px', borderRadius: 999, whiteSpace: 'nowrap' }}>{text}</span>;
+  return <span style={{ fontSize: 12.5, fontWeight: 700, color, background: bg, padding: '2px 9px', borderRadius: 999, whiteSpace: 'nowrap' }}>{text}</span>;
 }
 
 function Pager({ pagination, page, setPage }) {
@@ -106,7 +108,7 @@ function ReviewDetail({ type, id, token, onClose, onChanged, showToast }) {
 
       {r.moderation_flags?.length > 0 && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {r.moderation_flags.map(f => <span key={f} style={{ fontSize: 11.5, fontWeight: 700, color: '#B45309', background: '#FEF3C7', padding: '2px 8px', borderRadius: 999 }}>{FLAG_LABEL[f] || f}</span>)}
+          {r.moderation_flags.map(f => <span key={f} style={{ fontSize: 12.5, fontWeight: 700, color: '#78350F', background: '#FEF3C7', padding: '2px 8px', borderRadius: 999 }}>{FLAG_LABEL[f] || f}</span>)}
         </div>
       )}
       {r.moderation_reason && <div style={{ fontSize: 12.5, color: '#B91C1C' }}>Lý do hiện tại: {r.moderation_reason}</div>}
@@ -142,9 +144,9 @@ function ReviewDetail({ type, id, token, onClose, onChanged, showToast }) {
           <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 4 }}><Flag size={13} /> Báo cáo / khiếu nại ({detail.reports.length})</div>
           {detail.reports.map(x => (
             <div key={x.id} style={{ fontSize: 12.5, borderTop: '1px solid #F1F5F9', padding: '6px 0' }}>
-              <b>{x.kind === 'APPEAL' ? 'Khiếu nại' : REASON_LABEL[x.reason] || x.reason}</b> — {x.reporter_name} ({x.reporter_role}) · {reviewDate(x.created_at)} · {x.status}
+              <b>{x.kind === 'APPEAL' ? 'Khiếu nại' : REASON_LABEL[x.reason] || x.reason}</b> · {x.reporter_name} ({ROLE_LABEL[x.reporter_role] || x.reporter_role}) · {reviewDate(x.created_at)} · {REPORT_STATUS_LABEL[x.status] || x.status}
               {x.description && <div style={{ color: '#475569', whiteSpace: 'pre-line' }}>{x.description}</div>}
-              {x.resolution_note && <div style={{ color: '#64748B' }}>Kết quả: {x.resolution_note}</div>}
+              {x.resolution_note && <div style={{ color: '#475569' }}>Kết quả: {x.resolution_note}</div>}
             </div>
           ))}
         </div>
@@ -186,7 +188,7 @@ function ReportRow({ item, token, onOpen, onDone, showToast }) {
   return (
     <div style={{ ...card, display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', fontSize: 13 }}>
-        <span><b>{item.kind === 'APPEAL' ? 'Khiếu nại của tác giả' : REASON_LABEL[item.reason] || item.reason}</b> — {item.reporter_name} ({item.reporter_role}) · {reviewDate(item.created_at)}</span>
+        <span><b>{item.kind === 'APPEAL' ? 'Khiếu nại của tác giả' : REASON_LABEL[item.reason] || item.reason}</b> · {item.reporter_name} ({ROLE_LABEL[item.reporter_role] || item.reporter_role}) · {reviewDate(item.created_at)}</span>
         <StatusPill status={item.review_status} />
       </div>
       <div style={{ fontSize: 13, color: '#475569' }}>
@@ -262,7 +264,7 @@ export default function AdminReviewsPage({ currentUser, showToast }) {
         columns: [
           { header: 'Mã', value: r => `#${r.id}`, width: 8 },
           { header: 'Loại', value: r => (r.kind === 'APPEAL' ? 'Khiếu nại' : REASON_LABEL[r.reason] || r.reason), width: 26 },
-          { header: 'Người gửi', value: r => `${r.reporter_name || ''}${r.reporter_role ? ` (${r.reporter_role})` : ''}`, width: 24 },
+          { header: 'Người gửi', value: r => `${r.reporter_name || ''}${r.reporter_role ? ` (${ROLE_LABEL[r.reporter_role] || r.reporter_role})` : ''}`, width: 24 },
           { header: 'Đánh giá', value: r => `${r.review_type === 'company' ? 'Doanh nghiệp' : 'Công việc'} #${r.review_id}`, width: 18 },
           { header: 'Điểm', value: r => formatRating(r.review_rating), width: 8 },
           { header: 'Trích nội dung', value: r => r.review_excerpt, width: 40 },
@@ -302,15 +304,18 @@ export default function AdminReviewsPage({ currentUser, showToast }) {
   const badge = (key) => {
     if (!stats || !key) return null;
     const n = key === 'pending' ? stats.pending_company + stats.pending_job : stats[key];
-    return n ? <span style={{ marginLeft: 6, background: '#DC2626', color: '#fff', borderRadius: 999, fontSize: 11, padding: '0 6px' }}>{n}</span> : null;
+    return n ? <span style={{ marginLeft: 6, background: '#B91C1C', color: '#fff', borderRadius: 999, fontSize: 12, fontWeight: 700, padding: '0 7px' }}>{n}</span> : null;
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div className="jn-mod-detail" style={{
+      display: 'flex', flexDirection: 'column', gap: 14,
+      height: 'calc(100vh - var(--app-header-h, 74px) - 52px)', marginBottom: -76
+    }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Kiểm duyệt đánh giá</h1>
-          <p style={{ fontSize: 13, color: '#64748B', margin: '4px 0 0 0' }}>
+          <p style={{ fontSize: 13.5, color: '#475569', margin: '4px 0 0 0', maxWidth: '60ch' }}>
             Đánh giá doanh nghiệp và đánh giá công việc của ứng viên. Mọi thao tác đều được ghi lịch sử kèm lý do.
           </p>
         </div>
@@ -347,9 +352,9 @@ export default function AdminReviewsPage({ currentUser, showToast }) {
         </div>
       )}
 
-      <div className="admin-reviews-layout">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
-          {list.loading ? <div aria-busy="true" style={{ color: '#94A3B8' }}>Đang tải…</div>
+      <div className="admin-reviews-layout" style={{ flex: 1, minHeight: 0, alignItems: 'stretch' }}>
+        <div className="jn-mod-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0, minHeight: 0, overflowY: 'auto', paddingRight: 4 }}>
+          {list.loading ? <div aria-busy="true" style={{ color: '#475569' }}>Đang tải…</div>
             : list.error ? <div role="alert" style={{ color: '#B91C1C' }}>{list.error}</div>
             : list.data.length === 0 ? <div style={{ ...card, textAlign: 'center', color: '#64748B' }}>Không có mục nào.</div>
             : isReportQueue ? list.data.map(item => (
@@ -374,8 +379,10 @@ export default function AdminReviewsPage({ currentUser, showToast }) {
           <Pager pagination={list.pagination} page={page} setPage={setPage} />
         </div>
         {selected && (
-          <ReviewDetail key={`${selected.type}-${selected.id}`} type={selected.type} id={selected.id} token={token} showToast={showToast}
-            onClose={() => setSelected(null)} onChanged={refresh} />
+          <div className="jn-mod-scroll" style={{ minWidth: 0, minHeight: 0, overflowY: 'auto' }}>
+            <ReviewDetail key={`${selected.type}-${selected.id}`} type={selected.type} id={selected.id} token={token} showToast={showToast}
+              onClose={() => setSelected(null)} onChanged={refresh} />
+          </div>
         )}
       </div>
     </div>

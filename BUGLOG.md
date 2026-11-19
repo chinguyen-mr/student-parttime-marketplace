@@ -9,6 +9,24 @@ Thêm lỗi mới lên **đầu bảng tóm tắt** và thêm mục chi tiết t
 
 | # | Ngày | Mức | Lỗi | Trạng thái | Commit |
 |---|---|---|---|---|---|
+| BUG-27 | 20/11/2026 | 🟠 | Trên máy tính, bấm avatar không mở được menu tài khoản (rê chuột mở rồi bấm lại đóng) | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-26 | 20/11/2026 | 🟠 | Khối "Nhà tuyển dụng đánh giá bạn" hiển thị dữ liệu mẫu cố định (5.0★, "Công ty TNHH… | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-25 | 20/11/2026 | 🟡 | API lọc nhận mức lương âm hoặc không phải số (-1, abc) mà không báo lỗi, trả về toàn bộ tin | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-24 | 20/11/2026 | 🟡 | Khiếu nại không có trạng thái "Đang xử lý" | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-23 | 20/11/2026 | 🟠 | Không lọc được nhật ký theo khoảng thời gian | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-22 | 20/11/2026 | 🟠 | Xóa được ngành đang có tin tham chiếu, tin còn lại mang tên ngành không tồn tại | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-21 | 20/11/2026 | 🟡 | Tạo được ngành trùng tên chỉ khác hoa/thường, khoảng trắng | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-20 | 20/11/2026 | 🟠 | Báo cáo đã xử lý vẫn xử lý lại được, sinh hành động trùng | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-19 | 20/11/2026 | 🟡 | Họ tên / tên doanh nghiệp dài hơn 255 ký tự bị cắt âm thầm | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-18 | 20/11/2026 | 🟠 | Tin Đang tuyển chuyển thẳng sang Hoàn thành | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-17 | 20/11/2026 | 🟠 | Đơn đã nhận (ACCEPTED) vẫn chuyển được sang Từ chối | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-16 | 20/11/2026 | 🟠 | Nộp được đơn không có CV và không có lời giới thiệu | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-15 | 20/11/2026 | 🟠 | Tạo được tin không có hạn nộp hồ sơ | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-14 | 20/11/2026 | 🟡 | Backend Docker không gửi được thư khôi phục; production chưa có SMTP vẫn báo "đã gửi mã" | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-13 | 20/11/2026 | 🟡 | Email chưa đăng ký nhận thông báo chung, không báo "không tìm thấy Email" như AC2 | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-12 | 20/11/2026 | 🟡 | Mật khẩu 7 ký tự vẫn được chấp nhận (đặc tả tối thiểu 8) | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-11 | 20/11/2026 | 🟠 | Đăng xuất chỉ xóa phiên trình duyệt; token cũ vẫn gọi được API tới khi hết hạn (7 ngày) | ✅ Đã sửa | Đợt kiểm thử 314 TC |
+| BUG-10 | 20/11/2026 | 🔴 | Gửi chỉ email + mật khẩu mới tới /auth/reset-password là đổi được mật khẩu của bất kỳ tài… | ✅ Đã sửa | Đợt kiểm thử 314 TC |
 | BUG-09 | 16/11/2026 | 🟡 | Log Vercel đầy cảnh báo SSL (mức error) và quảng cáo dotenv | ✅ Đã sửa | `b9dd212` |
 | BUG-08 | 16/11/2026 | 🟡 | Mã nội bộ (UC-09, WF-E05, Rule A3…) hiện trên giao diện; trang/popup trùng lặp | ✅ Đã sửa | `8c98e44` |
 | BUG-07 | 16/11/2026 | 🟠 | Nút "Việc làm theo lịch rảnh" mở nhầm trang Tổng quan | ✅ Đã sửa | `25e0c54` |
@@ -22,6 +40,116 @@ Thêm lỗi mới lên **đầu bảng tóm tắt** và thêm mục chi tiết t
 ---
 
 ## Chi tiết
+
+> BUG-10 → BUG-27 phát hiện khi chạy đủ 314 test case (file `CDTN2_TestCases.xlsx`) ngày 19–20/11/2026; số hiệu trùng với sheet *Bug Analysis* trong Test Report. Kết quả lượt chạy cuối: 314/314 Passed.
+
+### BUG-27 — Trên máy tính, bấm avatar không mở được menu tài khoản (rê chuột mở rồi bấm lại đóng) 🟠
+- **Hiện tượng:** Trên máy tính, bấm avatar không mở được menu tài khoản (rê chuột mở rồi bấm lại đóng). Phạm vi: Giao diện chung / Menu tài khoản.
+- **Nguyên nhân:** onMouseEnter mở menu, onClick lại đảo trạng thái.
+- **Cách sửa:** Bấm avatar luôn mở menu; đóng bằng Esc / bấm ra ngoài / rời chuột.
+- **Kiểm chứng:** Rê rồi bấm vẫn mở menu; bấm Đăng xuất thu hồi phiên. Test case: Không có TC riêng (phát hiện khi chạy UI nhóm Đăng xuất).
+
+### BUG-26 — Khối "Nhà tuyển dụng đánh giá bạn" hiển thị dữ liệu mẫu cố định (5.0★, "Công ty TNHH… 🟠
+- **Hiện tượng:** Khối "Nhà tuyển dụng đánh giá bạn" hiển thị dữ liệu mẫu cố định (5.0★, "Công ty TNHH TechNova"), không phải đánh giá thật. Phạm vi: Sinh viên / Đánh giá & Phản hồi (PB-24).
+- **Nguyên nhân:** Giao diện viết cứng nội dung mẫu, không gọi API đánh giá.
+- **Cách sửa:** Lấy đánh giá thật từ GET /reviews/user/:id; có trạng thái đang tải / lỗi / chưa có đánh giá.
+- **Kiểm chứng:** Sinh viên thấy đúng điểm trung bình và từng nhận xét thật; bình luận HTML hiển thị dạng chữ. Test case: TC_REVIEW_STU_008.
+
+### BUG-25 — API lọc nhận mức lương âm hoặc không phải số (-1, abc) mà không báo lỗi, trả về toàn bộ tin 🟡
+- **Hiện tượng:** API lọc nhận mức lương âm hoặc không phải số (-1, abc) mà không báo lỗi, trả về toàn bộ tin. Phạm vi: Tìm kiếm / Lọc tin (PB-16).
+- **Nguyên nhân:** Tham số sai bị bỏ qua âm thầm (Number("abc") = NaN) hoặc lọc theo "≥ -1".
+- **Cách sửa:** Kiểm tra minSalary/maxSalary là số không âm và min ≤ max, sai thì trả 400.
+- **Kiểm chứng:** -1, abc, min > max → 400; 80.000 → chỉ tin lương ≥ 80.000. Test case: TC_JOB_FILTER_009.
+
+### BUG-24 — Khiếu nại không có trạng thái "Đang xử lý" 🟡
+- **Hiện tượng:** Khiếu nại không có trạng thái "Đang xử lý". Phạm vi: Quản trị / Khiếu nại tài khoản (PB-35).
+- **Nguyên nhân:** Chỉ có Chờ xử lý → Chấp nhận / Từ chối.
+- **Cách sửa:** Thêm trạng thái IN_REVIEW (nút "Nhận xử lý", bộ lọc, thông báo); khiếu nại đã có kết quả không đổi lại.
+- **Kiểm chứng:** PENDING → IN_REVIEW → APPROVED; cập nhật lại sau khi có kết quả → 409. Test case: TC_COMPLAINT_003.
+
+### BUG-23 — Không lọc được nhật ký theo khoảng thời gian 🟠
+- **Hiện tượng:** Không lọc được nhật ký theo khoảng thời gian. Phạm vi: Quản trị / Nhật ký hệ thống (PB-39).
+- **Nguyên nhân:** API và trang chỉ có lọc loại hành động.
+- **Cách sửa:** Thêm lọc Từ ngày/Đến ngày (giờ VN, tính trọn ngày); khoảng đảo → báo lỗi.
+- **Kiểm chứng:** Lọc 01–15/11 đúng khoảng; cùng ngày đúng biên; khoảng đảo → 400 và báo lỗi trên giao diện. Test case: TC_AUDIT_LOG_003, TC_AUDIT_LOG_006, TC_AUDIT_LOG_007.
+
+### BUG-22 — Xóa được ngành đang có tin tham chiếu, tin còn lại mang tên ngành không tồn tại 🟠
+- **Hiện tượng:** Xóa được ngành đang có tin tham chiếu, tin còn lại mang tên ngành không tồn tại. Phạm vi: Quản trị / Danh mục ngành (PB-38).
+- **Nguyên nhân:** Không kiểm tra tin đang dùng ngành.
+- **Cách sửa:** Chặn xóa ngành còn tin (409), hướng dẫn tắt hoạt động thay vì xóa.
+- **Kiểm chứng:** Xóa ngành có tin → 409, ngành còn nguyên. Test case: TC_CATEGORY_008.
+
+### BUG-21 — Tạo được ngành trùng tên chỉ khác hoa/thường, khoảng trắng 🟡
+- **Hiện tượng:** Tạo được ngành trùng tên chỉ khác hoa/thường, khoảng trắng. Phạm vi: Quản trị / Danh mục ngành (PB-38).
+- **Nguyên nhân:** So trùng phân biệt hoa thường.
+- **Cách sửa:** Chuẩn hóa khoảng trắng, so trùng không phân biệt hoa thường khi tạo/sửa (409).
+- **Kiểm chứng:** " CÔNG NGHỆ THÔNG TIN " → 409. Test case: TC_CATEGORY_009.
+
+### BUG-20 — Báo cáo đã xử lý vẫn xử lý lại được, sinh hành động trùng 🟠
+- **Hiện tượng:** Báo cáo đã xử lý vẫn xử lý lại được, sinh hành động trùng. Phạm vi: Quản trị / Báo cáo vi phạm (PB-36).
+- **Nguyên nhân:** Không kiểm tra trạng thái RESOLVED.
+- **Cách sửa:** Chặn xử lý báo cáo đã RESOLVED (409).
+- **Kiểm chứng:** Xử lý lặp → 409, số hành động giữ nguyên. Test case: TC_VIOLATION_008.
+
+### BUG-19 — Họ tên / tên doanh nghiệp dài hơn 255 ký tự bị cắt âm thầm 🟡
+- **Hiện tượng:** Họ tên / tên doanh nghiệp dài hơn 255 ký tự bị cắt âm thầm. Phạm vi: Hồ sơ Sinh viên / Nhà tuyển dụng (PB-28, PB-30).
+- **Nguyên nhân:** Hàm chuẩn hóa cắt chuỗi thay vì báo lỗi.
+- **Cách sửa:** Báo lỗi vượt 255 ký tự cho họ tên, tên hiển thị, tên pháp nhân.
+- **Kiểm chứng:** 255 ký tự → 200; 256 ký tự → 400. Test case: TC_PROFILE_STU_EDIT_006, TC_PROFILE_EMP_EDIT_006.
+
+### BUG-18 — Tin Đang tuyển chuyển thẳng sang Hoàn thành 🟠
+- **Hiện tượng:** Tin Đang tuyển chuyển thẳng sang Hoàn thành. Phạm vi: Nhà tuyển dụng / Vòng đời tin (PB-22).
+- **Nguyên nhân:** Thiếu quy tắc OPEN → COMPLETED.
+- **Cách sửa:** Phải qua Đã nhận người (FILLED) mới Hoàn thành.
+- **Kiểm chứng:** OPEN → COMPLETED → 400, giữ OPEN. Test case: TC_JOB_STATUS_003.
+
+### BUG-17 — Đơn đã nhận (ACCEPTED) vẫn chuyển được sang Từ chối 🟠
+- **Hiện tượng:** Đơn đã nhận (ACCEPTED) vẫn chuyển được sang Từ chối. Phạm vi: Nhà tuyển dụng / Từ chối đơn (PB-21).
+- **Nguyên nhân:** Không chặn chuyển trạng thái từ trạng thái cuối.
+- **Cách sửa:** Đơn ACCEPTED/WITHDRAWN không đổi trạng thái được (409).
+- **Kiểm chứng:** Từ chối đơn đã nhận → 409, giữ ACCEPTED. Test case: TC_APP_REJECT_002.
+
+### BUG-16 — Nộp được đơn không có CV và không có lời giới thiệu 🟠
+- **Hiện tượng:** Nộp được đơn không có CV và không có lời giới thiệu. Phạm vi: Sinh viên / Ứng tuyển (PB-18).
+- **Nguyên nhân:** Không kiểm tra nội dung hồ sơ tối thiểu (FR-04).
+- **Cách sửa:** Bắt buộc CV hoặc lời giới thiệu (backend + form ứng tuyển).
+- **Kiểm chứng:** Đơn trống → 400, không lưu; đơn chỉ có CV → 201. Test case: TC_APPLY_004.
+
+### BUG-15 — Tạo được tin không có hạn nộp hồ sơ 🟠
+- **Hiện tượng:** Tạo được tin không có hạn nộp hồ sơ. Phạm vi: Nhà tuyển dụng / Tạo tin (PB-13).
+- **Nguyên nhân:** Validator chỉ kiểm tra hạn nộp khi có giá trị.
+- **Cách sửa:** Bắt buộc hạn nộp khi tạo tin; khi sửa tin để trống thì giữ hạn cũ.
+- **Kiểm chứng:** Thiếu hạn/lương/địa điểm → 400 từng trường. Test case: TC_JOB_CREATE_008.
+
+### BUG-14 — Backend Docker không gửi được thư khôi phục; production chưa có SMTP vẫn báo "đã gửi mã" 🟡
+- **Hiện tượng:** Backend Docker không gửi được thư khôi phục; production chưa có SMTP vẫn báo "đã gửi mã". Phạm vi: Triển khai / Email.
+- **Nguyên nhân:** Thiếu biến SMTP trong docker-compose; dịch vụ email giả lập thành công khi không có SMTP.
+- **Cách sửa:** Cấu hình SMTP (Mailpit local, hỗ trợ Gmail); production thiếu SMTP → báo lỗi 503 và hủy mã.
+- **Kiểm chứng:** Mailpit nhận mã 6 số, hạn 15 phút; tắt máy chủ thư → 503, mã bị hủy. Test case: TC_RESET_STU_003, TC_RESET_EMP_003.
+
+### BUG-13 — Email chưa đăng ký nhận thông báo chung, không báo "không tìm thấy Email" như AC2 🟡
+- **Hiện tượng:** Email chưa đăng ký nhận thông báo chung, không báo "không tìm thấy Email" như AC2. Phạm vi: Xác thực / Khôi phục mật khẩu.
+- **Nguyên nhân:** Phản hồi trung lập chống dò email.
+- **Cách sửa:** Trả 404 "Không tìm thấy tài khoản…"; giới hạn 5 yêu cầu/15 phút để hạn chế dò.
+- **Kiểm chứng:** Email không tồn tại → 404 đúng thông báo. Test case: TC_RESET_STU_002, TC_RESET_EMP_002.
+
+### BUG-12 — Mật khẩu 7 ký tự vẫn được chấp nhận (đặc tả tối thiểu 8) 🟡
+- **Hiện tượng:** Mật khẩu 7 ký tự vẫn được chấp nhận (đặc tả tối thiểu 8). Phạm vi: Xác thực / Chính sách mật khẩu.
+- **Nguyên nhân:** Ngưỡng cấu hình 6 ký tự.
+- **Cách sửa:** Ngưỡng chung MIN_PASSWORD_LENGTH = 8 cho đăng ký, khôi phục, đổi mật khẩu (backend + giao diện).
+- **Kiểm chứng:** 7 ký tự → 400; 8 và 9 ký tự → hợp lệ. Test case: TC_REG_STU_008, TC_RESET_STU_008, TC_RESET_EMP_008.
+
+### BUG-11 — Đăng xuất chỉ xóa phiên trình duyệt; token cũ vẫn gọi được API tới khi hết hạn (7 ngày) 🟠
+- **Hiện tượng:** Đăng xuất chỉ xóa phiên trình duyệt; token cũ vẫn gọi được API tới khi hết hạn (7 ngày). Phạm vi: Xác thực / Đăng xuất (PB-03, PB-09, PB-12).
+- **Nguyên nhân:** Không có API đăng xuất, JWT không bị thu hồi phía server.
+- **Cách sửa:** Thêm POST /auth/logout + cột users.tokens_valid_after (migration 020); middleware từ chối token phát hành trước mốc.
+- **Kiểm chứng:** Sau đăng xuất: /auth/me và API riêng tư trả 401; đăng nhập lại dùng bình thường. Test case: TC_LOGOUT_STU_002/004, TC_LOGOUT_EMP_002/004, TC_LOGOUT_ADM_002/004.
+
+### BUG-10 — Gửi chỉ email + mật khẩu mới tới /auth/reset-password là đổi được mật khẩu của bất kỳ tài… 🔴
+- **Hiện tượng:** Gửi chỉ email + mật khẩu mới tới /auth/reset-password là đổi được mật khẩu của bất kỳ tài khoản nào, không cần mã OTP. Phạm vi: Xác thực / Khôi phục mật khẩu (PB-04, PB-10).
+- **Nguyên nhân:** Luồng "đặt lại trực tiếp" bỏ qua bước xác minh mã.
+- **Cách sửa:** Bắt buộc email + mã OTP 6 số gửi qua email (hạn 15 phút, chỉ lưu SHA-256); sai 5 lần hủy mã; giao diện quên mật khẩu 2 bước.
+- **Kiểm chứng:** Không có OTP → 400, OTP sai → 400, mật khẩu không đổi; OTP đúng đổi được; dùng lại mã → 400. Test case: TC_RESET_STU_006, TC_RESET_EMP_006.
 
 ### BUG-09 — Log Vercel đầy cảnh báo SSL và quảng cáo dotenv 🟡
 - **Hiện tượng:** Mỗi request khởi động lạnh trên Vercel in dòng mức **error** `SECURITY WARNING: The SSL modes 'prefer', 'require'…` và 2 dòng `◇ injected env (0) from .env // tip: …`.

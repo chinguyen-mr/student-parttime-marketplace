@@ -121,7 +121,7 @@ export default function AboutPage({
               <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.5px' }}>
                 Trung tâm Thông tin & Quy chuẩn JobNest
               </h1>
-              <p style={{ fontSize: 14.5, color: '#4B5563', margin: '6px 0 0 0', maxWidth: '65ch' }}>
+              <p style={{ fontSize: 14.5, color: '#4B5563', margin: '6px 0 0 0', maxWidth: '55ch' }}>
                 Minh bạch pháp lý, hướng dẫn vận hành và cam kết bảo vệ tối đa quyền lợi cho học tập và việc làm sinh viên.
               </p>
             </div>
@@ -135,10 +135,11 @@ export default function AboutPage({
           display: 'grid',
           gridTemplateColumns: '290px 1fr',
           gap: 28,
-          alignItems: 'start'
+          alignItems: 'stretch'
         }}>
-          {/* Left Navigation Sidebar */}
-          <aside style={{
+          {/* Left Navigation Sidebar: cột kéo dài bằng cột nội dung, khối mục lục bên trong dính theo khi cuộn */}
+          <aside>
+          <div style={{
             background: '#ffffff',
             border: '1px solid var(--color-border-hover)',
             borderRadius: 12,
@@ -148,7 +149,7 @@ export default function AboutPage({
             top: 90
           }}>
             <div style={{ padding: '8px 12px 12px 12px', borderBottom: '1px solid #E5E7EB', marginBottom: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
                 Danh mục nội dung
               </div>
             </div>
@@ -167,7 +168,7 @@ export default function AboutPage({
                     }}
                     style={{
                       background: isActive ? '#F3EFF9' : 'transparent',
-                      color: isActive ? '#7565A8' : '#374151',
+                      color: isActive ? '#5B4E8A' : '#374151',
                       border: 'none',
                       borderRadius: 8,
                       padding: '10px 14px',
@@ -191,7 +192,7 @@ export default function AboutPage({
                         <div style={{ fontSize: 14, fontWeight: isActive ? 800 : 600 }}>
                           {item.label}
                         </div>
-                        <div style={{ fontSize: 11.5, color: '#6B7280', marginTop: 1 }}>
+                        <div style={{ fontSize: 11.5, color: 'var(--color-text-secondary)', marginTop: 1 }}>
                           {item.desc}
                         </div>
                       </div>
@@ -203,10 +204,11 @@ export default function AboutPage({
                 );
               })}
             </nav>
+          </div>
           </aside>
 
           {/* Right Main Content Card */}
-          <main style={{
+          <main className="jn-prose" style={{
             background: '#ffffff',
             border: '1px solid var(--color-border-hover)',
             borderRadius: 14,
@@ -221,29 +223,19 @@ export default function AboutPage({
             {activeSection === 'about' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{
-                    background: 'rgba(117, 101, 168, 0.1)',
-                    color: '#7565A8',
-                    padding: '4px 10px',
-                    borderRadius: 6,
-                    fontSize: 12,
-                    fontWeight: 800
-                  }}>
-                    Mục 01
-                  </span>
-                  <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>Giới thiệu chung</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Giới thiệu chung</span>
                 </div>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
                   Về Nền Tảng JobNest — Việc Làm Sinh Viên Theo Lịch Rảnh
                 </h2>
 
-                <p style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 20 }}>
+                <p style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 20, maxWidth: '62ch' }}>
                   <strong>JOBNEST</strong> là sàn thương mại dịch vụ việc làm bán thời gian (Part-time) và toàn thời gian (Full-time) tiên phong tại Việt Nam, ra đời từ đề tài tốt nghiệp chuyên sâu nhằm giải quyết triệt để bài toán: <em>Làm sao để sinh viên có thu nhập trang trải cuộc sống mà không bị xung đột, gián đoạn hay trễ nải việc học trên giảng đường?</em>
                 </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: 16, marginBottom: 28 }}>
                   <div style={{ background: '#FAF8FC', border: '1.5px solid #EAE5F0', borderRadius: 12, padding: 18 }}>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: '#7565A8', marginBottom: 8 }}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#5B4E8A', marginBottom: 8 }}>
                       🎯 Sứ mệnh của chúng tôi
                     </div>
                     <div style={{ fontSize: 13.5, color: '#4B5563', lineHeight: 1.6 }}>
@@ -252,7 +244,7 @@ export default function AboutPage({
                   </div>
 
                   <div style={{ background: '#FFF9F6', border: '1.5px solid #F5DCD0', borderRadius: 12, padding: 18 }}>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: '#C86B43', marginBottom: 8 }}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#9A4A26', marginBottom: 8 }}>
                       🌟 Tầm nhìn chiến lược
                     </div>
                     <div style={{ fontSize: 13.5, color: '#4B5563', lineHeight: 1.6 }}>
@@ -302,16 +294,13 @@ export default function AboutPage({
             {activeSection === 'platform' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ background: 'rgba(117, 101, 168, 0.1)', color: '#7565A8', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-                    Mục 02
-                  </span>
-                  <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>Công nghệ lõi</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Công nghệ lõi</span>
                 </div>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
                   Kiến Trúc Kỹ Thuật & Thuật Toán So Khớp Lịch 2 Tầng
                 </h2>
 
-                <p style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 20 }}>
+                <p style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 20, maxWidth: '62ch' }}>
                   Khác với các website tuyển dụng thông thường chỉ lọc theo từ khóa đơn giản, <strong>JobNest</strong> đối chiếu lịch rảnh của bạn với ca làm của từng công việc: trước tiên loại bỏ mọi việc trùng giờ học, sau đó chấm điểm mức độ phù hợp theo thời gian, chuyên ngành, khu vực và mức lương.
                 </p>
 
@@ -332,7 +321,7 @@ export default function AboutPage({
                     </div>
 
                     <div style={{ background: '#ffffff', border: '1px solid #E5E7EB', borderRadius: 8, padding: 14 }}>
-                      <div style={{ fontWeight: 800, color: '#16A34A', fontSize: 14, marginBottom: 4 }}>
+                      <div style={{ fontWeight: 800, color: '#15803D', fontSize: 14, marginBottom: 4 }}>
                         TẦNG 2: SOFT COMPOSITE SCORING (CHẤM ĐIỂM TƯƠNG THÍCH ĐA TIÊU CHÍ)
                       </div>
                       <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.55, marginBottom: 8 }}>
@@ -378,10 +367,7 @@ export default function AboutPage({
             {activeSection === 'guide' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ background: 'rgba(117, 101, 168, 0.1)', color: '#7565A8', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-                    Mục 03
-                  </span>
-                  <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>Cẩm nang thao tác</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Cẩm nang thao tác</span>
                 </div>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
                   Hướng Dẫn Sử Dụng Nền Tảng JobNest
@@ -423,7 +409,7 @@ export default function AboutPage({
                   ))}
                 </div>
 
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#C86B43', margin: '24px 0 12px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#9A4A26', margin: '24px 0 12px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span>🏢 Dành Cho Nhà Tuyển Dụng (Quy trình 4 bước)</span>
                 </h3>
 
@@ -466,10 +452,7 @@ export default function AboutPage({
             {activeSection === 'contact' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ background: 'rgba(117, 101, 168, 0.1)', color: '#7565A8', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-                    Mục 04
-                  </span>
-                  <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>Kênh kết nối trực tiếp</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Kênh kết nối trực tiếp</span>
                 </div>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
                   Liên Hệ Ban Quản Trị & Hỗ Trợ Kỹ Thuật
@@ -657,16 +640,13 @@ export default function AboutPage({
             {activeSection === 'faq' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ background: 'rgba(117, 101, 168, 0.1)', color: '#7565A8', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-                    Mục 05
-                  </span>
-                  <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>Giải đáp thắc mắc</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Giải đáp thắc mắc</span>
                 </div>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
                   Câu Hỏi Thường Gặp (FAQ)
                 </h2>
 
-                <p style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 20 }}>
+                <p style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 20, maxWidth: '62ch' }}>
                   Dưới đây là các câu hỏi phổ biến nhất của sinh viên và nhà tuyển dụng khi tham gia hệ sinh thái việc làm JobNest:
                 </p>
 
@@ -757,10 +737,7 @@ export default function AboutPage({
             {activeSection === 'terms' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ background: 'rgba(117, 101, 168, 0.1)', color: '#7565A8', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-                    Mục 06
-                  </span>
-                  <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>Pháp lý & Quy ước</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Pháp lý & Quy ước</span>
                 </div>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
                   Thỏa Thuận Sử Dụng Dịch Vụ JobNest
@@ -800,10 +777,7 @@ export default function AboutPage({
             {activeSection === 'privacy' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ background: 'rgba(117, 101, 168, 0.1)', color: '#7565A8', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-                    Mục 07
-                  </span>
-                  <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>An toàn thông tin</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', fontWeight: 600 }}>An toàn thông tin</span>
                 </div>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
                   Chính Sách Bảo Mật Dữ Liệu Cá Nhân
@@ -844,10 +818,7 @@ export default function AboutPage({
             {activeSection === 'regulations' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ background: 'rgba(117, 101, 168, 0.1)', color: '#7565A8', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
-                    Mục 08
-                  </span>
-                  <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 600 }}>Chuẩn mực sàn</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Chuẩn mực sàn</span>
                 </div>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 16px 0' }}>
                   Quy Chế Hoạt Động & Cơ Chế Xử Lý Tranh Chấp

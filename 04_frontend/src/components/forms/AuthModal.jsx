@@ -91,8 +91,8 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
       setErrorMessage('Vui lòng nhập địa chỉ email hợp lệ.');
       return;
     }
-    if (registerPassword.length < 6) {
-      setErrorMessage('Mật khẩu bắt buộc phải có ít nhất 6 ký tự.');
+    if (registerPassword.length < 8) {
+      setErrorMessage('Mật khẩu bắt buộc phải có ít nhất 8 ký tự.');
       return;
     }
     if (registerPassword !== confirmPassword) {
@@ -586,7 +586,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, initialMode
                     type="password"
                     autoComplete="new-password"
                     required
-                    placeholder="Tối thiểu 6 ký tự"
+                    placeholder="Tối thiểu 8 ký tự"
                     value={registerPassword}
                     onChange={(e) => setRegisterPassword(e.target.value)}
                     style={{

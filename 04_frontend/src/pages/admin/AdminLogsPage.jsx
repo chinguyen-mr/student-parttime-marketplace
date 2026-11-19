@@ -17,15 +17,22 @@ export default function AdminLogsPage({
   // Filters (WF-A08: Admin, Action type, Khoảng ngày)
   const [actionFilter, setActionFilter] = useState('ALL');
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const dateRangeError = fromDate && toDate && fromDate > toDate
+    ? '"Từ ngày" phải trước hoặc bằng "Đến ngày".' : '';
 
   // Fetch Logs
   const fetchLogs = async (isManual = false) => {
+    if (dateRangeError) return;
     try {
       if (isManual) setRefreshing(true);
       else setLoading(true);
 
       const params = new URLSearchParams();
       if (actionFilter !== 'ALL') params.append('action', actionFilter);
+      if (fromDate) params.append('from', fromDate);
+      if (toDate) params.append('to', toDate);
       params.append('limit', '100');
 
       const headers = { Authorization: `Bearer ${currentUser?.token}` };
@@ -50,7 +57,7 @@ export default function AdminLogsPage({
 
   useEffect(() => {
     fetchLogs();
-  }, [actionFilter, currentUser]);
+  }, [actionFilter, fromDate, toDate, currentUser]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
@@ -97,7 +104,7 @@ export default function AdminLogsPage({
               described.forEach(l => { byAdmin[l.admin_name || 'Không rõ'] = (byAdmin[l.admin_name || 'Không rõ'] || 0) + 1; });
               return {
                 title: 'Nhật ký hoạt động quản trị',
-                subtitle: `Loại thao tác: ${actionFilter === 'ALL' ? 'Tất cả' : (ADMIN_LOG_FILTERS.find(f => f[0] === actionFilter)?.[1] || actionFilter)}${searchKeyword.trim() ? ` · Từ khóa: "${searchKeyword.trim()}"` : ''} · ${filteredLogs.length} thao tác gần nhất`,
+                subtitle: `Loại thao tác: ${actionFilter === 'ALL' ? 'Tất cả' : (ADMIN_LOG_FILTERS.find(f => f[0] === actionFilter)?.[1] || actionFilter)}${fromDate || toDate ? ` · Thời gian: ${fromDate || '…'} → ${toDate || '…'}` : ''}${searchKeyword.trim() ? ` · Từ khóa: "${searchKeyword.trim()}"` : ''} · ${filteredLogs.length} thao tác gần nhất`,
                 fileName: 'nhat-ky-quan-tri',
                 author: currentUser?.full_name,
                 summary: [['Tổng thao tác', described.length], ...Object.entries(byAdmin).slice(0, 3)],
@@ -176,6 +183,27 @@ export default function AdminLogsPage({
             {ADMIN_LOG_FILTERS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
         </div>
+
+        {/* Khoảng ngày (tính trọn ngày đầu và ngày cuối) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <label htmlFor="log-from" style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Từ ngày</label>
+          <input id="log-from" type="date" value={fromDate} max={toDate || undefined} onChange={(e) => setFromDate(e.target.value)}
+            aria-invalid={!!dateRangeError}
+            style={{ height: 38, borderRadius: 8, border: `1px solid ${dateRangeError ? '#DC2626' : 'var(--color-border-hover)'}`, padding: '0 10px', fontSize: 13, background: '#ffffff' }} />
+          <label htmlFor="log-to" style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Đến ngày</label>
+          <input id="log-to" type="date" value={toDate} min={fromDate || undefined} onChange={(e) => setToDate(e.target.value)}
+            aria-invalid={!!dateRangeError}
+            style={{ height: 38, borderRadius: 8, border: `1px solid ${dateRangeError ? '#DC2626' : 'var(--color-border-hover)'}`, padding: '0 10px', fontSize: 13, background: '#ffffff' }} />
+          {(fromDate || toDate) && (
+            <button type="button" onClick={() => { setFromDate(''); setToDate(''); }}
+              style={{ background: 'none', border: 'none', padding: 0, fontSize: 13, fontWeight: 600, color: '#7565A8', textDecoration: 'underline', cursor: 'pointer' }}>
+              Xóa lọc ngày
+            </button>
+          )}
+        </div>
+        {dateRangeError && (
+          <div role="alert" style={{ width: '100%', fontSize: 13, fontWeight: 600, color: '#B91C1C' }}>{dateRangeError}</div>
+        )}
       </div>
 
       {/* Bảng Audit Log chuẩn Wireframe WF-A08 */}
@@ -185,6 +213,7 @@ export default function AdminLogsPage({
         borderRadius: 14,
         border: '1px solid var(--color-border-hover)',
         overflow: 'hidden',
+        padding: '4px 8px 8px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
         {loading ? (
@@ -234,11 +263,11 @@ export default function AdminLogsPage({
                       </td>
 
                       <td style={{ padding: '14px 16px', fontWeight: 600, color: '#0F172A', overflowWrap: 'anywhere' }}>
-                        {d.target || '—'}
+                        {d.target || ''}
                       </td>
 
                       <td style={{ padding: '14px 16px', color: '#334155', fontSize: 13, lineHeight: 1.5, overflowWrap: 'anywhere' }}>
-                        {d.detail || '—'}
+                        {d.detail || ''}
                       </td>
                     </tr>
                   );

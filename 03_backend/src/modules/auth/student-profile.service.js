@@ -40,6 +40,7 @@ function validate(body = {}) {
     };
 
     if (!out.full_name || out.full_name.length < 2) errors.push('Họ và tên phải có ít nhất 2 ký tự.');
+    else if (String(body.full_name).trim().length > 255) errors.push('Họ và tên tối đa 255 ký tự.');
     if (out.phone && !/^(\+84|0)\d{9,10}$/.test(out.phone.replace(/[\s.-]/g, ''))) errors.push('Số điện thoại không hợp lệ.');
     if (out.phone) out.phone = out.phone.replace(/[\s.-]/g, '');
     if (out.date_of_birth) {

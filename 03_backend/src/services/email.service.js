@@ -83,7 +83,7 @@ class EmailService {
                     from: sender,
                     to: toEmail,
                     subject: emailPayload.subject,
-                    text: `Xin chào,\n\nBạn (hoặc ai đó) vừa yêu cầu đặt lại mật khẩu cho tài khoản ${toEmail} trên hệ thống JobNest.\n\nVui lòng truy cập liên kết sau để thiết lập mật khẩu mới (có hiệu lực trong 15 phút):\n${resetUrl}\n\nMã xác thực dự phòng của bạn: ${rawToken}\n\nNếu bạn không yêu cầu điều này, xin vui lòng bỏ qua email này.\n\nTrân trọng,\nĐội ngũ JobNest`,
+                    text: `Xin chào,\n\nBạn (hoặc ai đó) vừa yêu cầu đặt lại mật khẩu cho tài khoản ${toEmail} trên hệ thống JobNest.\n\nMã xác nhận của bạn (hiệu lực 15 phút): ${rawToken}\n\nNhập mã này tại màn hình Quên mật khẩu (${resetUrl}) để đặt mật khẩu mới.\n\nNếu bạn không yêu cầu điều này, xin vui lòng bỏ qua email này.\n\nTrân trọng,\nĐội ngũ JobNest`,
                     html: `
                         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #EAE5F0; border-radius: 8px;">
                             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
@@ -94,13 +94,8 @@ class EmailService {
                             <p style="color: #4B5563; font-size: 14px; line-height: 1.6;">
                                 Hệ thống nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>${toEmail}</strong>.
                             </p>
-                            <div style="margin: 28px 0; text-align: center;">
-                                <a href="${resetUrl}" style="background-color: #7565A8; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 9999px; font-weight: bold; font-size: 14px; display: inline-block;">
-                                    Đặt Lại Mật Khẩu Ngay
-                                </a>
-                            </div>
-                            <p style="font-size: 13px; color: #6B7280;">Hoặc bạn có thể sao chép mã xác thực sau vào giao diện khôi phục mật khẩu:</p>
-                            <div style="background: #F8FAFC; border: 1.5px dashed #7565A8; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 14px; font-weight: bold; color: #30283A; word-break: break-all; text-align: center;">
+                            <p style="font-size: 13px; color: #6B7280;">Nhập mã xác nhận sau tại màn hình Quên mật khẩu trên <a href="${resetUrl}" style="color: #7565A8;">JobNest</a>:</p>
+                            <div style="background: #F8FAFC; border: 1.5px dashed #7565A8; padding: 14px; border-radius: 6px; font-family: monospace; font-size: 26px; letter-spacing: 6px; font-weight: bold; color: #30283A; text-align: center;">
                                 ${rawToken}
                             </div>
                             <p style="font-size: 12px; color: #9CA3AF; margin-top: 24px; line-height: 1.5;">
@@ -125,7 +120,12 @@ class EmailService {
             }
         }
 
-        // 2. Safe Fallback (No SMTP configured): Development & Test Mode
+        // 2. Production chưa cấu hình SMTP: báo lỗi thay vì giả vờ đã gửi (người dùng sẽ chờ mã không bao giờ tới)
+        if (isProduction) {
+            throw new Error('Chưa cấu hình SMTP (SMTP_HOST) nên không gửi được email');
+        }
+
+        // 3. Safe Fallback (No SMTP configured): Development & Test Mode
         if (!isProduction) {
             console.log(`[DEV-EMAIL-DISPATCH] Giả lập gửi email đặt lại mật khẩu tới ${toEmail}`);
         }

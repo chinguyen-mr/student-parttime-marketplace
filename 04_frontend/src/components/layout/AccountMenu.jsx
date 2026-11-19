@@ -61,7 +61,8 @@ export default function AccountMenu({ currentUser, onNavigate, onLogout }) {
     <div ref={rootRef} style={{ position: 'relative' }} onMouseEnter={openNow} onMouseLeave={closeSoon}>
       <button
         type="button"
-        onClick={() => setOpen(v => !v)}
+        // Rê chuột đã mở menu trước khi bấm → bấm chỉ mở (không đảo trạng thái); đóng bằng Esc / bấm ra ngoài
+        onClick={openNow}
         aria-haspopup="menu"
         aria-expanded={open}
         title={currentUser?.full_name || 'Tài khoản'}

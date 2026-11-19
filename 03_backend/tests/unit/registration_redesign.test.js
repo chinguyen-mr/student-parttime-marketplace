@@ -174,24 +174,37 @@ describe('Registration Simplification — Unit Tests (Auth Validator)', () => {
   });
 
   // =========================================================================
-  // 4. Direct Password Reset (No OTP Required)
+  // 4. Password Reset (email + mã OTP bắt buộc)
   // =========================================================================
-  describe('Direct Password Reset Validation', () => {
-    it('should pass with valid email and new password without OTP token', async () => {
+  describe('Password Reset Validation', () => {
+    it('should pass with valid email, OTP and new password', async () => {
       await assert.doesNotReject(async () => {
         await runMiddleware(validateResetPassword, {
           email: 'user.test@vlu.edu.vn',
+          otp: '123456',
           new_password: 'NewStrongPassword@2026'
         });
       });
     });
 
-    it('should reject reset when new password is short (< 6 chars)', async () => {
+    it('should reject reset without OTP (email alone must not reset a password)', async () => {
       await assert.rejects(
         async () =>
           await runMiddleware(validateResetPassword, {
             email: 'user.test@vlu.edu.vn',
-            new_password: '123'
+            new_password: 'NewStrongPassword@2026'
+          }),
+        (err) => err.statusCode === 400 && err.details.some(e => e.includes('mã xác nhận'))
+      );
+    });
+
+    it('should reject reset when new password is short (< 8 chars)', async () => {
+      await assert.rejects(
+        async () =>
+          await runMiddleware(validateResetPassword, {
+            email: 'user.test@vlu.edu.vn',
+            otp: '123456',
+            new_password: 'Abc1234'
           }),
         (err) => err.statusCode === 400 && err.details.some(e => e.includes('Mật khẩu mới'))
       );

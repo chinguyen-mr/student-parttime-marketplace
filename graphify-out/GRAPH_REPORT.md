@@ -1,24 +1,24 @@
-# Graph Report - Chuyên Đề 2  (2026-11-15)
+# Graph Report - Chuyên Đề 2  (2026-11-19)
 
 ## Corpus Check
-- 1006 files · ~2,031,058 words
+- 976 files · ~1,983,523 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 72 file(s) not represented in the graph (top: (none) 48, .drawio 8, .example 4)
+- Unclassified: 73 file(s) not represented in the graph (top: (none) 48, .drawio 8, .example 4)
 
 ## Summary
-- 12897 nodes · 14719 edges · 1051 communities (1002 shown, 49 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 106 edges (avg confidence: 0.91)
+- 12576 nodes · 14501 edges · 1011 communities (963 shown, 48 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 83 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `46f91600`
+- Built from commit: `acce207c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - reference/README.md
 - app.js
-- BÁO CÁO KHẮC PHỤC SỰ CỐ KẾT NỐI BACKEND (PORT 5000) & CHUẨN HÓA API FRONTEND - JOBNEST
+- services/api.js
 - Hierarchy Checklist
 - PART 1/3 — AUTHENTICATION, PROFILE, VERIFICATION & JOB CREATION
 - PART 1/3 — AUTHENTICATION, PROFILE, VERIFICATION & JOB CREATION
@@ -32,7 +32,7 @@
 - db.js
 - ui-ux/better-web-ui/reference/README.md
 - Performance
-- NotFoundError
+- FileService
 - react
 - Frontend Design Reference Index
 - Offline and Resilience Patterns
@@ -60,7 +60,7 @@
 - Language and Locale Selection
 - Notification and Permission Systems
 - UX Writing
-- BÁO CÁO TÍCH HỢP ANIMATE UI VÀO DỰ ÁN CHUYÊN ĐỀ TỐT NGHIỆP 2
+- EmptyState
 - BÁO CÁO THIẾT KẾ KIẾN TRÚC TỔNG THỂ, CƠ SỞ DỮ LIỆU ERD VÀ THIẾT KẾ CHI TIẾT (BUỔI 4 & BUỔI 5)
 - The Seven Sweeps
 - scripts
@@ -81,7 +81,7 @@
 - Destructive Action UX
 - Official docs starting points
 - Information Architecture UX
-- BÁO CÁO NGHIÊN CỨU VÀ TÁI THIẾT KẾ FOOTER JOBNEST
+- Chi tiết
 - Cognitive Load
 - Component Anatomy
 - Component and Block Strategy
@@ -109,7 +109,7 @@
 - CHƯƠNG 6 — STATE MODELS VÀ VÒNG ĐỜI
 - CHƯƠNG 6 — STATE MODELS VÀ VÒNG ĐỜI
 - employer-public.service.js
-- UserRepository
+- auth.routes.js
 - common/index.js
 - Container Queries
 - Design Process
@@ -119,11 +119,11 @@
 - Predictive and Intent-Driven UI
 - Social Proof Patterns
 - Frontend design workflow
-- 2. LỘ TRÌNH 10 GIAI ĐOẠN TRIỂN KHAI (10 PHASES)
-- BÁO CÁO TRIỂN KHAI TRANG COMING SOON DÙNG CHUNG CHO TOÀN BỘ JOBNEST
-- BÁO CÁO KIỂM KÊ TOÀN DIỆN, PHÂN LOẠI & ĐÁNH GIÁ TÀI NGUYÊN DỰ ÁN (PROJECT FILE AUDIT REPORT)
-- 3. CHI TIẾT CÁC THAY ĐỔI PHÍA FRONTEND (CLIENT APP)
-- AppError
+- p0_ui_regression.js
+- Implementation Steps
+- AvatarEditorModal.jsx
+- PART 3/3 — WORK MANAGEMENT, REVIEW, NOTIFICATION & ADMIN
+- AuthService
 - 2. DANH SÁCH CHI TIẾT CÁC QUYẾT ĐỊNH (ADRs)
 - Accessibility Testing
 - Color Ramp Workflow
@@ -132,7 +132,7 @@
 - Semantic Color
 - Sidebar and Footer UX
 - Spatial Design
-- BÁO CÁO TRIỂN KHAI GIAO DIỆN DANH SÁCH CÔNG VIỆC, XEM NHANH VÀ CHI TIẾT CÔNG VIỆC CHO JOBNEST
+- UC-06 — XÁC MINH EMAIL VÀ SỐ ĐIỆN THOẠI
 - 07_JOBNEST_Database_ERD_Specification_dd3088e1.md
 - 07_JOBNEST_Database_Specification_d073ca45.md
 - Data_v2_6abe9129.md
@@ -143,7 +143,7 @@
 - Pricing and Packaging
 - Primitives
 - BÁO CÁO BÀN GIAO BUỔI 2: PHÂN TÍCH YÊU CẦU ĐỀ TÀI & ĐẶC TẢ YÊU CẦU (SRS RÚT GỌN)
-- BÁO CÁO TÁI THIẾT KẾ BỐ CỤC GIAO DIỆN HỆ THỐNG — JOBNEST
+- UC-04 — QUẢN LÝ HỒ SƠ STUDENT
 - 04_JOBNEST_Use_Case_Specification (1)_8e032d93.md
 - 6. EMPLOYER SCREENS (GỐC)
 - 05_JOBNEST_Wireframe_Specification_498ec7f4.md
@@ -159,13 +159,7 @@
 - Refactoring with GitNexus
 - GitNexus — Code Intelligence
 - Refactoring with GitNexus
-- 2. CHI TIẾT THIẾT KẾ TỪNG MÀN HÌNH
 - JobNest_Data_v3_b919e043.md
-- BÁO CÁO CẬP NHẬT NHẬN DIỆN THƯƠNG HIỆU JOBNEST
-- BÁO CÁO CHUẨN HÓA VÀ NÂNG CẤP CUSTOM DROPDOWN / SELECT CHO HỆ THỐNG JOBNEST
-- BÁO CÁO KIỂM KÊ DỰ ÁN TOÀN DIỆN (PROJECT AUDIT REPORT) — JOBNEST
-- BÁO CÁO AUDIT MÔI TRƯỜNG & DEPENDENCIES — DỰ ÁN JOBNEST
-- 2. CHI TIẾT CÁC THAY ĐỔI VÀ GIẢI PHÁP ĐÃ THỰC THI
 - CHƯƠNG 2 — MÔ TẢ TỔNG QUAN
 - CHƯƠNG 2 — MÔ TẢ TỔNG QUAN
 - 5. STUDENT SCREENS (GỐC)
@@ -175,7 +169,7 @@
 - Companion policies (deploy in parallel)
 - Tables and Data Tables
 - Motion Design
-- ExperienceReviewService
+- NotFoundError
 - Brief — <project>
 - GitNexus CLI Commands
 - GitNexus Guide
@@ -183,9 +177,6 @@
 - GitNexus Guide
 - assets_v3.py
 - BÁO CÁO BÀN GIAO BUỔI 3: LẬP KẾ HOẠCH DỰ ÁN THEO AGILE/SCRUM RÚT GỌN & PRODUCT BACKLOG CHI TIẾT
-- BÁO CÁO TRIỂN KHAI PHÂN HỆ NHÀ TUYỂN DỤNG (EMPLOYER IMPLEMENTATION REPORT)
-- 1. ĐÁNH GIÁ THEO 5 TIÊU CHUẨN CHẤT LƯỢNG (QUALITY PILLARS)
-- 2. BẢNG TIÊU CHÍ KIỂM CHỨNG THỊ GIÁC (VISUAL FIDELITY CHECKLIST)
 - CHƯƠNG 7 — REQUIREMENT TRACEABILITY
 - CHƯƠNG 7 — REQUIREMENT TRACEABILITY
 - 06_JOBNEST_API_Contract_6b4c47ca.md
@@ -198,9 +189,8 @@
 - Impact Analysis with GitNexus
 - Impact Analysis with GitNexus
 - BÁO CÁO BÀN GIAO BUỔI 1: GIỚI THIỆU MÔN HỌC, PHÂN NHÓM VÀ LỰA CHỌN ĐỀ TÀI
-- BÁO CÁO KIỂM THỬ GIAO DIỆN ĐA THIẾT BỊ (RESPONSIVE TEST REPORT) — JOBNEST
 - 02_DOX_PROJECT_COMPARISON — SO SÁNH CHI TIẾT
-- UC-01 — ĐĂNG KÝ TÀI KHOẢN
+- 1. USE CASE BASELINE & TRACEABILITY
 - UC-12 — QUẢN LÝ APPLICATION (CẤU TRÚC CHI TIẾT 9 MỤC — REVISION 2)
 - UC-14 — XÉT DUYỆT FREELANCE PROPOSAL (CẤU TRÚC CHI TIẾT 9 MỤC — REVISION 2)
 - UC-09 — TÌM KIẾM VÀ XEM JOB
@@ -220,11 +210,6 @@
 - Exploring Codebases with GitNexus
 - generate_data_v3.py
 - 2. Chi tiết các tầng trong Backend (`server/`)
-- YÊU CẦU & THIẾT KẾ HỆ THỐNG THÔNG BÁO XUYÊN SUỐT (NOTIFICATION SYSTEM)
-- BÁO CÁO TÍCH HỢP BỘ SKILL THIẾT KẾ FRONTEND CHỐNG GIAO DIỆN AI ĐẠI TRÀ
-- BÁO CÁO FIX BUG: QUICK PREVIEW TỰ ĐỘNG ĐÓNG KHI CUỘN TRANG (JOBNEST)
-- NGHIÊN CỨU MÃ NGUỒN MỞ & THAM KHẢO THIẾT KẾ (OPEN SOURCE RESEARCH) — JOBNEST
-- BÁO CÁO TỔNG KẾT DỌN DẸP & NGHIỆM THU TÀI NGUYÊN DỰ ÁN (PROJECT FILE CLEANUP REPORT)
 - TÀI LIỆU HỆ THỐNG THIẾT KẾ (UI/UX DESIGN SYSTEM) — JOBNEST
 - 03_JOBNEST_SRS_95d55c09.md
 - 03_JOBNEST_SRS_e6d22bee.md
@@ -233,7 +218,7 @@
 - UC-17 — BÀN GIAO VÀ NGHIỆM THU FREELANCE
 - UC-08 — KIỂM DUYỆT JOB
 - UC-10 — LƯU JOB
-- 04_JOBNEST_Use_Case_Specification_317a45e7.md
+- CÁC ĐIỂM KIỂM SOÁT BẮT BUỘC KHI TRIỂN KHAI
 - UC-17 — BÀN GIAO VÀ NGHIỆM THU FREELANCE
 - UC-08 — KIỂM DUYỆT JOB
 - UC-10 — LƯU JOB
@@ -260,8 +245,6 @@
 - Ethical Psychology and Mental Models
 - Design system
 - Verification
-- BÁO CÁO KIỂM THỬ PHÂN HỆ NHÀ TUYỂN DỤNG (EMPLOYER TEST REPORT)
-- NHẬT KÝ THAY ĐỔI TRIỂN KHAI (IMPLEMENTATION CHANGELOG) — JOBNEST
 - NHẬT KÝ THỰC HIỆN ĐỀ TÀI (PROJECT LOG) — TỪ BUỔI 1 ĐẾN BUỔI 5
 - CHƯƠNG 8 — TBD / DECISIONS / OPEN ISSUES
 - CHƯƠNG 9 — LIMITATIONS AND CURRENT STATUS
@@ -300,7 +283,7 @@
 - Design Context: Nền tảng Freelance / Marketplace Việc làm Part-time Sinh viên
 - Typography
 - UC-15 — CHỌN NHIỀU ỨNG VIÊN VÀ TẠO ASSIGNMENT
-- PART 3/3 — WORK MANAGEMENT, REVIEW, NOTIFICATION & ADMIN
+- UC-16 — THEO DÕI TIẾN ĐỘ ASSIGNMENT
 - Dos and Don'ts
 - UC-19 — ĐÁNH GIÁ HAI CHIỀU
 - UC-22 — XỬ LÝ BÁO CÁO
@@ -310,7 +293,7 @@
 - Designing for Gen Z
 - UC-14 — XÉT DUYỆT FREELANCE PROPOSAL
 - UC-19 — ĐÁNH GIÁ HAI CHIỀU
-- UC-22 — XỬ LÝ BÁO CÁO
+- PART 3/3 — WORK MANAGEMENT, REVIEW, NOTIFICATION & ADMIN
 - PART 2/3 — MODERATION, SEARCH, APPLICATION, PROPOSAL & SELECTION
 - Configurator UX
 - UC-14 — XÉT DUYỆT FREELANCE PROPOSAL
@@ -325,7 +308,7 @@
 - UC-16 — THEO DÕI TIẾN ĐỘ ASSIGNMENT
 - Empty State Patterns
 - Detailed Guidelines
-- ForbiddenError
+- utils/app-error.js
 - .oxlintrc.json
 - AI Engineering Skills & Architecture Standards — JobNest
 - Comboboxes
@@ -339,18 +322,15 @@
 - Infinite Scroll vs Load More vs Pagination
 - Ask Only for Missing Context
 - High-Density Pricing Table Patterns
-- QUY TẮC HIỂN THỊ FOOTER THEO ROUTE & PHÂN VÙNG HỆ THỐNG
-- BÁO CÁO TRIỂN KHAI: TÍCH HỢP BẢN ĐỒ VỊ TRÍ LÀM VIỆC VÀO TRANG CHI TIẾT CÔNG VIỆC JOBNEST
 - QUY CHUẨN ĐIỀU PHỐI VAI TRÒ, NGHIÊN CỨU TÀI LIỆU VÀ TÁI SỬ DỤNG MÃ NGUỒN CHO CD2
 - MA TRẬN TRUY VẾT YÊU CẦU TOÀN DIỆN (REQUIREMENT TRACEABILITY MATRIX) — JOBNEST
-- BÁO CÁO KIỂM THỬ TOÀN DIỆN (COMPREHENSIVE TEST REPORT) — JOBNEST
 - CHƯƠNG 1 — GIỚI THIỆU
 - CHƯƠNG 3 — YÊU CẦU CHỨC NĂNG (FUNCTIONAL REQUIREMENTS)
 - 6.9. Bảng chuyển trạng thái chi tiết
 - CHƯƠNG 1 — GIỚI THIỆU
 - CHƯƠNG 3 — YÊU CẦU CHỨC NĂNG (FUNCTIONAL REQUIREMENTS)
 - 6.9. Bảng chuyển trạng thái chi tiết
-- 1. USE CASE BASELINE & TRACEABILITY
+- UC-04 — QUẢN LÝ HỒ SƠ STUDENT
 - UC-05 — QUẢN LÝ HỒ SƠ EMPLOYER
 - build.js
 - StudentProfileForm.jsx
@@ -386,11 +366,8 @@
 - Tier Structure: Good / Better / Best
 - Gather the Right Context First
 - Colour Palettes
-- BÁO CÁO RÀ SOÁT HIỆN TRẠNG GIAO DIỆN NHÀ TUYỂN DỤNG (EMPLOYER UI AUDIT REPORT)
 - Frontend Design Reference Index
-- BÁO CÁO KIỂM TOÁN BẢO MẬT HỆ THỐNG (SECURITY AUDIT) — JOBNEST
 - CategoryJobsModal.jsx
-- BẢNG MA TRẬN ĐỐI CHIẾU VÀ TRUY VẾT 44 WIREFRAME — JOBNEST
 - BÁO CÁO CHUẨN BỊ — INVENTORY TÀI LIỆU JOBNEST
 - Chi tiết theo file
 - Bổ sung chi tiết — FR / NFR / BR (Dự án so với DOX)
@@ -424,9 +401,6 @@
 - Freemium vs Free Trial
 - Research Methods Worth Knowing
 - Dark mode
-- MA TRẬN TRUY VẾT YÊU CẦU EMPLOYER (EMPLOYER REQUIREMENT TRACEABILITY MATRIX)
-- NHẬT KÝ ĐỒNG BỘ TÀI LIỆU DỰ ÁN (PROJECT DOCUMENTATION CHANGELOG)
-- BẢNG GHI NHẬN CÁC ĐIỂM CẦN LƯU Ý & CẢI TIẾN DỰ ÁN (PROJECT SETUP GAP REGISTER)
 - 6.2. Job Lifecycle
 - 6.2. Job Lifecycle
 - 04_JOBNEST_UC_Register_e5ca2f2a.md
@@ -476,7 +450,6 @@
 - .claude/CLAUDE.md
 - Official docs starting points
 - HTML
-- LocationPicker.jsx
 - How to implement
 - Agentic JavaScript Tools
 - Guidelines
@@ -663,7 +636,7 @@
 - Cookies
 - Form Inputs
 - Core Principles
-- Curated defaults for React-based web apps
+- ui-ux/better-web-ui/reference/framework-defaults.md
 - Banned UI Patterns
 - Ideation Frameworks Reference
 - Cookies
@@ -869,7 +842,6 @@
 - Creating Persistent App Tours
 - Creating Toast Notifications
 - Build a Styled Progress Bar
-- migrate.js
 - role
 - Translator
 - CSS: Modern Architecture
@@ -920,7 +892,7 @@
 - Implementation
 - Precise Text Alignment
 - README.md
-- employer_company_api.test.js
+- auth.service.js
 - Language Detection
 - 3. Selectors and scoping
 - Fallback strategies
@@ -935,13 +907,11 @@
 - Core implementation
 - Physics Based Easing
 - Sortable Table
-- click
 - Build a popup menu
 - Implementation with `<dialog>`
 - 2. Styles
 - Equal-Width Text Lines
 - Shaped Cutouts
-- CÁC ĐIỂM KIỂM SOÁT BẮT BUỘC KHI TRIỂN KHAI
 - Animate to Intrinsic Sizes
 - Detecting support for at-rules when `@supports at-rule()` isn’t appropriate { #detecting-at-rules-without-supports-at-rule }
 - Implementation
@@ -988,8 +958,6 @@
 - Soft Edge Content Fade
 - WebMCP
 - seed
-- UC-13 — GỬI FREELANCE PROPOSAL
-- UC-13 — GỬI FREELANCE PROPOSAL
 - 6. CÁCH B — Chạy thủ công
 - Styling siblings based on count and index
 - Individual Transform Properties
@@ -1005,7 +973,6 @@
 - Optimize preload priority
 - Optimize script priority
 - Passkeys Orientation
-- Fallback strategies
 - Restrict outbound network connections with Connection Allowlists
 - Sanitizing Untrusted HTML
 - Secure external subresources with Subresource Integrity, CORS, and Referrer Policy
@@ -1022,17 +989,10 @@
 - Scrollytelling
 - Spatial Navigation (Directional Keypad Focus)
 - Fallback strategies
-- Implementing the interaction
 - Adapt scrollbar to high-contrast preferences
 - Export HTML content from canvas
 - Visual effects
 - Visually Stable Mixed Fonts
-- Framework Defaults
-- UC-03 — QUÊN / ĐẶT LẠI MẬT KHẨU
-- UC-18 — XÁC NHẬN HOÀN THÀNH ASSIGNMENT
-- UC-05 — QUẢN LÝ HỒ SƠ EMPLOYER
-- UC-06 — XÁC MINH EMAIL VÀ SỐ ĐIỆN THOẠI
-- generate_drawio_svgs.js
 - Customize the styling of autofilled form fields
 - Break Up Long Tasks
 - Conditional Async Dependencies
@@ -1058,33 +1018,33 @@
 - Platform Controls Dismiss Dialog
 
 ## God Nodes (most connected - your core abstractions)
-1. `react` - 91 edges
-2. `lucide-react` - 80 edges
-3. `NotFoundError` - 69 edges
-4. `AppError` - 61 edges
+1. `react` - 94 edges
+2. `lucide-react` - 78 edges
+3. `NotFoundError` - 68 edges
+4. `AppError` - 58 edges
 5. `Component Anatomy` - 41 edges
 6. `Component Anatomy` - 41 edges
-7. `ForbiddenError` - 38 edges
-8. `ExperienceReviewService` - 35 edges
+7. `ExperienceReviewService` - 35 edges
+8. `ForbiddenError` - 34 edges
 9. `Frontend Design Reference Index` - 33 edges
 10. `Frontend Design Reference Index` - 33 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `8. KẾT QUẢ KIỂM THỬ TRÊN GIAO DIỆN THỰC TẾ (E2E PLAYWRIGHT)` --references--> `AuthModal()`  [INFERRED]
-  docs/jobnest-backend-connection-bugfix.md → 04_frontend/src/components/forms/AuthModal.jsx
-- `3.3. Tối ưu Hệ thống Điều hướng & Chân trang (`App.jsx`)` --references--> `AdminPortal()`  [INFERRED]
-  docs/UI_IMPLEMENTATION_CHANGELOG.md → 04_frontend/src/pages/admin/AdminPortal.jsx
-- `3. CÁC THAO TÁC ĐÃ HOẠT ĐỘNG THỰC TẾ` --references--> `JobDetailPage()`  [INFERRED]
-  docs/jobnest-job-list-detail-implementation-report.md → 04_frontend/src/pages/student/JobDetailPage.jsx
-- `Example code` --references--> `click()`  [INFERRED]
-  .agents/skills/modern-web-guidance/guides/performance/batch-analytics-events.md → scripts/wireframes/capture.js
+- `Visual design` --references--> `em()`  [INFERRED]
+  .agents/skills/modern-web-guidance/guides/visual-design/equal-width-text-lines.md → scripts/wireframes/capture.js
+- `2. Preserve keyboard focusability and accessibility` --references--> `role()`  [INFERRED]
+  .agents/skills/modern-web-guidance/guides/ui-behaviors/2d-panning.md → scripts/wireframes/capture.js
+- `Choose the drawer element` --references--> `role()`  [INFERRED]
+  .agents/skills/modern-web-guidance/guides/ui-components/navigation-drawer.md → scripts/wireframes/capture.js
+- `Implementation for a drawer that also acts as a sidebar` --references--> `role()`  [INFERRED]
+  .agents/skills/modern-web-guidance/guides/ui-components/navigation-drawer.md → scripts/wireframes/capture.js
 - `Privacy and security constraints` --references--> `click()`  [INFERRED]
   .agents/skills/modern-web-guidance/guides/security/quick-sign-ins.md → scripts/wireframes/capture.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (1051 total, 49 thin omitted)
+## Communities (1011 total, 48 thin omitted)
 
 ### Community 0 - "reference/README.md"
 Cohesion: 0.08
@@ -1092,19 +1052,19 @@ Nodes (6): Context Gathering Protocol, Design Direction, Framework & Library Gui
 
 ### Community 1 - "app.js"
 Cohesion: 0.04
-Nodes (49): cors, defaultAllowedOrigins, express, jwt, requireRoles(), verifyToken(), express, router (+41 more)
+Nodes (61): app, cors, defaultAllowedOrigins, express, getJwtSecret(), isJwtSecretConfigured(), jwt, requireRoles() (+53 more)
 
-### Community 2 - "BÁO CÁO KHẮC PHỤC SỰ CỐ KẾT NỐI BACKEND (PORT 5000) & CHUẨN HÓA API FRONTEND - JOBNEST"
-Cohesion: 0.08
-Nodes (21): API_BASE, checkBackendConnection(), formatApiError(), HEALTH_ENDPOINT, SERVER_BASE, 1. NGUYÊN NHÂN GỐC CỦA LỖI (ROOT CAUSE ANALYSIS), 2. BACKEND THỰC TẾ SỬ DỤNG CỔNG NÀO, 3. API BASE URL CỦA FRONTEND (+13 more)
+### Community 2 - "services/api.js"
+Cohesion: 0.25
+Nodes (3): API_BASE, HEALTH_ENDPOINT, SERVER_BASE
 
 ### Community 3 - "Hierarchy Checklist"
 Cohesion: 0.04
 Nodes (46): Action and color consistency, Action Hierarchy, Alignment Creates Order, Alignment review questions, Asymmetrical balance, Center-align only when the size difference is small, Color harmony in hierarchy, Combine label and value when possible (+38 more)
 
 ### Community 4 - "PART 1/3 — AUTHENTICATION, PROFILE, VERIFICATION & JOB CREATION"
-Cohesion: 0.15
-Nodes (13): 1. Thông tin chung, 1. Thông tin chung, 2. Main Flow, 2. Main Flow, 3. Exception Flow, 3. Exception Flow, 4. Business Rules / NFR, 4. NFR / BR áp dụng (+5 more)
+Cohesion: 0.11
+Nodes (19): 1. Thông tin chung, 1. Thông tin chung, 1. Thông tin chung, 2. Main Flow, 2. Main Flow, 2. Main Flow, 3. Exception Flow, 3. Exception Flow (+11 more)
 
 ### Community 5 - "PART 1/3 — AUTHENTICATION, PROFILE, VERIFICATION & JOB CREATION"
 Cohesion: 0.15
@@ -1115,8 +1075,8 @@ Cohesion: 0.04
 Nodes (44): 0. CHANGELOG SO VỚI REVISION 2, 1.1. Mục đích, 1.2. Quy tắc khóa ID, 1.3. Phân biệt ba loại backlog, 1.4. Nguyên tắc quản lý TBD, 1. MỤC ĐÍCH VÀ NGUYÊN TẮC QUẢN TRỊ BACKLOG, 2.1. Quy mô Product Backlog, 2.2. Danh sách ưu tiên MoSCoW (+36 more)
 
 ### Community 7 - "ref_path"
-Cohesion: 0.24
-Nodes (6): autoBootstrap(), checkSchemaState(), getMode(), main(), path, setupAdmin()
+Cohesion: 0.09
+Nodes (18): autoBootstrap(), checkSchemaState(), getMode(), { Client, Pool }, fs, path, main(), buildDrawioSvg() (+10 more)
 
 ### Community 8 - "Empty State Patterns"
 Cohesion: 0.05
@@ -1139,8 +1099,8 @@ Cohesion: 0.09
 Nodes (27): dependencies, bcryptjs@^3.0.3, cors@^2.8.5, dotenv@^17.3.1, express@^4.21.2, jsonwebtoken@^9.0.3, nodemailer@^10.5.0, pg@^8.13.1 (+19 more)
 
 ### Community 13 - "db.js"
-Cohesion: 0.03
-Nodes (54): path, { Pool }, fs, path, ApplicationRepository, ProfileRepository, ReviewRepository, bcrypt (+46 more)
+Cohesion: 0.04
+Nodes (43): path, { Pool }, fs, path, ApplicationRepository, ProfileRepository, ReviewRepository, validateCreateJob() (+35 more)
 
 ### Community 14 - "ui-ux/better-web-ui/reference/README.md"
 Cohesion: 0.08
@@ -1150,13 +1110,13 @@ Nodes (6): Context Gathering Protocol, Design Direction, Framework & Library Gui
 Cohesion: 0.05
 Nodes (42): Code Examples, Code Examples, Code Examples, Code Examples, Code Examples, Code Examples, Code Examples, Code Examples (+34 more)
 
-### Community 16 - "NotFoundError"
-Cohesion: 0.05
-Nodes (14): crypto, CV_TYPES, decodeDataUrl(), decodeImageDataUrl(), FileService, IMAGE_TYPES, LEGAL_DOC_TYPES, profileTableFor() (+6 more)
+### Community 16 - "FileService"
+Cohesion: 0.11
+Nodes (10): EDITABLE_LEGAL, crypto, CV_TYPES, decodeDataUrl(), decodeImageDataUrl(), FileService, IMAGE_TYPES, LEGAL_DOC_TYPES (+2 more)
 
 ### Community 17 - "react"
-Cohesion: 0.09
-Nodes (44): EmptyState(), ExportMenu(), LEGAL_STATUS_UI, AccountAppealPanel(), AuthModal(), ForgotPasswordModal(), Button(), AdminAppealsPage() (+36 more)
+Cohesion: 0.08
+Nodes (30): JobDetailModal(), MoneyInput(), AccountAppealPanel(), AuthModal(), ForgotPasswordModal(), Button(), MODERATION_CRITERIA, MODERATION_LABEL (+22 more)
 
 ### Community 18 - "Frontend Design Reference Index"
 Cohesion: 0.06
@@ -1179,8 +1139,8 @@ Cohesion: 0.06
 Nodes (30): 10. Document Status, 1.1. Project Background, 1.2. Problem Statement, 1. Project Background / Problem Statement, 2. Core Objectives, 3.1. In-Scope, 3.2. Out-of-Scope, 3.3. Scope Constraints (+22 more)
 
 ### Community 23 - "04_frontend/package.json"
-Cohesion: 0.07
-Nodes (33): dependencies, @animate-ui/react@^2.4.1, exceljs@^4.4.0, leaflet@^1.9.4, lucide-react@^1.61.0, motion@^14.9.0, react@^19.3.1, react-dom@^19.3.1 (+25 more)
+Cohesion: 0.06
+Nodes (35): dependencies, @animate-ui/react@^2.4.1, exceljs@^4.4.0, leaflet@^1.9.4, lucide-react@^1.61.0, motion@^14.9.0, react@^19.3.1, react-dom@^19.3.1 (+27 more)
 
 ### Community 24 - "Carousel UX"
 Cohesion: 0.07
@@ -1191,8 +1151,8 @@ Cohesion: 0.07
 Nodes (30): Accessible Data Presentation, Annotations, Anti-Patterns, Breakpoint strategy, Categorical scales (distinct groups), Choose the Right Chart Type, Color Strategy for Data, Color-vision-friendly palettes (+22 more)
 
 ### Community 26 - "App.jsx"
-Cohesion: 0.05
-Nodes (23): App(), getAppRestore(), loadStoredSession(), PUBLIC_TABS, TAB_SELECTION, ApplicationModal(), AccountMenu(), MENU_BY_ROLE (+15 more)
+Cohesion: 0.07
+Nodes (22): App(), getAppRestore(), loadStoredSession(), PUBLIC_TABS, TAB_SELECTION, ApplicationModal(), AccountMenu(), MENU_BY_ROLE (+14 more)
 
 ### Community 27 - "Feature Comparison UX"
 Cohesion: 0.07
@@ -1212,7 +1172,7 @@ Nodes (28): Authentication and Account Recovery, Avoid, Avoid, Avoid, Common Fai
 
 ### Community 31 - "EmployerPublicProfilePage.jsx"
 Cohesion: 0.07
-Nodes (54): CompanyLogo(), extractDomain(), initialOf(), usableSrc(), JobCard(), JobLocationMap(), JobQuickPreview(), label (+46 more)
+Nodes (51): CompanyLogo(), extractDomain(), initialOf(), usableSrc(), JobCard(), JobLocationMap(), JobQuickPreview(), label (+43 more)
 
 ### Community 32 - "Color & Contrast"
 Cohesion: 0.07
@@ -1258,9 +1218,9 @@ Nodes (25): Accessibility, Anti-Patterns, Ask at the right time, Badges and indi
 Cohesion: 0.08
 Nodes (25): Assertive beats apologetic when clarity matters, Avoid Dark Patterns in Copy and Consent, Avoid Redundant Copy, Confirmation Dialogs: Use Sparingly, Consistency: The Terminology Problem, Don't Blame the User, Empty States Are Opportunities, Error Message Templates (+17 more)
 
-### Community 44 - "BÁO CÁO TÍCH HỢP ANIMATE UI VÀO DỰ ÁN CHUYÊN ĐỀ TỐT NGHIỆP 2"
+### Community 44 - "EmptyState"
 Cohesion: 0.08
-Nodes (24): 1. Khảo sát Hiện trạng Frontend Trước Khi Tích hợp, 1. Nút bấm tương tác:, 2. Cửa sổ Modal / Dialog:, 2. Phiên bản Animate UI & Các Package Đã Cài Đặt, 3.1. Đánh giá CLI (`npx @animate-ui/cli@latest animate all`), 3.2. Quyết định kỹ thuật (Trường hợp C — Standalone Direct Integration), 3. Danh sách Card có hiệu ứng Stagger:, 3. Phân Tích & Lựa Chọn Phương Án Cài Đặt (+16 more)
+Nodes (42): EmptyState(), ExportMenu(), StatusBadge(), canAnimate(), CountUp(), AdminAppealsPage(), fmt(), AdminCategoriesPage() (+34 more)
 
 ### Community 45 - "BÁO CÁO THIẾT KẾ KIẾN TRÚC TỔNG THỂ, CƠ SỞ DỮ LIỆU ERD VÀ THIẾT KẾ CHI TIẾT (BUỔI 4 & BUỔI 5)"
 Cohesion: 0.08
@@ -1271,8 +1231,8 @@ Cohesion: 0.08
 Nodes (24): 1. Clarity, 2. Voice and tone, 3. So what, 4. Prove it, 5. Specificity, 6. Heightened emotion, authentically, 7. Zero risk, Buried CTA (+16 more)
 
 ### Community 47 - "scripts"
-Cohesion: 0.06
-Nodes (40): author, dependencies, bcryptjs@^3.0.3, cors@^2.8.5, dotenv@^17.3.1, express@^4.21.2, jsonwebtoken@^9.0.3, nodemailer@^10.5.0 (+32 more)
+Cohesion: 0.11
+Nodes (18): scripts, backend, build, build:frontend, client, connect:db, dev, dev:backend (+10 more)
 
 ### Community 48 - "Complex Table UX"
 Cohesion: 0.09
@@ -1308,7 +1268,7 @@ Nodes (21): Accessibility, Anti-Patterns, Autocomplete and suggestions, Empty an
 
 ### Community 56 - "CompanyReviewsSection.jsx"
 Cohesion: 0.09
-Nodes (54): ReportViolationModal(), btnOutline, btnPrimary, CompanyReviewsSection(), control, empty, h2, Pager() (+46 more)
+Nodes (56): ReportViolationModal(), btnOutline, btnPrimary, CompanyReviewsSection(), control, empty, h2, Pager() (+48 more)
 
 ### Community 57 - "Core Principles"
 Cohesion: 0.10
@@ -1342,9 +1302,9 @@ Nodes (19): Angular, Astro, Framework Official Docs, Inertia, Motion (React, Vue
 Cohesion: 0.11
 Nodes (19): Anti-patterns, Choose one primary organizing axis at a time, Content grouping across large surfaces should reduce re-interpretation, Cross-product IA needs visible layers, Enterprise product organization should privilege real work over generic overview theater, Good enterprise structure often includes, Group content by task, frequency, risk, and object relationship, Information Architecture UX (+11 more)
 
-### Community 65 - "BÁO CÁO NGHIÊN CỨU VÀ TÁI THIẾT KẾ FOOTER JOBNEST"
-Cohesion: 0.11
-Nodes (17): 1. TỔNG QUAN VÀ MỤC TIÊU DỰ ÁN, 2.1. Phân tích Cổng tuyển dụng Vieclam24h (`vieclam24h.vn`), 2.2. Phân tích Cổng tuyển dụng VietnamWorks (`vietnamworks.com`), 2. KẾT QUẢ NGHIÊN CỨU WEBSITE THAM KHẢO, 3.1. Nhận diện thương hiệu JobNest, 3.2. Cấu trúc 3 tầng chi tiết, 3. KIẾN TRÚC VÀ BỐ CỤC FOOTER JOBNEST ĐÃ TRIỂN KHAI, 4.2. Component `SupportModal.jsx` (Trung Tâm Hỗ Trợ Đa Kênh) (+9 more)
+### Community 65 - "Chi tiết"
+Cohesion: 0.14
+Nodes (13): BUG-01 — Cài mới bằng Docker hỏng 🔴, BUG-02 — Sai trạng thái ứng viên 🟠, BUG-03 — Chỉ tải hồ sơ của vài tin đầu 🟠, BUG-04 — Dữ liệu giả trộn vào danh sách thật 🟠, BUG-05 — Không lấy được icon trang 🟡, BUG-06 — Vercel build 2 lần; lỗ hổng `uuid` 🟡, BUG-07 — Nút "Việc làm theo lịch rảnh" mở nhầm trang 🟠, BUG-08 — Mã nội bộ hiện trên giao diện, trang trùng lặp 🟡 (+5 more)
 
 ### Community 66 - "Cognitive Load"
 Cohesion: 0.11
@@ -1391,8 +1351,8 @@ Cohesion: 0.11
 Nodes (17): 1. Nguyên tắc Thiết kế Giao diện, 2. Danh mục Bản mẫu Giao diện theo Phân hệ, 3. Đặc tả Chi tiết từng Bản mẫu Giao diện, 4. Bảng Đối chiếu Ràng buộc giữa Wireframe và Mô hình Dữ liệu (ERD), Sơ đồ Bố cục Giao diện (Wireframe Layout):, Sơ đồ Bố cục Giao diện (Wireframe Layout):, Sơ đồ Bố cục Giao diện (Wireframe Layout):, Sơ đồ Bố cục Giao diện (Wireframe Layout): (+9 more)
 
 ### Community 77 - "EmployerCompanyProfilePage.jsx"
-Cohesion: 0.10
-Nodes (52): ABOUT_FIELDS, apiJson(), BRANCHES_MAX, btn, btnDanger, btnPrimary, card, COMPANY_SIZES (+44 more)
+Cohesion: 0.08
+Nodes (59): ABOUT_FIELDS, apiJson(), BRANCHES_MAX, btn, btnDanger, btnPrimary, card, COMPANY_SIZES (+51 more)
 
 ### Community 78 - "Date Input UX"
 Cohesion: 0.12
@@ -1452,11 +1412,15 @@ Nodes (16): 6.1. Nguyên tắc mô hình trạng thái, 6.3.1. Sơ đồ trạng
 
 ### Community 92 - "employer-public.service.js"
 Cohesion: 0.08
-Nodes (44): EDITABLE_LEGAL, EmployerAccountService, listLegalDocs(), normalizeTaxCode(), requireEmployerProfile(), REVIEW_DECISIONS, toVerificationDto(), validateLegalInfo() (+36 more)
+Nodes (43): EmployerAccountService, listLegalDocs(), normalizeTaxCode(), requireEmployerProfile(), REVIEW_DECISIONS, toVerificationDto(), validateLegalInfo(), validateRepresentative() (+35 more)
+
+### Community 93 - "auth.routes.js"
+Cohesion: 0.23
+Nodes (8): express, forgotPasswordAttempts, validateForgotPassword(), validateLogin(), validateRegister(), validateResetPassword(), assert, { describe, it }
 
 ### Community 94 - "common/index.js"
-Cohesion: 0.10
-Nodes (19): JobCardSkeleton(), JobListSkeleton(), AvailabilityEditor(), DAYS, keyOf(), normalizeSlots(), PRESETS, SHIFTS (+11 more)
+Cohesion: 0.11
+Nodes (21): JobCardSkeleton(), JobListSkeleton(), Reveal(), prefersReducedMotion(), trackSpotlight(), useTilt(), AvailabilityEditor(), DAYS (+13 more)
 
 ### Community 95 - "Container Queries"
 Cohesion: 0.13
@@ -1490,25 +1454,25 @@ Nodes (15): A dedicated proof page can deepen trust, A little imperfection impro
 Cohesion: 0.13
 Nodes (14): Assets and scripts, Framework note, Frontend design workflow, Phase 0 — Frame the brief, Phase 1 — Research, Phase 2 — Direction, Phase 3 — Architecture, then stack, Phase 4 — Design system (+6 more)
 
-### Community 103 - "2. LỘ TRÌNH 10 GIAI ĐOẠN TRIỂN KHAI (10 PHASES)"
-Cohesion: 0.13
-Nodes (14): 1. MỤC TIÊU VÀ NGUYÊN TẮC THỰC HIỆN, 2. LỘ TRÌNH 10 GIAI ĐOẠN TRIỂN KHAI (10 PHASES), 3. TIẾN ĐỘ THỰC HIỆN, KẾ HOẠCH TRIỂN KHAI DỰ ÁN CHI TIẾT (IMPLEMENTATION PLAN) — JOBNEST, Phase 10: Final Review & Acceptance, Phase 1: Audit & Repository Inventory, Phase 2: Requirement Mapping & Traceability, Phase 3: Open Source & Skills Research (+6 more)
+### Community 103 - "p0_ui_regression.js"
+Cohesion: 0.24
+Nodes (8): ACC, api(), assert(), { chromium }, login(), record(), results, step()
 
-### Community 104 - "BÁO CÁO TRIỂN KHAI TRANG COMING SOON DÙNG CHUNG CHO TOÀN BỘ JOBNEST"
-Cohesion: 0.13
-Nodes (14): 1. TỔNG QUAN VÀ MỤC TIÊU TRIỂN KHAI, 2. NGHIÊN CỨU HÌNH ẢNH THAM KHẢO VÀ PHONG CÁCH THIẾT KẾ, 3. NHẬN DIỆN THƯƠNG HIỆU VÀ TÀI SẢN HÌNH ẢNH SỬ DỤNG, 4.1. Props Component, 4.2. Cấu trúc 5 phần trực quan, 4. THIẾT KẾ COMPONENT DÙNG CHUNG `ComingSoonPage.jsx`, 5.1. Các chức năng chưa triển khai được định tuyến sang Coming Soon, 5. DANH SÁCH TÍCH HỢP VÀ ĐIỀU HƯỚNG THỰC TẾ (+6 more)
+### Community 104 - "Implementation Steps"
+Cohesion: 0.25
+Nodes (7): 1. Pre-Check Granular Permission State and Gate on User Gesture, 2. Declare `targetAddressSpace` in `fetch()` and `Request`, 3. Real-Time Connections with `WebSocket` and `WebTransport`, 4. Delegate Access to Cross-Origin Iframes via `Permissions-Policy`, Fallback Strategies, Implementation Steps, Local Network Access
 
-### Community 105 - "BÁO CÁO KIỂM KÊ TOÀN DIỆN, PHÂN LOẠI & ĐÁNH GIÁ TÀI NGUYÊN DỰ ÁN (PROJECT FILE AUDIT REPORT)"
-Cohesion: 0.13
-Nodes (14): 1. TỔNG QUAN KIỂM KÊ (EXECUTIVE SUMMARY), 2.1. Phân bổ theo thư mục cấp 1 (Top-level Folders), 2.2. Phân bổ theo định dạng mở rộng (Extensions), 2. THỐNG KÊ SỐ LƯỢNG FILE THEO TỪNG LOẠI & ĐỊNH DẠNG, 3.1. NHÓM A – BẮT BUỘC PHẢI GIỮ (MUST KEEP), 3.2. NHÓM B – ĐƯỢC BẢO VỆ TUYỆT ĐỐI / MÃ NGUỒN MỞ (PROTECTED / EXTERNAL SOURCE), 3.3. NHÓM C – GIỮ THAM KHẢO (KEEP / REFERENCE), 3.4. NHÓM D – CẦN XEM XÉT THÊM (REVIEW BEFORE DELETE) (+6 more)
+### Community 105 - "AvatarEditorModal.jsx"
+Cohesion: 0.52
+Nodes (6): AvatarEditorModal(), clampOffset(), downscaleSource(), drawCrop(), rotatedSize(), AvatarUploader()
 
-### Community 106 - "3. CHI TIẾT CÁC THAY ĐỔI PHÍA FRONTEND (CLIENT APP)"
-Cohesion: 0.13
-Nodes (14): 1. TỔNG QUAN CÁC THÀNH PHẦN THỰC THI (OVERVIEW), 2.1. Cấu hình Tài khoản Thử nghiệm Quản trị viên, 2.2. Xây dựng Module Dịch vụ Quản trị viên (Admin Service), 2.3. Cung cấp Tuyến API Quản trị viên (Admin Routes), 2. CHI TIẾT CÁC THAY ĐỔI PHÍA BACKEND (SERVER & DATABASE), 3.1. Phân hệ Quản trị viên (Admin Portal — 8 Màn hình), 3.2. Phân hệ Nhà tuyển dụng (Employer Portal — 12 Màn hình), 3.3. Tối ưu Hệ thống Điều hướng & Chân trang (`App.jsx`) (+6 more)
+### Community 106 - "PART 3/3 — WORK MANAGEMENT, REVIEW, NOTIFICATION & ADMIN"
+Cohesion: 0.29
+Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Exception Flow, 4. NFR / BR áp dụng, 5. TBD / Điểm cần verify, PART 3/3 — WORK MANAGEMENT, REVIEW, NOTIFICATION & ADMIN, UC-18 — XÁC NHẬN HOÀN THÀNH ASSIGNMENT
 
-### Community 107 - "AppError"
-Cohesion: 0.07
-Nodes (25): express, router, validateApplicationStatus(), validateApply(), validateUpdateAssignmentStatus(), AuthService, validateForgotPassword(), validateLogin() (+17 more)
+### Community 107 - "AuthService"
+Cohesion: 0.24
+Nodes (3): AuthService, verifyTwentyApiKey(), UnauthorizedError
 
 ### Community 108 - "2. DANH SÁCH CHI TIẾT CÁC QUYẾT ĐỊNH (ADRs)"
 Cohesion: 0.14
@@ -1519,7 +1483,7 @@ Cohesion: 0.14
 Nodes (13): Accessibility Testing, axe-core and axe DevTools, CI/CD workflow, Core automated tools, Developer workflow, Integrating into workflow, Pa11y, Practical checklist (+5 more)
 
 ### Community 110 - "Color Ramp Workflow"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (14): 1.5 Understand Tint, Tone, and Shade, 1. Choose Neutral Temperature, 2. Pick the Edge / Base / Fill-Gaps Structure, 3. Preserve Saturation, 4. Use Flipped Contrast When Helpful, 5. Use Hue Rotation for Perceived Brightness, 6. Grey-on-Color Rule, Base shade (+6 more)
 
 ### Community 111 - "Interaction Design"
@@ -1542,9 +1506,9 @@ Nodes (14): Accessibility and structural honesty, Alternatives are often better 
 Cohesion: 0.14
 Nodes (14): Cards Are Not Required, Container Queries, Depth & Elevation, Grid Systems, Hierarchy Through Multiple Dimensions, Name Tokens Semantically, Optical Adjustments, Spacing Systems (+6 more)
 
-### Community 116 - "BÁO CÁO TRIỂN KHAI GIAO DIỆN DANH SÁCH CÔNG VIỆC, XEM NHANH VÀ CHI TIẾT CÔNG VIỆC CHO JOBNEST"
-Cohesion: 0.14
-Nodes (13): 1. TỔNG QUAN YÊU CẦU & KẾT QUẢ ĐẠT ĐƯỢC, 2.1. Cấu trúc Database (PostgreSQL 18), 2.2. Backend API & Dịch vụ (Express.js), 2.3. Frontend Components (React & Motion), 2. KIẾN TRÚC & CÁC THÀNH PHẦN ĐÃ THỰC HIỆN, 3. CÁC THAO TÁC ĐÃ HOẠT ĐỘNG THỰC TẾ, 4.1. Kết quả Unit Test Backend, 4.2. Kết quả Build Frontend (+5 more)
+### Community 116 - "UC-06 — XÁC MINH EMAIL VÀ SỐ ĐIỆN THOẠI"
+Cohesion: 0.33
+Nodes (6): 1. Thông tin chung, 2. Main Flow, 3. Exception Flow, 4. Business Rules, 5. TBD / Missing, UC-06 — XÁC MINH EMAIL VÀ SỐ ĐIỆN THOẠI
 
 ### Community 117 - "07_JOBNEST_Database_ERD_Specification_dd3088e1.md"
 Cohesion: 0.14
@@ -1586,9 +1550,9 @@ Nodes (12): CountUp, Cursor-following preview, FadeUp — the workhorse, Failure
 Cohesion: 0.15
 Nodes (12): 1. Mục tiêu buổi học (Theo Đề cương Buổi 2), 2. Khai thác Yêu cầu Bài toán bằng Kỹ thuật 5W1H, 3. Khung Đặc tả Yêu cầu Phần mềm Rút gọn (SRS Rút gọn), 4. Danh sách Phân rã 10 Use Case chuẩn hóa, 5. Trả lời Câu hỏi Thảo luận nhanh theo Slide Buổi 2, BÁO CÁO BÀN GIAO BUỔI 2: PHÂN TÍCH YÊU CẦU ĐỀ TÀI & ĐẶC TẢ YÊU CẦU (SRS RÚT GỌN), Câu 1: Yêu cầu nào của nhóm có khả năng thay đổi nhiều nhất khi bắt tay vào làm thực tế? Vì sao?, Câu 2: Nếu chỉ được chọn 3 yêu cầu chức năng quan trọng nhất để làm trước, nhóm bạn sẽ chọn gì? (+4 more)
 
-### Community 127 - "BÁO CÁO TÁI THIẾT KẾ BỐ CỤC GIAO DIỆN HỆ THỐNG — JOBNEST"
-Cohesion: 0.15
-Nodes (12): 1. BỐI CẢNH VÀ VẤN ĐỀ TRƯỚC KHI TÁI THIẾT KẾ, 2.1. Cấu trúc Full-Viewport Width (100vw Architecture), 2.2. Tách biệt rõ ràng 2 Không gian (Dual-Zone UX Model), 2. NGUYÊN TẮC THIẾT KẾ & KIẾN TRÚC MỚI, 3.1. Điều phối Layout tại `App.jsx`, 3.2. Quy tắc ẩn hiện Footer theo Route (`EMPLOYER_FOOTER_ROUTE_RULES.md`), 3.3. Tối ưu hệ thống nút điều hướng hai chiều trên Header, 3.4. Loại bỏ chuông thông báo trôi nổi (Duplicate Notification Cleanup) (+4 more)
+### Community 127 - "UC-04 — QUẢN LÝ HỒ SƠ STUDENT"
+Cohesion: 0.33
+Nodes (6): 1. Thông tin chung, 2. Main Flow, 3. Exception Flow, 4. NFR / BR áp dụng, 5. TBD / Điểm cần verify, UC-04 — QUẢN LÝ HỒ SƠ STUDENT
 
 ### Community 128 - "04_JOBNEST_Use_Case_Specification (1)_8e032d93.md"
 Cohesion: 0.11
@@ -1650,33 +1614,9 @@ Nodes (11): 1. Think Before Coding, 2. Simplicity First, 3. Surgical Changes, 4.
 Cohesion: 0.17
 Nodes (11): Bind the repository first, Checklists, Example: Rename `validateUser` to `authenticateUser`, Extract Module, Refactoring with GitNexus, Rename Symbol, Risk Rules, Split Function/Service (+3 more)
 
-### Community 143 - "2. CHI TIẾT THIẾT KẾ TỪNG MÀN HÌNH"
-Cohesion: 0.17
-Nodes (11): 1. MỤC TIÊU VÀ NGUYÊN TẮC THIẾT KẾ, 2.1. WF-E02 — Personal Profile, 2.2. WF-E03 — Verification Center (Màn hình độc lập), 2.3. WF-E04 — Job List, 2.4. WF-E05 — Create / Edit Job (Form động 3 biến thể), 2.5. WF-E06 & WF-E07 — Applicant & Proposal Management, 2.6. WF-E08 — Candidate Selection (Trung tâm tuyển chọn A3), 2.7. WF-E09, WF-E10, WF-E11 — Assignments, Deliverables & Reviews (+3 more)
-
 ### Community 144 - "JobNest_Data_v3_b919e043.md"
 Cohesion: 0.05
 Nodes (36): Sheet: admin_logs, Sheet: application_histories, Sheet: applications, Sheet: categories, Sheet: company_reviews, Sheet: employer_profile_changes, Sheet: employer_profiles, Sheet: file_uploads (+28 more)
-
-### Community 145 - "BÁO CÁO CẬP NHẬT NHẬN DIỆN THƯƠNG HIỆU JOBNEST"
-Cohesion: 0.17
-Nodes (11): 1. Thông tin Nhận diện Thương hiệu & Logo chính thức, 2. Bảng màu Thương hiệu Soft Lavender & Peach, 3. Danh sách File đã Chỉnh sửa & Bổ sung, 4. Bảng Vị trí Hiển thị Logo Gốc `Logo.jpg`, 5.1. Kiểm tra Linter (`npm --prefix client run lint`), 5.2. Kiểm tra Production Build (`npm --prefix client run build`), 5.3. Kiểm tra Bộ Test Nghiệp vụ Backend (`npm test`), 5.4. Kiểm tra Server hoạt động thực tế (+3 more)
-
-### Community 146 - "BÁO CÁO CHUẨN HÓA VÀ NÂNG CẤP CUSTOM DROPDOWN / SELECT CHO HỆ THỐNG JOBNEST"
-Cohesion: 0.18
-Nodes (12): CustomDropdown(), 1. TỔNG QUAN & MỤC TIÊU CẢI TIẾN, 2.1. Trigger (Nút kích hoạt), 2.2. Menu Popover (Danh sách lựa chọn), 2.3. Trạng thái từng lựa chọn (Item States), 2.4. Trải nghiệm & Trợ năng (Accessibility), 2. KIẾN TRÚC & TÍNH NĂNG COMPONENT `CustomDropdown`, 3. DANH SÁCH CÁC TRANG & BỘ LỌC ĐÃ CHUẨN HÓA (+4 more)
-
-### Community 147 - "BÁO CÁO KIỂM KÊ DỰ ÁN TOÀN DIỆN (PROJECT AUDIT REPORT) — JOBNEST"
-Cohesion: 0.17
-Nodes (11): 1. TỔNG QUAN DỰ ÁN, 2. CẤU TRÚC REPOSITORY HIỆN TẠI, 3. CÔNG NGHỆ THỰC TẾ ĐANG SỬ DỤNG, 4.1. Tài liệu trong thư mục `Tài Liệu/` (38 files), 4.2. Tài liệu trong thư mục `docs/` (19 files), 4. KIỂM KÊ TÀI LIỆU (DOCS & TÀI LIỆU), 5.1. Backend API & Database, 5.2. Frontend Routes & Màn hình (14 Screens Wireframe) (+3 more)
-
-### Community 148 - "BÁO CÁO AUDIT MÔI TRƯỜNG & DEPENDENCIES — DỰ ÁN JOBNEST"
-Cohesion: 0.17
-Nodes (11): 1. Bảng đối chiếu Môi trường & Công cụ, 2.1. Backend (`03_backend/package.json`), 2.2. Frontend (`04_frontend/package.json`), 2.3. Root Package (`package.json`), 2. Kiểm tra Dependencies & Lockfile, 3.1. Các cổng sử dụng, 3.2. Biến môi trường Backend (`03_backend/.env`), 3.3. Biến môi trường Frontend (`04_frontend/.env`) (+3 more)
-
-### Community 149 - "2. CHI TIẾT CÁC THAY ĐỔI VÀ GIẢI PHÁP ĐÃ THỰC THI"
-Cohesion: 0.17
-Nodes (11): 1. NGUYÊN NHÂN GÂY LỖI TRƯỚC KHI KHẮC PHỤC (ROOT CAUSE ANALYSIS), 2.1. Chuẩn hóa Cấu trúc Layout 3 tầng (`App.jsx`), 2.2. Tái cấu trúc 6 Thẻ KPI & Đồng bộ Chiều cao (`AdminDashboardPage.jsx`), 2.3. Tối ưu Hệ thống Media Query cho `.admin-kpi-grid` (`index.css`), 2.4. Đồng bộ Hai Khối Distribution & Vùng đệm An toàn (`AdminDashboardPage.jsx`), 2.5. Tối ưu Sidebar & Vùng an toàn Floating Support (`AdminPortal.jsx`), 2. CHI TIẾT CÁC THAY ĐỔI VÀ GIẢI PHÁP ĐÃ THỰC THI, 3. DANH SÁCH TẬP TIN ĐÃ ĐIỀU CHỈNH (FILES MODIFIED) (+3 more)
 
 ### Community 150 - "CHƯƠNG 2 — MÔ TẢ TỔNG QUAN"
 Cohesion: 0.17
@@ -1710,9 +1650,9 @@ Nodes (11): Avoid, Compact-layout adaptation, Error handling in tables, Good def
 Cohesion: 0.08
 Nodes (22): Concept-to-tool matrix, Concepts that often need JS or Motion, CSS, Tailwind, and WAAPI motion, Default implementation order, Most concepts that are directly doable with web platform APIs, Practical guidance for common concepts in this library, Tailwind-specific note, When modern CSS is usually enough (+14 more)
 
-### Community 159 - "ExperienceReviewService"
-Cohesion: 0.10
-Nodes (12): CRITERIA, ExperienceReviewService, FK, log(), notify(), publicSelect(), summarySql(), TABLE (+4 more)
+### Community 159 - "NotFoundError"
+Cohesion: 0.05
+Nodes (21): ApplicationService, JobService, AdminService, CRITERIA, ExperienceReviewService, FK, log(), notify() (+13 more)
 
 ### Community 160 - "Brief — <project>"
 Cohesion: 0.18
@@ -1739,20 +1679,8 @@ Cohesion: 0.16
 Nodes (10): Forwarding styles to a wrapped native element, avatar(), _fetch(), _fit(), font(), _initials(), logo(), photo() (+2 more)
 
 ### Community 166 - "BÁO CÁO BÀN GIAO BUỔI 3: LẬP KẾ HOẠCH DỰ ÁN THEO AGILE/SCRUM RÚT GỌN & PRODUCT BACKLOG CHI TIẾT"
-Cohesion: 0.18
-Nodes (10): 1. Mục tiêu và Căn cứ Lập kế hoạch, 2. Product Backlog chi tiết ưu tiên theo MoSCoW (Must - Should - Could - Won't), 3. Kế hoạch phân chia Sprint ánh xạ theo lộ trình 10 Buổi học, 4. Bảng Phân công Vai trò Kỹ thuật (Technical Role Assignment), 5. Quy trình Quản trị Tiến độ và Kế hoạch Demo nghiệm thu, 6. Trả lời Câu hỏi Thảo luận nhanh (Theo Slide Buổi 3), BÁO CÁO BÀN GIAO BUỔI 3: LẬP KẾ HOẠCH DỰ ÁN THEO AGILE/SCRUM RÚT GỌN & PRODUCT BACKLOG CHI TIẾT, Câu 1: Mục backlog nào nhóm bạn dự đoán sẽ mất nhiều thời gian hơn ước tính ban đầu? Vì sao? (+2 more)
-
-### Community 167 - "BÁO CÁO TRIỂN KHAI PHÂN HỆ NHÀ TUYỂN DỤNG (EMPLOYER IMPLEMENTATION REPORT)"
-Cohesion: 0.18
-Nodes (10): 1. TỔNG QUAN KIẾN TRÚC & PHÂN TÁCH 2 KHÔNG GIAN (DUAL-SPACE ARCHITECTURE), 2. DANH SÁCH 12 MÀN HÌNH EMPLOYER ĐỒNG BỘ 100% WIREFRAME, 3.1. Top Header trong Trường 1 (Workspace), 3.2. Left Sidebar trong Trường 1 (Workspace), 3. THIẾT KẾ SIDEBAR & HEADER CHUẨN 100% DRAW.IO, 4. BẢO MẬT & PHÂN QUYỀN (ROLE GUARD), 5. HỆ THỐNG THÔNG BÁO XUYÊN SUỐT (NOTIFICATION SYSTEM INTEGRATION), 6. DANH SÁCH TÀI LIỆU QUY CHUẨN XUẤT BẢN (+2 more)
-
-### Community 168 - "1. ĐÁNH GIÁ THEO 5 TIÊU CHUẨN CHẤT LƯỢNG (QUALITY PILLARS)"
-Cohesion: 0.18
-Nodes (10): 1.1. Product Quality (Chất lượng Nghiệp vụ Sản phẩm), 1.2. UI/UX Quality (Chất lượng Giao diện & Trải nghiệm Người dùng), 1.3. Technical Quality (Chất lượng Kỹ thuật & Mã nguồn), 1.4. Academic Quality (Chất lượng Học thuật & Đồng bộ Tài liệu), 1.5. Delivery Quality (Chất lượng Bàn giao & Kiểm thử), 1. ĐÁNH GIÁ THEO 5 TIÊU CHUẨN CHẤT LƯỢNG (QUALITY PILLARS), 2. DANH MỤC 10 BÁO CÁO KỸ THUẬT ĐÃ HOÀN TẤT TRONG `docs/`, 3. HƯỚNG DẪN KHỞI CHẠY VÀ VẬN HÀNH DỰ ÁN (+2 more)
-
-### Community 169 - "2. BẢNG TIÊU CHÍ KIỂM CHỨNG THỊ GIÁC (VISUAL FIDELITY CHECKLIST)"
-Cohesion: 0.18
-Nodes (10): 1. NGUỒN THAM CHIẾU VÀ BẰNG CHỨNG HÌNH ẢNH (REFERENCE ASSETS), 2.1. Kiểm chứng Bố cục Tổng thể & Header (Header & Layout Architecture), 2.2. Kiểm chứng Thanh điều hướng bên trái (Sidebar Alignment & Components), 2.3. Kiểm chứng Thẻ KPI & Bảng dữ liệu (KPI Cards & Data Tables), 2.4. Kiểm chứng Tinh giản Góc dưới Màn hình (Floating Elements Verification), 2.5. Kiểm chứng Chân trang (Route-based Footer Suppression), 2. BẢNG TIÊU CHÍ KIỂM CHỨNG THỊ GIÁC (VISUAL FIDELITY CHECKLIST), 3. QUY TRÌNH XÁC THỰC TRỰC QUAN TRÊN TRÌNH DUYỆT (STEP-BY-STEP BROWSER RUNTHROUGH) (+2 more)
+Cohesion: 0.15
+Nodes (11): ReviewService, 1. Mục tiêu và Căn cứ Lập kế hoạch, 2. Product Backlog chi tiết ưu tiên theo MoSCoW (Must - Should - Could - Won't), 3. Kế hoạch phân chia Sprint ánh xạ theo lộ trình 10 Buổi học, 4. Bảng Phân công Vai trò Kỹ thuật (Technical Role Assignment), 5. Quy trình Quản trị Tiến độ và Kế hoạch Demo nghiệm thu, 6. Trả lời Câu hỏi Thảo luận nhanh (Theo Slide Buổi 3), BÁO CÁO BÀN GIAO BUỔI 3: LẬP KẾ HOẠCH DỰ ÁN THEO AGILE/SCRUM RÚT GỌN & PRODUCT BACKLOG CHI TIẾT (+3 more)
 
 ### Community 170 - "CHƯƠNG 7 — REQUIREMENT TRACEABILITY"
 Cohesion: 0.18
@@ -1802,17 +1730,13 @@ Nodes (9): Bind the repository first, Checklist, Example: "What breaks if I chan
 Cohesion: 0.20
 Nodes (9): 1. Thông tin Nhóm sinh viên, 2. Thông tin Đề tài Đăng ký, 3.1. Bối cảnh thực tiễn và Bài toán cần giải quyết, 3.2. Bốn (04) Tính năng cốt lõi dự kiến, 3. Phác thảo Bài toán và Mục tiêu Ban đầu, 4. Trả lời Câu hỏi Thảo luận nhanh & Quản trị Rủi ro (Theo Slide Buổi 1), BÁO CÁO BÀN GIAO BUỔI 1: GIỚI THIỆU MÔN HỌC, PHÂN NHÓM VÀ LỰA CHỌN ĐỀ TÀI, Câu 1: Đề tài nhóm bạn chọn có điểm gì khác biệt so với đề tài mẫu hoặc đề tài của nhóm khác? (+1 more)
 
-### Community 182 - "BÁO CÁO KIỂM THỬ GIAO DIỆN ĐA THIẾT BỊ (RESPONSIVE TEST REPORT) — JOBNEST"
-Cohesion: 0.20
-Nodes (9): 1. MỤC TIÊU VÀ TIÊU CHÍ ĐÁNH GIÁ (TEST OBJECTIVES), 2. MA TRẬN ĐỘ PHÂN GIẢI VÀ KẾT QUẢ KIỂM THỬ (VIEWPORT BREAKPOINT MATRIX), 3.1. Phân hệ Bảng điều khiển Quản trị viên (Admin Portal — WF-A01 đến WF-A08), 3.2. Phân hệ Bảng điều khiển Nhà tuyển dụng (Employer Portal — WF-E01 đến WF-E12), 3.3. Phân hệ Thị trường & Khám phá Việc làm (Marketplace & Guest), 3. CHI TIẾT ĐÁNH GIÁ TỪNG PHÂN HỆ NGHIỆP VỤ, 4. KIỂM TRA HIỆU ỨNG TƯƠNG TÁC & TRUY CẬP (ACCESSIBILITY & INTERACTIONS), 5. KẾT LUẬN & ĐỀ XUẤT (+1 more)
-
 ### Community 183 - "02_DOX_PROJECT_COMPARISON — SO SÁNH CHI TIẾT"
 Cohesion: 0.20
 Nodes (9): 02_DOX_PROJECT_COMPARISON — SO SÁNH CHI TIẾT, API Contract, Data / Sample, ERD, Product Backlog, Project Overview, SRS (Software Requirements Specification), Use Case / Đặc tả (+1 more)
 
-### Community 184 - "UC-01 — ĐĂNG KÝ TÀI KHOẢN"
-Cohesion: 0.29
-Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Alternative Flow, 4. Exception Flow, 5. Business Rules, 6. TBD / Missing, UC-01 — ĐĂNG KÝ TÀI KHOẢN
+### Community 184 - "1. USE CASE BASELINE & TRACEABILITY"
+Cohesion: 0.12
+Nodes (17): 1.1. Quy mô baseline, 1.2. PB Mapping 22 UC, 1.3. API Error Catalogue, 1. Thông tin chung, 1. Thông tin chung, 1. USE CASE BASELINE & TRACEABILITY, 2. Main Flow, 2. Main Flow (+9 more)
 
 ### Community 185 - "UC-12 — QUẢN LÝ APPLICATION (CẤU TRÚC CHI TIẾT 9 MỤC — REVISION 2)"
 Cohesion: 0.20
@@ -1890,26 +1814,6 @@ Nodes (7): add(), mk_user(), nid(), notify(), phone(), rand_dt(), upload()
 Cohesion: 0.22
 Nodes (8): 1. Tổng quan Kiến trúc, 2.1. Tầng 1: Routes & Middlewares (`src/routes/`, `src/middleware/`), 2.2. Tầng 2: Services (`src/services/`), 2.3. Tầng 3: Repositories (`src/repositories/`), 2.4. Tầng Kiểm tra hợp lệ: Validators (`src/validators/`), 2. Chi tiết các tầng trong Backend (`server/`), 3. Lược đồ Cơ sở dữ liệu (Database Schema), KIẾN TRÚC HỆ THỐNG — NỀN TẢNG MARKETPLACE VIỆC LÀM PART-TIME CHO SINH VIÊN
 
-### Community 204 - "YÊU CẦU & THIẾT KẾ HỆ THỐNG THÔNG BÁO XUYÊN SUỐT (NOTIFICATION SYSTEM)"
-Cohesion: 0.22
-Nodes (8): 1. MỤC TIÊU & TẦM NHÌN, 2. KIẾN TRÚC & MÔ HÌNH DỮ LIỆU (DATABASE SCHEMA), 3. CÁC SỰ KIỆN KÍCH HOẠT THÔNG BÁO THỰC TẾ (EVENT-DRIVEN TRIGGERS), 4.1. Notification Bell trong Top Header, 4.2. Notification Center WF-E12 (`EmployerNotificationsPage.jsx`), 4. GIAO DIỆN PHÍA FRONTEND (CLIENT IMPLEMENTATION), 5. API ENDPOINTS SPECIFICATION, YÊU CẦU & THIẾT KẾ HỆ THỐNG THÔNG BÁO XUYÊN SUỐT (NOTIFICATION SYSTEM)
-
-### Community 205 - "BÁO CÁO TÍCH HỢP BỘ SKILL THIẾT KẾ FRONTEND CHỐNG GIAO DIỆN AI ĐẠI TRÀ"
-Cohesion: 0.22
-Nodes (8): 1. TỔNG QUAN CÁC REPOSITORY ĐÃ NGHIÊN CỨU, 2. PHƯƠNG ÁN LỰA CHỌN VÀ KIẾN TRÚC TÍCH HỢP TRONG DỰ ÁN, 3. ĐƯỜNG DẪN CÀI ĐẶT THỰC TẾ TRONG DỰ ÁN, 4. DANH SÁCH CÁC FILE ĐÃ THÊM, 5. CÁCH ANTIGRAVITY KÍCH HOẠT VÀ SỬ DỤNG BỘ SKILL, 6. KẾT QUẢ KIỂM CHỨNG SAU KHI CÀI ĐẶT, 7. HƯỚNG DẪN ÁP DỤNG CHO NHỮNG LẦN PHÁT TRIỂN TIẾP THEO, BÁO CÁO TÍCH HỢP BỘ SKILL THIẾT KẾ FRONTEND CHỐNG GIAO DIỆN AI ĐẠI TRÀ
-
-### Community 206 - "BÁO CÁO FIX BUG: QUICK PREVIEW TỰ ĐỘNG ĐÓNG KHI CUỘN TRANG (JOBNEST)"
-Cohesion: 0.22
-Nodes (8): 1. NGUYÊN NHÂN GỐC CỦA LỖI (ROOT CAUSE ANALYSIS), 2.1. `client/src/components/JobCard.jsx`, 2.2. `client/src/App.jsx`, 2.3. `client/src/components/JobQuickPreview.jsx`, 2. CÁC FILE ĐÃ SỬA & GIẢI PHÁP TRIỂN KHAI, 3. KẾT QUẢ 12 BÀI KIỂM THỬ BẮT BUỘC (TEST SUITE), 4. KẾT LUẬN & ĐÁNH GIÁ CHẤT LƯỢNG, BÁO CÁO FIX BUG: QUICK PREVIEW TỰ ĐỘNG ĐÓNG KHI CUỘN TRANG (JOBNEST)
-
-### Community 207 - "NGHIÊN CỨU MÃ NGUỒN MỞ & THAM KHẢO THIẾT KẾ (OPEN SOURCE RESEARCH) — JOBNEST"
-Cohesion: 0.22
-Nodes (8): 1. MỤC TIÊU NGHIÊN CỨU, 2. BẢNG PHÂN TÍCH CÁC DỰ ÁN MÃ NGUỒN MỞ TIÊU BIỂU, 3.1. Về Kiến trúc Backend 3 tầng (3-Tier Clean Architecture), 3.2. Về Tương tác Bản đồ & Định vị Vị trí (Google Maps Embed), 3.3. Về Quản lý Trạng thái Tương tác (Hover & Scroll Suppression), 3. BÀI HỌC ÁP DỤNG TRỰC TIẾP VÀO JOBNEST, 4. KẾT LUẬN, NGHIÊN CỨU MÃ NGUỒN MỞ & THAM KHẢO THIẾT KẾ (OPEN SOURCE RESEARCH) — JOBNEST
-
-### Community 208 - "BÁO CÁO TỔNG KẾT DỌN DẸP & NGHIỆM THU TÀI NGUYÊN DỰ ÁN (PROJECT FILE CLEANUP REPORT)"
-Cohesion: 0.22
-Nodes (8): 1. THỐNG KÊ TỔNG THỂ TRƯỚC VÀ SAU DỌN DẸP, 2.1. Đợt 1 — Tập tin ngoại lai & dư thừa (3 files, 39,23 MB), 2.2. Đợt 2 — Các file ảnh chụp ở thư mục gốc & thư mục `.playwright-mcp` (270 files, 22,91 MB), 2.3. Đợt 3 — Thư mục `.kilo/` và Git Worktree (448 files, 38,80 MB), 2. DANH SÁCH CHI TIẾT CÁC HẠNG MỤC ĐÃ DỌN DẸP, 3. CÁC TÀI NGUYÊN BẢO VỆ TUYỆT ĐỐI & CÒN LẠI TRONG DỰ ÁN, 4. NGHIỆM THU HỆ THỐNG SAU DỌN DẸP, BÁO CÁO TỔNG KẾT DỌN DẸP & NGHIỆM THU TÀI NGUYÊN DỰ ÁN (PROJECT FILE CLEANUP REPORT)
-
 ### Community 209 - "TÀI LIỆU HỆ THỐNG THIẾT KẾ (UI/UX DESIGN SYSTEM) — JOBNEST"
 Cohesion: 0.22
 Nodes (8): 1. TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY), 2. HỆ THỐNG MÀU SẮC CHUẨN HÓA (COLOR TOKENS), 3. LOGO BẮT BUỘC (MANDATORY BRAND ASSET), 4. TYPOGRAPHY & PHÂN CẤP CHỮ, 5. THANG KHOẢNG CÁCH & ĐỔ BÓNG (SPACING & ELEVATION), 6. HỆ THỐNG THÀNH PHẦN GIAO DIỆN CỐT LÕI (CORE COMPONENTS), 7. ÁNH XẠ 14 MÀN HÌNH WIREFRAME THỰC TẾ, TÀI LIỆU HỆ THỐNG THIẾT KẾ (UI/UX DESIGN SYSTEM) — JOBNEST
@@ -1942,9 +1846,9 @@ Nodes (9): 1. Thông tin UC, 2. Preconditions, 3. Postconditions, 4. Main Flow, 
 Cohesion: 0.22
 Nodes (9): 1. Thông tin UC, 2. Preconditions, 3. Postconditions, 4. Main Flow, 5. Exception Flows, 6. NFR & BR áp dụng, 7. TBD & điểm cần verify, 8. FR/PB/WF mapping (+1 more)
 
-### Community 217 - "04_JOBNEST_Use_Case_Specification_317a45e7.md"
-Cohesion: 0.20
-Nodes (9): 1. Phân bố theo nhóm, 2. Trạng thái tài liệu đã chốt, 3. Trạng thái cuối cùng, 4. Giới hạn xác minh, KẾT THÚC FILE 04 — JOBNEST USE CASE SPECIFICATION, MỤC LỤC, PART 3/3 — WORK MANAGEMENT, REVIEW, NOTIFICATION & ADMIN, QUY ƯỚC PHÂN LOẠI (+1 more)
+### Community 217 - "CÁC ĐIỂM KIỂM SOÁT BẮT BUỘC KHI TRIỂN KHAI"
+Cohesion: 0.11
+Nodes (17): 1. A3 — Selection là đường duy nhất để ACCEPTED và tạo Assignment, 1. Phân bố theo nhóm, 2. Assignment và Deliverable là hai lifecycle riêng, 2. Trạng thái tài liệu đã chốt, 3. G-06 vẫn TBD, 3. Trạng thái cuối cùng, 4. C3 vẫn TBD, 4. Giới hạn xác minh (+9 more)
 
 ### Community 218 - "UC-17 — BÀN GIAO VÀ NGHIỆM THU FREELANCE"
 Cohesion: 0.22
@@ -2049,14 +1953,6 @@ Nodes (7): Colour, Design system, Layout and depth, The reskin test, Theming, Th
 ### Community 243 - "Verification"
 Cohesion: 0.25
 Nodes (7): Defects in frequency order, Inspect rather than guess, Pre-ship, Run it, Sandbox note, Two things about this loop, Verification
-
-### Community 244 - "BÁO CÁO KIỂM THỬ PHÂN HỆ NHÀ TUYỂN DỤNG (EMPLOYER TEST REPORT)"
-Cohesion: 0.25
-Nodes (7): 1. KẾT QUẢ KIỂM THỬ TỰ ĐỘNG BACKEND (AUTOMATED INTEGRATION TESTS), 2. KẾT QUẢ KIỂM THỬ BIÊN DỊCH FRONTEND (VITE BUILD), 3. BẢNG KIỂM TRA CHỨC NĂNG THỰC TẾ TRÊN TỪNG MÀN HÌNH WIREFRAME, 4. BẢNG KIỂM THỬ QUY TẮC HIỂN THỊ FOOTER THEO ROUTE (TEST CASES FT-01 ĐẾN FT-15), 5. KIỂM THỬ HỆ THỐNG THÔNG BÁO (NOTIFICATION SYSTEM TEST), 6. KẾT LUẬN, BÁO CÁO KIỂM THỬ PHÂN HỆ NHÀ TUYỂN DỤNG (EMPLOYER TEST REPORT)
-
-### Community 245 - "NHẬT KÝ THAY ĐỔI TRIỂN KHAI (IMPLEMENTATION CHANGELOG) — JOBNEST"
-Cohesion: 0.25
-Nodes (7): 1. PHIÊN BẢN v2.1.0 — TỐI ƯU HÓA DESIGN SYSTEM VÀ BẢN ĐỒ GOOGLE MAPS (02/11/2026), 2. PHIÊN BẢN v2.0.0 — NÂNG CẤP GIAO DIỆN & TÙY BIẾN DROPDOWN (GIAI ĐOẠN 3), 3. PHIÊN BẢN v1.0.0 — KHỞI TẠO NỀN TẢNG KIẾN TRÚC 3 TẦNG (GIAI ĐOẠN 1 & 2), Database & Backend:, Frontend:, Frontend & UI/UX:, NHẬT KÝ THAY ĐỔI TRIỂN KHAI (IMPLEMENTATION CHANGELOG) — JOBNEST
 
 ### Community 246 - "NHẬT KÝ THỰC HIỆN ĐỀ TÀI (PROJECT LOG) — TỪ BUỔI 1 ĐẾN BUỔI 5"
 Cohesion: 0.25
@@ -2210,9 +2106,9 @@ Nodes (38): Accessibility Considerations, Accounting for Font Size, Accounting f
 Cohesion: 0.29
 Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Alternative Flow, 4. Exception Flow, 5. Business Rules, 6. TBD / Missing, UC-15 — CHỌN NHIỀU ỨNG VIÊN VÀ TẠO ASSIGNMENT
 
-### Community 284 - "PART 3/3 — WORK MANAGEMENT, REVIEW, NOTIFICATION & ADMIN"
-Cohesion: 0.14
-Nodes (14): 1. Thông tin chung, 1. Thông tin chung, 2. Main Flow, 2. Main Flow A — Xem Assignment và tiến độ, 3. Exception Flow, 3. Main Flow B — Cập nhật tiến độ, 4. Exception Flow, 4. NFR / BR áp dụng (+6 more)
+### Community 284 - "UC-16 — THEO DÕI TIẾN ĐỘ ASSIGNMENT"
+Cohesion: 0.29
+Nodes (7): 1. Thông tin chung, 2. Main Flow A — Xem Assignment và tiến độ, 3. Main Flow B — Cập nhật tiến độ, 4. Exception Flow, 5. NFR / BR áp dụng, 6. TBD / Điểm cần verify, UC-16 — THEO DÕI TIẾN ĐỘ ASSIGNMENT
 
 ### Community 285 - "Dos and Don'ts"
 Cohesion: 0.06
@@ -2235,8 +2131,8 @@ Cohesion: 0.29
 Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Alternative Flow, 4. Exception Flow, 5. Business Rules, 6. TBD / Điểm cần verify, UC-07 — TẠO VÀ QUẢN LÝ JOB
 
 ### Community 290 - "PART 2/3 — MODERATION, SEARCH, APPLICATION, PROPOSAL & SELECTION"
-Cohesion: 0.29
-Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Alternative / Exception Flow, 4. Business Rules, 5. TBD / Missing, PART 2/3 — MODERATION, SEARCH, APPLICATION, PROPOSAL & SELECTION, UC-11 — ỨNG TUYỂN PART-TIME / SEASONAL
+Cohesion: 0.14
+Nodes (14): 1. Thông tin chung, 1. Thông tin chung, 2. Main Flow, 2. Main Flow, 3. Alternative / Exception Flow, 3. Alternative Flow, 4. Business Rules, 4. Exception Flow (+6 more)
 
 ### Community 291 - "Designing for Gen Z"
 Cohesion: 0.05
@@ -2250,13 +2146,13 @@ Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Alternative Flow, 4. Exception 
 Cohesion: 0.29
 Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Alternative Flow, 4. Exception Flow, 5. NFR / BR áp dụng, 6. TBD / Điểm cần verify, UC-19 — ĐÁNH GIÁ HAI CHIỀU
 
-### Community 294 - "UC-22 — XỬ LÝ BÁO CÁO"
-Cohesion: 0.29
-Nodes (7): 1. Thông tin chung, 2. Main Flow A — Xem danh sách Report, 3. Main Flow B — Xử lý Report, 4. Exception Flow, 5. NFR / BR áp dụng, 6. TBD / Điểm cần verify, UC-22 — XỬ LÝ BÁO CÁO
+### Community 294 - "PART 3/3 — WORK MANAGEMENT, REVIEW, NOTIFICATION & ADMIN"
+Cohesion: 0.14
+Nodes (14): 1. Thông tin chung, 1. Thông tin chung, 2. Main Flow, 2. Main Flow A — Xem danh sách Report, 3. Exception Flow, 3. Main Flow B — Xử lý Report, 4. Exception Flow, 4. NFR / BR áp dụng (+6 more)
 
 ### Community 295 - "PART 2/3 — MODERATION, SEARCH, APPLICATION, PROPOSAL & SELECTION"
-Cohesion: 0.29
-Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Alternative / Exception Flow, 4. Business Rules, 5. TBD / Missing, PART 2/3 — MODERATION, SEARCH, APPLICATION, PROPOSAL & SELECTION, UC-11 — ỨNG TUYỂN PART-TIME / SEASONAL
+Cohesion: 0.14
+Nodes (14): 1. Thông tin chung, 1. Thông tin chung, 2. Main Flow, 2. Main Flow, 3. Alternative / Exception Flow, 3. Alternative Flow, 4. Business Rules, 4. Exception Flow (+6 more)
 
 ### Community 296 - "Configurator UX"
 Cohesion: 0.05
@@ -2310,9 +2206,9 @@ Nodes (38): 401 / Sign-In Required / Session Expired, 403 / Access Denied State,
 Cohesion: 0.07
 Nodes (29): 1. Data Minimization and Purpose Limitation, 2. Transparency and Trust, 3. Security and Data Handling for Privacy, 4. Third-Party Audits and Mitigations, 5. Privacy-Preserving Headers, 6. Fingerprinting and User-Agent Reduction, 7. Data Rights and User Control, Code Examples: (+21 more)
 
-### Community 309 - "ForbiddenError"
-Cohesion: 0.09
-Nodes (9): ApplicationService, AssignmentController, ACTIVE_STATUSES, AssignmentService, isHttpUrl(), notify(), SelectionService, ForbiddenError (+1 more)
+### Community 309 - "utils/app-error.js"
+Cohesion: 0.07
+Nodes (13): AssignmentController, express, router, ACTIVE_STATUSES, AssignmentService, isHttpUrl(), notify(), validateUpdateAssignmentStatus() (+5 more)
 
 ### Community 310 - ".oxlintrc.json"
 Cohesion: 0.33
@@ -2366,14 +2262,6 @@ Nodes (6): 1. Surface and goal, 2. Audience, 3. Product and positioning, 4. Traf
 Cohesion: 0.33
 Nodes (6): Avoid making hover tooltips do the heavy lifting, Consider “differences only” and “similarities only” views, Focus on key differences first, Group features into collapsible sections, High-Density Pricing Table Patterns, Show differences inside rows
 
-### Community 323 - "QUY TẮC HIỂN THỊ FOOTER THEO ROUTE & PHÂN VÙNG HỆ THỐNG"
-Cohesion: 0.33
-Nodes (5): 1. NGUYÊN TẮC CỐT LÕI (CORE PRINCIPLES), 2. KIẾN TRÚC ROUTE & COMPONENT CONDITIONAL RENDERING, 3. BẢNG MA TRẬN TEST CASE FOOTER THEO ROUTE (FT-01 ĐẾN FT-15), Khối render JSX:, QUY TẮC HIỂN THỊ FOOTER THEO ROUTE & PHÂN VÙNG HỆ THỐNG
-
-### Community 324 - "BÁO CÁO TRIỂN KHAI: TÍCH HỢP BẢN ĐỒ VỊ TRÍ LÀM VIỆC VÀO TRANG CHI TIẾT CÔNG VIỆC JOBNEST"
-Cohesion: 0.33
-Nodes (5): 1. TỔNG QUAN YÊU CẦU & BỐ CỤC MỚI, 2. DỮ LIỆU CÔNG VIỆC & CƠ SỞ DỮ LIỆU, 3. XỬ LÝ CÁC TRƯỜNG HỢP ĐẶC BIỆT, 4. KẾT QUẢ KIỂM THỬ THỰC TẾ, BÁO CÁO TRIỂN KHAI: TÍCH HỢP BẢN ĐỒ VỊ TRÍ LÀM VIỆC VÀO TRANG CHI TIẾT CÔNG VIỆC JOBNEST
-
 ### Community 325 - "QUY CHUẨN ĐIỀU PHỐI VAI TRÒ, NGHIÊN CỨU TÀI LIỆU VÀ TÁI SỬ DỤNG MÃ NGUỒN CHO CD2"
 Cohesion: 0.33
 Nodes (5): 1. Cơ chế Phân vai và Điều phối (Multi-Role Orchestration), 2. Thứ tự ưu tiên 7 cấp bậc của nguồn thông tin, 3. Quy chuẩn Khảo sát và Báo cáo Nghiên cứu Mã nguồn / Video, 4. Cam kết An toàn và Bảo vệ Workspace, QUY CHUẨN ĐIỀU PHỐI VAI TRÒ, NGHIÊN CỨU TÀI LIỆU VÀ TÁI SỬ DỤNG MÃ NGUỒN CHO CD2
@@ -2381,10 +2269,6 @@ Nodes (5): 1. Cơ chế Phân vai và Điều phối (Multi-Role Orchestration),
 ### Community 326 - "MA TRẬN TRUY VẾT YÊU CẦU TOÀN DIỆN (REQUIREMENT TRACEABILITY MATRIX) — JOBNEST"
 Cohesion: 0.33
 Nodes (5): 1. MỤC TIÊU VÀ NGUYÊN TẮC TRUY VẾT, 2. BẢNG MA TRẬN TRUY VẾT YÊU CẦU CHỨC NĂNG (FUNCTIONAL REQUIREMENTS), 3. BẢNG MA TRẬN TRUY VẾT YÊU CẦU PHI CHỨC NĂNG (NON-FUNCTIONAL REQUIREMENTS), 4. KẾT LUẬN TRUY VẾT, MA TRẬN TRUY VẾT YÊU CẦU TOÀN DIỆN (REQUIREMENT TRACEABILITY MATRIX) — JOBNEST
-
-### Community 327 - "BÁO CÁO KIỂM THỬ TOÀN DIỆN (COMPREHENSIVE TEST REPORT) — JOBNEST"
-Cohesion: 0.33
-Nodes (5): 1. MỤC TIÊU VÀ PHẠM VI KIỂM THỬ, 2. KẾT QUẢ KIỂM THỬ BACKEND (NODE TEST RUNNER), 3. KẾT QUẢ KIỂM THỬ FRONTEND & INTERACTION (PLAYWRIGHT), 4. KẾT LUẬN KIỂM THỬ, BÁO CÁO KIỂM THỬ TOÀN DIỆN (COMPREHENSIVE TEST REPORT) — JOBNEST
 
 ### Community 328 - "CHƯƠNG 1 — GIỚI THIỆU"
 Cohesion: 0.33
@@ -2410,9 +2294,9 @@ Nodes (6): 3.1. Danh sách yêu cầu chức năng, 3.2. Ghi chú và phụ thu�
 Cohesion: 0.33
 Nodes (6): 6.9.1. Job, 6.9.2. Application, 6.9.3. Proposal, 6.9.4. Work Assignment, 6.9.5. Deliverable, 6.9. Bảng chuyển trạng thái chi tiết
 
-### Community 334 - "1. USE CASE BASELINE & TRACEABILITY"
-Cohesion: 0.12
-Nodes (16): 1.1. Quy mô baseline, 1.2. PB Mapping 22 UC, 1.3. API Error Catalogue, 1. Thông tin chung, 1. Thông tin chung, 1. USE CASE BASELINE & TRACEABILITY, 2. Main Flow, 2. Main Flow (+8 more)
+### Community 334 - "UC-04 — QUẢN LÝ HỒ SƠ STUDENT"
+Cohesion: 0.33
+Nodes (6): 1. Thông tin chung, 2. Main Flow, 3. Exception Flow, 4. NFR / BR áp dụng, 5. TBD / Điểm cần verify, UC-04 — QUẢN LÝ HỒ SƠ STUDENT
 
 ### Community 335 - "UC-05 — QUẢN LÝ HỒ SƠ EMPLOYER"
 Cohesion: 0.33
@@ -2423,8 +2307,8 @@ Cohesion: 0.12
 Nodes (27): ARGS, byId, CAP, dataUri(), esc(), FIG, fillAttr(), FLOWS (+19 more)
 
 ### Community 337 - "StudentProfileForm.jsx"
-Cohesion: 0.10
-Nodes (31): AvatarEditorModal(), clampOffset(), downscaleSource(), drawCrop(), rotatedSize(), AvatarUploader(), fold(), SkillTagInput() (+23 more)
+Cohesion: 0.08
+Nodes (34): addressVariants(), geocodeAddress(), inVietnam(), LocationPicker(), nominatim(), VN_CENTER, StudentProfileCard(), StudentProfileModal() (+26 more)
 
 ### Community 338 - "UC-11 — ỨNG TUYỂN PART-TIME / SEASONAL"
 Cohesion: 0.29
@@ -2475,8 +2359,8 @@ Cohesion: 0.33
 Nodes (5): Sheet: Cover & Traceability, Sheet: Dep & Cross-ref, Sheet: Gap & Missing Data, Sheet: Proposed Tests, Sheet: Test Registry
 
 ### Community 350 - "experience_review_api.test.js"
-Cohesion: 0.07
-Nodes (25): app, getJwtSecret(), isJwtSecretConfigured(), path, startServer(), assert, call(), ids (+17 more)
+Cohesion: 0.09
+Nodes (20): assert, call(), ids, jwt, { test, describe, before, after }, token(), U, 1. Enable the Origin Trial and Render the Verification Form (+12 more)
 
 ### Community 351 - "Image Treatment"
 Cohesion: 0.11
@@ -2554,25 +2438,13 @@ Nodes (5): Business context, Current performance, Gather the Right Context First
 Cohesion: 0.40
 Nodes (4): Colour Palettes, Dark Palettes, Light Palettes, Usage
 
-### Community 370 - "BÁO CÁO RÀ SOÁT HIỆN TRẠNG GIAO DIỆN NHÀ TUYỂN DỤNG (EMPLOYER UI AUDIT REPORT)"
-Cohesion: 0.40
-Nodes (4): 1. TỔNG QUAN RÀ SOÁT, 2. BẢNG ĐÁNH GIÁ CHI TIẾT 12 MÀN HÌNH, 3. KẾT LUẬN VÀ PHẠM VI HÀNH ĐỘNG, BÁO CÁO RÀ SOÁT HIỆN TRẠNG GIAO DIỆN NHÀ TUYỂN DỤNG (EMPLOYER UI AUDIT REPORT)
-
 ### Community 371 - "Frontend Design Reference Index"
 Cohesion: 0.06
 Nodes (33): Accessibility, focus, and keyboard support, Accordions, disclosures, and stacked detail sections, Authentication, permissions, and access control, Authentication, pricing, and monetization surfaces, Booking calendars and scheduling flows, Cards, media proportion, and browsing rhythm, Carousels, galleries, and multi-panel browsing, Color accessibility and semantic-state resilience (+25 more)
 
-### Community 372 - "BÁO CÁO KIỂM TOÁN BẢO MẬT HỆ THỐNG (SECURITY AUDIT) — JOBNEST"
-Cohesion: 0.40
-Nodes (4): 1. MỤC TIÊU VÀ PHẠM VI KIỂM TOÁN, 2. KẾT QUẢ ĐÁNH GIÁ THEO TIÊU CHUẨN OWASP TOP 10, 3. KẾT LUẬN KIỂM TOÁN BẢO MẬT, BÁO CÁO KIỂM TOÁN BẢO MẬT HỆ THỐNG (SECURITY AUDIT) — JOBNEST
-
 ### Community 373 - "CategoryJobsModal.jsx"
-Cohesion: 0.16
-Nodes (21): CategoryJobsModal(), FILTERS, jobStatusText(), matchFilter(), StatusBadge(), EmployerJobsPage(), getStatusInfo(), STATUS_MAP (+13 more)
-
-### Community 374 - "BẢNG MA TRẬN ĐỐI CHIẾU VÀ TRUY VẾT 44 WIREFRAME — JOBNEST"
-Cohesion: 0.40
-Nodes (4): BẢNG MA TRẬN ĐỐI CHIẾU VÀ TRUY VẾT 44 WIREFRAME — JOBNEST, I. TỔNG QUAN PHÂN HỆ VÀ TRẠNG THÁI ĐỒNG BỘ, II. MA TRẬN ĐỐI CHIẾU TOÀN DIỆN 44 MÀN HÌNH WIREFRAME, III. KẾT LUẬN & ĐÁNH GIÁ CHẤT LƯỢNG KIỂM THỬ
+Cohesion: 0.18
+Nodes (19): CategoryJobsModal(), FILTERS, jobStatusText(), matchFilter(), getStatusInfo(), STATUS_MAP, buildPrintHtml(), cellValue() (+11 more)
 
 ### Community 375 - "BÁO CÁO CHUẨN BỊ — INVENTORY TÀI LIỆU JOBNEST"
 Cohesion: 0.40
@@ -2705,18 +2577,6 @@ Nodes (4): Gabor-Granger / conjoint / demand testing, MaxDiff, Research Methods 
 ### Community 407 - "Dark mode"
 Cohesion: 0.07
 Nodes (24): 1. Declare supported schemes in HTML, 2. Apply page-wide color scheme to CSS :root or html, 3. Define light and dark color tokens, 4. Varying images for light and dark mode, Alternative: one custom property per image, Dark mode, Fallback strategies, Fallbacks & browser support for accent-color (+16 more)
-
-### Community 408 - "MA TRẬN TRUY VẾT YÊU CẦU EMPLOYER (EMPLOYER REQUIREMENT TRACEABILITY MATRIX)"
-Cohesion: 0.50
-Nodes (3): 1. BẢNG MAPPING CHI TIẾT 12 MÀN HÌNH, 2. QUY TẮC NGHIỆP VỤ ĐẶC THÙ ĐƯỢC BẢO ĐẢM, MA TRẬN TRUY VẾT YÊU CẦU EMPLOYER (EMPLOYER REQUIREMENT TRACEABILITY MATRIX)
-
-### Community 409 - "NHẬT KÝ ĐỒNG BỘ TÀI LIỆU DỰ ÁN (PROJECT DOCUMENTATION CHANGELOG)"
-Cohesion: 0.50
-Nodes (3): Bảng nhật ký thay đổi, NHẬT KÝ ĐỒNG BỘ TÀI LIỆU DỰ ÁN (PROJECT DOCUMENTATION CHANGELOG), Phân loại trạng thái thay đổi
-
-### Community 410 - "BẢNG GHI NHẬN CÁC ĐIỂM CẦN LƯU Ý & CẢI TIẾN DỰ ÁN (PROJECT SETUP GAP REGISTER)"
-Cohesion: 0.50
-Nodes (3): 1. Danh sách các điểm phát hiện & Hiện trạng xử lý, 2. Các đề xuất cần xác nhận (Chờ duyệt), BẢNG GHI NHẬN CÁC ĐIỂM CẦN LƯU Ý & CẢI TIẾN DỰ ÁN (PROJECT SETUP GAP REGISTER)
 
 ### Community 411 - "6.2. Job Lifecycle"
 Cohesion: 0.50
@@ -2886,10 +2746,6 @@ Nodes (19): Angular, Astro, Framework Official Docs, Inertia, Motion (React, Vue
 Cohesion: 0.08
 Nodes (23): 2. Content Grouping and Attribution, 3. Resource Prioritization and Performance, 5. Disclosures: Details and Summary, 6. Focus Boundaries and Visibility, 7. HTML APIs and Forms Grouping, 8. Native Media Elements, 9. Dynamic Styles and Interactivity, Code Example (+15 more)
 
-### Community 460 - "LocationPicker.jsx"
-Cohesion: 0.12
-Nodes (18): JobDetailModal(), NotificationsDropdown(), SupportModal(), addressVariants(), geocodeAddress(), inVietnam(), LocationPicker(), nominatim() (+10 more)
-
 ### Community 461 - "How to implement"
 Cohesion: 0.09
 Nodes (21): Allow password pasting, Build a sign-in form that follows best practice, Don't double up inputs, Enable the browser to suggest a strong password, Fallback strategies, Give mobile users the right keyboard, Help save users from accidentally missing inputs, Help users avoid re-entering sign-in data (+13 more)
@@ -3007,8 +2863,8 @@ Cohesion: 0.08
 Nodes (24): Accessibility (WCAG 2.1 AA), ARIA Labels, Avoid the AI Aesthetic, Color, Common Rationalizations, Component Architecture, Component Patterns, Design System Adherence (+16 more)
 
 ### Community 490 - "student/JobDetailPage.jsx"
-Cohesion: 0.16
-Nodes (18): JobDetailPage(), CATEGORY_BANNERS, getJobBannerUrl(), BASE_CANONICAL_HOST, cleanCanonicalUrl(), cleanupSEO(), DEFAULT_SEO, detectVisibleSPAView() (+10 more)
+Cohesion: 0.22
+Nodes (16): JobDetailPage(), BASE_CANONICAL_HOST, cleanCanonicalUrl(), cleanupSEO(), DEFAULT_SEO, detectVisibleSPAView(), formatJobDescription(), getJobDetailSEO() (+8 more)
 
 ### Community 491 - "CI/CD and Automation"
 Cohesion: 0.08
@@ -3363,7 +3219,7 @@ Cohesion: 0.14
 Nodes (13): Accessibility Testing, axe-core and axe DevTools, CI/CD workflow, Core automated tools, Developer workflow, Integrating into workflow, Pa11y, Practical checklist (+5 more)
 
 ### Community 579 - "Color Ramp Workflow"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (14): 1.5 Understand Tint, Tone, and Shade, 1. Choose Neutral Temperature, 2. Pick the Edge / Base / Fill-Gaps Structure, 3. Preserve Saturation, 4. Use Flipped Contrast When Helpful, 5. Use Hue Rotation for Perceived Brightness, 6. Grey-on-Color Rule, Base shade (+6 more)
 
 ### Community 580 - "Interaction Design"
@@ -3435,12 +3291,12 @@ Cohesion: 0.15
 Nodes (12): Common Rationalizations, Overview, Red Flags, Retrieval Safety: Treat Fetched Content as Data, Source-Driven Development, Step 1: Detect Stack and Versions, Step 2: Fetch Official Documentation, Step 3: Implement Following Documented Patterns (+4 more)
 
 ### Community 597 - "environment"
-Cohesion: 0.16
-Nodes (16): environment, AUTO_BOOTSTRAP, CORS_ORIGINS, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER (+8 more)
+Cohesion: 0.14
+Nodes (18): environment, AUTO_BOOTSTRAP, CORS_ORIGINS, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER (+10 more)
 
 ### Community 598 - "ProfileSnapshotView.jsx"
-Cohesion: 0.16
-Nodes (14): Block(), chip, fmtDate(), fmtMonth(), ProfileSnapshotView(), Rows(), WORK_TYPE_LABEL, 1. Pre-Check Granular Permission State and Gate on User Gesture (+6 more)
+Cohesion: 0.33
+Nodes (8): Block(), chip, fmtDate(), fmtMonth(), ProfileSnapshotView(), Rows(), WORK_TYPE_LABEL, ApplicationDetailPage()
 
 ### Community 599 - "Slash Commands & Workflows"
 Cohesion: 0.17
@@ -3523,7 +3379,7 @@ Cohesion: 0.08
 Nodes (22): Concept-to-tool matrix, Concepts that often need JS or Motion, CSS, Tailwind, and WAAPI motion, Default implementation order, Most concepts that are directly doable with web platform APIs, Practical guidance for common concepts in this library, Tailwind-specific note, When modern CSS is usually enough (+14 more)
 
 ### Community 619 - "capture.js"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (11): ad(), add(), CAP, { chromium }, fs, IDS, path, PNG (+3 more)
 
 ### Community 620 - "JobNest — Design System Specification"
@@ -3630,9 +3486,9 @@ Nodes (9): Avoid, Core parts, Error and guidance placement, Form Inputs, Hover a
 Cohesion: 0.22
 Nodes (9): Clarity over cleverness, Core Principles, Customer language over internal language, One idea per section, one job per screen, Outcomes over features, Proof near the claim, Specificity over vagueness, USP is not a slogan contest (+1 more)
 
-### Community 647 - "Curated defaults for React-based web apps"
-Cohesion: 0.22
-Nodes (9): Curated defaults for React-based web apps, Feedback and overlay primitives, How to use this list, Pickers and gesture-heavy interaction, React shadcn Accelerators, Selection hints, Testimonials and social proof, Text and motion accents (+1 more)
+### Community 647 - "ui-ux/better-web-ui/reference/framework-defaults.md"
+Cohesion: 0.11
+Nodes (15): Default matrix, Framework Defaults, Framework-specific guidance, Important caveats, Precedence, Problem shorthand, Curated defaults for React-based web apps, Feedback and overlay primitives (+7 more)
 
 ### Community 648 - "Banned UI Patterns"
 Cohesion: 0.22
@@ -4358,10 +4214,6 @@ Nodes (10): Creating Toast Notifications, Fallback strategies, Fallbacks & brows
 Cohesion: 0.15
 Nodes (12): 1. Basic setup, 2. Styling, 3. Indeterminate state styling, Additional Accessibility Considerations, Build a Styled Progress Bar, Fallback strategies, Fallbacks & browser support for accent-color, Fallbacks & browser support for `revert-rule` (+4 more)
 
-### Community 864 - "migrate.js"
-Cohesion: 0.17
-Nodes (7): { Client, Pool }, fs, path, destDir, fs, path, srcDir
-
 ### Community 865 - "role"
 Cohesion: 0.17
 Nodes (12): 2. Semantic HTML and ARIA, 3. Accessible Names and Descriptions, ARIA roles and states, Choosing the name, Code Example: Visually Hidden Utility, Descriptions, Naming mechanisms, Prefer native HTML (+4 more)
@@ -4535,8 +4387,8 @@ Cohesion: 0.20
 Nodes (9): Accessibility considerations, Best practices and pitfalls, Fallback, How to implement, Progressive enhancement, Step 1: Mark up the swipe wrapper, content, and revealed panel, Step 2: Configure the horizontal snap container and `overscroll-behavior: chain`, Step 3: Reveal controls when trigger button is activated (+1 more)
 
 ### Community 908 - "Accordion"
-Cohesion: 0.20
-Nodes (9): Accordion, Custom accordion, Customizing the marker, Excluding a `details` element’s contents from find-in-page, Exclusive accordions, Keeping one item always open, Optional: Expand/Collapse All button, Slide up/down animation (+1 more)
+Cohesion: 0.13
+Nodes (14): Accordion, Custom accordion, Custom accordion, Customizing the marker, Excluding a `details` element’s contents from find-in-page, Exclusive accordions, Expand all and Collapse all, Fallback strategies (+6 more)
 
 ### Community 909 - "Styling Checkboxes"
 Cohesion: 0.20
@@ -4562,9 +4414,9 @@ Nodes (9): Implementation Guide, Implementation Strategy, Other Considerations, 
 Cohesion: 0.22
 Nodes (5): 1. Danh mục 14 Tiêu chuẩn Đặc tả cho mỗi Endpoint, TÀI LIỆU ĐẶC TẢ CHI TIẾT API CONTRACT (RESTFUL API SPECIFICATION), Bộ dữ liệu demo v3, Nạp vào DB, Sinh dữ liệu (cần Docker vì Pillow/fpdf2)
 
-### Community 915 - "employer_company_api.test.js"
-Cohesion: 0.25
-Nodes (7): assert, call(), jwt, stamp, { test, describe, before, after }, tokenOf(), users
+### Community 915 - "auth.service.js"
+Cohesion: 0.04
+Nodes (41): UserRepository, bcrypt, crypto, jwt, ProfileService, nodemailer, assert, bcrypt (+33 more)
 
 ### Community 916 - "Language Detection"
 Cohesion: 0.22
@@ -4599,8 +4451,8 @@ Cohesion: 0.22
 Nodes (8): 1. Configure View Containers, 2. Manage Focus, Fallback strategies, Faster SPA View Transitions via State Caching, Implementation, Overview, The CPU vs. RAM Trade-off, When This Trade-off Becomes Dangerous
 
 ### Community 924 - "Quick sign-ins with immediate UI mode"
-Cohesion: 0.22
-Nodes (8): Client-side implementation, Dual credential verification endpoints, Options generation endpoint, Privacy and security constraints, Quick sign-ins with immediate UI mode, Recommended UX patterns and anti-patterns, Server-side setup, Unified credential request
+Cohesion: 0.13
+Nodes (14): Client capabilities detection fallback, Client-side implementation, Dual credential verification endpoints, Easy JSON serialization fallback, Fallback strategies, Immediate UI mode fallback, Options generation endpoint, Password credentials fallback (+6 more)
 
 ### Community 925 - "Animate Element Entry and Exit"
 Cohesion: 0.22
@@ -4622,13 +4474,9 @@ Nodes (8): CSS Fallback, Example: Bounce Easing, Example: Spring Easing, Fallbac
 Cohesion: 0.22
 Nodes (8): Common mistakes, Compare values correctly, Header markup, Narrow screens, Optionally animate the reorder, Reorder the existing rows, Sortable Table, Wire buttons with invoker commands
 
-### Community 930 - "click"
-Cohesion: 0.22
-Nodes (9): Fallbacks, Custom accordion, Expand all and Collapse all, Fallback strategies, Mutually exclusive `details`, Open and close animation, Fallbacks & browser support for Invoker commands, Fallbacks & browser support for Invoker commands (+1 more)
-
 ### Community 931 - "Build a popup menu"
-Cohesion: 0.22
-Nodes (8): Align menu item content, Animate open and close, Build a popup menu, Commands, links, and what makes a menu, Keyboard and focus, Open and position the menu, Position the menu with CSS Anchor Positioning, Verify before finishing
+Cohesion: 0.13
+Nodes (14): Align menu item content, Animate open and close, Build a popup menu, Commands, links, and what makes a menu, Implementing the interaction, Keyboard and focus, Keyboard and focus handling, Not covered here (+6 more)
 
 ### Community 932 - "Implementation with `<dialog>`"
 Cohesion: 0.22
@@ -4645,10 +4493,6 @@ Nodes (8): Basic implementation, Equal-Width Text Lines, Fallback strategies, Fo
 ### Community 935 - "Shaped Cutouts"
 Cohesion: 0.22
 Nodes (8): Adjacent Element SVG Masking, Direct Element SVG Masking, Fallback strategies, Implementation, Overview, Shaped Cutouts, Using a Single CSS Gradient for Simple Cutouts, Using an SVG Mask
-
-### Community 936 - "CÁC ĐIỂM KIỂM SOÁT BẮT BUỘC KHI TRIỂN KHAI"
-Cohesion: 0.22
-Nodes (9): 1. A3 — Selection là đường duy nhất để ACCEPTED và tạo Assignment, 2. Assignment và Deliverable là hai lifecycle riêng, 3. G-06 vẫn TBD, 4. C3 vẫn TBD, 5. G-58/G-59 vẫn TBD, 6. FR-40 chưa có UC riêng, 7. PB-32 và S4, 8. Các chi tiết chưa có nguồn (+1 more)
 
 ### Community 937 - "Animate to Intrinsic Sizes"
 Cohesion: 0.25
@@ -4775,8 +4619,8 @@ Cohesion: 0.29
 Nodes (6): Example Code: Converting and Iterating Calendars, Fallback Strategy, Fallbacks & browser support for Temporal, How to Implement, Strategic Implementation & Best Practices, Supporting Global Calendar Systems with Temporal
 
 ### Community 968 - "Debounce and batch multiple analytics events"
-Cohesion: 0.29
-Nodes (6): Best Practices, Browser support and fallback strategies, Debounce and batch multiple analytics events, Example code, `fetchLater()` polyfill, How to implement
+Cohesion: 0.20
+Nodes (9): Best Practices, Browser support and fallback strategies, Debounce and batch multiple analytics events, Example code, `fetchLater()` polyfill, How to implement, Fallbacks, Fallbacks & browser support for Invoker commands (+1 more)
 
 ### Community 969 - "Reliably measure full-session analytics and telemetry"
 Cohesion: 0.29
@@ -4833,14 +4677,6 @@ Nodes (6): Anti-Patterns & Warnings (DO NOT DO THIS), Best Practices, Implementa
 ### Community 982 - "seed"
 Cohesion: 0.29
 Nodes (7): command, image, networks, profiles, volumes, working_dir, seed
-
-### Community 983 - "UC-13 — GỬI FREELANCE PROPOSAL"
-Cohesion: 0.29
-Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Alternative Flow, 4. Exception Flow, 5. Business Rules, 6. TBD / Missing, UC-13 — GỬI FREELANCE PROPOSAL
-
-### Community 984 - "UC-13 — GỬI FREELANCE PROPOSAL"
-Cohesion: 0.29
-Nodes (7): 1. Thông tin chung, 2. Main Flow, 3. Alternative Flow, 4. Exception Flow, 5. Business Rules, 6. TBD / Missing, UC-13 — GỬI FREELANCE PROPOSAL
 
 ### Community 985 - "6. CÁCH B — Chạy thủ công"
 Cohesion: 0.29
@@ -4901,10 +4737,6 @@ Nodes (5): Best Practices, Example code, Fallback strategy, How to implement, Op
 ### Community 999 - "Passkeys Orientation"
 Cohesion: 0.33
 Nodes (5): 1. Core Prerequisites for Passkeys, 2. The AAGUID UX Caveat, 3. Decoupled Library Recommendations, 4. Use Case Reference Matrix, Passkeys Orientation
-
-### Community 1000 - "Fallback strategies"
-Cohesion: 0.33
-Nodes (6): Client capabilities detection fallback, Easy JSON serialization fallback, Fallback strategies, Immediate UI mode fallback, Password credentials fallback, Signal API synchronization fallback
 
 ### Community 1001 - "Restrict outbound network connections with Connection Allowlists"
 Cohesion: 0.33
@@ -4967,12 +4799,8 @@ Cohesion: 0.33
 Nodes (5): Accessible Focus Management, Core Architectural Principles, Keypress Integration & Scroll Cooperation, Spatial Navigation (Directional Keypad Focus), Visual Candidate Selection
 
 ### Community 1016 - "Fallback strategies"
-Cohesion: 0.33
-Nodes (6): Fallback strategies, Fallbacks & browser support for Anchor positioning, Fallbacks & browser support for focusgroup, Fallbacks & browser support for `:has()`, Fallbacks & browser support for Popover, Fallbacks & browser support for `sign()`
-
-### Community 1017 - "Implementing the interaction"
-Cohesion: 0.33
-Nodes (6): Implementing the interaction, Keyboard and focus handling, Not covered here, Pointer handling, Separators and checkable items, Submenus
+Cohesion: 0.29
+Nodes (7): Fallback strategies, Fallbacks & browser support for Anchor positioning, Fallbacks & browser support for focusgroup, Fallbacks & browser support for `:has()`, Fallbacks & browser support for Invoker commands, Fallbacks & browser support for Popover, Fallbacks & browser support for `sign()`
 
 ### Community 1018 - "Adapt scrollbar to high-contrast preferences"
 Cohesion: 0.33
@@ -4989,30 +4817,6 @@ Nodes (5): Depth and texture, Fallback, Gradients and `color-mix()`, Patterns, V
 ### Community 1021 - "Visually Stable Mixed Fonts"
 Cohesion: 0.33
 Nodes (5): Example: Normalizing x-height automatically, Example: Specifying a specific x-height, Fallback strategies, Implementation Steps, Visually Stable Mixed Fonts
-
-### Community 1022 - "Framework Defaults"
-Cohesion: 0.33
-Nodes (6): Default matrix, Framework Defaults, Framework-specific guidance, Important caveats, Precedence, Problem shorthand
-
-### Community 1023 - "UC-03 — QUÊN / ĐẶT LẠI MẬT KHẨU"
-Cohesion: 0.33
-Nodes (6): 1. Thông tin chung, 2. Main Flow, 3. Exception Flow, 4. Business Rules / NFR, 5. TBD / Missing, UC-03 — QUÊN / ĐẶT LẠI MẬT KHẨU
-
-### Community 1024 - "UC-18 — XÁC NHẬN HOÀN THÀNH ASSIGNMENT"
-Cohesion: 0.33
-Nodes (6): 1. Thông tin chung, 2. Main Flow, 3. Exception Flow, 4. NFR / BR áp dụng, 5. TBD / Điểm cần verify, UC-18 — XÁC NHẬN HOÀN THÀNH ASSIGNMENT
-
-### Community 1025 - "UC-05 — QUẢN LÝ HỒ SƠ EMPLOYER"
-Cohesion: 0.33
-Nodes (6): 1. Thông tin chung, 2. Main Flow, 3. Exception Flow, 4. NFR / BR áp dụng, 5. TBD / Điểm cần verify, UC-05 — QUẢN LÝ HỒ SƠ EMPLOYER
-
-### Community 1026 - "UC-06 — XÁC MINH EMAIL VÀ SỐ ĐIỆN THOẠI"
-Cohesion: 0.33
-Nodes (6): 1. Thông tin chung, 2. Main Flow, 3. Exception Flow, 4. Business Rules, 5. TBD / Missing, UC-06 — XÁC MINH EMAIL VÀ SỐ ĐIỆN THOẠI
-
-### Community 1027 - "generate_drawio_svgs.js"
-Cohesion: 0.40
-Nodes (5): buildDrawioSvg(), escapeXml(), fs, outDir, path
 
 ### Community 1028 - "Customize the styling of autofilled form fields"
 Cohesion: 0.40
@@ -5095,7 +4899,7 @@ Cohesion: 0.50
 Nodes (3): Fallback strategies, Persistent Top Layer UI, Reparenting open top-layer elements
 
 ## Knowledge Gaps
-- **49 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **48 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -5103,14 +4907,14 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `Component Anatomy` connect `Component Anatomy` to `reference/README.md`, `Submit Buttons`, `Toggle Switches`, `Ratings / Reviews`, `Multiselects`, `Dual Listboxes / Transfer Lists`, `Choosing Among List Selection Patterns`, `KPI Cards / Dashboard Widgets`, `Tables and Data Tables`, `Filters / Facets / Filter Bars`, `Comboboxes`, `Variant Selectors / Option Pickers`, `Avatars`, `Breadcrumbs`, `Checkboxes`, `Result Lists / Collection Browsing`, `Radio Buttons`, `Form Inputs`, `Accordions`, `Textareas`, `Labels`, `Lists`, `Toasts / Alerts`, `Tooltips`, `Badges`, `Iconography`, `Buttons`, `Cards`, `Dividers`, `Dropdowns / Selects`, `Tabs`, `Skeletons / Loading Placeholders`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **Should `reference/README.md` be split into smaller, more focused modules?**
-  _Cohesion score 0.07792207792207792 - nodes in this community are weakly interconnected._
-- **Why does `Hierarchy Checklist` connect `Hierarchy Checklist` to `reference/README.md`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+  _Cohesion score 0.07929824561403509 - nodes in this community are weakly interconnected._
+- **Why does `role()` connect `role` to `capture.js`, `Fallback strategies`, `Two-Dimensional Panning`?**
+  _High betweenness centrality (0.005) - this node is a cross-community bridge._
 - **Should `app.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.040123456790123455 - nodes in this community are weakly interconnected._
-- **Why does `Search and Findability` connect `Search and Findability` to `reference/README.md`?**
-  _High betweenness centrality (0.004) - this node is a cross-community bridge._
-- **Should `BÁO CÁO KHẮC PHỤC SỰ CỐ KẾT NỐI BACKEND (PORT 5000) & CHUẨN HÓA API FRONTEND - JOBNEST` be split into smaller, more focused modules?**
-  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.038923719958202714 - nodes in this community are weakly interconnected._
+- **Why does `Component Anatomy` connect `Component Anatomy` to `Form Inputs`, `Submit Buttons`, `Toggle Switches`, `Ratings / Reviews`, `Multiselects`, `Dual Listboxes / Transfer Lists`, `Choosing Among List Selection Patterns`, `ui-ux/better-web-ui/reference/README.md`, `KPI Cards / Dashboard Widgets`, `Comboboxes`, `Variant Selectors / Option Pickers`, `Avatars`, `Breadcrumbs`, `Checkboxes`, `Result Lists / Collection Browsing`, `Radio Buttons`, `Accordions`, `Textareas`, `Labels`, `Lists`, `Toasts / Alerts`, `Tooltips`, `Badges`, `Iconography`, `Buttons`, `Cards`, `Dividers`, `Dropdowns / Selects`, `Tables and Data Tables`, `Skeletons / Loading Placeholders`, `Tabs`, `Filters / Facets / Filter Bars`?**
+  _High betweenness centrality (0.005) - this node is a cross-community bridge._
 - **Should `Hierarchy Checklist` be split into smaller, more focused modules?**
   _Cohesion score 0.043478260869565216 - nodes in this community are weakly interconnected._
+- **Should `PART 1/3 — AUTHENTICATION, PROFILE, VERIFICATION & JOB CREATION` be split into smaller, more focused modules?**
+  _Cohesion score 0.10526315789473684 - nodes in this community are weakly interconnected._

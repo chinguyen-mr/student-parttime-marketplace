@@ -3453,3 +3453,17 @@ COPY public.schema_migrations (id, version, applied_at) FROM stdin;
 47	018_application_status_shortlisted.sql	2026-11-13 21:27:11.961917+00
 \.
 SELECT pg_catalog.setval('public.schema_migrations_id_seq', 47, true);
+
+-- Migration 019 + 020 (thêm sau bản dump 001→018) — áp dụng cho volume Docker mới
+-- Ảnh banner tin tuyển dụng: nhà tuyển dụng tải ảnh từ máy (thay cho dán đường dẫn)
+ALTER TABLE file_uploads DROP CONSTRAINT IF EXISTS file_uploads_kind_check;
+ALTER TABLE file_uploads ADD CONSTRAINT file_uploads_kind_check
+  CHECK (kind IN ('AVATAR', 'AVATAR_SOURCE', 'CV', 'REVIEW_IMAGE', 'COVER', 'OFFICE_IMAGE', 'REP_AVATAR', 'LEGAL_DOC', 'JOB_BANNER'));
+
+-- Đăng xuất thu hồi phiên: token có thời điểm phát hành (iat) không sau mốc này bị từ chối
+ALTER TABLE users ADD COLUMN IF NOT EXISTS tokens_valid_after TIMESTAMPTZ;
+
+-- Khôi phục mật khẩu bằng mã OTP 6 số: đếm số lần nhập sai để khóa mã khi bị dò
+ALTER TABLE password_reset_tokens ADD COLUMN IF NOT EXISTS attempts INTEGER NOT NULL DEFAULT 0;
+
+INSERT INTO public.schema_migrations (version) VALUES ('019_job_banner_upload.sql'), ('020_logout_and_reset_otp.sql');

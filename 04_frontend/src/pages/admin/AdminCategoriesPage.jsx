@@ -20,7 +20,6 @@ export default function AdminCategoriesPage({
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formName, setFormName] = useState('');
-  const [formParentId, setFormParentId] = useState('');
   const [formIsActive, setFormIsActive] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -59,7 +58,6 @@ export default function AdminCategoriesPage({
     setIsEditing(true);
     setEditingId(null);
     setFormName('');
-    setFormParentId('');
     setFormIsActive(true);
   };
 
@@ -68,7 +66,6 @@ export default function AdminCategoriesPage({
     setIsEditing(true);
     setEditingId(cat.id);
     setFormName(cat.name || '');
-    setFormParentId(cat.parent_id ? String(cat.parent_id) : '');
     setFormIsActive(cat.is_active !== false);
   };
 
@@ -77,7 +74,6 @@ export default function AdminCategoriesPage({
     setIsEditing(false);
     setEditingId(null);
     setFormName('');
-    setFormParentId('');
   };
 
   // Save Category (POST or PUT)
@@ -97,7 +93,6 @@ export default function AdminCategoriesPage({
 
       const payload = {
         name: formName.trim(),
-        parent_id: formParentId ? parseInt(formParentId, 10) : null,
         is_active: formIsActive
       };
 
@@ -195,13 +190,18 @@ export default function AdminCategoriesPage({
 
   return (
     <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20, width: '100%' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
+      {/* Header: ghim ngay dưới thanh trên cùng, không bị cuộn mất */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14,
+        position: 'sticky', top: 'var(--app-header-h, 74px)', zIndex: 5,
+        background: 'var(--color-background)', margin: '-28px 0 0', padding: '28px 0 14px',
+        borderBottom: '1px solid var(--color-border)'
+      }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
             Quản lý danh mục ngành nghề
           </h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748B' }}>
+          <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#475569' }}>
             Cấu hình phân loại việc làm và kỹ năng tuyển dụng trên hệ thống
           </p>
         </div>
@@ -223,7 +223,6 @@ export default function AdminCategoriesPage({
               columns: [
                 { header: 'ID', value: c => `#${c.id}`, width: 8 },
                 { header: 'Tên danh mục', value: c => c.name, width: 34 },
-                { header: 'Danh mục cha', value: c => c.parent_name || '— (Gốc)', width: 22 },
                 { header: 'Số tin tuyển dụng', value: c => Number(c.job_count || 0), type: 'number', width: 16 },
                 { header: 'Trạng thái', value: c => (c.is_active !== false ? 'Đang hoạt động' : 'Đang ẩn'), width: 16 },
                 { header: 'Ngày tạo', value: c => c.created_at, type: 'date', width: 13 },
@@ -248,7 +247,7 @@ export default function AdminCategoriesPage({
               style={{ padding: '8px 18px', fontSize: 13, gap: 6 }}
             >
               <Plus size={15} />
-              <span>+ Thêm ngành nghề</span>
+              <span>Thêm ngành nghề</span>
             </Button>
           )}
         </div>
@@ -264,9 +263,9 @@ export default function AdminCategoriesPage({
           boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 800, color: '#0F172A', margin: 0 }}>
-              {editingId ? 'Sửa danh mục ngành nghề' : 'Thêm mới danh mục ngành nghề'} (Thêm / Sửa)
-            </h3>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', margin: 0 }}>
+              {editingId ? 'Sửa ngành nghề' : 'Thêm ngành nghề mới'}
+            </h2>
             <button
               type="button"
               onClick={handleCancelForm}
@@ -280,7 +279,7 @@ export default function AdminCategoriesPage({
             {/* Tên danh mục */}
             <div>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>
-                Tên danh mục: <span style={{ color: '#DC2626' }}>*</span>
+                Tên ngành nghề <span style={{ color: '#DC2626' }}>*</span>
               </label>
               <input
                 type="text"
@@ -300,37 +299,6 @@ export default function AdminCategoriesPage({
               />
             </div>
 
-            {/* Danh mục cha */}
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>
-                Danh mục cha (Parent category):
-              </label>
-              <select
-                value={formParentId}
-                onChange={(e) => setFormParentId(e.target.value)}
-                style={{
-                  width: '100%',
-                  height: 38,
-                  borderRadius: 8,
-                  border: '1.5px solid #CBD5E1',
-                  padding: '0 10px',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  background: '#ffffff',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <option value="">-- Là danh mục gốc (Không có cha) --</option>
-                {categories
-                  .filter(c => c.id !== editingId && !c.parent_id)
-                  .map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
             {/* Trạng thái Active */}
             <div>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', height: 38 }}>
@@ -341,7 +309,7 @@ export default function AdminCategoriesPage({
                   style={{ width: 18, height: 18, accentColor: '#059669', cursor: 'pointer' }}
                 />
                 <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>
-                  Kích hoạt công khai (Active)
+                  Hiển thị công khai
                 </span>
               </label>
             </div>
@@ -383,16 +351,17 @@ export default function AdminCategoriesPage({
         </div>
       )}
 
-      {/* ================= BẢNG DANH MỤC (CHUẨN WIREFRAME WF-A07: ID | Tên | Cha | Active | Số tin | Thao tác) ================= */}
+      {/* ================= BẢNG DANH MỤC (Mã | Tên ngành nghề | Số tin | Hiển thị | Thao tác) ================= */}
       <div style={{
         background: '#ffffff',
         borderRadius: 14,
         border: '1px solid var(--color-border-hover)',
         overflow: 'hidden',
+        padding: '4px 8px 8px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
         {loading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>
+          <div style={{ padding: 40, textAlign: 'center', color: '#475569' }}>
             <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 12px' }} />
             <div>Đang tải danh sách ngành nghề...</div>
           </div>
@@ -408,11 +377,10 @@ export default function AdminCategoriesPage({
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
                 <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-hover)', fontSize: 12.5, fontWeight: 800, color: '#0F172A' }}>
-                  <th style={{ padding: '14px 16px', width: 60 }}>ID</th>
-                  <th style={{ padding: '14px 16px' }}>Tên danh mục (Tên)</th>
-                  <th style={{ padding: '14px 16px', width: 200 }}>Danh mục cha (Cha)</th>
+                  <th style={{ padding: '14px 16px', width: 60 }}>Mã</th>
+                  <th style={{ padding: '14px 16px' }}>Tên ngành nghề</th>
                   <th style={{ padding: '14px 16px', width: 140 }}>Số tin tuyển dụng</th>
-                  <th style={{ padding: '14px 16px', width: 130 }}>Active</th>
+                  <th style={{ padding: '14px 16px', width: 150 }}>Hiển thị</th>
                   <th style={{ padding: '14px 16px', width: 180, textAlign: 'right' }}>Thao tác</th>
                 </tr>
               </thead>
@@ -422,7 +390,7 @@ export default function AdminCategoriesPage({
 
                   return (
                     <tr key={cat.id} style={{ borderBottom: '1px solid #E2E8F0', opacity: isActive ? 1 : 0.65 }}>
-                      <td style={{ padding: '14px 16px', fontWeight: 800, color: '#64748B' }}>
+                      <td style={{ padding: '14px 16px', fontWeight: 800, color: '#475569' }}>
                         #{cat.id}
                       </td>
 
@@ -431,23 +399,6 @@ export default function AdminCategoriesPage({
                           <Tag size={14} color="#4F46E5" />
                           <span>{cat.name}</span>
                         </div>
-                      </td>
-
-                      <td style={{ padding: '14px 16px', color: '#475569' }}>
-                        {cat.parent_name ? (
-                          <span style={{
-                            padding: '2px 8px',
-                            borderRadius: 4,
-                            background: '#F1F5F9',
-                            fontSize: 12,
-                            fontWeight: 600,
-                            border: '1px solid #CBD5E1'
-                          }}>
-                            {cat.parent_name}
-                          </span>
-                        ) : (
-                          <span style={{ color: '#94A3B8', fontSize: 12 }}>— (Gốc)</span>
-                        )}
                       </td>
 
                       <td style={{ padding: '14px 16px' }}>
@@ -473,14 +424,15 @@ export default function AdminCategoriesPage({
                           gap: 4,
                           padding: '3px 8px',
                           borderRadius: 14,
-                          fontSize: 11.5,
-                          fontWeight: 800,
+                          fontSize: 12.5,
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap',
                           background: isActive ? '#DCFCE7' : '#F1F5F9',
-                          color: isActive ? '#15803D' : '#64748B',
+                          color: isActive ? '#14532D' : '#334155',
                           border: `1px solid ${isActive ? '#86EFAC' : '#CBD5E1'}`
                         }}>
                           {isActive ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-                          {isActive ? 'Có (Active)' : 'Ẩn (Hidden)'}
+                          {isActive ? 'Đang hiển thị' : 'Đang ẩn'}
                         </span>
                       </td>
 

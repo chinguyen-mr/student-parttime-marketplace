@@ -554,7 +554,7 @@ export default function ApplicationDetailPage({
                   <span style={{ fontSize: 11.5, fontWeight: 800, background: '#FEF2F2', color: '#DC2626', padding: '3px 10px', borderRadius: 12 }}>
                     HỦY ĐƠN ỨNG TUYỂN
                   </span>
-                  <h2 style={{ fontSize: 19, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>
+                  <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>
                     Xác nhận rút đơn ứng tuyển
                   </h2>
                 </div>

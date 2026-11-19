@@ -33,7 +33,7 @@ export default function JobLocationMap({ job, title = 'Vị trí làm việc', e
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <h4
+          <h3
             style={{
               fontSize: 14,
               fontWeight: 800,
@@ -47,12 +47,12 @@ export default function JobLocationMap({ job, title = 'Vị trí làm việc', e
             }}
           >
             <MapPin size={16} color="#594675" /> {title}
-          </h4>
+          </h3>
           <span
             style={{
-              fontSize: 11,
+              fontSize: 12.5,
               fontWeight: 700,
-              color: '#059669',
+              color: '#065F46',
               background: '#ECFDF5',
               padding: '3px 8px',
               borderRadius: 6,
@@ -90,9 +90,9 @@ export default function JobLocationMap({ job, title = 'Vị trí làm việc', e
             <Globe size={18} />
           </div>
           <div>
-            <h5 style={{ fontSize: 13.5, fontWeight: 700, color: '#30283A', margin: '0 0 3px 0' }}>
+            <h4 style={{ fontSize: 13.5, fontWeight: 700, color: '#30283A', margin: '0 0 3px 0' }}>
               Công việc làm từ xa – Không có địa điểm làm việc cố định
-            </h5>
+            </h4>
             <p style={{ fontSize: 12.5, color: '#64748B', margin: 0, lineHeight: 1.5 }}>
               Sinh viên có thể làm việc online linh hoạt tại nhà, ký túc xá hoặc bất kỳ địa điểm nào có kết nối Internet.
             </p>
@@ -117,7 +117,7 @@ export default function JobLocationMap({ job, title = 'Vị trí làm việc', e
           boxShadow: '0 1px 3px rgba(89, 70, 117, 0.03)',
         }}
       >
-        <h4
+        <h3
           style={{
             fontSize: 14,
             fontWeight: 800,
@@ -131,7 +131,7 @@ export default function JobLocationMap({ job, title = 'Vị trí làm việc', e
           }}
         >
           <MapPin size={16} color="#594675" /> Vị trí làm việc
-        </h4>
+        </h3>
         <div
           style={{
             background: '#F8FAFC',
@@ -184,7 +184,7 @@ export default function JobLocationMap({ job, title = 'Vị trí làm việc', e
     >
       {/* HEADER: Tiêu đề & Badge */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <h4
+        <h3
           style={{
             fontSize: 14,
             fontWeight: 800,
@@ -198,14 +198,14 @@ export default function JobLocationMap({ job, title = 'Vị trí làm việc', e
           }}
         >
           <MapPin size={16} color="#EA4335" /> {title}
-        </h4>
+        </h3>
 
         {isApproximate ? (
           <span
             style={{
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 700,
-              color: '#B45309',
+              color: '#78350F',
               background: '#FEF3C7',
               padding: '2px 8px',
               borderRadius: 6,
@@ -217,9 +217,9 @@ export default function JobLocationMap({ job, title = 'Vị trí làm việc', e
         ) : (
           <span
             style={{
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 700,
-              color: '#059669',
+              color: '#065F46',
               background: '#ECFDF5',
               padding: '2px 8px',
               borderRadius: 6,
@@ -229,7 +229,7 @@ export default function JobLocationMap({ job, title = 'Vị trí làm việc', e
               gap: 3,
             }}
           >
-            <CheckCircle2 size={11} /> {exactLabel}
+            <CheckCircle2 size={12} /> {exactLabel}
           </span>
         )}
       </div>

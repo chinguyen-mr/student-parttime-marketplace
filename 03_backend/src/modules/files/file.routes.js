@@ -42,6 +42,11 @@ router.put('/cover', verifyToken, requireRoles('EMPLOYER'), async (req, res, nex
     try { ok(res, 'Đã cập nhật ảnh bìa', await fileService.setCover(req.user.id, req.body?.image)); } catch (err) { next(err); }
 });
 
+// POST /api/files/job-banner — body: { image } — ảnh banner tin tuyển dụng, trả { url }
+router.post('/job-banner', verifyToken, requireRoles('EMPLOYER'), async (req, res, next) => {
+    try { ok(res, 'Đã tải ảnh banner', await fileService.uploadJobBanner(req.user.id, req.body?.image)); } catch (err) { next(err); }
+});
+
 // DELETE /api/files/cover
 router.delete('/cover', verifyToken, requireRoles('EMPLOYER'), async (req, res, next) => {
     try { ok(res, 'Đã xóa ảnh bìa', await fileService.removeCover(req.user.id)); } catch (err) { next(err); }
@@ -122,7 +127,7 @@ router.get('/cv/:key', async (req, res, next) => {
     }
 });
 
-// GET /api/files/:id — ảnh công khai (avatar, ảnh bìa, ảnh văn phòng, ảnh đánh giá)
+// GET /api/files/:id — ảnh công khai (avatar, ảnh bìa, ảnh văn phòng, ảnh đánh giá, banner tin)
 router.get('/:id(\\d+)', async (req, res, next) => {
     try {
         const file = await fileService.getPublicFile(parseInt(req.params.id, 10));

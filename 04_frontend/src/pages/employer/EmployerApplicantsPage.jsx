@@ -6,11 +6,11 @@ import { API_BASE, formatApiError, resolveFileUrl } from '../../config/api';
 import ExportMenu from '../../components/common/ExportMenu';
 
 const STATUS_BADGE = {
-  PENDING: { label: 'Chờ duyệt', bg: '#FEF3C7', color: '#B45309' },
-  REVIEWING: { label: 'Đang xem xét', bg: '#E0F2FE', color: '#0369A1' },
-  SHORTLISTED: { label: 'Rút gọn', bg: '#ECFDF5', color: '#047857' },
-  ACCEPTED: { label: 'Đã nhận', bg: '#DCFCE7', color: '#15803D' },
-  REJECTED: { label: 'Từ chối', bg: '#FEE2E2', color: '#B91C1C' },
+  PENDING: { label: 'Chờ duyệt', bg: '#FEF3C7', color: '#78350F' },
+  REVIEWING: { label: 'Đang xem xét', bg: '#E0F2FE', color: '#075985' },
+  SHORTLISTED: { label: 'Rút gọn', bg: '#ECFDF5', color: '#065F46' },
+  ACCEPTED: { label: 'Đã nhận', bg: '#DCFCE7', color: '#14532D' },
+  REJECTED: { label: 'Từ chối', bg: '#FEE2E2', color: '#7F1D1D' },
 };
 
 export default function EmployerApplicantsPage({
@@ -305,10 +305,10 @@ export default function EmployerApplicantsPage({
           <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
             {[
               { id: 'ALL', label: 'Tất cả hồ sơ' },
-              { id: 'PENDING', label: 'Chờ duyệt (APPLIED)' },
-              { id: 'SHORTLISTED', label: 'Rút gọn (SHORTLISTED)' },
-              { id: 'REJECTED', label: 'Từ chối (REJECTED)' },
-              { id: 'WITHDRAWN', label: 'Đã hủy / Rút đơn (WITHDRAWN)' },
+              { id: 'PENDING', label: 'Chờ duyệt' },
+              { id: 'SHORTLISTED', label: 'Rút gọn' },
+              { id: 'REJECTED', label: 'Từ chối' },
+              { id: 'WITHDRAWN', label: 'Đã hủy / Rút đơn' },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -336,7 +336,7 @@ export default function EmployerApplicantsPage({
               description="Hiện tại chưa có sinh viên nộp hồ sơ cho tiêu chí lọc đã chọn."
             />
           ) : (
-            <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+            <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', padding: '4px 8px 8px', boxShadow: 'var(--shadow-sm)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
                 <thead>
                   <tr style={{ background: '#FAFAFD', borderBottom: '2px solid #F1F5F9', color: 'var(--color-text-secondary)', fontSize: 12.5, textTransform: 'uppercase' }}>
@@ -391,9 +391,9 @@ export default function EmployerApplicantsPage({
                           href={resolveFileUrl(app.cv_url) || '#'}
                           target="_blank"
                           rel="noreferrer"
-                          style={{ color: 'var(--color-primary)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                          style={{ color: '#594675', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none', whiteSpace: 'nowrap' }}
                         >
-                          <FileText size={14} /> Xem CV (PDF)
+                          <FileText size={14} /> Xem CV
                         </a>
                       </td>
 
@@ -408,15 +408,17 @@ export default function EmployerApplicantsPage({
                               display: 'inline-block',
                               padding: '3px 10px',
                               borderRadius: 16,
-                              fontSize: 12,
+                              fontSize: 12.5,
                               fontWeight: 700,
+                              whiteSpace: 'nowrap',
                               background: '#F1F5F9',
-                              color: '#64748B'
+                              color: '#334155',
+                              border: '1px solid #CBD5E1'
                             }}>
                               Đã hủy ứng tuyển
                             </span>
                             {app.withdraw_reason && (
-                              <div style={{ fontSize: 11, color: '#DC2626', marginTop: 3, fontStyle: 'italic', maxWidth: 200 }} title={app.withdraw_reason}>
+                              <div style={{ fontSize: 12.5, color: '#991B1B', marginTop: 4, maxWidth: 200, lineHeight: 1.4 }} title={app.withdraw_reason}>
                                 Lý do: {app.withdraw_reason}
                               </div>
                             )}
@@ -426,8 +428,9 @@ export default function EmployerApplicantsPage({
                             display: 'inline-block',
                             padding: '3px 10px',
                             borderRadius: 16,
-                            fontSize: 12,
+                            fontSize: 12.5,
                             fontWeight: 700,
+                            whiteSpace: 'nowrap',
                             background: (STATUS_BADGE[app.status] || STATUS_BADGE.PENDING).bg,
                             color: (STATUS_BADGE[app.status] || STATUS_BADGE.PENDING).color
                           }}>
@@ -437,11 +440,11 @@ export default function EmployerApplicantsPage({
                       </td>
 
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: 6 }}>
+                        <div style={{ display: 'inline-flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                           <button
                             onClick={() => handleViewStudentProfile(app)}
                             title="Xem chi tiết hồ sơ sinh viên"
-                            style={{ background: '#ffffff', border: '1px solid var(--color-border)', borderRadius: 6, padding: '5px 10px', fontSize: 12, fontWeight: 700, color: 'var(--color-primary)', cursor: 'pointer' }}
+                            style={{ background: '#ffffff', border: '1px solid var(--color-border)', borderRadius: 6, padding: '5px 10px', fontSize: 12.5, fontWeight: 700, color: '#594675', cursor: 'pointer', whiteSpace: 'nowrap' }}
                           >
                             Xem hồ sơ
                           </button>
@@ -451,7 +454,7 @@ export default function EmployerApplicantsPage({
                               {app.status !== 'SHORTLISTED' && (
                                 <button
                                   onClick={() => handleUpdateApplicationStatus(app.id, 'SHORTLISTED')}
-                                  style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 700, color: '#047857', cursor: 'pointer' }}
+                                  style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 6, padding: '5px 10px', fontSize: 12.5, fontWeight: 700, color: '#065F46', cursor: 'pointer', whiteSpace: 'nowrap' }}
                                 >
                                   Rút gọn
                                 </button>
@@ -459,13 +462,13 @@ export default function EmployerApplicantsPage({
 
                               <button
                                 onClick={() => handleUpdateApplicationStatus(app.id, 'REJECTED')}
-                                style={{ background: '#FFF1F2', border: '1px solid #FECDD3', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 700, color: '#BE123C', cursor: 'pointer' }}
+                                style={{ background: '#FFF1F2', border: '1px solid #FECDD3', borderRadius: 6, padding: '5px 10px', fontSize: 12.5, fontWeight: 700, color: '#9F1239', cursor: 'pointer', whiteSpace: 'nowrap' }}
                               >
                                 Từ chối
                               </button>
                             </>
                           ) : (
-                            <span style={{ fontSize: 11.5, color: '#94A3B8', fontStyle: 'italic', padding: '5px 4px' }}>
+                            <span style={{ fontSize: 12.5, color: '#475569', padding: '5px 4px', whiteSpace: 'nowrap' }}>
                               {app.status === 'WITHDRAWN' ? 'Đã hủy' : 'Đã xử lý'}
                             </span>
                           )}

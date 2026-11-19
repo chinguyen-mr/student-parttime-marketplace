@@ -33,7 +33,7 @@ JobNest features an approachable, trustworthy, and modern aesthetic tailored for
 ---
 
 ## 2. Typography
-- **Primary Typeface**: `Plus Jakarta Sans`, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif.
+- **Primary Typeface**: `Be Vietnam Pro`, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif.
 - **Scale**:
   - `Display / H1`: 32px / 2rem, Font Weight 800, tracking -0.02em.
   - `H2 / Section Title`: 24px / 1.5rem, Font Weight 700.

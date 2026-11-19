@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { formatSalary } from '../../utils/jobDisplay';
 import { Building2, MapPin, DollarSign, Send, X, AlertCircle, ChevronDown } from 'lucide-react';
 import { AnimatedModal, Button } from '../ui';
 import { API_BASE, SERVER_BASE, formatApiError } from '../../config/api';
@@ -66,6 +67,11 @@ export default function ApplicationModal({
 
     if (!currentUser?.token) {
       if (showToast) showToast('Vui lòng đăng nhập với tài khoản Sinh viên', 'error');
+      return;
+    }
+
+    if (!selectedCv && !coverLetter.trim()) {
+      setErrorMsg('Vui lòng đính kèm CV hoặc viết vài dòng giới thiệu bản thân trước khi nộp đơn.');
       return;
     }
 
@@ -172,7 +178,7 @@ export default function ApplicationModal({
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               <DollarSign size={13} color="#059669" />
               <strong style={{ color: '#059669' }}>
-                {job.salary ? `${Number(job.salary).toLocaleString('vi-VN')} đ` : 'Thỏa thuận'}
+                {formatSalary(job)}
               </strong>
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>

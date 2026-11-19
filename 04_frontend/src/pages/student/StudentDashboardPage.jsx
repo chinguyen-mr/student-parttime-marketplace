@@ -433,6 +433,19 @@ export default function StudentDashboardPage({
     loadAllDashboardData();
   }, [currentUser]);
 
+  // Đánh giá thật mà nhà tuyển dụng dành cho sinh viên (thay khối dữ liệu mẫu cố định trước đây)
+  const [receivedReviews, setReceivedReviews] = useState({ state: 'loading', stats: null, reviews: [] });
+  useEffect(() => {
+    if (activeTab !== 'reviews' || !currentUser?.id) return;
+    let cancelled = false;
+    setReceivedReviews(r => ({ ...r, state: 'loading' }));
+    fetch(`${API_BASE}/reviews/user/${currentUser.id}`)
+      .then(res => res.json())
+      .then(d => { if (!cancelled) setReceivedReviews(d.success ? { state: 'ready', stats: d.data.stats, reviews: d.data.reviews || [] } : { state: 'error', stats: null, reviews: [] }); })
+      .catch(() => { if (!cancelled) setReceivedReviews({ state: 'error', stats: null, reviews: [] }); });
+    return () => { cancelled = true; };
+  }, [activeTab, currentUser?.id]);
+
   // Chỉ đồng bộ khi bên ngoài thật sự điều hướng (initialTab/navNonce đổi) → giữ mục khôi phục sau F5
   const prevNav = useRef(`${initialTab}|${navNonce}`);
   useEffect(() => {
@@ -639,8 +652,8 @@ export default function StudentDashboardPage({
                   {menuItem.count !== null && menuItem.count > 0 && (
                     <span style={{
                       background: isActive ? 'rgba(255,255,255,0.25)' : '#F1EEF8',
-                      color: isActive ? '#ffffff' : '#7565A8',
-                      fontSize: 11,
+                      color: isActive ? '#ffffff' : '#4C3D7A',
+                      fontSize: 12.5,
                       fontWeight: 700,
                       padding: '2px 7px',
                       borderRadius: 10
@@ -916,10 +929,11 @@ export default function StudentDashboardPage({
                                 <span style={{
                                   padding: '4px 10px',
                                   borderRadius: 6,
-                                  fontSize: 11.5,
+                                  fontSize: 12.5,
                                   fontWeight: 700,
+                                  whiteSpace: 'nowrap',
                                   background: isAccepted ? '#ECFDF5' : isRejected ? '#FEE2E2' : isShortlisted ? '#EFF6FF' : isReviewing ? '#F5F3FF' : '#FEF3C7',
-                                  color: isAccepted ? '#047857' : isRejected ? '#DC2626' : isShortlisted ? '#1D4ED8' : isReviewing ? '#6D28D9' : '#D97706',
+                                  color: isAccepted ? '#065F46' : isRejected ? '#991B1B' : isShortlisted ? '#1E3A8A' : isReviewing ? '#4C1D95' : '#78350F',
                                   border: `1px solid ${isAccepted ? '#A7F3D0' : isRejected ? '#FECACA' : isShortlisted ? '#BFDBFE' : isReviewing ? '#DDD6FE' : '#FDE68A'}`
                                 }}>
                                   {APPLICATION_STATUS_LABEL[app.status] || 'Chờ duyệt'}
@@ -932,21 +946,14 @@ export default function StudentDashboardPage({
                     </div>
                   </div>
 
-                  {/* P0-03 & P0-05: VIỆC LÀM GỢI Ý CÁ NHÂN HÓA (AI MATCHING ENGINE) */}
-                  <div style={{
-                    background: '#ffffff',
-                    borderRadius: 14,
-                    border: '1px solid var(--color-border)',
-                    padding: '24px 26px',
-                    boxShadow: '0 2px 8px rgba(41, 38, 58, 0.03)',
-                    marginTop: 20
-                  }}>
+                  {/* P0-03 & P0-05: VIỆC LÀM GỢI Ý CÁ NHÂN HÓA (AI MATCHING ENGINE) — không bọc khung để thẻ việc không lồng trong thẻ */}
+                  <div style={{ marginTop: 28 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{
                             background: 'var(--color-primary-light, #ede9fe)',
-                            color: 'var(--color-primary, #7565A8)',
+                            color: '#4C3D7A',
                             padding: '4px 8px',
                             borderRadius: 8,
                             display: 'inline-flex',
@@ -1082,13 +1089,7 @@ export default function StudentDashboardPage({
               />
 
               {/* Kết quả gợi ý theo lịch rảnh đã lưu */}
-              <div style={{
-                background: '#ffffff',
-                borderRadius: 16,
-                border: '1px solid var(--color-border)',
-                padding: '24px 28px',
-                boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)'
-              }}>
+              <div style={{ padding: '4px 0' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <div>
@@ -1239,7 +1240,7 @@ export default function StudentDashboardPage({
                         border: 'none',
                         cursor: 'pointer',
                         background: appFilter === filterItem.id ? 'var(--color-primary)' : '#F1EEF8',
-                        color: appFilter === filterItem.id ? '#ffffff' : '#7565A8',
+                        color: appFilter === filterItem.id ? '#ffffff' : '#4C3D7A',
                         transition: 'all 0.15s ease'
                       }}
                     >
@@ -1294,9 +1295,9 @@ export default function StudentDashboardPage({
                             </span>
                           </div>
 
-                          <h4 style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 6px 0' }}>
+                          <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 6px 0' }}>
                             {app.job_title}
-                          </h4>
+                          </h3>
 
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: 'var(--color-text-secondary)' }}>
                             <span style={{ fontWeight: 600, color: 'var(--color-primary)' }}>
@@ -1307,13 +1308,13 @@ export default function StudentDashboardPage({
                           </div>
 
                           {app.note && (
-                            <div style={{ fontSize: 12, color: '#64748B', marginTop: 8, background: '#F8F7FB', padding: '6px 10px', borderRadius: 6, border: '1px solid #EAE7F0' }}>
+                            <div style={{ fontSize: 13, color: '#475569', marginTop: 8, background: '#F8F7FB', padding: '6px 10px', borderRadius: 6, border: '1px solid #EAE7F0', maxWidth: '65ch' }}>
                               💬 Ghi chú từ NTD: {app.note}
                             </div>
                           )}
 
                           {app.status === 'WITHDRAWN' && (
-                            <div style={{ fontSize: 12, color: '#DC2626', marginTop: 8, background: '#FEF2F2', padding: '6px 10px', borderRadius: 6, border: '1px solid #FECACA' }}>
+                            <div style={{ fontSize: 13, color: '#991B1B', marginTop: 8, background: '#FEF2F2', padding: '6px 10px', borderRadius: 6, border: '1px solid #FECACA', maxWidth: '65ch' }}>
                               ⚠️ Bạn đã hủy đơn này{app.withdraw_reason ? `: "${app.withdraw_reason}"` : ''}
                             </div>
                           )}
@@ -1327,8 +1328,9 @@ export default function StudentDashboardPage({
                               onClick={() => handleOpenCancelModal(app)}
                               style={{
                                 background: '#ffffff',
-                                border: '1.5px solid #D95F68',
-                                color: '#D95F68',
+                                border: '1.5px solid #B91C1C',
+                                color: '#B91C1C',
+                                whiteSpace: 'nowrap',
                                 borderRadius: 8,
                                 padding: '8px 14px',
                                 fontSize: 12.5,
@@ -1403,13 +1405,7 @@ export default function StudentDashboardPage({
               Đọc từ LocalStorage (jobnest_saved_jobs), hiển thị JobCard, Empty State
               =================================================================== */}
           {activeTab === 'saved_jobs' && (
-            <div style={{
-              background: '#ffffff',
-              borderRadius: 16,
-              border: '1px solid var(--color-border)',
-              padding: '24px 28px',
-              boxShadow: '0 2px 10px rgba(41, 38, 58, 0.04)'
-            }}>
+            <div style={{ padding: '4px 0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                 <div>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 4px 0' }}>
@@ -1661,26 +1657,26 @@ export default function StudentDashboardPage({
                   =============================================================== */}
               <div style={{ marginBottom: 24 }}>
                 <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)', marginBottom: 10 }}>
-                  Assignment đã hoàn thành chưa đánh giá
+                  Công việc đã hoàn thành chưa đánh giá
                 </div>
 
-                <div style={{ border: '1.5px solid var(--color-border)', borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{ border: '1.5px solid var(--color-border)', borderRadius: 10, overflow: 'hidden', padding: '4px 8px 8px' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
                     <thead>
                       <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid var(--color-border)', color: '#334155', fontWeight: 800 }}>
                         <th style={{ padding: '12px 16px' }}>Công việc</th>
-                        <th style={{ padding: '12px 16px', width: '220px' }}>Employer</th>
+                        <th style={{ padding: '12px 16px', width: '220px' }}>Nhà tuyển dụng</th>
                         <th style={{ padding: '12px 16px', width: '150px', textAlign: 'center' }}>Thao tác</th>
                       </tr>
                     </thead>
                     <tbody>
                       {completedAssignments.length === 0 ? (
                         <tr>
-                          <td colSpan={3} style={{ padding: '28px 16px', textAlign: 'center', color: '#64748B' }}>
+                          <td colSpan={3} style={{ padding: '28px 16px', textAlign: 'center', color: '#475569' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                               <Star size={24} color="#CBD5E1" />
                               <span>Hiện tại bạn chưa có công việc hoàn thành nào cần đánh giá.</span>
-                              <span style={{ fontSize: 12, color: '#94A3B8' }}>
+                              <span style={{ fontSize: 13, color: '#475569' }}>
                                 (Sau khi hoàn tất công việc ở mục Assignments, công việc sẽ tự động chuyển vào đây)
                               </span>
                             </div>
@@ -1704,7 +1700,7 @@ export default function StudentDashboardPage({
                                 <div style={{ fontWeight: 800, color: 'var(--color-text)' }}>
                                   {item.job_title}
                                 </div>
-                                <div style={{ fontSize: 12, color: '#64748B' }}>
+                                <div style={{ fontSize: 13, color: '#475569' }}>
                                   Hợp đồng #{item.id} • Hoàn thành {new Date(item.created_at).toLocaleDateString('vi-VN')}
                                 </div>
                               </td>
@@ -1712,7 +1708,7 @@ export default function StudentDashboardPage({
                                 <div style={{ fontWeight: 700, color: '#1E293B' }}>
                                   {item.employer_name}
                                 </div>
-                                <div style={{ fontSize: 12, color: '#64748B' }}>
+                                <div style={{ fontSize: 13, color: '#475569' }}>
                                   {item.employer_email}
                                 </div>
                               </td>
@@ -1783,8 +1779,8 @@ export default function StudentDashboardPage({
                     )}
                   </div>
                   {selectedReviewAssignment && reviewedAssignmentIds.includes(selectedReviewAssignment.id) && (
-                    <span style={{ background: '#FEF3C7', color: '#92400E', padding: '3px 8px', borderRadius: 4, fontSize: 11.5, fontWeight: 700 }}>
-                      ⚠️ Đã gửi đánh giá trước đó (409 Conflict)
+                    <span style={{ background: '#FEF3C7', color: '#78350F', padding: '4px 10px', borderRadius: 6, fontSize: 12.5, fontWeight: 700 }}>
+                      ⚠️ Bạn đã gửi đánh giá cho công việc này
                     </span>
                   )}
                 </div>
@@ -1873,8 +1869,8 @@ export default function StudentDashboardPage({
                   onClick={handleSubmitReview}
                   disabled={submittingReview || !selectedReviewAssignment || (selectedReviewAssignment && reviewedAssignmentIds.includes(selectedReviewAssignment.id))}
                   style={{
-                    background: (selectedReviewAssignment && reviewedAssignmentIds.includes(selectedReviewAssignment.id)) ? '#94A3B8' : '#000000',
-                    color: '#ffffff',
+                    background: (selectedReviewAssignment && reviewedAssignmentIds.includes(selectedReviewAssignment.id)) ? '#E2E8F0' : '#000000',
+                    color: (selectedReviewAssignment && reviewedAssignmentIds.includes(selectedReviewAssignment.id)) ? '#475569' : '#ffffff',
                     border: 'none',
                     borderRadius: 6,
                     padding: '10px 24px',
@@ -1922,25 +1918,44 @@ export default function StudentDashboardPage({
                   <h4 style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)', margin: '0 0 12px 0' }}>
                     Nhà tuyển dụng đánh giá bạn
                   </h4>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                    <div style={{ fontSize: 26, fontWeight: 800, color: '#D97706' }}>
-                      5.0 ★
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--color-text)' }}>
-                        Điểm uy tín trung bình
+                  {receivedReviews.state === 'loading' && (
+                    <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Đang tải đánh giá…</p>
+                  )}
+                  {receivedReviews.state === 'error' && (
+                    <p role="alert" style={{ fontSize: 12.5, color: '#B91C1C', margin: 0 }}>Không tải được đánh giá. Vui lòng thử lại sau.</p>
+                  )}
+                  {receivedReviews.state === 'ready' && receivedReviews.reviews.length === 0 && (
+                    <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>
+                      Chưa có nhà tuyển dụng nào đánh giá bạn. Đánh giá xuất hiện sau khi hoàn thành công việc.
+                    </p>
+                  )}
+                  {receivedReviews.state === 'ready' && receivedReviews.reviews.length > 0 && (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                        <div style={{ fontSize: 26, fontWeight: 800, color: '#D97706' }}>
+                          {Number(receivedReviews.stats?.average_rating || 0).toFixed(1)} ★
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--color-text)' }}>
+                            Điểm uy tín trung bình
+                          </div>
+                          <div style={{ fontSize: 12.5, color: '#475569' }}>
+                            Từ {receivedReviews.stats?.total_reviews || receivedReviews.reviews.length} đánh giá của nhà tuyển dụng
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ fontSize: 11, color: '#64748B' }}>
-                        Dựa trên các việc làm đã hoàn tất
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {receivedReviews.reviews.map(r => (
+                          <div key={r.id} style={{ background: '#FAF8FD', padding: '10px 12px', borderRadius: 8, border: '1px solid #EDE9FE', fontSize: 12.5, color: '#475569', lineHeight: 1.5 }}>
+                            {r.comment ? `"${r.comment}"` : <em>Không có nhận xét</em>}
+                            <div style={{ marginTop: 4, fontWeight: 700, color: '#7565A8' }}>
+                              • {r.reviewer_name} — {r.job_title} ({r.rating} sao)
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                  </div>
-                  <div style={{ background: '#FAF8FD', padding: '10px 12px', borderRadius: 8, border: '1px solid #EDE9FE', fontSize: 12, color: '#475569', lineHeight: 1.5 }}>
-                    "Sinh viên có thái độ làm việc rất chuyên nghiệp, tiếp thu nhanh và hoàn thành các task giao diện chuẩn xác theo yêu cầu."
-                    <div style={{ marginTop: 4, fontWeight: 700, color: '#7565A8' }}>
-                      • Công ty TNHH TechNova (Đánh giá 5 sao)
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -1988,7 +2003,7 @@ export default function StudentDashboardPage({
                     <span style={{ fontSize: 11.5, fontWeight: 800, background: '#FEF2F2', color: '#DC2626', padding: '3px 10px', borderRadius: 12 }}>
                       HỦY ĐƠN ỨNG TUYỂN
                     </span>
-                    <h2 style={{ fontSize: 19, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>
+                    <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', margin: '8px 0 2px 0' }}>
                       Xác nhận rút đơn ứng tuyển
                     </h2>
                   </div>

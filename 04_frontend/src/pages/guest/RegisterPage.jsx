@@ -222,8 +222,8 @@ export default function RegisterPage({
       }
       if (!candidateForm.password) {
         errs.password = 'Mật khẩu là bắt buộc';
-      } else if (candidateForm.password.length < 6) {
-        errs.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+      } else if (candidateForm.password.length < 8) {
+        errs.password = 'Mật khẩu phải có ít nhất 8 ký tự';
       }
       if (candidateForm.password !== candidateForm.confirmPassword) {
         errs.confirmPassword = 'Mật khẩu xác nhận không trùng khớp';
@@ -246,8 +246,8 @@ export default function RegisterPage({
       }
       if (!employerForm.password) {
         errs.password = 'Mật khẩu là bắt buộc';
-      } else if (employerForm.password.length < 6) {
-        errs.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+      } else if (employerForm.password.length < 8) {
+        errs.password = 'Mật khẩu phải có ít nhất 8 ký tự';
       }
       if (employerForm.password !== employerForm.confirmPassword) {
         errs.confirmPassword = 'Mật khẩu xác nhận không trùng khớp';
@@ -473,8 +473,7 @@ export default function RegisterPage({
           borderRadius: '16px',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
           padding: '36px 32px',
-          position: 'relative',
-          transition: 'max-width 0.25s ease'
+          position: 'relative'
         }}
       >
         {/* =========================================================================
@@ -893,7 +892,7 @@ export default function RegisterPage({
                   <div style={{ position: 'relative' }}>
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Ít nhất 6 ký tự"
+                      placeholder="Ít nhất 8 ký tự"
                       value={role === 'STUDENT' ? candidateForm.password : employerForm.password}
                       onChange={(e) => {
                         if (role === 'STUDENT') setCandidateForm({ ...candidateForm, password: e.target.value });
@@ -1055,7 +1054,7 @@ export default function RegisterPage({
                   }}
                   style={{
                     width: '100%',
-                    height: '42px',
+                    padding: '11px 20px', lineHeight: '20px',
                     borderRadius: '9999px',
                     background: '#FFFFFF',
                     border: '1px solid #D1D5DB',
@@ -1083,7 +1082,7 @@ export default function RegisterPage({
                   Tiếp tục với Google
                 </button>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
                   <button
                     type="button"
                     onClick={() => {
@@ -1092,7 +1091,7 @@ export default function RegisterPage({
                       }
                     }}
                     style={{
-                      height: '40px',
+                      padding: '11px 20px', lineHeight: '20px',
                       borderRadius: '9999px',
                       background: '#FFFFFF',
                       border: '1px solid #D1D5DB',
@@ -1100,7 +1099,7 @@ export default function RegisterPage({
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '8px',
-                      fontSize: '13.5px',
+                      fontSize: '14px',
                       fontWeight: 600,
                       color: '#1F2937',
                       cursor: 'pointer',
@@ -1121,7 +1120,7 @@ export default function RegisterPage({
                       }
                     }}
                     style={{
-                      height: '40px',
+                      padding: '11px 20px', lineHeight: '20px',
                       borderRadius: '9999px',
                       background: '#FFFFFF',
                       border: '1px solid #D1D5DB',
@@ -1129,7 +1128,7 @@ export default function RegisterPage({
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '8px',
-                      fontSize: '13.5px',
+                      fontSize: '14px',
                       fontWeight: 600,
                       color: '#1F2937',
                       cursor: 'pointer',

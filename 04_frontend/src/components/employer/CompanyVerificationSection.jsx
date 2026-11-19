@@ -126,7 +126,7 @@ export default function CompanyVerificationSection({ token, showToast, onChange 
       <div style={{ ...card, borderColor: ui.border, background: ui.bg }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <div>
-            <h3 style={sectionTitle}>Trạng thái xác minh pháp lý</h3>
+            <h2 style={sectionTitle}>Trạng thái xác minh pháp lý</h2>
             <p style={{ ...hintStyle, marginTop: 0 }}>
               Khác với xác minh email/số điện thoại. Huy hiệu "Đã xác minh pháp lý" chỉ hiện trên trang công ty khi JobNest duyệt hồ sơ.
             </p>
@@ -145,7 +145,7 @@ export default function CompanyVerificationSection({ token, showToast, onChange 
       </div>
 
       <div style={card}>
-        <h3 style={sectionTitle}>Thông tin pháp lý</h3>
+        <h2 style={sectionTitle}>Thông tin pháp lý</h2>
         <p style={{ ...hintStyle, marginTop: 0, marginBottom: 14 }}>
           <Lock size={12} style={{ verticalAlign: -1 }} /> Mã số thuế và tài liệu chỉ dùng để xác minh, không hiển thị cho ứng viên.
           {locked && ' Hồ sơ đang chờ duyệt hoặc đã xác minh nên không thể sửa.'}
@@ -178,7 +178,7 @@ export default function CompanyVerificationSection({ token, showToast, onChange 
       <div style={card}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
           <div>
-            <h3 style={sectionTitle}>Tài liệu ({data.documents.length}/{DOCS_MAX})</h3>
+            <h2 style={sectionTitle}>Tài liệu ({data.documents.length}/{DOCS_MAX})</h2>
             <p style={{ ...hintStyle, marginTop: 0 }}>Giấy chứng nhận đăng ký doanh nghiệp (bắt buộc) và tài liệu liên quan. PDF/JPG/PNG/WEBP, tối đa 5MB mỗi file.</p>
           </div>
           {!locked && data.documents.length < DOCS_MAX && (

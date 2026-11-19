@@ -18,8 +18,8 @@
   --color-border: #EAE7F0;           /* Soft Lavender Tinted Border */
   --color-border-hover: #D5CFE2;     /* Border Hover / Active */
   --color-text: #29263A;             /* Dark Eggplant Main Text */
-  --color-text-secondary: #777486;   /* Muted Slate Purple Secondary Text */
-  --color-text-muted: #9C98AA;       /* Subtle Hint Text */
+  --color-text-secondary: #5F5C70;   /* Muted Slate Purple Secondary Text */
+  --color-text-muted: #77738A;       /* Subtle Hint Text */
 
   /* Functional Status Colors (Softened to match palette) */
   --color-success: #269A73;
@@ -64,7 +64,7 @@
   --gradient-hero: radial-gradient(120% 140% at 0% 0%, #6A5A9E 0%, #4E3E6B 45%, #3F315A 100%);
 
   /* Typography — ưu tiên đọc tiếng Việt (line-height rộng hơn cho dấu) */
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --text-display: clamp(28px, 3.6vw, 44px);
   --text-page: clamp(22px, 2.4vw, 28px);
   --text-section: clamp(19px, 1.9vw, 24px);
@@ -111,6 +111,8 @@ body {
   color: var(--color-text);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  /* Dải tràn ngang (100vw) gồm cả bề rộng thanh cuộn → cắt phần thừa, không tạo cuộn ngang. clip không phá position: sticky */
+  overflow-x: clip;
 }
 
 button {
@@ -803,7 +805,8 @@ input::placeholder, textarea::placeholder {
 
 /* ---------- Header responsive (header dùng inline style nên cần !important) ---------- */
 .jn-header-nav button { white-space: nowrap; }
-@media (max-width: 1140px) {
+/* Menu xuống hàng thứ 2 khi không đủ chỗ (font Be Vietnam Pro rộng hơn) */
+@media (max-width: 1380px) {
   .app-header { padding: 0 20px !important; }
   .jn-header-row { flex-wrap: wrap !important; min-height: 0 !important; row-gap: 4px !important; padding: 10px 0 8px; gap: 12px !important; }
   .jn-header-brand { flex-shrink: 1 !important; min-width: 0; flex-wrap: wrap; gap: 10px !important; }
@@ -884,7 +887,6 @@ input::placeholder, textarea::placeholder {
   overflow: hidden;
   isolation: isolate;
   background: var(--gradient-hero) !important;
-  box-shadow: 0 30px 60px -30px rgba(63, 49, 90, 0.55);
 }
 .jn-hero-glow {
   position: absolute;
@@ -896,40 +898,18 @@ input::placeholder, textarea::placeholder {
 }
 .jn-hero-glow--peach { width: 360px; height: 360px; right: -80px; top: -120px; background: #F4B99D; animation: jn-drift 16s ease-in-out infinite alternate; }
 .jn-hero-glow--lav { width: 420px; height: 420px; left: -140px; bottom: -200px; background: #A997C5; animation: jn-drift 20s ease-in-out infinite alternate-reverse; }
-.jn-hero-grid {
-  position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(ellipse at 30% 20%, #000 0%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse at 30% 20%, #000 0%, transparent 70%);
-}
 .jn-hero-stage { position: relative; perspective: 1000px; }
 .jn-hero-showcase {
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transition: transform 0.5s var(--ease-out);
   box-shadow: 0 24px 50px -20px rgba(20, 12, 40, 0.55) !important;
 }
-.jn-float-chip {
-  position: absolute;
-  z-index: 2;
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 12px;
-  border-radius: 12px;
-  font-size: 12px; font-weight: 700;
-  color: var(--color-text);
-  background: #fff;
-  box-shadow: 0 12px 28px -10px rgba(20, 12, 40, 0.45);
-  animation: jn-float 6s ease-in-out infinite;
-  pointer-events: none;
-  white-space: nowrap;
-}
-.jn-gradient-text {
-  background: linear-gradient(90deg, #F4B99D, #FBD9C6 60%, #F4B99D);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+.jn-accent-text { color: #F4B99D; }
+/* Bản đồ ghim (Leaflet): dòng ghi công bản đồ có lề, chữ đủ đọc */
+.jn-leaflet-box .leaflet-control-attribution { padding: 2px 8px; font-size: 11.5px; border-top-left-radius: 6px; }
+/* Trang nội dung dài (Giới thiệu & Quy chế): giới hạn độ dài dòng cho dễ đọc */
+.jn-prose p, .jn-prose li { max-width: 62ch; }
 @keyframes jn-drift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(40px, 30px, 0) scale(1.12); } }
-@keyframes jn-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes jn-word-in { from { opacity: 0; transform: translateY(0.4em); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
 .jn-word { display: inline-block; animation: jn-word-in 0.7s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 45ms); }
 
@@ -942,11 +922,15 @@ input::placeholder, textarea::placeholder {
 /* Bố cục 2 cột (nội dung + sidebar) xếp chồng 1 cột trên tablet/mobile */
 @media (max-width: 900px) {
   .jn-stack-md { grid-template-columns: minmax(0, 1fr) !important; }
+  /* Trang chi tiết kiểm duyệt: màn hẹp thì bỏ khung cao cố định, cuộn cả trang như bình thường */
+  .jn-mod-detail { height: auto !important; margin-bottom: 0 !important; }
+  .jn-mod-detail .jn-mod-scroll { overflow: visible !important; max-height: none !important; }
+  /* Bảng rộng: màn hẹp cho cuộn ngang (màn rộng không cuộn để dòng tiêu đề cột ghim được) */
+  .jn-table-scroll { overflow-x: auto; }
 }
 
 @media (max-width: 640px) {
   .jn-hero { padding: 24px 18px 22px !important; }
-  .jn-float-chip { display: none; }
   .jn-hero-glow { opacity: 0.3; }
 }
 

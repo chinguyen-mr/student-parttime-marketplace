@@ -1,0 +1,5277 @@
+{
+ "starts": [
+  [
+   "G01",
+   "Khách"
+  ],
+  [
+   "S01",
+   "Sinh viên"
+  ],
+  [
+   "E01",
+   "Nhà tuyển dụng"
+  ],
+  [
+   "A01",
+   "Quản trị viên"
+  ]
+ ],
+ "layout": [
+  {
+   "role": "Khách",
+   "ids": [
+    "G01 Trang chủ",
+    "G02 Tìm việc làm",
+    "G03 Chi tiết việc làm",
+    "G04 Hồ sơ công ty công khai",
+    "G05 Việc làm theo lịch rảnh",
+    "G06 Giới thiệu",
+    "G07 Trang nội dung (Điều khoản-Chính sách)",
+    "G08 Đăng nhập",
+    "G09 Quên mật khẩu",
+    "G10 Đăng ký – Sinh viên",
+    "G11 Đăng ký – Nhà tuyển dụng",
+    "G14 Tính năng sắp ra mắt",
+    "G15 Quên mật khẩu – nhập mã OTP"
+   ]
+  },
+  {
+   "role": "Sinh viên",
+   "ids": [
+    "S01 Tổng quan sinh viên",
+    "S02 Lịch rảnh & gợi ý việc",
+    "S03 Hồ sơ xin việc",
+    "S04 Quản lý CV",
+    "S05 Việc làm đã lưu",
+    "S06 Lịch sử ứng tuyển",
+    "S10 Đánh giá & phản hồi",
+    "S11 Thông báo",
+    "S12 Cài đặt tài khoản",
+    "S13 Chi tiết đơn ứng tuyển",
+    "S14 Form ứng tuyển (popup)",
+    "S15 Menu tài khoản",
+    "S16 Thông báo nhanh (chuông)"
+   ]
+  },
+  {
+   "role": "Nhà tuyển dụng",
+   "ids": [
+    "E01 Tổng quan nhà tuyển dụng",
+    "E02a Hồ sơ doanh nghiệp – Logo, ảnh bìa & thư viện",
+    "E02b Hồ sơ doanh nghiệp – Thông tin chung",
+    "E02c Hồ sơ doanh nghiệp – Giới thiệu & văn hóa",
+    "E02d Hồ sơ doanh nghiệp – Chính sách nhân sự",
+    "E02e Hồ sơ doanh nghiệp – Liên hệ công khai",
+    "E02f Hồ sơ doanh nghiệp – Chi nhánh",
+    "E02g Hồ sơ doanh nghiệp – Vị trí trụ sở",
+    "E02h Hồ sơ doanh nghiệp – Xác minh doanh nghiệp",
+    "E03 Thông tin người đại diện",
+    "E04 Tin tuyển dụng",
+    "E05 Đăng tin tuyển dụng mới",
+    "E06 Hồ sơ ứng viên",
+    "E07 Xem hồ sơ ứng viên (popup)",
+    "E08 Tuyển chọn ứng viên (popup)",
+    "E09 Hồ sơ sinh viên (trang)",
+    "E10 Quản lý hợp đồng",
+    "E12 Đánh giá",
+    "E13 Thông báo",
+    "E14 Cài đặt tài khoản"
+   ]
+  },
+  {
+   "role": "Quản trị viên",
+   "ids": [
+    "A01 Tổng quan quản trị",
+    "A02 Quản lý người dùng",
+    "A03 Xác minh doanh nghiệp",
+    "A04 Chi tiết hồ sơ xác minh (popup)",
+    "A05 Khiếu nại tài khoản",
+    "A06 Kiểm duyệt tin",
+    "A07 Chi tiết tin chờ duyệt",
+    "A08 Báo cáo vi phạm",
+    "A09 Chi tiết báo cáo vi phạm",
+    "A10 Kiểm duyệt đánh giá",
+    "A11 Chi tiết đánh giá",
+    "A12 Danh mục ngành nghề",
+    "A13 Tin theo danh mục (popup)",
+    "A14 Nhật ký hệ thống",
+    "A15 Menu xuất báo cáo"
+   ]
+  }
+ ],
+ "links": [
+  {
+   "from": "G01",
+   "to": "G02",
+   "label": "Tìm việc làm",
+   "overlay": false,
+   "box": {
+    "x": 403,
+    "y": 25,
+    "w": 110,
+    "h": 31
+   }
+  },
+  {
+   "from": "G01",
+   "to": "G05",
+   "label": "Việc làm theo lịch rảnh",
+   "overlay": false,
+   "box": {
+    "x": 561,
+    "y": 26,
+    "w": 177,
+    "h": 30
+   }
+  },
+  {
+   "from": "G01",
+   "to": "G08",
+   "label": "Đăng nhập",
+   "overlay": false,
+   "box": {
+    "x": 1178,
+    "y": 26,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "G01",
+   "to": "G10",
+   "label": "Đăng ký",
+   "overlay": false,
+   "box": {
+    "x": 1313,
+    "y": 26,
+    "w": 76,
+    "h": 31
+   }
+  },
+  {
+   "from": "G02",
+   "to": "G01",
+   "label": "Trang chủ",
+   "overlay": false,
+   "box": {
+    "x": 291,
+    "y": 21,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "G02",
+   "to": "G05",
+   "label": "Việc làm theo lịch rảnh",
+   "overlay": false,
+   "box": {
+    "x": 561,
+    "y": 22,
+    "w": 177,
+    "h": 30
+   }
+  },
+  {
+   "from": "G02",
+   "to": "G08",
+   "label": "Đăng nhập",
+   "overlay": false,
+   "box": {
+    "x": 1178,
+    "y": 22,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "G02",
+   "to": "G10",
+   "label": "Đăng ký",
+   "overlay": false,
+   "box": {
+    "x": 1313,
+    "y": 22,
+    "w": 76,
+    "h": 31
+   }
+  },
+  {
+   "from": "G03",
+   "to": "G01",
+   "label": "Trang chủ",
+   "overlay": false,
+   "box": {
+    "x": 292,
+    "y": 21,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "G03",
+   "to": "G02",
+   "label": "Tìm việc làm",
+   "overlay": false,
+   "box": {
+    "x": 402,
+    "y": 21,
+    "w": 110,
+    "h": 31
+   }
+  },
+  {
+   "from": "G03",
+   "to": "G05",
+   "label": "Việc làm theo lịch rảnh",
+   "overlay": false,
+   "box": {
+    "x": 560,
+    "y": 22,
+    "w": 177,
+    "h": 30
+   }
+  },
+  {
+   "from": "G03",
+   "to": "G08",
+   "label": "Đăng nhập",
+   "overlay": false,
+   "box": {
+    "x": 1178,
+    "y": 22,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "G03",
+   "to": "G10",
+   "label": "Đăng ký",
+   "overlay": false,
+   "box": {
+    "x": 1313,
+    "y": 22,
+    "w": 76,
+    "h": 31
+   }
+  },
+  {
+   "from": "G04",
+   "to": "G01",
+   "label": "Trang chủ",
+   "overlay": false,
+   "box": {
+    "x": 292,
+    "y": 21,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "G04",
+   "to": "G02",
+   "label": "Tìm việc làm",
+   "overlay": false,
+   "box": {
+    "x": 402,
+    "y": 21,
+    "w": 110,
+    "h": 31
+   }
+  },
+  {
+   "from": "G04",
+   "to": "G05",
+   "label": "Việc làm theo lịch rảnh",
+   "overlay": false,
+   "box": {
+    "x": 560,
+    "y": 22,
+    "w": 177,
+    "h": 30
+   }
+  },
+  {
+   "from": "G04",
+   "to": "G08",
+   "label": "Đăng nhập",
+   "overlay": false,
+   "box": {
+    "x": 1178,
+    "y": 22,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "G04",
+   "to": "G10",
+   "label": "Đăng ký",
+   "overlay": false,
+   "box": {
+    "x": 1313,
+    "y": 22,
+    "w": 76,
+    "h": 31
+   }
+  },
+  {
+   "from": "G06",
+   "to": "G01",
+   "label": "Trang chủ",
+   "overlay": false,
+   "box": {
+    "x": 291,
+    "y": 21,
+    "w": 89,
+    "h": 31
+   }
+  },
+  {
+   "from": "G06",
+   "to": "G02",
+   "label": "Tìm việc làm",
+   "overlay": false,
+   "box": {
+    "x": 401,
+    "y": 21,
+    "w": 109,
+    "h": 31
+   }
+  },
+  {
+   "from": "G06",
+   "to": "G05",
+   "label": "Việc làm theo lịch rảnh",
+   "overlay": false,
+   "box": {
+    "x": 559,
+    "y": 22,
+    "w": 176,
+    "h": 30
+   }
+  },
+  {
+   "from": "G06",
+   "to": "G08",
+   "label": "Đăng nhập",
+   "overlay": false,
+   "box": {
+    "x": 1178,
+    "y": 22,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "G06",
+   "to": "G10",
+   "label": "Đăng ký",
+   "overlay": false,
+   "box": {
+    "x": 1313,
+    "y": 22,
+    "w": 76,
+    "h": 31
+   }
+  },
+  {
+   "from": "G07",
+   "to": "G01",
+   "label": "Trang chủ",
+   "overlay": false,
+   "box": {
+    "x": 291,
+    "y": 25,
+    "w": 92,
+    "h": 31
+   }
+  },
+  {
+   "from": "G07",
+   "to": "G02",
+   "label": "Tìm việc làm",
+   "overlay": false,
+   "box": {
+    "x": 403,
+    "y": 25,
+    "w": 110,
+    "h": 31
+   }
+  },
+  {
+   "from": "G07",
+   "to": "G05",
+   "label": "Việc làm theo lịch rảnh",
+   "overlay": false,
+   "box": {
+    "x": 561,
+    "y": 26,
+    "w": 177,
+    "h": 30
+   }
+  },
+  {
+   "from": "G07",
+   "to": "G08",
+   "label": "Đăng nhập",
+   "overlay": false,
+   "box": {
+    "x": 1178,
+    "y": 26,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "G07",
+   "to": "G10",
+   "label": "Đăng ký",
+   "overlay": false,
+   "box": {
+    "x": 1313,
+    "y": 26,
+    "w": 76,
+    "h": 31
+   }
+  },
+  {
+   "from": "S01",
+   "to": "S02",
+   "label": "Lịch rảnh & Gợi ý AI",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 352,
+    "w": 146,
+    "h": 30
+   }
+  },
+  {
+   "from": "S01",
+   "to": "S03",
+   "label": "Hồ sơ xin việc",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 398,
+    "w": 107,
+    "h": 30
+   }
+  },
+  {
+   "from": "S01",
+   "to": "S04",
+   "label": "Quản lý CV",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 444,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "S01",
+   "to": "S05",
+   "label": "Việc làm đã lưu",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 491,
+    "w": 117,
+    "h": 30
+   }
+  },
+  {
+   "from": "S01",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 539,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "S01",
+   "to": "S10",
+   "label": "Đánh giá & Phản hồi",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 150,
+    "h": 30
+   }
+  },
+  {
+   "from": "S01",
+   "to": "S11",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 632,
+    "w": 87,
+    "h": 30
+   }
+  },
+  {
+   "from": "S01",
+   "to": "S12",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 678,
+    "w": 131,
+    "h": 30
+   }
+  },
+  {
+   "from": "S02",
+   "to": "S01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 306,
+    "w": 86,
+    "h": 30
+   }
+  },
+  {
+   "from": "S02",
+   "to": "S03",
+   "label": "Hồ sơ xin việc",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 398,
+    "w": 107,
+    "h": 30
+   }
+  },
+  {
+   "from": "S02",
+   "to": "S04",
+   "label": "Quản lý CV",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 444,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "S02",
+   "to": "S05",
+   "label": "Việc làm đã lưu",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 491,
+    "w": 117,
+    "h": 30
+   }
+  },
+  {
+   "from": "S02",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 539,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "S02",
+   "to": "S10",
+   "label": "Đánh giá & Phản hồi",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 150,
+    "h": 30
+   }
+  },
+  {
+   "from": "S02",
+   "to": "S11",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 632,
+    "w": 87,
+    "h": 30
+   }
+  },
+  {
+   "from": "S02",
+   "to": "S12",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 678,
+    "w": 131,
+    "h": 30
+   }
+  },
+  {
+   "from": "S03",
+   "to": "S01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 306,
+    "w": 86,
+    "h": 30
+   }
+  },
+  {
+   "from": "S03",
+   "to": "S02",
+   "label": "Lịch rảnh & Gợi ý AI",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 352,
+    "w": 146,
+    "h": 30
+   }
+  },
+  {
+   "from": "S03",
+   "to": "S04",
+   "label": "Quản lý CV",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 444,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "S03",
+   "to": "S05",
+   "label": "Việc làm đã lưu",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 491,
+    "w": 117,
+    "h": 30
+   }
+  },
+  {
+   "from": "S03",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 539,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "S03",
+   "to": "S10",
+   "label": "Đánh giá & Phản hồi",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 150,
+    "h": 30
+   }
+  },
+  {
+   "from": "S03",
+   "to": "S11",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 632,
+    "w": 87,
+    "h": 30
+   }
+  },
+  {
+   "from": "S03",
+   "to": "S12",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 678,
+    "w": 131,
+    "h": 30
+   }
+  },
+  {
+   "from": "S04",
+   "to": "S01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 306,
+    "w": 86,
+    "h": 30
+   }
+  },
+  {
+   "from": "S04",
+   "to": "S02",
+   "label": "Lịch rảnh & Gợi ý AI",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 352,
+    "w": 146,
+    "h": 30
+   }
+  },
+  {
+   "from": "S04",
+   "to": "S03",
+   "label": "Hồ sơ xin việc",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 398,
+    "w": 107,
+    "h": 30
+   }
+  },
+  {
+   "from": "S04",
+   "to": "S05",
+   "label": "Việc làm đã lưu",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 491,
+    "w": 117,
+    "h": 30
+   }
+  },
+  {
+   "from": "S04",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 539,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "S04",
+   "to": "S10",
+   "label": "Đánh giá & Phản hồi",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 150,
+    "h": 30
+   }
+  },
+  {
+   "from": "S04",
+   "to": "S11",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 632,
+    "w": 87,
+    "h": 30
+   }
+  },
+  {
+   "from": "S04",
+   "to": "S12",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 678,
+    "w": 131,
+    "h": 30
+   }
+  },
+  {
+   "from": "S05",
+   "to": "S01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 306,
+    "w": 86,
+    "h": 30
+   }
+  },
+  {
+   "from": "S05",
+   "to": "S02",
+   "label": "Lịch rảnh & Gợi ý AI",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 352,
+    "w": 146,
+    "h": 30
+   }
+  },
+  {
+   "from": "S05",
+   "to": "S03",
+   "label": "Hồ sơ xin việc",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 398,
+    "w": 107,
+    "h": 30
+   }
+  },
+  {
+   "from": "S05",
+   "to": "S04",
+   "label": "Quản lý CV",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 444,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "S05",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 539,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "S05",
+   "to": "S10",
+   "label": "Đánh giá & Phản hồi",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 150,
+    "h": 30
+   }
+  },
+  {
+   "from": "S05",
+   "to": "S11",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 632,
+    "w": 87,
+    "h": 30
+   }
+  },
+  {
+   "from": "S05",
+   "to": "S12",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 678,
+    "w": 131,
+    "h": 30
+   }
+  },
+  {
+   "from": "S06",
+   "to": "S01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 306,
+    "w": 86,
+    "h": 30
+   }
+  },
+  {
+   "from": "S06",
+   "to": "S02",
+   "label": "Lịch rảnh & Gợi ý AI",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 352,
+    "w": 146,
+    "h": 30
+   }
+  },
+  {
+   "from": "S06",
+   "to": "S03",
+   "label": "Hồ sơ xin việc",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 398,
+    "w": 107,
+    "h": 30
+   }
+  },
+  {
+   "from": "S06",
+   "to": "S04",
+   "label": "Quản lý CV",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 444,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "S06",
+   "to": "S05",
+   "label": "Việc làm đã lưu",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 491,
+    "w": 117,
+    "h": 30
+   }
+  },
+  {
+   "from": "S06",
+   "to": "S10",
+   "label": "Đánh giá & Phản hồi",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 150,
+    "h": 30
+   }
+  },
+  {
+   "from": "S06",
+   "to": "S11",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 632,
+    "w": 87,
+    "h": 30
+   }
+  },
+  {
+   "from": "S06",
+   "to": "S12",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 678,
+    "w": 131,
+    "h": 30
+   }
+  },
+  {
+   "from": "S10",
+   "to": "S01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 306,
+    "w": 86,
+    "h": 30
+   }
+  },
+  {
+   "from": "S10",
+   "to": "S02",
+   "label": "Lịch rảnh & Gợi ý AI",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 352,
+    "w": 146,
+    "h": 30
+   }
+  },
+  {
+   "from": "S10",
+   "to": "S03",
+   "label": "Hồ sơ xin việc",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 398,
+    "w": 107,
+    "h": 30
+   }
+  },
+  {
+   "from": "S10",
+   "to": "S04",
+   "label": "Quản lý CV",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 444,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "S10",
+   "to": "S05",
+   "label": "Việc làm đã lưu",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 491,
+    "w": 117,
+    "h": 30
+   }
+  },
+  {
+   "from": "S10",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 539,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "S10",
+   "to": "S11",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 632,
+    "w": 87,
+    "h": 30
+   }
+  },
+  {
+   "from": "S10",
+   "to": "S12",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 678,
+    "w": 131,
+    "h": 30
+   }
+  },
+  {
+   "from": "S11",
+   "to": "S01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 306,
+    "w": 86,
+    "h": 30
+   }
+  },
+  {
+   "from": "S11",
+   "to": "S02",
+   "label": "Lịch rảnh & Gợi ý AI",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 352,
+    "w": 146,
+    "h": 30
+   }
+  },
+  {
+   "from": "S11",
+   "to": "S03",
+   "label": "Hồ sơ xin việc",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 398,
+    "w": 107,
+    "h": 30
+   }
+  },
+  {
+   "from": "S11",
+   "to": "S04",
+   "label": "Quản lý CV",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 444,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "S11",
+   "to": "S05",
+   "label": "Việc làm đã lưu",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 491,
+    "w": 117,
+    "h": 30
+   }
+  },
+  {
+   "from": "S11",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 539,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "S11",
+   "to": "S10",
+   "label": "Đánh giá & Phản hồi",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 150,
+    "h": 30
+   }
+  },
+  {
+   "from": "S11",
+   "to": "S12",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 678,
+    "w": 131,
+    "h": 30
+   }
+  },
+  {
+   "from": "S12",
+   "to": "S01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 306,
+    "w": 86,
+    "h": 30
+   }
+  },
+  {
+   "from": "S12",
+   "to": "S02",
+   "label": "Lịch rảnh & Gợi ý AI",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 352,
+    "w": 146,
+    "h": 30
+   }
+  },
+  {
+   "from": "S12",
+   "to": "S03",
+   "label": "Hồ sơ xin việc",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 398,
+    "w": 107,
+    "h": 30
+   }
+  },
+  {
+   "from": "S12",
+   "to": "S04",
+   "label": "Quản lý CV",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 444,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "S12",
+   "to": "S05",
+   "label": "Việc làm đã lưu",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 491,
+    "w": 117,
+    "h": 30
+   }
+  },
+  {
+   "from": "S12",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 539,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "S12",
+   "to": "S10",
+   "label": "Đánh giá & Phản hồi",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 150,
+    "h": 30
+   }
+  },
+  {
+   "from": "S12",
+   "to": "S11",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 632,
+    "w": 87,
+    "h": 30
+   }
+  },
+  {
+   "from": "S13",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 172,
+    "y": 117,
+    "w": 129,
+    "h": 29
+   }
+  },
+  {
+   "from": "E01",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "E01",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E01",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E01",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E01",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E01",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E01",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E01",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 155,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 155,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 155,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 155,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 155,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 155,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 155,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E03",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E03",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "E03",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E03",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E03",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E03",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E03",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E03",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E04",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E04",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "E04",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E04",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E04",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E04",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E04",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E04",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E05",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E05",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "E05",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E05",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E05",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E05",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E05",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E05",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E05",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E10",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E10",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "E10",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E10",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E10",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E10",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E10",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E10",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E12",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E12",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "E12",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E12",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E12",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E12",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E12",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E12",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E13",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E13",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "E13",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E13",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E13",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E13",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E13",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "E13",
+   "to": "E14",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 631,
+    "w": 136,
+    "h": 30
+   }
+  },
+  {
+   "from": "E14",
+   "to": "E01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 271,
+    "w": 89,
+    "h": 30
+   }
+  },
+  {
+   "from": "E14",
+   "to": "E02a",
+   "label": "Hồ sơ doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 316,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "E14",
+   "to": "E04",
+   "label": "Tin tuyển dụng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 361,
+    "w": 118,
+    "h": 30
+   }
+  },
+  {
+   "from": "E14",
+   "to": "E06",
+   "label": "Hồ sơ ứng viên",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 406,
+    "w": 116,
+    "h": 30
+   }
+  },
+  {
+   "from": "E14",
+   "to": "E10",
+   "label": "Quản lý hợp đồng",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 451,
+    "w": 137,
+    "h": 30
+   }
+  },
+  {
+   "from": "E14",
+   "to": "E12",
+   "label": "Đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 496,
+    "w": 78,
+    "h": 30
+   }
+  },
+  {
+   "from": "E14",
+   "to": "E13",
+   "label": "Thông báo",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 541,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "E14",
+   "to": "E03",
+   "label": "Thông tin người đại diện",
+   "overlay": false,
+   "box": {
+    "x": 52,
+    "y": 586,
+    "w": 181,
+    "h": 30
+   }
+  },
+  {
+   "from": "A01",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A01",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A01",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A01",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A01",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A01",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A01",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A01",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A02",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A02",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A02",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A02",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A02",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A02",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A02",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A02",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A03",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A03",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A03",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A03",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A03",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A03",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A03",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A03",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A05",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A05",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A05",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A05",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A05",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A05",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A05",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A05",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A07",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A07",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A07",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A07",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A07",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 124,
+    "h": 31
+   }
+  },
+  {
+   "from": "A07",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A07",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A07",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A07",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A08",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A08",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A08",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A08",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A08",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A08",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A08",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A08",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A09",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A09",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A09",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A09",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A09",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A09",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 79,
+    "h": 31
+   }
+  },
+  {
+   "from": "A09",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A09",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A09",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A10",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A10",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A10",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A10",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A10",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A10",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A10",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A10",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A11",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A11",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A11",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A11",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A11",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A11",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A11",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 170,
+    "h": 31
+   }
+  },
+  {
+   "from": "A11",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "A11",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A12",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A12",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A12",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A12",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A12",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A12",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A12",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A12",
+   "to": "A14",
+   "label": "Nhật ký hệ thống",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 608,
+    "w": 142,
+    "h": 31
+   }
+  },
+  {
+   "from": "A14",
+   "to": "A01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 224,
+    "w": 95,
+    "h": 31
+   }
+  },
+  {
+   "from": "A14",
+   "to": "A02",
+   "label": "Người dùng",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 272,
+    "w": 100,
+    "h": 31
+   }
+  },
+  {
+   "from": "A14",
+   "to": "A03",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 320,
+    "w": 188,
+    "h": 31
+   }
+  },
+  {
+   "from": "A14",
+   "to": "A05",
+   "label": "Khiếu nại tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 368,
+    "w": 156,
+    "h": 31
+   }
+  },
+  {
+   "from": "A14",
+   "to": "A06",
+   "label": "Kiểm duyệt tin",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 416,
+    "w": 122,
+    "h": 31
+   }
+  },
+  {
+   "from": "A14",
+   "to": "A08",
+   "label": "Báo cáo",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 464,
+    "w": 78,
+    "h": 31
+   }
+  },
+  {
+   "from": "A14",
+   "to": "A10",
+   "label": "Kiểm duyệt đánh giá",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 512,
+    "w": 168,
+    "h": 31
+   }
+  },
+  {
+   "from": "A14",
+   "to": "A12",
+   "label": "Danh mục",
+   "overlay": false,
+   "box": {
+    "x": 53,
+    "y": 560,
+    "w": 90,
+    "h": 31
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E02b",
+   "label": "Thông tin chung",
+   "overlay": false,
+   "box": {
+    "x": 511,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E02c",
+   "label": "Giới thiệu & văn hóa",
+   "overlay": false,
+   "box": {
+    "x": 651,
+    "y": 351,
+    "w": 145,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E02d",
+   "label": "Chính sách nhân sự",
+   "overlay": false,
+   "box": {
+    "x": 816,
+    "y": 351,
+    "w": 140,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E02e",
+   "label": "Liên hệ công khai",
+   "overlay": false,
+   "box": {
+    "x": 976,
+    "y": 351,
+    "w": 129,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E02f",
+   "label": "Chi nhánh",
+   "overlay": false,
+   "box": {
+    "x": 1124,
+    "y": 351,
+    "w": 81,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E02g",
+   "label": "Vị trí trụ sở",
+   "overlay": false,
+   "box": {
+    "x": 1224,
+    "y": 351,
+    "w": 88,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02a",
+   "to": "E02h",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 1332,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E02a",
+   "label": "Logo, ảnh bìa & thư viện",
+   "overlay": false,
+   "box": {
+    "x": 318,
+    "y": 351,
+    "w": 171,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E02c",
+   "label": "Giới thiệu & văn hóa",
+   "overlay": false,
+   "box": {
+    "x": 650,
+    "y": 351,
+    "w": 146,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E02d",
+   "label": "Chính sách nhân sự",
+   "overlay": false,
+   "box": {
+    "x": 815,
+    "y": 351,
+    "w": 140,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E02e",
+   "label": "Liên hệ công khai",
+   "overlay": false,
+   "box": {
+    "x": 975,
+    "y": 351,
+    "w": 129,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E02f",
+   "label": "Chi nhánh",
+   "overlay": false,
+   "box": {
+    "x": 1124,
+    "y": 351,
+    "w": 80,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E02g",
+   "label": "Vị trí trụ sở",
+   "overlay": false,
+   "box": {
+    "x": 1224,
+    "y": 351,
+    "w": 87,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02b",
+   "to": "E02h",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 1331,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E02a",
+   "label": "Logo, ảnh bìa & thư viện",
+   "overlay": false,
+   "box": {
+    "x": 318,
+    "y": 351,
+    "w": 171,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E02b",
+   "label": "Thông tin chung",
+   "overlay": false,
+   "box": {
+    "x": 509,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E02d",
+   "label": "Chính sách nhân sự",
+   "overlay": false,
+   "box": {
+    "x": 815,
+    "y": 351,
+    "w": 141,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E02e",
+   "label": "Liên hệ công khai",
+   "overlay": false,
+   "box": {
+    "x": 975,
+    "y": 351,
+    "w": 129,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E02f",
+   "label": "Chi nhánh",
+   "overlay": false,
+   "box": {
+    "x": 1124,
+    "y": 351,
+    "w": 80,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E02g",
+   "label": "Vị trí trụ sở",
+   "overlay": false,
+   "box": {
+    "x": 1224,
+    "y": 351,
+    "w": 87,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02c",
+   "to": "E02h",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 1332,
+    "y": 351,
+    "w": 119,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E02a",
+   "label": "Logo, ảnh bìa & thư viện",
+   "overlay": false,
+   "box": {
+    "x": 318,
+    "y": 351,
+    "w": 171,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E02b",
+   "label": "Thông tin chung",
+   "overlay": false,
+   "box": {
+    "x": 509,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E02c",
+   "label": "Giới thiệu & văn hóa",
+   "overlay": false,
+   "box": {
+    "x": 649,
+    "y": 351,
+    "w": 145,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E02e",
+   "label": "Liên hệ công khai",
+   "overlay": false,
+   "box": {
+    "x": 975,
+    "y": 351,
+    "w": 129,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E02f",
+   "label": "Chi nhánh",
+   "overlay": false,
+   "box": {
+    "x": 1124,
+    "y": 351,
+    "w": 81,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E02g",
+   "label": "Vị trí trụ sở",
+   "overlay": false,
+   "box": {
+    "x": 1224,
+    "y": 351,
+    "w": 87,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02d",
+   "to": "E02h",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 1332,
+    "y": 351,
+    "w": 119,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E02a",
+   "label": "Logo, ảnh bìa & thư viện",
+   "overlay": false,
+   "box": {
+    "x": 318,
+    "y": 351,
+    "w": 171,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E02b",
+   "label": "Thông tin chung",
+   "overlay": false,
+   "box": {
+    "x": 509,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E02c",
+   "label": "Giới thiệu & văn hóa",
+   "overlay": false,
+   "box": {
+    "x": 649,
+    "y": 351,
+    "w": 145,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E02d",
+   "label": "Chính sách nhân sự",
+   "overlay": false,
+   "box": {
+    "x": 814,
+    "y": 351,
+    "w": 140,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E02f",
+   "label": "Chi nhánh",
+   "overlay": false,
+   "box": {
+    "x": 1124,
+    "y": 351,
+    "w": 80,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E02g",
+   "label": "Vị trí trụ sở",
+   "overlay": false,
+   "box": {
+    "x": 1224,
+    "y": 351,
+    "w": 87,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02e",
+   "to": "E02h",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 1331,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E02a",
+   "label": "Logo, ảnh bìa & thư viện",
+   "overlay": false,
+   "box": {
+    "x": 318,
+    "y": 351,
+    "w": 171,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E02b",
+   "label": "Thông tin chung",
+   "overlay": false,
+   "box": {
+    "x": 509,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E02c",
+   "label": "Giới thiệu & văn hóa",
+   "overlay": false,
+   "box": {
+    "x": 649,
+    "y": 351,
+    "w": 145,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E02d",
+   "label": "Chính sách nhân sự",
+   "overlay": false,
+   "box": {
+    "x": 814,
+    "y": 351,
+    "w": 140,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E02e",
+   "label": "Liên hệ công khai",
+   "overlay": false,
+   "box": {
+    "x": 974,
+    "y": 351,
+    "w": 129,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E02g",
+   "label": "Vị trí trụ sở",
+   "overlay": false,
+   "box": {
+    "x": 1223,
+    "y": 351,
+    "w": 88,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02f",
+   "to": "E02h",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 1331,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E02a",
+   "label": "Logo, ảnh bìa & thư viện",
+   "overlay": false,
+   "box": {
+    "x": 318,
+    "y": 351,
+    "w": 171,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E02b",
+   "label": "Thông tin chung",
+   "overlay": false,
+   "box": {
+    "x": 509,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E02c",
+   "label": "Giới thiệu & văn hóa",
+   "overlay": false,
+   "box": {
+    "x": 649,
+    "y": 351,
+    "w": 145,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E02d",
+   "label": "Chính sách nhân sự",
+   "overlay": false,
+   "box": {
+    "x": 814,
+    "y": 351,
+    "w": 140,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E02e",
+   "label": "Liên hệ công khai",
+   "overlay": false,
+   "box": {
+    "x": 974,
+    "y": 351,
+    "w": 129,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E02f",
+   "label": "Chi nhánh",
+   "overlay": false,
+   "box": {
+    "x": 1123,
+    "y": 351,
+    "w": 80,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02g",
+   "to": "E02h",
+   "label": "Xác minh doanh nghiệp",
+   "overlay": false,
+   "box": {
+    "x": 1331,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E02a",
+   "label": "Logo, ảnh bìa & thư viện",
+   "overlay": false,
+   "box": {
+    "x": 318,
+    "y": 351,
+    "w": 171,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E02b",
+   "label": "Thông tin chung",
+   "overlay": false,
+   "box": {
+    "x": 509,
+    "y": 351,
+    "w": 120,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E02c",
+   "label": "Giới thiệu & văn hóa",
+   "overlay": false,
+   "box": {
+    "x": 649,
+    "y": 351,
+    "w": 145,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E02d",
+   "label": "Chính sách nhân sự",
+   "overlay": false,
+   "box": {
+    "x": 814,
+    "y": 351,
+    "w": 140,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E02e",
+   "label": "Liên hệ công khai",
+   "overlay": false,
+   "box": {
+    "x": 974,
+    "y": 351,
+    "w": 129,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E02f",
+   "label": "Chi nhánh",
+   "overlay": false,
+   "box": {
+    "x": 1123,
+    "y": 351,
+    "w": 80,
+    "h": 28
+   }
+  },
+  {
+   "from": "E02h",
+   "to": "E02g",
+   "label": "Vị trí trụ sở",
+   "overlay": false,
+   "box": {
+    "x": 1223,
+    "y": 351,
+    "w": 87,
+    "h": 28
+   }
+  },
+  {
+   "from": "G01",
+   "to": "G07",
+   "label": "Quy định bảo mật",
+   "overlay": false,
+   "box": {
+    "x": 106,
+    "y": 5185,
+    "w": 129,
+    "h": 28
+   }
+  },
+  {
+   "from": "G02",
+   "to": "G03",
+   "label": "Xem chi tiết",
+   "overlay": false,
+   "box": {
+    "x": 234,
+    "y": 820,
+    "w": 167,
+    "h": 30
+   }
+  },
+  {
+   "from": "G03",
+   "to": "G04",
+   "label": "Xem công ty",
+   "overlay": false,
+   "box": {
+    "x": 1058,
+    "y": 1139,
+    "w": 135,
+    "h": 28
+   }
+  },
+  {
+   "from": "G03",
+   "to": "G08",
+   "label": "Ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 1063,
+    "y": 741,
+    "w": 129,
+    "h": 31
+   }
+  },
+  {
+   "from": "G08",
+   "to": "G09",
+   "label": "Quên mật khẩu",
+   "overlay": false,
+   "box": {
+    "x": 818,
+    "y": 375,
+    "w": 117,
+    "h": 28
+   }
+  },
+  {
+   "from": "G09",
+   "to": "G15",
+   "label": "Gửi mã xác nhận",
+   "overlay": false,
+   "box": {
+    "x": 654,
+    "y": 516,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "G08",
+   "to": "G14",
+   "label": "Đăng nhập Google",
+   "overlay": false,
+   "box": {
+    "x": 658,
+    "y": 529,
+    "w": 152,
+    "h": 30
+   }
+  },
+  {
+   "from": "G10",
+   "to": "G11",
+   "label": "Tab NTD",
+   "overlay": false,
+   "box": {
+    "x": 778,
+    "y": 230,
+    "w": 111,
+    "h": 29
+   }
+  },
+  {
+   "from": "G08",
+   "to": "S01",
+   "label": "Đăng nhập",
+   "overlay": false,
+   "box": {
+    "x": 660,
+    "y": 427,
+    "w": 98,
+    "h": 31
+   }
+  },
+  {
+   "from": "G11",
+   "to": "E01",
+   "label": "Đăng ký NTD",
+   "overlay": false,
+   "box": {
+    "x": 671,
+    "y": 642,
+    "w": 74,
+    "h": 32
+   }
+  },
+  {
+   "from": "S05",
+   "to": "G03",
+   "label": "Xem chi tiết công việc",
+   "overlay": false,
+   "box": {
+    "x": 423,
+    "y": 525,
+    "w": 166,
+    "h": 30
+   }
+  },
+  {
+   "from": "S01",
+   "to": "S06",
+   "label": "Xem tất cả",
+   "overlay": false,
+   "box": {
+    "x": 1289,
+    "y": 316,
+    "w": 102,
+    "h": 28
+   }
+  },
+  {
+   "from": "S14",
+   "to": "S06",
+   "label": "Gửi ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 870,
+    "y": 683,
+    "w": 104,
+    "h": 28
+   }
+  },
+  {
+   "from": "S06",
+   "to": "S13",
+   "label": "Chi tiết đơn",
+   "overlay": false,
+   "box": {
+    "x": 1117,
+    "y": 249,
+    "w": 90,
+    "h": 28
+   }
+  },
+  {
+   "from": "S15",
+   "to": "S01",
+   "label": "Tổng quan",
+   "overlay": false,
+   "box": {
+    "x": 1179,
+    "y": 180,
+    "w": 88,
+    "h": 30
+   }
+  },
+  {
+   "from": "S15",
+   "to": "S03",
+   "label": "Hồ sơ & CV",
+   "overlay": false,
+   "box": {
+    "x": 1179,
+    "y": 216,
+    "w": 90,
+    "h": 30
+   }
+  },
+  {
+   "from": "S15",
+   "to": "S02",
+   "label": "Lịch rảnh & Gợi ý",
+   "overlay": false,
+   "box": {
+    "x": 1179,
+    "y": 252,
+    "w": 130,
+    "h": 30
+   }
+  },
+  {
+   "from": "S15",
+   "to": "S05",
+   "label": "Việc làm đã lưu",
+   "overlay": false,
+   "box": {
+    "x": 1179,
+    "y": 288,
+    "w": 119,
+    "h": 30
+   }
+  },
+  {
+   "from": "S15",
+   "to": "S06",
+   "label": "Lịch sử ứng tuyển",
+   "overlay": false,
+   "box": {
+    "x": 1179,
+    "y": 324,
+    "w": 132,
+    "h": 30
+   }
+  },
+  {
+   "from": "S15",
+   "to": "S10",
+   "label": "Đánh giá & Phản hồi",
+   "overlay": false,
+   "box": {
+    "x": 1179,
+    "y": 360,
+    "w": 151,
+    "h": 30
+   }
+  },
+  {
+   "from": "S15",
+   "to": "S12",
+   "label": "Cài đặt tài khoản",
+   "overlay": false,
+   "box": {
+    "x": 1179,
+    "y": 396,
+    "w": 133,
+    "h": 30
+   }
+  },
+  {
+   "from": "S16",
+   "to": "S11",
+   "label": "Xem tất cả thông báo",
+   "overlay": false,
+   "box": {
+    "x": 951,
+    "y": 494,
+    "w": 153,
+    "h": 28
+   }
+  },
+  {
+   "from": "E04",
+   "to": "E05",
+   "label": "Đăng tin mới",
+   "overlay": false,
+   "box": {
+    "x": 1291,
+    "y": 118,
+    "w": 102,
+    "h": 30
+   }
+  },
+  {
+   "from": "E01",
+   "to": "E05",
+   "label": "Đăng tin mới",
+   "overlay": false,
+   "box": {
+    "x": 372,
+    "y": 23,
+    "w": 109,
+    "h": 28
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E07",
+   "label": "Xem hồ sơ",
+   "overlay": true,
+   "box": {
+    "x": 1233,
+    "y": 435,
+    "w": 80,
+    "h": 28
+   }
+  },
+  {
+   "from": "E06",
+   "to": "E08",
+   "label": "Tuyển chọn",
+   "overlay": true,
+   "box": {
+    "x": 1176,
+    "y": 241,
+    "w": 219,
+    "h": 28
+   }
+  },
+  {
+   "from": "A03",
+   "to": "A04",
+   "label": "Xem hồ sơ",
+   "overlay": true,
+   "box": {
+    "x": 1295,
+    "y": 335,
+    "w": 81,
+    "h": 28
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A07",
+   "label": "Xem tin",
+   "overlay": false,
+   "box": {
+    "x": 1308,
+    "y": 349,
+    "w": 68,
+    "h": 28
+   }
+  },
+  {
+   "from": "A08",
+   "to": "A09",
+   "label": "Xử lý",
+   "overlay": false,
+   "box": {
+    "x": 1328,
+    "y": 348,
+    "w": 48,
+    "h": 28
+   }
+  },
+  {
+   "from": "A12",
+   "to": "A13",
+   "label": "Xem tin",
+   "overlay": true,
+   "box": {
+    "x": 956,
+    "y": 290,
+    "w": 33,
+    "h": 28
+   }
+  },
+  {
+   "from": "A06",
+   "to": "A15",
+   "label": "Xuất báo cáo",
+   "overlay": true,
+   "box": {
+    "x": 1129,
+    "y": 120,
+    "w": 105,
+    "h": 28
+   }
+  }
+ ]
+}

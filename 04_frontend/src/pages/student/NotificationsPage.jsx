@@ -90,13 +90,13 @@ export default function NotificationsPage({ currentUser, showToast, onSelectNoti
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 6, fontSize: 11.5, fontWeight: 700, marginBottom: 8 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 6, fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>
               🔔 TRUNG TÂM THÔNG BÁO HỆ THỐNG
             </div>
             <h2 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 6px 0', letterSpacing: '-0.3px' }}>
               TẤT CẢ THÔNG BÁO ({notifications.length})
             </h2>
-            <p style={{ margin: 0, fontSize: 13.5, color: '#CBD5E1', maxWidth: 640 }}>
+            <p style={{ margin: 0, fontSize: 13.5, color: '#E2E8F0', maxWidth: '55ch' }}>
               Cập nhật tức thời về tình trạng nộp đơn ứng tuyển, kết quả xét duyệt và phân công hợp đồng công việc.
             </p>
           </div>
@@ -165,9 +165,9 @@ export default function NotificationsPage({ currentUser, showToast, onSelectNoti
           textAlign: 'center',
         }}>
           <Bell size={44} color="#CBD5E1" style={{ margin: '0 auto 12px' }} />
-          <h4 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text)', marginBottom: 6 }}>
             Không có thông báo nào trong danh mục này
-          </h4>
+          </h3>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -206,14 +206,14 @@ export default function NotificationsPage({ currentUser, showToast, onSelectNoti
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <h4 style={{ fontSize: 14.5, fontWeight: isRead ? 600 : 800, color: 'var(--color-text)', margin: 0 }}>
+                    <h3 style={{ fontSize: 14.5, fontWeight: isRead ? 600 : 800, color: 'var(--color-text)', margin: 0 }}>
                       {item.title}
-                    </h4>
-                    <span style={{ fontSize: 12, color: '#94A3B8' }}>
+                    </h3>
+                    <span style={{ fontSize: 12.5, color: '#475569', whiteSpace: 'nowrap' }}>
                       {new Date(item.created_at).toLocaleString('vi-VN')}
                     </span>
                   </div>
-                  <p style={{ fontSize: 13.5, color: '#334155', margin: 0, lineHeight: 1.5 }}>
+                  <p style={{ fontSize: 13.5, color: '#334155', margin: 0, lineHeight: 1.5, maxWidth: '55ch' }}>
                     {item.body || item.content}
                   </p>
                 </div>

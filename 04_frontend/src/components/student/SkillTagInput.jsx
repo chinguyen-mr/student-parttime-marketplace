@@ -118,7 +118,7 @@ export default function SkillTagInput({ value = [], onChange, major, max = 30 })
           ))}
         </div>
       )}
-      <div style={{ fontSize: 11.5, color: '#94A3B8', marginTop: 4 }}>
+      <div style={{ fontSize: 12.5, color: '#475569', marginTop: 4 }}>
         Nhấn Enter hoặc dấu phẩy để thêm kỹ năng không có trong gợi ý · {value.length}/{max}
       </div>
     </div>

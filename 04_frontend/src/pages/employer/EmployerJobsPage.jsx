@@ -271,7 +271,7 @@ export default function EmployerJobsPage({
           onAction={jobs.length === 0 ? onNavigateCreateJob : undefined}
         />
       ) : (
-        <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ background: '#ffffff', borderRadius: 16, border: '1px solid var(--color-border)', overflow: 'hidden', padding: '4px 8px 8px', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
               <thead>
@@ -304,7 +304,7 @@ export default function EmployerJobsPage({
                             {job.title}
                           </div>
                           <div style={{ fontSize: 12, color: 'var(--color-primary)', fontWeight: 600 }}>
-                            {job.salary ? `${job.salary.toLocaleString()} VNĐ` : 'Thỏa thuận'} • {job.category || 'Việc làm'}
+                            {formatSalary(job)} · {job.category || 'Việc làm'}
                           </div>
                         </td>
 
@@ -314,10 +314,12 @@ export default function EmployerJobsPage({
                             display: 'inline-block',
                             padding: '3px 8px',
                             borderRadius: 6,
-                            fontSize: 11.5,
+                            fontSize: 12.5,
                             fontWeight: 700,
-                            background: job.work_type === 'FULL_TIME' ? '#FEF7EE' : 'var(--color-primary-light)',
-                            color: job.work_type === 'FULL_TIME' ? '#B45309' : 'var(--color-primary)'
+                            whiteSpace: 'nowrap',
+                            background: job.work_type === 'FULL_TIME' ? '#FFF7ED' : '#F1EEF8',
+                            color: job.work_type === 'FULL_TIME' ? '#7C2D12' : '#4C3D7A',
+                            border: `1px solid ${job.work_type === 'FULL_TIME' ? '#FDBA74' : '#C4B5FD'}`
                           }}>
                             {job.work_type === 'FULL_TIME' ? 'Full-time' : 'Part-time'}
                           </span>
@@ -417,7 +419,7 @@ export default function EmployerJobsPage({
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <AlertTriangle size={15} color="#DC2626" style={{ flexShrink: 0 }} />
                               <div>
-                                <strong>Lý do từ chối kiểm duyệt (moderation_reason):</strong>{' '}
+                                <strong>Lý do Admin từ chối:</strong>{' '}
                                 {job.moderation_reason || 'Nội dung tin tuyển dụng chưa đầy đủ thông tin hoặc mức thù lao không phù hợp quy định bảo vệ sinh viên.'}
                               </div>
                             </div>

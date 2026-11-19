@@ -212,18 +212,18 @@ export default function StudentProfileForm({ token, email, showToast, onSaved, a
       <div style={{ background: '#FAF8FF', border: '1px solid #E9E3F7', borderRadius: 16, padding: '18px 22px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 12 }}>
           <div>
-            <h2 style={{ fontSize: 19, fontWeight: 800, margin: 0, color: 'var(--color-text)' }}>Hồ sơ xin việc</h2>
-            <p style={{ fontSize: 12.5, color: 'var(--color-text-secondary)', margin: '4px 0 0 0' }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: 'var(--color-text)' }}>Hồ sơ xin việc</h2>
+            <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '4px 0 0 0', maxWidth: '55ch' }}>
               Nhà tuyển dụng xem hồ sơ này khi bạn ứng tuyển. Hồ sơ càng đầy đủ, cơ hội được chọn càng cao.
             </p>
           </div>
           <div style={{ fontSize: 26, fontWeight: 800, color: percent >= 80 ? '#047857' : '#7565A8' }}>{percent}%</div>
         </div>
         <div style={{ height: 8, background: '#E9E3F7', borderRadius: 999, overflow: 'hidden' }}>
-          <div style={{ width: `${percent}%`, height: '100%', background: percent >= 80 ? '#10B981' : '#7565A8', transition: 'width 0.3s ease' }} />
+          <div style={{ width: '100%', height: '100%', background: percent >= 80 ? '#047857' : '#7565A8', transform: `scaleX(${percent / 100})`, transformOrigin: 'left', transition: 'transform 0.3s ease' }} />
         </div>
         {missing.length > 0 && (
-          <div style={{ fontSize: 12.5, color: '#64748B', marginTop: 8 }}>
+          <div style={{ fontSize: 12.5, color: '#475569', marginTop: 8 }}>
             Còn thiếu: {missing.map(([, label]) => label).join(', ')}
           </div>
         )}
@@ -241,7 +241,7 @@ export default function StudentProfileForm({ token, email, showToast, onSaved, a
               showToast={showToast}
               onChange={onAvatarChange}
             />
-            <span style={{ fontSize: 11.5, color: '#94A3B8', marginTop: 8, lineHeight: 1.4 }}>
+            <span style={{ fontSize: 12.5, color: '#475569', marginTop: 8, lineHeight: 1.4 }}>
               Ảnh chân dung rõ mặt giúp hồ sơ chuyên nghiệp hơn. Bấm vào ảnh để đổi.
             </span>
           </div>
@@ -449,10 +449,10 @@ export default function StudentProfileForm({ token, email, showToast, onSaved, a
         borderRadius: 14, padding: '12px 18px', boxShadow: '0 -4px 16px rgba(15, 23, 42, 0.06)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap'
       }}>
-        <div style={{ fontSize: 13, color: errors.length ? '#B91C1C' : '#334155', minWidth: 0 }}>
+        <div style={{ fontSize: 13, color: errors.length ? '#B91C1C' : '#334155', minWidth: 0, maxWidth: '60ch' }}>
           {errors.length > 0
             ? <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><AlertCircle size={15} /> {errors[0]}{errors.length > 1 ? ` (+${errors.length - 1} lỗi khác)` : ''}</span>
-            : dirty ? <strong style={{ color: '#C2410C' }}>Có thay đổi chưa lưu</strong> : 'Hồ sơ đã được lưu'}
+            : dirty ? <strong style={{ color: '#C2410C' }}>Có thay đổi chưa lưu</strong> : <span style={{ whiteSpace: 'nowrap' }}>Hồ sơ đã được lưu</span>}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {dirty && (
@@ -464,7 +464,7 @@ export default function StudentProfileForm({ token, email, showToast, onSaved, a
           <button type="button" onClick={handleSave} disabled={saving || !dirty}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 8, border: 'none',
-              background: saving || !dirty ? '#C4B5FD' : '#7565A8', color: '#ffffff', fontSize: 13.5, fontWeight: 700,
+              background: saving || !dirty ? '#E2E8F0' : '#7565A8', color: saving || !dirty ? '#475569' : '#ffffff', fontSize: 13.5, fontWeight: 700,
               cursor: saving || !dirty ? 'not-allowed' : 'pointer'
             }}>
             {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} {saving ? 'Đang lưu...' : 'Lưu hồ sơ'}

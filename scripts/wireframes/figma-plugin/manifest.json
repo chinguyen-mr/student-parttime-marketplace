@@ -1,10 +1,16 @@
 {
-  "name": "JobNest – Nối prototype",
+  "name": "JobNest – Dựng prototype",
   "id": "jobnest-prototype-linker",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
-  "editorType": ["figma"],
+  "editorType": [
+    "figma"
+  ],
   "documentAccess": "dynamic-page",
-  "networkAccess": { "allowedDomains": ["none"] }
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ]
+  }
 }

@@ -1,0 +1,19 @@
+<div style="font: 13px/1.5 Inter, system-ui, sans-serif; padding: 12px; color: #1e1b2e">
+  <p style="margin: 0 0 8px">Chọn file <b>prototype_links.json</b> (thư mục <code>05_wireframes/figma</code>). Trang hiện tại phải có sẵn 61 khung màn hình đã kéo thả từ các file SVG.</p>
+  <input id="f" type="file" accept=".json" />
+  <label style="display: block; margin-top: 8px"><input id="arrange" type="checkbox" checked /> Xếp lại các màn theo vai trò</label>
+  <button id="run" style="margin-top: 10px; padding: 6px 14px; background: #7565A8; color: #fff; border: 0; border-radius: 6px; cursor: pointer">Nối prototype</button>
+  <p id="msg" style="margin: 10px 0 0; white-space: pre-line"></p>
+</div>
+<script>
+  const msg = (t) => { document.getElementById('msg').textContent = t; };
+  document.getElementById('run').onclick = async () => {
+    const file = document.getElementById('f').files[0];
+    if (!file) return msg('Chưa chọn file prototype_links.json');
+    let data;
+    try { data = JSON.parse(await file.text()); } catch (e) { return msg('File không đọc được: ' + e.message); }
+    msg('Đang nối…');
+    parent.postMessage({ pluginMessage: { type: 'link', data, arrange: document.getElementById('arrange').checked } }, '*');
+  };
+  onmessage = (e) => { const m = e.data.pluginMessage; if (m && m.type === 'done') msg(m.text); };
+</script>

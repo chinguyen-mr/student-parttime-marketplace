@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JobNest Prototype</title>
+<style>
+  :root { --brand: #7565A8; --brand-dark: #594675; --peach: #F4B99D; --ink: #1E1B2E; --muted: #5B5670; --line: #E4E0EE; --bg: #F4F2F8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 "Be Vietnam Pro", "Segoe UI", system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+  header { position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 16px; background: #fff; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 15px; margin: 0 8px 0 0; color: var(--brand-dark); }
+  .starts { display: flex; gap: 6px; flex-wrap: wrap; }
+  button, select { font: inherit; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 6px 12px; cursor: pointer; }
+  button:hover { border-color: var(--brand); }
+  button.on { background: var(--brand); border-color: var(--brand); color: #fff; }
+  button:disabled { opacity: .45; cursor: default; }
+  .spacer { flex: 1; }
+  #title { font-weight: 700; }
+  #title small { font-weight: 500; color: var(--muted); margin-left: 6px; }
+  main { padding: 16px; display: flex; justify-content: center; }
+  .stage { position: relative; width: 100%; max-width: 1440px; background: #fff; box-shadow: 0 6px 24px rgba(30, 27, 46, .12); border-radius: 8px; overflow: hidden; }
+  .stage img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
+  .hot { position: absolute; border-radius: 6px; cursor: pointer; outline: 2px solid transparent; transition: background .15s, outline-color .15s; }
+  .hot:hover, .hot:focus-visible { background: rgba(117, 101, 168, .16); outline-color: var(--brand); }
+  .stage.hint .hot { background: rgba(117, 101, 168, .22); outline-color: var(--brand); }
+  .tip { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .tip.show { opacity: .92; }
+  @media (max-width: 720px) { header h1 { width: 100%; } main { padding: 8px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>JobNest · Prototype</h1>
+  <div class="starts" id="starts" role="group" aria-label="Bắt đầu theo vai trò"></div>
+  <button id="back" type="button" title="Quay lại (Alt + ←)">← Quay lại</button>
+  <span id="title"></span>
+  <span class="spacer"></span>
+  <label>Màn hình: <select id="jump" aria-label="Chuyển tới màn hình"></select></label>
+  <button id="hintBtn" type="button" aria-pressed="false">Hiện vùng bấm</button>
+</header>
+<main><div class="stage" id="stage"><img id="shot" alt=""></div></main>
+<div class="tip" id="tip"></div>
+<script src="data.js"></script>
+<script>
+  const P = window.PROTO;
+  const $ = (id) => document.getElementById(id);
+  const byFrom = {};
+  P.links.forEach((k) => (byFrom[k.f] = byFrom[k.f] || []).push(k));
+  let cur = null;
+
+  // Nút bắt đầu theo vai trò + danh sách chọn màn
+  P.starts.forEach(([id, role]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = role; b.dataset.id = id;
+    b.onclick = () => go(id); $('starts').appendChild(b);
+  });
+  P.layout.forEach((g) => {
+    const og = document.createElement('optgroup'); og.label = g.role;
+    g.ids.forEach((id) => { const o = document.createElement('option'); o.value = id; o.textContent = `${id} · ${P.names[id].name}`; og.appendChild(o); });
+    $('jump').appendChild(og);
+  });
+  $('jump').onchange = (e) => go(e.target.value);
+  $('back').onclick = () => history.back();
+
+  function tip(text) { const t = $('tip'); t.textContent = text; t.classList.add('show'); clearTimeout(tip.h); tip.h = setTimeout(() => t.classList.remove('show'), 1600); }
+
+  function render(id) {
+    if (!P.names[id]) id = P.starts[0][0];
+    cur = id;
+    const [w, h] = P.sizes[id];
+    const stage = $('stage');
+    stage.querySelectorAll('.hot').forEach((n) => n.remove());
+    $('shot').src = `screens/${id}.jpg`;
+    $('shot').alt = `${id} – ${P.names[id].name}`;
+    $('title').innerHTML = `${id} · ${P.names[id].name}<small>${P.names[id].role} · ${(byFrom[id] || []).length} điểm bấm</small>`;
+    $('jump').value = id;
+    document.title = `${id} ${P.names[id].name} · JobNest Prototype`;
+    const roleStart = P.starts.find(([, r]) => r === P.names[id].role);
+    document.querySelectorAll('#starts button').forEach((b) => b.classList.toggle('on', roleStart && b.dataset.id === roleStart[0]));
+    (byFrom[id] || []).forEach((k) => {
+      const a = document.createElement('button');
+      a.type = 'button'; a.className = 'hot'; a.title = `${k.l} → ${k.t} ${P.names[k.t] ? P.names[k.t].name : ''}`;
+      a.setAttribute('aria-label', a.title);
+      const [x, y, bw, bh] = k.b;
+      Object.assign(a.style, { left: `${(x / w) * 100}%`, top: `${(y / h) * 100}%`, width: `${(bw / w) * 100}%`, height: `${(bh / h) * 100}%`, padding: 0, border: 0 });
+      a.onclick = (e) => { e.stopPropagation(); go(k.t); };
+      stage.appendChild(a);
+    });
+  }
+  function go(id) { if (id === cur) return; location.hash = id; }
+  window.addEventListener('hashchange', () => { render(location.hash.slice(1)); window.scrollTo({ top: 0 }); });
+
+  // Bấm vào chỗ không có liên kết → nháy các vùng bấm được (giống Figma)
+  $('stage').addEventListener('click', () => {
+    const s = $('stage'); if (s.classList.contains('hint') && $('hintBtn').getAttribute('aria-pressed') === 'true') return;
+    s.classList.add('hint'); setTimeout(() => { if ($('hintBtn').getAttribute('aria-pressed') !== 'true') s.classList.remove('hint'); }, 700);
+    if (!(byFrom[cur] || []).length) tip('Màn này không có liên kết — dùng nút Quay lại hoặc chọn màn khác');
+  });
+  $('hintBtn').onclick = () => {
+    const on = $('hintBtn').getAttribute('aria-pressed') !== 'true';
+    $('hintBtn').setAttribute('aria-pressed', on); $('hintBtn').classList.toggle('on', on); $('stage').classList.toggle('hint', on);
+  };
+  render(location.hash.slice(1) || P.starts[0][0]);
+</script>
+</body>
+</html>

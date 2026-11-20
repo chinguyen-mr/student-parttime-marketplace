@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Phone, MapPin, Clock, MessageSquare, Send, CheckCircle2, X, Headphones } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AnimatedModal, Button, CustomDropdown } from '../ui';
+import { API_BASE, formatApiError } from '../../config/api';
 
 export default function SupportModal({
   isOpen,
@@ -13,18 +14,37 @@ export default function SupportModal({
   const [senderEmail, setSenderEmail] = useState(currentUser?.email || '');
   const [message, setMessage] = useState('');
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  // Gửi thật lên server → thông báo cho quản trị viên (POST /api/notifications/support)
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
-    setSent(true);
-    setTimeout(() => {
-      // Keep feedback visible briefly
-    }, 300);
+    setSending(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_BASE}/notifications/support`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: senderName, email: senderEmail, topic, message }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        const detail = Array.isArray(data.details) ? data.details.join('. ') : '';
+        throw new Error(detail || data.message || 'Không gửi được yêu cầu hỗ trợ. Vui lòng thử lại hoặc gọi hotline.');
+      }
+      setSent(true);
+    } catch (err) {
+      setError(formatApiError(err));
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleReset = () => {
     setSent(false);
+    setError('');
     setMessage('');
     onClose();
   };
@@ -254,12 +274,18 @@ export default function SupportModal({
                 />
               </div>
 
+              {error && (
+                <div role="alert" style={{ fontSize: 13, color: 'var(--color-danger)', background: 'var(--color-danger-bg)', border: '1px solid var(--color-danger-border)', borderRadius: 8, padding: '8px 12px' }}>
+                  {error}
+                </div>
+              )}
+
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 4 }}>
                 <Button variant="secondary" type="button" onClick={handleReset} style={{ padding: '8px 16px', fontSize: 13 }}>
                   Hủy
                 </Button>
-                <Button variant="primary" type="submit" style={{ padding: '8px 22px', fontSize: 13 }}>
-                  <Send size={14} /> Gửi yêu cầu hỗ trợ
+                <Button variant="primary" type="submit" disabled={sending} style={{ padding: '8px 22px', fontSize: 13 }}>
+                  <Send size={14} /> {sending ? 'Đang gửi…' : 'Gửi yêu cầu hỗ trợ'}
                 </Button>
               </div>
             </form>

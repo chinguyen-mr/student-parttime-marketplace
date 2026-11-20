@@ -2,7 +2,26 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../config/db');
 const { verifyToken } = require('../../middleware/auth.middleware');
-const { NotFoundError, ForbiddenError } = require('../../utils/app-error');
+const { NotFoundError, ForbiddenError, AppError } = require('../../utils/app-error');
+const { submitSupportRequest } = require('./support.service');
+
+// POST /api/notifications/support — form "Trung tâm hỗ trợ" (khách cũng gửi được) → thông báo cho Admin.
+// Chống spam đơn giản: tối đa 5 lần / 15 phút mỗi IP (bộ nhớ của từng instance).
+const SUPPORT_WINDOW_MS = 15 * 60 * 1000;
+const SUPPORT_MAX = 5;
+const supportHits = new Map();
+router.post('/support', async (req, res, next) => {
+    try {
+        const now = Date.now();
+        const hits = (supportHits.get(req.ip) || []).filter(t => now - t < SUPPORT_WINDOW_MS);
+        if (hits.length >= SUPPORT_MAX) throw new AppError('Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau 15 phút.', 429);
+        await submitSupportRequest(req.body || {});
+        supportHits.set(req.ip, [...hits, now]);
+        res.status(201).json({ success: true, message: 'Đã gửi yêu cầu hỗ trợ tới quản trị viên' });
+    } catch (err) {
+        next(err);
+    }
+});
 
 // GET /api/notifications & /api/v1/notifications (Lấy danh sách thông báo có phân trang & lọc unread)
 router.get('/', verifyToken, async (req, res, next) => {

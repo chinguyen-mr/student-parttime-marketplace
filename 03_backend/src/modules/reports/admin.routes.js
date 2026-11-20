@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adminService = require('./admin.service');
+const { listSupportRequests, replySupportRequest } = require('../notifications/support.service');
 const { verifyToken, requireRoles } = require('../../middleware/auth.middleware');
 
 // Mọi route bên dưới đều bắt buộc quyền ADMIN (UC-10)
@@ -410,6 +411,28 @@ router.patch('/appeals/:id', async (req, res, next) => {
             message: `Đã xử lý khiếu nại: ${req.body.status}`,
             data: resolved,
         });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// =============================================================================
+// HỖ TRỢ LIÊN HỆ — tin nhắn từ form "Trung tâm hỗ trợ"
+// =============================================================================
+// GET /api/admin/support-requests
+router.get('/support-requests', async (req, res, next) => {
+    try {
+        res.status(200).json({ success: true, data: await listSupportRequests() });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// POST /api/admin/support-requests/:id/reply  { message }
+router.post('/support-requests/:id/reply', async (req, res, next) => {
+    try {
+        const data = await replySupportRequest(parseInt(req.params.id, 10), req.user.id, req.body?.message);
+        res.status(201).json({ success: true, message: 'Đã lưu câu trả lời', data });
     } catch (err) {
         next(err);
     }

@@ -8,7 +8,8 @@ import {
   History,
   Shield,
   Star,
-  Building2
+  Building2,
+  Headphones
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { useRememberedTab } from '../../utils/rememberedTab';
@@ -23,6 +24,7 @@ import AdminLogsPage from './AdminLogsPage';             // WF-A08
 import AdminReviewsPage from './AdminReviewsPage';       // Kiểm duyệt đánh giá doanh nghiệp / công việc
 import AdminEmployerVerificationPage from './AdminEmployerVerificationPage'; // Xét duyệt pháp lý doanh nghiệp
 import AdminAppealsPage from './AdminAppealsPage';           // Khiếu nại của tài khoản bị khóa
+import AdminSupportPage from './AdminSupportPage';           // Tin nhắn từ form Trung tâm hỗ trợ
 
 export default function AdminPortal({
   currentUser,
@@ -39,7 +41,7 @@ export default function AdminPortal({
   // 'categories' (WF-A07)
   // 'logs' (WF-A08)
   const [activeTab, setActiveTab] = useRememberedTab('admin', initialTab,
-    ['dashboard', 'users', 'employer_verification', 'appeals', 'moderation', 'reports', 'reviews', 'categories', 'logs']);
+    ['dashboard', 'users', 'employer_verification', 'appeals', 'support', 'moderation', 'reports', 'reviews', 'categories', 'logs']);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Chỉ đồng bộ khi initialTab thật sự đổi → không ghi đè mục vừa khôi phục sau F5
@@ -271,6 +273,7 @@ export default function AdminPortal({
               { id: 'users', label: 'Người dùng', icon: Users },
               { id: 'employer_verification', label: 'Xác minh doanh nghiệp', icon: Building2 },
               { id: 'appeals', label: 'Khiếu nại tài khoản', icon: Shield },
+              { id: 'support', label: 'Hỗ trợ liên hệ', icon: Headphones },
               { id: 'moderation', label: 'Kiểm duyệt tin', icon: ShieldCheck },
               { id: 'reports', label: 'Báo cáo', icon: AlertTriangle },
               { id: 'reviews', label: 'Kiểm duyệt đánh giá', icon: Star },
@@ -378,6 +381,10 @@ export default function AdminPortal({
           {/* Khiếu nại của tài khoản bị khóa */}
           {activeTab === 'appeals' && (
             <AdminAppealsPage currentUser={currentUser} showToast={showToast} />
+          )}
+
+          {activeTab === 'support' && (
+            <AdminSupportPage currentUser={currentUser} showToast={showToast} />
           )}
 
           {/* Xét duyệt hồ sơ pháp lý doanh nghiệp */}

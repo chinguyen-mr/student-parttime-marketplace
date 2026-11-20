@@ -19,6 +19,7 @@ const ACTIONS = {
   LEGAL_VERIFICATION_NEEDS_INFO: ['Yêu cầu doanh nghiệp bổ sung hồ sơ pháp lý', 'warn'],
   LEGAL_VERIFICATION_REJECTED: ['Từ chối xác minh pháp lý doanh nghiệp', 'bad'],
   SYSTEM_INIT: ['Khởi tạo hệ thống quản trị', 'neutral'],
+  SUPPORT_REPLY: ['Trả lời yêu cầu hỗ trợ', 'good'],
 };
 
 // Kiểm duyệt đánh giá: mã dạng REVIEW_<thao tác>
@@ -36,7 +37,7 @@ const REVIEW_ACTIONS = {
 
 const TARGET_TYPES = {
   USER: 'Tài khoản', JOB: 'Tin tuyển dụng', CATEGORY: 'Danh mục', REPORT: 'Báo cáo',
-  COMPANY_REVIEW: 'Đánh giá doanh nghiệp', JOB_REVIEW: 'Đánh giá công việc', SYSTEM: 'Hệ thống',
+  COMPANY_REVIEW: 'Đánh giá doanh nghiệp', JOB_REVIEW: 'Đánh giá công việc', SYSTEM: 'Hệ thống', SUPPORT_REQUEST: 'Yêu cầu hỗ trợ',
 };
 
 const REPORT_MEASURES = { WARNING: 'Cảnh cáo', BAN_USER: 'Khóa tài khoản', REMOVE_JOB: 'Gỡ tin', DISMISS: 'Bác bỏ báo cáo' };

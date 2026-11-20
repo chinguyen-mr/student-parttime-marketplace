@@ -18,7 +18,6 @@ import AccountMenu from './components/layout/AccountMenu';
 import { applyBlockReason, salaryOptionsFor, matchesSalaryFilter } from './utils/jobDisplay';
 import FloatingActions from './components/FloatingActions';
 import SupportModal from './components/SupportModal';
-import SupportRequestModal from './components/admin/SupportRequestModal';
 import ComingSoonPage from './pages/ComingSoonPage';
 import HomePage from './pages/HomePage';
 import JobCard from './components/JobCard';
@@ -206,7 +205,7 @@ export default function App() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false); // Screen 13
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false); // Screen 3
   const [supportModalOpen, setSupportModalOpen] = useState(false);
-  const [supportRequestOpen, setSupportRequestOpen] = useState(null); // thông báo SUPPORT_REQUEST đang xem
+  const [adminNav, setAdminNav] = useState({ tab: 'dashboard', n: 0 }); // mở đúng mục trong trang Admin (VD từ thông báo)
   const [headerIntroMenuOpen, setHeaderIntroMenuOpen] = useState(false);
   const [aboutSection, setAboutSection] = useState('about');
   const introMenuRef = useRef(null);
@@ -642,9 +641,11 @@ export default function App() {
   // Bấm vào thông báo → chuyển tới đúng nơi liên quan dựa trên target_type / target_id
   const handleOpenNotification = (item) => {
     setNotificationsOpen(false);
-    // Tin nhắn từ form "Trung tâm hỗ trợ" → mở chi tiết để Admin trả lời qua email
+    // Tin nhắn từ form "Trung tâm hỗ trợ" → mở mục "Hỗ trợ liên hệ" trong trang Admin để trả lời
     if (item?.type === 'SUPPORT_REQUEST') {
-      setSupportRequestOpen(item);
+      setAdminNav(prev => ({ tab: 'support', n: prev.n + 1 }));
+      setActiveTab('admin');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     if (currentUser?.role !== 'STUDENT') {
@@ -2595,8 +2596,9 @@ export default function App() {
             {/* ========================================================================= */}
             {activeTab === 'admin' && (
               <AdminPortal
+                key={adminNav.n}
                 currentUser={currentUser}
-                initialTab="dashboard"
+                initialTab={adminNav.tab}
                 onNavigateHome={() => {
                   setActiveTab('home');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2859,8 +2861,6 @@ export default function App() {
         currentUser={currentUser}
       />
 
-      {/* Admin: chi tiết yêu cầu hỗ trợ (mở từ thông báo) */}
-      <SupportRequestModal notification={supportRequestOpen} onClose={() => setSupportRequestOpen(null)} />
 
       {/* WF-X01: MODAL BÁO CÁO VI PHẠM (REPORT VIOLATION MODAL) */}
       <ReportViolationModal

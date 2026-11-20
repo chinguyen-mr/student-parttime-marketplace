@@ -139,6 +139,28 @@ class EmailService {
     }
 
     /**
+     * Gửi câu trả lời của Admin cho người dùng form "Trung tâm hỗ trợ".
+     * Không có SMTP → trả { success: false, reason: 'NO_SMTP' } (không ném lỗi: câu trả lời vẫn được lưu).
+     */
+    async sendSupportReply(toEmail, { name, topic, question, reply }) {
+        const transporter = this.getTransporter();
+        if (!transporter) return { success: false, reason: 'NO_SMTP' };
+        const text = `Chào ${name || 'bạn'},\n\n${reply}\n\n---\nCâu hỏi của bạn (${topic}):\n${question}\n\nTrân trọng,\nTrung tâm hỗ trợ JobNest`;
+        try {
+            const info = await transporter.sendMail({
+                from: process.env.SMTP_FROM || 'JobNest Platform <noreply@jobnest.vn>',
+                to: toEmail,
+                subject: `[JobNest] Phản hồi yêu cầu hỗ trợ: ${topic}`,
+                text,
+            });
+            return { success: true, messageId: info.messageId };
+        } catch (err) {
+            console.error(`[EMAIL-SERVICE-ERROR] Lỗi gửi phản hồi hỗ trợ tới ${toEmail}:`, err.message);
+            return { success: false, reason: 'SMTP_ERROR' };
+        }
+    }
+
+    /**
      * Helper for integration tests to inspect last dispatched email
      */
     getLastDispatched() {

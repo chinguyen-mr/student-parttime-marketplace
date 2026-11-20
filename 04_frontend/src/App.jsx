@@ -648,6 +648,12 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    // Nhà tuyển dụng nhận phản hồi hỗ trợ → mở trang Thông báo để đọc đầy đủ (sinh viên đã vào trang này ở nhánh default)
+    if (item?.type === 'SUPPORT_REPLY' && currentUser?.role === 'EMPLOYER') {
+      setActiveTab('notifications');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (currentUser?.role !== 'STUDENT') {
       showToast(`Đã mở thông báo: ${item?.title || ''}`);
       return;

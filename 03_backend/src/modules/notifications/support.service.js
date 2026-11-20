@@ -94,7 +94,8 @@ async function replySupportRequest(requestId, adminId, replyText) {
     const inApp = await db.query(
         `INSERT INTO notifications (user_id, type, title, body)
          SELECT id, 'SUPPORT_REPLY', $2, $3 FROM users WHERE LOWER(email) = LOWER($1)`,
-        [email, `Phản hồi từ Trung tâm hỗ trợ: ${topic}`, reply]
+        // Kèm trích câu hỏi gốc để người nhận nhớ mình đã hỏi gì
+        [email, `Phản hồi từ Trung tâm hỗ trợ: ${topic}`, `${reply} — Câu hỏi của bạn: ${message.length > 160 ? `${message.slice(0, 160)}…` : message}`]
     );
     const result = { emailed: mail.success, email_reason: mail.success ? null : mail.reason, in_app: inApp.rowCount > 0, email };
     await db.query(

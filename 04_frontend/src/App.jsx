@@ -18,6 +18,7 @@ import AccountMenu from './components/layout/AccountMenu';
 import { applyBlockReason, salaryOptionsFor, matchesSalaryFilter } from './utils/jobDisplay';
 import FloatingActions from './components/FloatingActions';
 import SupportModal from './components/SupportModal';
+import SupportRequestModal from './components/admin/SupportRequestModal';
 import ComingSoonPage from './pages/ComingSoonPage';
 import HomePage from './pages/HomePage';
 import JobCard from './components/JobCard';
@@ -205,6 +206,7 @@ export default function App() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false); // Screen 13
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false); // Screen 3
   const [supportModalOpen, setSupportModalOpen] = useState(false);
+  const [supportRequestOpen, setSupportRequestOpen] = useState(null); // thông báo SUPPORT_REQUEST đang xem
   const [headerIntroMenuOpen, setHeaderIntroMenuOpen] = useState(false);
   const [aboutSection, setAboutSection] = useState('about');
   const introMenuRef = useRef(null);
@@ -640,6 +642,11 @@ export default function App() {
   // Bấm vào thông báo → chuyển tới đúng nơi liên quan dựa trên target_type / target_id
   const handleOpenNotification = (item) => {
     setNotificationsOpen(false);
+    // Tin nhắn từ form "Trung tâm hỗ trợ" → mở chi tiết để Admin trả lời qua email
+    if (item?.type === 'SUPPORT_REQUEST') {
+      setSupportRequestOpen(item);
+      return;
+    }
     if (currentUser?.role !== 'STUDENT') {
       showToast(`Đã mở thông báo: ${item?.title || ''}`);
       return;
@@ -2851,6 +2858,9 @@ export default function App() {
         onClose={() => setSupportModalOpen(false)}
         currentUser={currentUser}
       />
+
+      {/* Admin: chi tiết yêu cầu hỗ trợ (mở từ thông báo) */}
+      <SupportRequestModal notification={supportRequestOpen} onClose={() => setSupportRequestOpen(null)} />
 
       {/* WF-X01: MODAL BÁO CÁO VI PHẠM (REPORT VIOLATION MODAL) */}
       <ReportViolationModal

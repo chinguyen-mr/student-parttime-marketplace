@@ -581,6 +581,13 @@ input::placeholder, textarea::placeholder {
   .employer-grid-layout {
     grid-template-columns: 1fr;
   }
+  /* AdminPortal đặt cột bằng inline style → cần !important; sidebar đã ẩn sau nút "☰ Chọn mục" */
+  .admin-portal-container .employer-grid-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .admin-portal-container .employer-sidebar-aside:not(.mobile-open) {
+    display: none !important;
+  }
   .admin-mobile-menu-bar {
     display: flex !important;
   }
@@ -819,7 +826,8 @@ input::placeholder, textarea::placeholder {
   .company-nav { top: 0 !important; }
   .jn-header-brand > div:first-child { width: 38px !important; height: 38px !important; }
   .jn-wordmark { font-size: 19px !important; }
-  .jn-header-actions { gap: 8px !important; }
+  /* Nhà tuyển dụng/Admin có thêm nút → cho cụm nút xuống dòng thay vì tràn ra ngoài màn hình */
+  .jn-header-actions { gap: 8px !important; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 1 !important; min-width: 0; }
   .jn-header-auth-btn { height: 36px !important; padding: 0 12px !important; font-size: 13.5px !important; }
   .jn-header-nav { gap: 0 12px !important; }
   .jn-header-nav > button, .jn-header-nav > div > button { font-size: 13.5px !important; }

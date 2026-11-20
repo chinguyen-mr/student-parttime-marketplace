@@ -1594,7 +1594,7 @@ export default function App() {
           <div className="jn-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
             {/* TRƯỜNG 2: Nút ← Về trang Quản lý nổi bật khi Nhà tuyển dụng đang xem Marketplace */}
             {currentUser?.token && currentUser?.role === 'ADMIN' && !isAdminWorkspace && (
-              <button
+              <button className="jn-header-auth-btn"
                 type="button"
                 onClick={() => {
                   setActiveTab('admin');
@@ -1625,7 +1625,7 @@ export default function App() {
             )}
 
             {currentUser?.token && currentUser?.role === 'EMPLOYER' && !isEmployerWorkspace && (
-              <button
+              <button className="jn-header-auth-btn"
                 type="button"
                 onClick={() => {
                   setActiveTab('employer_dashboard');
@@ -1657,7 +1657,7 @@ export default function App() {
 
             {/* Đăng tin tuyển dụng - CHỈ HIỆN KHI ĐÃ ĐĂNG NHẬP VỚI VAI TRÒ NHÀ TUYỂN DỤNG VÀ Ở TRƯỜNG 2 */}
             {currentUser?.token && currentUser?.role === 'EMPLOYER' && !isEmployerWorkspace && (
-              <button
+              <button className="jn-header-auth-btn"
                 type="button"
                 onClick={() => setActiveTab('create_job')}
                 style={{

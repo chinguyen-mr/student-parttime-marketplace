@@ -93,6 +93,10 @@ async function openTab(page, { session, tab, sel = {}, sub = {} }) {
     const row = page.locator('tr', { hasText: jobTitle });
     await row.waitFor({ timeout: 15000 });
     await row.locator('button').last().click();
+    // Quy trình mới: phải tick đủ tiêu chí duyệt thì nút "Phê duyệt tin" mới bật
+    const criteria = page.locator('label:has(input[type="checkbox"])', { hasText: /Nội dung rõ ràng|Thù lao cụ thể|Địa điểm và ca|Đúng ngành nghề|Thông tin doanh nghiệp/ });
+    await criteria.first().waitFor({ timeout: 10000 });
+    for (const c of await criteria.all()) await c.locator('input').check();
     await page.getByRole('button', { name: /Phê duyệt tin/ }).click();
     for (let i = 0; i < 20; i++) {
       const j = await api('GET', `/jobs/${jobId}`);

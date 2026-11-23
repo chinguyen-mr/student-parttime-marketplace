@@ -34,8 +34,9 @@ describe('Form Trung tâm hỗ trợ → thông báo cho Admin', () => {
         const after = (await listSupportRequests()).find(r => r.id === req.id);
         assert.equal(after.replies.length, 1);
         assert.match(after.replies[0].message, /Ứng tuyển ngay/);
-        const inbox = await db.query(`SELECT 1 FROM notifications WHERE user_id = $1 AND type = 'SUPPORT_REPLY' AND body LIKE $2`, [student.id, `%${marker}%`]);
+        const inbox = await db.query(`SELECT body FROM notifications WHERE user_id = $1 AND type = 'SUPPORT_REPLY' AND body LIKE $2`, [student.id, `%${marker}%`]);
         assert.equal(inbox.rowCount, 1);
+        assert.match(inbox.rows[0].body, /Ứng tuyển ngay .* — Câu hỏi của bạn: Cần hướng dẫn ứng tuyển/);
     });
 
     test('Gửi hợp lệ → mỗi Admin đang hoạt động nhận 1 thông báo có tên, email, nội dung', async () => {

@@ -670,6 +670,7 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    // Nhà tuyển dụng: mở đúng mục; thông báo không có target_type (VD phản hồi hỗ trợ) → mục Thông báo
     if (currentUser?.role === 'EMPLOYER') {
       setEmployerNav(prev => ({ tab: employerTabForNotification(item), n: prev.n + 1 }));
       setActiveTab('employer_nav');

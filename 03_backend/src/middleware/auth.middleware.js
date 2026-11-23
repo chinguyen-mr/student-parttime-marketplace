@@ -29,6 +29,15 @@ async function verifyToken(req, res, next) {
                         && decoded.iat <= Math.floor(new Date(currentUser.tokens_valid_after).getTime() / 1000)) {
                         return next(new UnauthorizedError('Phiên đăng nhập đã kết thúc. Vui lòng đăng nhập lại'));
                     }
+                    // Khóa có thời hạn đã hết hạn → tự mở lại (cùng quy tắc với đăng nhập)
+                    if (['BANNED', 'SUSPENDED'].includes(currentUser.status) && currentUser.suspension_expires_at
+                        && new Date(currentUser.suspension_expires_at) <= new Date()) {
+                        await db.query(
+                            "UPDATE users SET status = 'ACTIVE', suspension_reason = NULL, suspended_at = NULL, suspension_expires_at = NULL WHERE id = $1",
+                            [currentUser.id]
+                        );
+                        currentUser.status = 'ACTIVE';
+                    }
                     if (currentUser.status === 'BANNED') {
                         return next(new ForbiddenError(`Tài khoản của bạn đã bị khóa bởi Quản trị viên. Lý do: ${currentUser.suspension_reason || 'Vi phạm điều khoản dịch vụ'}`));
                     }

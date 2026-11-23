@@ -2,6 +2,7 @@ const db = require('../../config/db');
 const { AppError, BadRequestError, NotFoundError, ForbiddenError } = require('../../utils/app-error');
 const { normalizeLegalStatus } = require('./employer-public.service');
 const { diffFields, logProfileChange } = require('./employer-audit');
+const { notifyAdmins } = require('../notifications/admin-notify');
 
 // Chỉ sửa/gửi hồ sơ pháp lý khi chưa nằm trong quy trình xét duyệt hoặc đã được duyệt
 const EDITABLE_LEGAL = ['UNVERIFIED', 'NEEDS_INFO', 'REJECTED'];
@@ -110,9 +111,11 @@ class EmployerAccountService {
     /** Gửi hồ sơ xác minh: cần tên pháp nhân, MST hợp lệ và ít nhất 1 tài liệu. */
     async submitVerification(userId) {
         const client = await db.pool.connect();
+        let companyName = '';
         try {
             await client.query('BEGIN');
             const row = await requireEmployerProfile(client, userId, true);
+            companyName = row.company_name || row.display_name || '';
             const status = normalizeLegalStatus(row.verification_status);
             if (!EDITABLE_LEGAL.includes(status)) {
                 throw new BadRequestError(status === 'PENDING' ? 'Hồ sơ đã được gửi và đang chờ xét duyệt.' : 'Doanh nghiệp đã được xác minh.');
@@ -133,6 +136,7 @@ class EmployerAccountService {
         } finally {
             client.release();
         }
+        await notifyAdmins('Hồ sơ xác minh doanh nghiệp mới', `${companyName || 'Một doanh nghiệp'} vừa gửi hồ sơ xác minh pháp lý, cần xét duyệt.`, 'EMPLOYER_VERIFICATION', userId);
         return this.getVerification(userId);
     }
 

@@ -1,0 +1,81 @@
+{
+  "run": "mwrwr1o1",
+  "at": "2026-11-22T14:04:37.716Z",
+  "results": [
+    {
+      "id": "TC_UI_HOME_001",
+      "status": "PASS",
+      "note": "Hiển thị đúng, 0 lỗi JS"
+    },
+    {
+      "id": "TC_UI_ABOUT_001",
+      "status": "PASS",
+      "note": "FAQ và Bảo mật hiển thị"
+    },
+    {
+      "id": "TC_UI_OAUTH_001",
+      "status": "PASS",
+      "note": "Hiện thông báo đang phát triển"
+    },
+    {
+      "id": "TC_UI_FLOAT_001",
+      "status": "PASS",
+      "note": "Form hỗ trợ mở"
+    },
+    {
+      "id": "TC_UI_STU_DASH_001",
+      "status": "PASS",
+      "note": "Đủ menu"
+    },
+    {
+      "id": "TC_UI_STU_SETTINGS_001",
+      "status": "PASS",
+      "note": "3 ô mật khẩu"
+    },
+    {
+      "id": "TC_UI_EMP_DASH_001",
+      "status": "PASS",
+      "note": "Hiển thị đúng"
+    },
+    {
+      "id": "TC_UI_EMP_COMPLETION_001",
+      "status": "PASS",
+      "note": "Có % và điều hướng đúng"
+    },
+    {
+      "id": "TC_UI_EMP_EXPORT_001",
+      "status": "PASS",
+      "note": "ho-so-ung-tuyen_20261122_2104.xlsx"
+    },
+    {
+      "id": "TC_UI_EMP_SETTINGS_001",
+      "status": "PASS",
+      "note": "3 ô mật khẩu"
+    },
+    {
+      "id": "TC_UI_NOTI_EMP_001",
+      "status": "PASS",
+      "note": "Mở mục Hồ sơ ứng viên"
+    },
+    {
+      "id": "TC_UI_NOTI_ADMIN_001",
+      "status": "PASS",
+      "note": "Mở mục Kiểm duyệt tin"
+    },
+    {
+      "id": "TC_UI_ADMIN_EXPORT_001",
+      "status": "PASS",
+      "note": "danh-sach-nguoi-dung_20261122_2104.xlsx"
+    },
+    {
+      "id": "TC_UI_JOB_GATE_001",
+      "status": "PASS",
+      "note": "Trang chặn đúng, dẫn tới hồ sơ"
+    },
+    {
+      "id": "TC_UI_APPLY_GATE_001",
+      "status": "PASS",
+      "note": "Bị chặn, mở trang hồ sơ"
+    }
+  ]
+}

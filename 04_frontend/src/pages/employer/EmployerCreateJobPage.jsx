@@ -11,6 +11,7 @@ export default function EmployerCreateJobPage({
   onCancel,
   onSuccess,
   onNavigateVerification,
+  onNavigateProfile,
   showToast
 }) {
   // Form Type: 'PART_TIME' | 'FULL_TIME' (WF-E05 dynamic columns)
@@ -60,6 +61,18 @@ export default function EmployerCreateJobPage({
       }
     }
   }, [editingJob]);
+
+  // Đăng tin mới: hồ sơ doanh nghiệp phải hoàn thiện 100% và đã được Admin xác minh (backend cũng chặn)
+  const [readiness, setReadiness] = useState({ status: editingJob ? 'skip' : 'loading', data: null });
+  useEffect(() => {
+    if (editingJob || !currentUser?.token) return undefined;
+    let cancelled = false;
+    fetch(`${API_BASE}/profile/me`, { headers: { Authorization: `Bearer ${currentUser.token}` } })
+      .then(res => res.json())
+      .then(d => { if (!cancelled) setReadiness({ status: 'ready', data: d?.data?.posting_readiness || null }); })
+      .catch(() => { if (!cancelled) setReadiness({ status: 'error', data: null }); }); // lỗi mạng: vẫn hiện form, backend kiểm tra khi gửi
+    return () => { cancelled = true; };
+  }, [editingJob, currentUser?.token]);
 
   // Validate deadline in future whenever it changes
   useEffect(() => {
@@ -150,6 +163,54 @@ export default function EmployerCreateJobPage({
       setSubmitting(false);
     }
   };
+
+  if (readiness.status === 'loading') {
+    return (
+      <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }} aria-busy="true">
+        <Loader2 size={18} className="animate-spin" style={{ verticalAlign: -3 }} /> Đang kiểm tra hồ sơ doanh nghiệp…
+      </div>
+    );
+  }
+  const notReady = readiness.status === 'ready' && readiness.data && !readiness.data.complete;
+  if (notReady) {
+    const { rate, missing = [] } = readiness.data;
+    const needVerify = missing.some(m => m.startsWith('Xác minh'));
+    return (
+      <div style={{ width: '100%', maxWidth: 760, paddingBottom: 60 }}>
+        <button type="button" onClick={onCancel} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 10 }}>
+          <ArrowLeft size={14} /> Quay lại danh sách tin
+        </button>
+        <div role="alert" style={{ background: '#ffffff', border: '1.5px solid #FED7AA', borderRadius: 16, padding: '24px 26px' }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <AlertCircle size={26} color="#C2410C" style={{ flexShrink: 0, marginTop: 2 }} />
+            <div style={{ minWidth: 0 }}>
+              <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: 'var(--color-text)' }}>Chưa thể đăng tin tuyển dụng</h1>
+              <p style={{ fontSize: 14, color: '#475569', margin: '6px 0 0 0', lineHeight: 1.55 }}>
+                Hồ sơ doanh nghiệp cần <strong>hoàn thiện 100%</strong> và được <strong>Quản trị viên xác minh</strong> trước khi đăng tin.
+                Hiện hồ sơ của bạn đạt <strong style={{ color: '#7565A8' }}>{rate}%</strong>.
+              </p>
+            </div>
+          </div>
+          <div role="progressbar" aria-valuenow={rate} aria-valuemin={0} aria-valuemax={100} aria-label="Mức độ hoàn thiện hồ sơ doanh nghiệp"
+            style={{ height: 8, borderRadius: 999, background: '#F1EEF8', overflow: 'hidden', margin: '16px 0' }}>
+            <div style={{ width: '100%', height: '100%', background: '#7565A8', transform: `scaleX(${rate / 100})`, transformOrigin: 'left' }} />
+          </div>
+          <div style={{ fontSize: 13.5, fontWeight: 700, marginBottom: 6 }}>Còn thiếu {missing.length} mục:</div>
+          <ul style={{ margin: 0, paddingLeft: 20, fontSize: 13.5, color: '#334155', lineHeight: 1.8 }}>
+            {missing.map(m => <li key={m}>{m}</li>)}
+          </ul>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 18 }}>
+            {onNavigateProfile && (
+              <Button variant="primary" onClick={onNavigateProfile} style={{ padding: '9px 18px', fontSize: 13.5, fontWeight: 700 }}>Hoàn thiện hồ sơ doanh nghiệp</Button>
+            )}
+            {needVerify && onNavigateVerification && (
+              <Button variant="secondary" onClick={onNavigateVerification} style={{ padding: '9px 18px', fontSize: 13.5, fontWeight: 700 }}>Gửi / xem xác minh doanh nghiệp</Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ width: '100%', maxWidth: 'none', paddingBottom: 60 }}>

@@ -58,6 +58,10 @@ class SelectionService {
             if (app.status === 'REJECTED') {
                 throw new StateTransitionInvalidError(`Đơn ứng tuyển #${appId} đã bị từ chối, không thể chấp nhận`);
             }
+            // Chỉ chọn đơn còn hiệu lực; đơn sinh viên đã rút (WITHDRAWN) hoặc trạng thái khác không được tạo hợp đồng
+            if (!['PENDING', 'REVIEWING', 'SHORTLISTED'].includes(app.status)) {
+                throw new StateTransitionInvalidError(`Đơn ứng tuyển #${appId} đã được sinh viên rút hoặc không còn hiệu lực, không thể chấp nhận`);
+            }
 
             validApplications.push(app);
         }

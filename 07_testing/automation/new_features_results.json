@@ -1,0 +1,796 @@
+{
+  "run": "mwrwi46n",
+  "at": "2026-11-22T13:57:17.884Z",
+  "results": [
+    {
+      "id": "TC_CV_001",
+      "status": "PASS",
+      "note": "CV lưu và trả về đúng"
+    },
+    {
+      "id": "TC_CV_002",
+      "status": "PASS",
+      "note": "400 Nội dung file không khớp định dạng khai báo."
+    },
+    {
+      "id": "TC_CV_003",
+      "status": "PASS",
+      "note": "400 File vượt quá 3MB."
+    },
+    {
+      "id": "TC_CV_004",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_CV_005",
+      "status": "PASS",
+      "note": "404"
+    },
+    {
+      "id": "TC_AVAIL_001",
+      "status": "PASS",
+      "note": "Lưu 2 khung"
+    },
+    {
+      "id": "TC_AVAIL_002",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_AVAIL_003",
+      "status": "PASS",
+      "note": "400, lịch cũ còn nguyên"
+    },
+    {
+      "id": "TC_AVAIL_004",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_RECO_001",
+      "status": "PASS",
+      "note": "3 gợi ý hợp lệ"
+    },
+    {
+      "id": "TC_RECO_002",
+      "status": "PASS",
+      "note": "401"
+    },
+    {
+      "id": "TC_SAVE_001",
+      "status": "PASS",
+      "note": "Đã lưu"
+    },
+    {
+      "id": "TC_SAVE_002",
+      "status": "PASS",
+      "note": "Đã bỏ lưu"
+    },
+    {
+      "id": "TC_SAVE_003",
+      "status": "PASS",
+      "note": "404"
+    },
+    {
+      "id": "TC_WITHDRAW_001",
+      "status": "PASS",
+      "note": "Trạng thái WITHDRAWN, NTD có thông báo"
+    },
+    {
+      "id": "TC_WITHDRAW_002",
+      "status": "PASS",
+      "note": "403, đơn giữ nguyên"
+    },
+    {
+      "id": "TC_WITHDRAW_003",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_SELECT_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_SELECT_002",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_SELECT_003",
+      "status": "PASS",
+      "note": "2 hợp đồng, tin FILLED, SV có thông báo"
+    },
+    {
+      "id": "TC_SELECT_004",
+      "status": "PASS",
+      "note": "409, 0 hợp đồng"
+    },
+    {
+      "id": "TC_PROGRESS_001",
+      "status": "PASS",
+      "note": "Đã lưu, NTD có thông báo"
+    },
+    {
+      "id": "TC_PROGRESS_002",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_PROGRESS_003",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_DELIV_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_DELIV_002",
+      "status": "PASS",
+      "note": "v1 đã nộp, NTD có thông báo"
+    },
+    {
+      "id": "TC_DELIV_003",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_DELIV_004",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_DELIV_005",
+      "status": "PASS",
+      "note": "SV có thông báo, v2 đã nộp"
+    },
+    {
+      "id": "TC_DELIV_006",
+      "status": "PASS",
+      "note": "lần 1 200, lần 2 400"
+    },
+    {
+      "id": "TC_ASSIGN_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_ASSIGN_005",
+      "status": "PASS",
+      "note": "409"
+    },
+    {
+      "id": "TC_ASSIGN_002",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_ASSIGN_003",
+      "status": "PASS",
+      "note": "COMPLETED, SV có thông báo"
+    },
+    {
+      "id": "TC_ASSIGN_004",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_REVIEW_TWOWAY_001",
+      "status": "PASS",
+      "note": "201"
+    },
+    {
+      "id": "TC_REVIEW_TWOWAY_002",
+      "status": "PASS",
+      "note": "409"
+    },
+    {
+      "id": "TC_REVIEW_TWOWAY_003",
+      "status": "PASS",
+      "note": "1 đánh giá, TB 4.0"
+    },
+    {
+      "id": "TC_CREVIEW_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_CREVIEW_002",
+      "status": "PASS",
+      "note": "PUBLISHED"
+    },
+    {
+      "id": "TC_CREVIEW_003",
+      "status": "PASS",
+      "note": "409"
+    },
+    {
+      "id": "TC_CREVIEW_004",
+      "status": "PASS",
+      "note": "PENDING, Admin có thông báo"
+    },
+    {
+      "id": "TC_CREVIEW_005",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_JREVIEW_001",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_JREVIEW_002",
+      "status": "PASS",
+      "note": "201"
+    },
+    {
+      "id": "TC_RREPLY_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_RREPLY_002",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_RREPLY_003",
+      "status": "PASS",
+      "note": "Đã lưu, SV có thông báo"
+    },
+    {
+      "id": "TC_RREPORT_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_RREPORT_002",
+      "status": "PASS",
+      "note": "201, Admin có thông báo"
+    },
+    {
+      "id": "TC_RREPORT_003",
+      "status": "PASS",
+      "note": "409"
+    },
+    {
+      "id": "TC_RREPORT_004",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_PUBREVIEW_001",
+      "status": "PASS",
+      "note": "Hiển thị, không lộ danh tính"
+    },
+    {
+      "id": "TC_COMPANY_001",
+      "status": "PASS",
+      "note": "Lưu và công khai đúng"
+    },
+    {
+      "id": "TC_COMPANY_002",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_COMPANY_003",
+      "status": "PASS",
+      "note": "400 / 400"
+    },
+    {
+      "id": "TC_COMPANY_004",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_COMPANY_005",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_COMPANY_006",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_COMPANY_007",
+      "status": "PASS",
+      "note": "Không lộ"
+    },
+    {
+      "id": "TC_COMPANY_008",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_COMPANY_009",
+      "status": "PASS",
+      "note": "giả 400, thật 200, xóa chéo 404"
+    },
+    {
+      "id": "TC_REP_001",
+      "status": "PASS",
+      "note": "Lưu, không công khai"
+    },
+    {
+      "id": "TC_VERIFY_SUB_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_VERIFY_SUB_002",
+      "status": "PASS",
+      "note": "400 Cần tải lên ít nhất 1 tài liệu (giấy chứng nhận đăng ký doanh nghiệp)."
+    },
+    {
+      "id": "TC_VERIFY_SUB_003",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_VERIFY_SUB_004",
+      "status": "PASS",
+      "note": "PENDING, Admin có thông báo"
+    },
+    {
+      "id": "TC_VERIFY_SUB_005",
+      "status": "PASS",
+      "note": "403, MST giữ nguyên"
+    },
+    {
+      "id": "TC_VERIFY_SUB_006",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_VERIFY_SUB_007",
+      "status": "PASS",
+      "note": "VERIFIED, có thông báo"
+    },
+    {
+      "id": "TC_CHGPW_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_CHGPW_002",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_CHGPW_003",
+      "status": "PASS",
+      "note": "Đổi xong, chỉ mật khẩu mới dùng được"
+    },
+    {
+      "id": "TC_CHGPW_004",
+      "status": "PASS",
+      "note": "401"
+    },
+    {
+      "id": "TC_AVATAR_001",
+      "status": "PASS",
+      "note": "Lưu và mở được ảnh"
+    },
+    {
+      "id": "TC_AVATAR_002",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_NOTI_001",
+      "status": "PASS",
+      "note": "7 chưa đọc"
+    },
+    {
+      "id": "TC_NOTI_002",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_NOTI_003",
+      "status": "PASS",
+      "note": "Còn 0 chưa đọc"
+    },
+    {
+      "id": "TC_REPORT_001",
+      "status": "PASS",
+      "note": "201, Admin có thông báo"
+    },
+    {
+      "id": "TC_REPORT_002",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_REPORT_003",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_REPORT_004",
+      "status": "PASS",
+      "note": "400 / 400"
+    },
+    {
+      "id": "TC_REPORT_005",
+      "status": "PASS",
+      "note": "401"
+    },
+    {
+      "id": "TC_REPORT_006",
+      "status": "PASS",
+      "note": "Cả hai có thông báo"
+    },
+    {
+      "id": "TC_REPORT_007",
+      "status": "PASS",
+      "note": "Tin ẩn, NTD có thông báo"
+    },
+    {
+      "id": "TC_BAN_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_BAN_002",
+      "status": "PASS",
+      "note": "Phiên bị chặn (403)"
+    },
+    {
+      "id": "TC_BAN_003",
+      "status": "PASS",
+      "note": "403 Tài khoản của bạn đã bị khóa bởi Quản trị viên. Lý do: Spam báo cáo"
+    },
+    {
+      "id": "TC_BAN_004",
+      "status": "PASS",
+      "note": "201, Admin có thông báo"
+    },
+    {
+      "id": "TC_BAN_005",
+      "status": "PASS",
+      "note": "409"
+    },
+    {
+      "id": "TC_BAN_006",
+      "status": "PASS",
+      "note": "401"
+    },
+    {
+      "id": "TC_BAN_007",
+      "status": "PASS",
+      "note": "Đăng nhập lại được"
+    },
+    {
+      "id": "TC_BAN_008",
+      "status": "PASS",
+      "note": "400, báo cáo vẫn mở"
+    },
+    {
+      "id": "TC_TICK_001",
+      "status": "PASS",
+      "note": "200 / 200"
+    },
+    {
+      "id": "TC_SUPPORT_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_SUPPORT_002",
+      "status": "PASS",
+      "note": "Admin thấy yêu cầu"
+    },
+    {
+      "id": "TC_SUPPORT_003",
+      "status": "PASS",
+      "note": "201"
+    },
+    {
+      "id": "TC_SUPPORT_004",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_ADMIN_NOTI_001",
+      "status": "PASS",
+      "note": "Có 1 thông báo"
+    },
+    {
+      "id": "TC_ADMIN_NOTI_002",
+      "status": "PASS",
+      "note": "2 thông báo"
+    },
+    {
+      "id": "TC_ADMIN_NOTI_003",
+      "status": "PASS",
+      "note": "0 người ngoài Admin"
+    },
+    {
+      "id": "TC_STATS_001",
+      "status": "PASS",
+      "note": "Có số liệu"
+    },
+    {
+      "id": "TC_STATS_002",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_SITEMAP_001",
+      "status": "PASS",
+      "note": "XML hợp lệ"
+    },
+    {
+      "id": "TC_SCHED_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_SCHED_002",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_RELATED_001",
+      "status": "PASS",
+      "note": "1 tin liên quan"
+    },
+    {
+      "id": "TC_PROBE_001",
+      "status": "PASS",
+      "note": "409, 0 hợp đồng"
+    },
+    {
+      "id": "TC_PROBE_002",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_PROBE_003",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_PROBE_004",
+      "status": "PASS",
+      "note": "403 / 403"
+    },
+    {
+      "id": "TC_PROBE_005",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_PROBE_006",
+      "status": "PASS",
+      "note": "200/200, 40 tin"
+    },
+    {
+      "id": "TC_PROBE_007",
+      "status": "PASS",
+      "note": "404 / 400"
+    },
+    {
+      "id": "TC_PROBE_008",
+      "status": "PASS",
+      "note": "Lưu dạng văn bản (giao diện React escape khi hiển thị)"
+    },
+    {
+      "id": "TC_PROBE_009",
+      "status": "PASS",
+      "note": "400 Hồ sơ của bạn mới hoàn thiện 18%. Cần hoàn thiện 1"
+    },
+    {
+      "id": "TC_PROBE_010",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_MYAPPS_001",
+      "status": "PASS",
+      "note": "2 đơn, đơn JOB_PUBLIC = ACCEPTED"
+    },
+    {
+      "id": "TC_MYAPPS_002",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_MYWORK_001",
+      "status": "PASS",
+      "note": "1 hợp đồng"
+    },
+    {
+      "id": "TC_MYWORK_002",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_MYREVIEW_001",
+      "status": "PASS",
+      "note": "Có đánh giá và phản hồi"
+    },
+    {
+      "id": "TC_MYREVIEW_002",
+      "status": "PASS",
+      "note": "Đã sửa, edit_count=1"
+    },
+    {
+      "id": "TC_MYREVIEW_003",
+      "status": "PASS",
+      "note": "200,200,200,200,403"
+    },
+    {
+      "id": "TC_MYREVIEW_004",
+      "status": "PASS",
+      "note": "404"
+    },
+    {
+      "id": "TC_REVMOD_001",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_REVMOD_002",
+      "status": "PASS",
+      "note": "HIDDEN, ẩn khỏi trang công khai"
+    },
+    {
+      "id": "TC_REVMOD_003",
+      "status": "PASS",
+      "note": "Khôi phục PUBLISHED"
+    },
+    {
+      "id": "TC_REVMOD_004",
+      "status": "PASS",
+      "note": "409"
+    },
+    {
+      "id": "TC_MYJOBS_001",
+      "status": "PASS",
+      "note": "4 tin"
+    },
+    {
+      "id": "TC_MYJOBS_002",
+      "status": "PASS",
+      "note": "403"
+    },
+    {
+      "id": "TC_EREVIEW_001",
+      "status": "PASS",
+      "note": "Có số liệu tổng quan"
+    },
+    {
+      "id": "TC_EREVIEW_002",
+      "status": "PASS",
+      "note": "Đã xóa"
+    },
+    {
+      "id": "TC_COMPANY_010",
+      "status": "PASS",
+      "note": "Hiển thị đúng"
+    },
+    {
+      "id": "TC_COMPANY_011",
+      "status": "PASS",
+      "note": "Lưu 5000 ký tự"
+    },
+    {
+      "id": "TC_COMPANY_012",
+      "status": "PASS",
+      "note": "Đúng 2 mục"
+    },
+    {
+      "id": "TC_COMPANY_013",
+      "status": "PASS",
+      "note": "400/400/400"
+    },
+    {
+      "id": "TC_COMPANY_014",
+      "status": "PASS",
+      "note": "location=\"Linh Chiểu, Thủ Đức\""
+    },
+    {
+      "id": "TC_COMPANY_015",
+      "status": "PASS",
+      "note": "bìa 200, đổi 200, giả mạo 400"
+    },
+    {
+      "id": "TC_BANNER_001",
+      "status": "PASS",
+      "note": "200 / 403"
+    },
+    {
+      "id": "TC_APPEAL_LOGGED_001",
+      "status": "PASS",
+      "note": "201 + báo Admin, lần 2 409"
+    },
+    {
+      "id": "TC_VIOL_001",
+      "status": "PASS",
+      "note": "Bậc 1, 2; ACTIVE"
+    },
+    {
+      "id": "TC_VIOL_002",
+      "status": "PASS",
+      "note": "Bậc 3, BANNED, hạn 7 ngày"
+    },
+    {
+      "id": "TC_VIOL_003",
+      "status": "PASS",
+      "note": "Tự mở khóa"
+    },
+    {
+      "id": "TC_VIOL_004",
+      "status": "PASS",
+      "note": "3 bản ghi; SV 403"
+    },
+    {
+      "id": "TC_VIOL_005",
+      "status": "PASS",
+      "note": "400"
+    },
+    {
+      "id": "TC_WEBHOOK_001",
+      "status": "PASS",
+      "note": "401 / 401"
+    },
+    {
+      "id": "TC_WEBHOOK_002",
+      "status": "PASS",
+      "note": "401"
+    },
+    {
+      "id": "TC_WEBHOOK_003",
+      "status": "PASS",
+      "note": "200, VERIFIED"
+    },
+    {
+      "id": "TC_VIOL_006",
+      "status": "PASS",
+      "note": "Khóa vĩnh viễn, đăng nhập bị chặn"
+    },
+    {
+      "id": "TC_PROBE_011",
+      "status": "PASS",
+      "note": "40 tin"
+    },
+    {
+      "id": "TC_JOB_GATE_001",
+      "status": "PASS",
+      "note": "403, thiếu 11 mục, 0 tin"
+    },
+    {
+      "id": "TC_JOB_GATE_002",
+      "status": "PASS",
+      "note": "403, chỉ thiếu xác minh"
+    },
+    {
+      "id": "TC_JOB_GATE_003",
+      "status": "PASS",
+      "note": "201"
+    },
+    {
+      "id": "TC_APPLY_GATE_001",
+      "status": "PASS",
+      "note": "400, 91%, thiếu Vị trí mong muốn"
+    },
+    {
+      "id": "TC_APPLY_GATE_002",
+      "status": "PASS",
+      "note": "201"
+    },
+    {
+      "id": "TC_APPLY_GATE_003",
+      "status": "PASS",
+      "note": "91%, thiếu Kỹ năng, 400"
+    }
+  ]
+}

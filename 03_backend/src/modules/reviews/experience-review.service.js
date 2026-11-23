@@ -3,6 +3,7 @@
 const db = require('../../config/db');
 const { AppError, NotFoundError, ForbiddenError, ConflictError } = require('../../utils/app-error');
 const P = require('./experience-review.policy');
+const { notifyAdmins } = require('../notifications/admin-notify');
 
 const TABLE = { company: 'company_reviews', job: 'job_reviews' };
 const FK = { company: 'company_review_id', job: 'job_review_id' };
@@ -258,6 +259,7 @@ class ExperienceReviewService {
             }
             return newId;
         });
+        if (status === 'PENDING') await notifyAdmins('Đánh giá doanh nghiệp chờ duyệt', 'Một đánh giá doanh nghiệp mới cần kiểm duyệt trước khi công khai.', 'COMPANY_REVIEW', id);
         return this.ownerView('company', id);
     }
 
@@ -295,6 +297,7 @@ class ExperienceReviewService {
             }
             return newId;
         });
+        if (status === 'PENDING') await notifyAdmins('Đánh giá công việc chờ duyệt', `Đánh giá mới cho công việc "${job.title}" cần kiểm duyệt trước khi công khai.`, 'JOB_REVIEW', id);
         return this.ownerView('job', id);
     }
 
@@ -460,7 +463,7 @@ class ExperienceReviewService {
             [id, user.id]
         );
         if (dup.rows.length) throw new ConflictError('Bạn đã báo cáo đánh giá này và đang chờ quản trị viên xử lý');
-        return withTransaction(async (client) => {
+        const report = await withTransaction(async (client) => {
             const ins = await client.query(
                 `INSERT INTO review_reports (${FK[type]}, reporter_id, kind, reason, description)
                  VALUES ($1, $2, 'REPORT', $3, $4) RETURNING id, reason, status, created_at`,
@@ -469,6 +472,8 @@ class ExperienceReviewService {
             await log(client, type, id, { actorId: user.id, actorRole: user.role, action: 'REPORTED', reason, reportId: ins.rows[0].id });
             return ins.rows[0];
         });
+        await notifyAdmins('Báo cáo đánh giá mới', `Một đánh giá ${type === 'company' ? 'doanh nghiệp' : 'công việc'} (#${id}) bị báo cáo: ${reason}.`, 'REVIEW_REPORT', report.id);
+        return report;
     }
 
     async appealReview(reviewerId, type, id, body) {
@@ -480,7 +485,7 @@ class ExperienceReviewService {
             `SELECT 1 FROM review_reports WHERE ${FK[type]} = $1 AND kind = 'APPEAL' AND status = 'PENDING'`, [id]
         );
         if (dup.rows.length) throw new ConflictError('Khiếu nại trước đó của bạn đang chờ xử lý');
-        return withTransaction(async (client) => {
+        const appeal = await withTransaction(async (client) => {
             const ins = await client.query(
                 `INSERT INTO review_reports (${FK[type]}, reporter_id, kind, reason, description)
                  VALUES ($1, $2, 'APPEAL', 'APPEAL', $3) RETURNING id, status, created_at`,
@@ -489,6 +494,8 @@ class ExperienceReviewService {
             await log(client, type, id, { actorId: reviewerId, actorRole: 'STUDENT', action: 'APPEALED', reason: description, reportId: ins.rows[0].id });
             return ins.rows[0];
         });
+        await notifyAdmins('Khiếu nại kiểm duyệt đánh giá', `Sinh viên khiếu nại quyết định với đánh giá ${type === 'company' ? 'doanh nghiệp' : 'công việc'} #${id}.`, 'REVIEW_REPORT', appeal.id);
+        return appeal;
     }
 
     // ------------------------------------------------------------------ employer

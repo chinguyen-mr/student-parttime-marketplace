@@ -289,7 +289,38 @@ class EmployerPublicService {
     }
 }
 
+// 11 mục của thanh "Mức độ hoàn thiện hồ sơ" doanh nghiệp (khớp completionOf ở companyProfileShared.js).
+// Đủ 100% — gồm cả "Xác minh doanh nghiệp" đã được Admin duyệt — mới được đăng tin.
+const text = (v) => Boolean(v && String(v).trim());
+const POSTING_ITEMS = [
+    ['Logo doanh nghiệp', (r) => text(r.avatar_url)],
+    ['Ảnh bìa', (r) => text(r.cover_url)],
+    ['Ít nhất 3 ảnh thư viện', (r) => asList(r.office_images).filter(u => typeof u === 'string' && u.startsWith('/api/files/')).length >= 3],
+    ['Lĩnh vực & quy mô', (r) => text(r.industry) && text(r.company_size)],
+    ['Địa chỉ trụ sở', (r) => text(r.detailed_address)],
+    ['Giới thiệu doanh nghiệp', (r) => text(r.bio)],
+    ['Môi trường hoặc văn hóa', (r) => text(r.work_environment_desc) || text(r.internal_culture)],
+    ['Ít nhất 2 chính sách nhân sự', (r) => Object.keys(readPolicies(r.hr_policy_details)).length + (text(r.benefits) ? 1 : 0) >= 2],
+    ['Email hoặc SĐT tuyển dụng', (r) => text(r.public_email) || text(r.public_phone)],
+    ['Ghim vị trí trụ sở', (r) => r.latitude !== null && r.latitude !== undefined && r.latitude !== ''],
+    ['Xác minh doanh nghiệp (Admin đã duyệt)', (r) => normalizeLegalStatus(r.verification_status) === 'VERIFIED'],
+];
+
+/** Mức sẵn sàng đăng tin: { rate, missing, complete } — tính từ dòng employer_profiles hiện tại. */
+function postingReadinessOf(row = {}) {
+    const missing = POSTING_ITEMS.filter(([, ok]) => !ok(row)).map(([label]) => label);
+    const rate = Math.round(((POSTING_ITEMS.length - missing.length) / POSTING_ITEMS.length) * 100);
+    return { rate, missing, complete: missing.length === 0 };
+}
+
+async function getPostingReadiness(userId) {
+    const res = await db.query('SELECT * FROM employer_profiles WHERE user_id = $1', [userId]);
+    return postingReadinessOf(res.rows[0] || {});
+}
+
 module.exports = new EmployerPublicService();
+module.exports.postingReadinessOf = postingReadinessOf;
+module.exports.getPostingReadiness = getPostingReadiness;
 module.exports.toPublicDto = toPublicDto;
 module.exports.validatePublicInfo = validatePublicInfo;
 module.exports.normalizeLegalStatus = normalizeLegalStatus;

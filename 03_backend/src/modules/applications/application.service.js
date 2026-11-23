@@ -1,7 +1,6 @@
 const db = require('../../config/db');
 const applicationRepository = require('../../database/repositories/application.repository');
 const jobRepository = require('../../database/repositories/job.repository');
-const profileRepository = require('../../database/repositories/profile.repository');
 const studentProfileService = require('../auth/student-profile.service');
 const { NotFoundError, ForbiddenError, ConflictError, AppError, StateTransitionInvalidError } = require('../../utils/app-error');
 
@@ -26,15 +25,14 @@ class ApplicationService {
             throw new AppError('Tin tuyển dụng chưa được Quản trị viên duyệt', 400);
         }
 
-        // Quy tắc: Sinh viên chưa hoàn thiện hồ sơ thì chưa được ứng tuyển
-        try {
-            const profile = await profileRepository.findByUserId(studentId);
-            if (profile && (!profile.school && !profile.university && !profile.major)) {
-                throw new AppError('Hồ sơ của bạn chưa hoàn thiện. Vui lòng cập nhật đầy đủ thông tin (Trường học, Chuyên ngành, CV) trước khi nộp đơn ứng tuyển!', 400);
-            }
-        } catch (profErr) {
-            if (profErr instanceof AppError) throw profErr;
-            // Bỏ qua lỗi kết nối DB nếu đang chạy trong môi trường test cô lập
+        // Quy tắc: hồ sơ sinh viên phải hoàn thiện 100% (đủ 11 mục của thanh "Mức độ hoàn thiện") mới được ứng tuyển
+        const readiness = await studentProfileService.getApplyReadiness(studentId);
+        if (!readiness.complete) {
+            throw new AppError(
+                `Hồ sơ của bạn mới hoàn thiện ${readiness.rate}%. Cần hoàn thiện 100% trước khi ứng tuyển. Còn thiếu: ${readiness.missing.join(', ')}.`,
+                400,
+                { code: 'PROFILE_INCOMPLETE', rate: readiness.rate, missing: readiness.missing }
+            );
         }
 
         // Quy tắc 3: Không cho phép ứng tuyển trùng (1 sinh viên chỉ nộp 1 lần cho 1 công việc)

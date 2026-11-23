@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Search, Eye, MapPin, DollarSign, Bell, ArrowLeft, ArrowRight, Briefcase, Filter, Sparkles
+  Search, Eye, MapPin, DollarSign, Bell, ArrowLeft, ArrowRight, Briefcase, Filter, Sparkles,
+  Menu, X, Home, Info, Building2, Plus, LayoutDashboard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button, AnimatedToast, CustomDropdown } from './components/ui';
@@ -40,6 +41,7 @@ import AccountSettingsPage from './pages/student/AccountSettingsPage';
 import { API_BASE, checkBackendConnection, formatApiError } from './config/api';
 import { takeRestoredTab, rememberTab, clearRememberedTabs } from './utils/rememberedTab';
 import { isImeComposing } from './utils/ime';
+import { ADMIN_TASK_TABS, employerTabForNotification } from './utils/notificationRoutes';
 import useJobCategories from './hooks/useJobCategories';
 
 // ===== Giữ đăng nhập & vị trí khi tải lại trang =====
@@ -125,7 +127,8 @@ export default function App() {
     'create_job',
     'applicants',
     'employer_assignments',
-    'employer_profile'
+    'employer_profile',
+    'employer_nav'
   ];
   const isEmployerWorkspace = Boolean(
     isEmployer && (
@@ -166,6 +169,7 @@ export default function App() {
       'applicants',
       'employer_assignments',
       'employer_profile',
+      'employer_nav',
       'notifications'
     ].includes(activeTab)
   );
@@ -206,7 +210,17 @@ export default function App() {
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false); // Screen 3
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [adminNav, setAdminNav] = useState({ tab: 'dashboard', n: 0 }); // mở đúng mục trong trang Admin (VD từ thông báo)
+  const [employerNav, setEmployerNav] = useState({ tab: 'dashboard', n: 0 }); // mở đúng mục trong trang Nhà tuyển dụng từ thông báo
   const [headerIntroMenuOpen, setHeaderIntroMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false); // ngăn menu ☰ trên điện thoại
+  // Tự đóng ngăn menu khi chuyển trang hoặc nhấn Esc
+  useEffect(() => { setMobileNavOpen(false); }, [activeTab]); // eslint-disable-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    if (!mobileNavOpen) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setMobileNavOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mobileNavOpen]);
   const [aboutSection, setAboutSection] = useState('about');
   const introMenuRef = useRef(null);
   const introTimeoutRef = useRef(null);
@@ -280,14 +294,15 @@ export default function App() {
   const [registerSuccessModalOpen, setRegisterSuccessModalOpen] = useState(false);
 
   // Hồ sơ sinh viên đủ để ứng tuyển? Hỏi server (GET /profile/me) — đúng trên mọi thiết bị
+  // Hồ sơ phải hoàn thiện 100% mới được ứng tuyển (backend tính lại và cũng chặn khi nộp đơn)
   const fetchStudentProfileComplete = async () => {
     try {
       const res = await fetch(`${API_BASE}/profile/me`, { headers: { Authorization: `Bearer ${currentUser.token}` } });
       const data = await res.json();
-      const p = data?.data || {};
-      return Boolean(p.is_profile_completed || ((p.school || p.university) && p.major));
+      const c = data?.data?.completion;
+      return c || { complete: false, rate: 0, missing: [] };
     } catch {
-      return true; // lỗi mạng: để backend kiểm tra lại khi nộp đơn
+      return { complete: true }; // lỗi mạng: để backend kiểm tra lại khi nộp đơn
     }
   };
 
@@ -648,6 +663,19 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    // Việc cần Admin xử lý (xác minh DN, tin chờ duyệt, báo cáo, khiếu nại, đánh giá) → mở đúng mục
+    if (currentUser?.role === 'ADMIN') {
+      setAdminNav(prev => ({ tab: ADMIN_TASK_TABS[item?.target_type] || 'dashboard', n: prev.n + 1 }));
+      setActiveTab('admin');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (currentUser?.role === 'EMPLOYER') {
+      setEmployerNav(prev => ({ tab: employerTabForNotification(item), n: prev.n + 1 }));
+      setActiveTab('employer_nav');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (currentUser?.role !== 'STUDENT') {
       showToast(`Đã mở thông báo: ${item?.title || ''}`);
       return;
@@ -875,6 +903,11 @@ export default function App() {
         setJobDetailModalOpen(false);
       } else {
         showToast(data.message, 'error');
+        // Hồ sơ chưa hoàn thiện 100% → mở trang hồ sơ để bổ sung
+        if (data.details?.code === 'PROFILE_INCOMPLETE') {
+          setJobDetailModalOpen(false);
+          openStudentTab('profile');
+        }
       }
     } catch (err) {
       showToast(formatApiError(err), 'error');
@@ -901,9 +934,10 @@ export default function App() {
       return;
     }
 
-    // Yêu cầu: Sinh viên chưa hoàn thành hồ sơ thì CHƯA ĐƯỢC ỨNG TUYỂN
-    if (!(await fetchStudentProfileComplete())) {
-      showToast('Bạn chưa hoàn thiện hồ sơ sinh viên! Vui lòng cập nhật đầy đủ thông tin (Trường học, Chuyên ngành, Kỹ năng, CV) để nộp đơn ứng tuyển.', 'error');
+    // Yêu cầu: hồ sơ sinh viên phải hoàn thiện 100% mới được ứng tuyển
+    const completion = await fetchStudentProfileComplete();
+    if (!completion.complete) {
+      showToast(`Hồ sơ của bạn mới hoàn thiện ${completion.rate}%. Cần đạt 100% để ứng tuyển${completion.missing?.length ? ` — còn thiếu: ${completion.missing.join(', ')}` : ''}.`, 'error');
       openStudentTab('profile');
       return;
     }
@@ -1236,6 +1270,7 @@ export default function App() {
             {currentUser?.token && currentUser?.role === 'STUDENT' && (
               <button
                 type="button"
+                className="jn-role-badge"
                 onClick={(e) => {
                   e.stopPropagation();
                   setActiveTab('student_dashboard');
@@ -1264,6 +1299,7 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <button
                   type="button"
+                  className="jn-role-badge"
                   onClick={(e) => {
                     e.stopPropagation(); // nằm trong khối logo (bấm logo = về trang chủ)
                     setActiveTab('employer_dashboard');
@@ -1292,6 +1328,7 @@ export default function App() {
                 {isEmployerWorkspace && (
                   <button
                     type="button"
+                    className="jn-header-post-btn"
                     onClick={(e) => {
                       e.stopPropagation(); // nằm trong khối logo (bấm logo = về trang chủ)
                       setEditingEmployerJob(null);
@@ -1602,7 +1639,7 @@ export default function App() {
           <div className="jn-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
             {/* TRƯỜNG 2: Nút ← Về trang Quản lý nổi bật khi Nhà tuyển dụng đang xem Marketplace */}
             {currentUser?.token && currentUser?.role === 'ADMIN' && !isAdminWorkspace && (
-              <button className="jn-header-auth-btn"
+              <button className="jn-header-auth-btn jn-back-workspace"
                 type="button"
                 onClick={() => {
                   setActiveTab('admin');
@@ -1633,7 +1670,7 @@ export default function App() {
             )}
 
             {currentUser?.token && currentUser?.role === 'EMPLOYER' && !isEmployerWorkspace && (
-              <button className="jn-header-auth-btn"
+              <button className="jn-header-auth-btn jn-back-workspace"
                 type="button"
                 onClick={() => {
                   setActiveTab('employer_dashboard');
@@ -1665,7 +1702,7 @@ export default function App() {
 
             {/* Đăng tin tuyển dụng - CHỈ HIỆN KHI ĐÃ ĐĂNG NHẬP VỚI VAI TRÒ NHÀ TUYỂN DỤNG VÀ Ở TRƯỜNG 2 */}
             {currentUser?.token && currentUser?.role === 'EMPLOYER' && !isEmployerWorkspace && (
-              <button className="jn-header-auth-btn"
+              <button className="jn-header-auth-btn jn-back-workspace"
                 type="button"
                 onClick={() => setActiveTab('create_job')}
                 style={{
@@ -1809,8 +1846,51 @@ export default function App() {
                 </button>
               </>
             )}
+            {/* Điện thoại: menu điều hướng gom vào ngăn ☰ (ẩn trên màn rộng bằng CSS) */}
+            <button
+              type="button"
+              className="jn-mobile-menu-btn"
+              aria-label={mobileNavOpen ? 'Đóng menu' : 'Mở menu'}
+              aria-expanded={mobileNavOpen}
+              aria-controls="jn-mobile-nav"
+              onClick={() => setMobileNavOpen(o => !o)}
+            >
+              {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
+
+        {mobileNavOpen && (() => {
+          const go = (fn) => () => { setMobileNavOpen(false); fn(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+          const inWorkspace = isEmployerWorkspace || isAdminWorkspace;
+          const items = inWorkspace
+            ? [{ key: 'market', label: 'Khám phá thị trường việc làm', icon: Search, onClick: go(() => setActiveTab('jobs')) }]
+            : [
+              { key: 'home', label: 'Trang chủ', icon: Home, active: activeTab === 'home', onClick: go(() => setActiveTab('home')) },
+              { key: 'jobs', label: 'Tìm việc làm', icon: Briefcase, active: activeTab === 'jobs', onClick: go(() => setActiveTab('jobs')) },
+              { key: 'schedule', label: 'Việc làm theo lịch rảnh', icon: Sparkles,
+                onClick: go(() => (currentUser?.role === 'STUDENT' ? openStudentTab('availability') : navigateToSection('schedule-matching'))) },
+              { key: 'about', label: 'Giới thiệu', icon: Info, active: activeTab === 'about', onClick: go(() => handleNavigateAbout('about')) },
+              ...(currentUser?.role !== 'EMPLOYER' && currentUser?.role !== 'ADMIN'
+                ? [{ key: 'employer', label: 'Dành cho nhà tuyển dụng', icon: Building2, onClick: go(() => setActiveTab('login')) }] : []),
+            ];
+          if (currentUser?.role === 'STUDENT') items.push({ key: 'sv', label: 'Trang Sinh viên của tôi', icon: LayoutDashboard, onClick: go(() => openStudentTab('dashboard')) });
+          if (currentUser?.role === 'EMPLOYER') {
+            if (!isEmployerWorkspace) items.push({ key: 'emp', label: 'Trang quản lý nhà tuyển dụng', icon: LayoutDashboard, onClick: go(() => setActiveTab('employer_dashboard')) });
+            items.push({ key: 'post', label: 'Đăng tin tuyển dụng mới', icon: Plus, onClick: go(() => { setEditingEmployerJob(null); setActiveTab('create_job'); }) });
+          }
+          if (currentUser?.role === 'ADMIN' && !isAdminWorkspace) items.push({ key: 'admin', label: 'Về Bảng Quản trị', icon: LayoutDashboard, onClick: go(() => setActiveTab('admin')) });
+          return (
+            <nav id="jn-mobile-nav" className="jn-mobile-nav" aria-label="Menu điều hướng">
+              {items.map(({ key, label, icon: Icon, active, onClick }) => (
+                <button key={key} type="button" onClick={onClick} className={active ? 'is-active' : undefined} aria-current={active ? 'page' : undefined}>
+                  <Icon size={19} aria-hidden="true" />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </nav>
+          );
+        })()}
 
         {/* Admin xem trang công khai: chỉ để kiểm tra hiển thị, không thao tác như sinh viên/NTD */}
         {currentUser?.token && currentUser?.role === 'ADMIN' && !isAdminWorkspace && (
@@ -1960,7 +2040,7 @@ export default function App() {
             {activeTab === 'jobs' && (
               <div>
                 {/* Search & Filter Hero Banner matching Screen 6 */}
-                <div style={{
+                <div className="jn-search-hero" style={{
                   background: '#5C4B82',
                   borderRadius: 14,
                   padding: '32px 30px',
@@ -1969,7 +2049,7 @@ export default function App() {
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
                     <div>
-                      <span style={{
+                      <span className="jn-search-hero-badge" style={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 6,
@@ -1984,10 +2064,10 @@ export default function App() {
                       }}>
                         ✨ JobNest • Việc làm Part-time & Full-time Tin cậy
                       </span>
-                      <h2 style={{ fontSize: 24, fontWeight: 800, color: '#ffffff', margin: '0 0 6px 0', letterSpacing: '-0.3px' }}>
+                      <h2 className="jn-search-hero-title" style={{ fontSize: 24, fontWeight: 800, color: '#ffffff', margin: '0 0 6px 0', letterSpacing: '-0.3px' }}>
                         TÌM KIẾM VIỆC LÀM PART-TIME & FULL-TIME
                       </h2>
-                      <p style={{ color: '#FFFFFF', fontSize: 14, margin: 0, maxWidth: '60ch', lineHeight: 1.55 }}>
+                      <p className="jn-search-hero-desc" style={{ color: '#FFFFFF', fontSize: 14, margin: 0, maxWidth: '60ch', lineHeight: 1.55 }}>
                         Khám phá việc làm bán thời gian và toàn thời gian chất lượng dành riêng cho sinh viên trên hệ thống JobNest. Minh bạch thù lao, hợp đồng rõ ràng và bảo vệ quyền lợi sinh viên tối đa.
                       </p>
                     </div>
@@ -2534,14 +2614,17 @@ export default function App() {
                 activeTab === 'applicants' ||
                 activeTab === 'employer_assignments' ||
                 activeTab === 'employer_profile' ||
+                activeTab === 'employer_nav' ||
                 activeTab === 'account_settings'
               )) ||
               (activeTab === 'employer_jobs' && currentUser?.role !== 'EMPLOYER') ||
               (activeTab === 'create_job' && currentUser?.role !== 'EMPLOYER')
             ) && (
               <EmployerPortal
+                key={`employer-${employerNav.n}`}
                 currentUser={currentUser}
                 initialTab={
+                  activeTab === 'employer_nav' ? employerNav.tab :
                   activeTab === 'create_job' ? 'create_job' :
                   activeTab === 'employer_jobs' ? 'jobs' :
                   activeTab === 'applicants' ? 'applicants' :

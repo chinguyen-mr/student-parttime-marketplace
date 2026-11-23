@@ -13,6 +13,20 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { useRememberedTab } from '../../utils/rememberedTab';
+import MobileSectionBar from '../../components/layout/MobileSectionBar';
+
+const ADMIN_MENU = [
+  { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+  { id: 'users', label: 'Người dùng', icon: Users },
+  { id: 'employer_verification', label: 'Xác minh doanh nghiệp', icon: Building2 },
+  { id: 'appeals', label: 'Khiếu nại tài khoản', icon: Shield },
+  { id: 'support', label: 'Hỗ trợ liên hệ', icon: Headphones },
+  { id: 'moderation', label: 'Kiểm duyệt tin', icon: ShieldCheck },
+  { id: 'reports', label: 'Báo cáo', icon: AlertTriangle },
+  { id: 'reviews', label: 'Kiểm duyệt đánh giá', icon: Star },
+  { id: 'categories', label: 'Danh mục', icon: Tag },
+  { id: 'logs', label: 'Nhật ký hệ thống', icon: History },
+];
 
 // Import all Admin Sub-pages (WF-A01 to WF-A08)
 import AdminDashboardPage from './AdminDashboardPage';   // WF-A01
@@ -43,6 +57,7 @@ export default function AdminPortal({
   const [activeTab, setActiveTab] = useRememberedTab('admin', initialTab,
     ['dashboard', 'users', 'employer_verification', 'appeals', 'support', 'moderation', 'reports', 'reviews', 'categories', 'logs']);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const currentMenu = ADMIN_MENU.find(m => m.id === activeTab) || ADMIN_MENU[0];
 
   // Chỉ đồng bộ khi initialTab thật sự đổi → không ghi đè mục vừa khôi phục sau F5
   const prevInitialTab = React.useRef(initialTab);
@@ -152,38 +167,9 @@ export default function AdminPortal({
       background: '#F8FAFC',
       boxSizing: 'border-box'
     }}>
-      {/* Nút bật/tắt Menu trên màn hình nhỏ (Tablet & Mobile < 1024px) */}
-      <div className="admin-mobile-menu-bar" style={{
-        display: 'none',
-        padding: '10px 16px',
-        background: '#ffffff',
-        borderBottom: '1px solid var(--color-border-hover)',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Shield size={18} color="#B91C1C" />
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A' }}>
-            Menu Quản trị ({activeTab.toUpperCase()})
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          style={{
-            padding: '6px 14px',
-            borderRadius: 6,
-            border: '1px solid var(--color-border-hover)',
-            background: mobileMenuOpen ? '#0F172A' : '#ffffff',
-            color: mobileMenuOpen ? '#ffffff' : '#0F172A',
-            fontSize: 12.5,
-            fontWeight: 700,
-            cursor: 'pointer'
-          }}
-        >
-          {mobileMenuOpen ? '✕ Đóng Menu' : '☰ Chọn mục'}
-        </button>
-      </div>
+      {/* Điện thoại/tablet: thanh "Mục đang xem ▾" (hiện tên mục tiếng Việt, không phải mã nội bộ) */}
+      <MobileSectionBar icon={currentMenu.icon} label={currentMenu.label} hint="Mục quản trị"
+        open={mobileMenuOpen} onToggle={() => setMobileMenuOpen(o => !o)} controlsId="admin-sidebar" />
 
       {/* 2-COLUMN FULL-WIDTH LAYOUT: SIDEBAR SÁT MÉP TRÁI (260px) + MAIN CONTENT CHIẾM TOÀN BỘ PHẦN CÒN LẠI */}
       <div className="employer-grid-layout" style={{
@@ -194,8 +180,9 @@ export default function AdminPortal({
         width: '100%'
       }}>
         {/* ================= REUSABLE LEFT SIDEBAR (SÁT MÉP TRÁI VIEWPORT 260px) ================= */}
-        <aside 
-          className={`employer-sidebar-aside ${mobileMenuOpen ? 'mobile-open' : ''}`} 
+        <aside
+          id="admin-sidebar"
+          className={`employer-sidebar-aside ${mobileMenuOpen ? 'mobile-open' : ''}`}
           style={{
             width: 260,
             background: '#ffffff',
@@ -268,18 +255,7 @@ export default function AdminPortal({
 
           {/* Sidebar Menu Items */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {[
-              { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-              { id: 'users', label: 'Người dùng', icon: Users },
-              { id: 'employer_verification', label: 'Xác minh doanh nghiệp', icon: Building2 },
-              { id: 'appeals', label: 'Khiếu nại tài khoản', icon: Shield },
-              { id: 'support', label: 'Hỗ trợ liên hệ', icon: Headphones },
-              { id: 'moderation', label: 'Kiểm duyệt tin', icon: ShieldCheck },
-              { id: 'reports', label: 'Báo cáo', icon: AlertTriangle },
-              { id: 'reviews', label: 'Kiểm duyệt đánh giá', icon: Star },
-              { id: 'categories', label: 'Danh mục', icon: Tag },
-              { id: 'logs', label: 'Nhật ký hệ thống', icon: History },
-            ].map(item => {
+            {ADMIN_MENU.map(item => {
               const isActive = activeTab === item.id;
               const IconComp = item.icon;
               return (

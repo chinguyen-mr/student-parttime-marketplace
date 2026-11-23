@@ -454,8 +454,44 @@ Mỗi API trong hệ thống được chuẩn hóa với đầy đủ 14 thông 
 - **Endpoint:** `GET /api/jobs/categories` (Public) — trả các ngành đang hoạt động, dùng cho bộ lọc tìm việc, trang chủ và chân trang (đồng bộ với danh mục Admin quản lý).
 
 ### [API-21] Tải ảnh banner tin tuyển dụng
-- **Endpoint:** `POST /api/files/job-banner` (Nhà tuyển dụng) — Body `{ "data_url": "data:image/...;base64,...", "name": "banner.jpg" }`; lưu loại tệp `JOB_BANNER` (migration `019_job_banner_upload.sql`), trả đường dẫn công khai để gắn vào tin.
+- **Endpoint:** `POST /api/files/job-banner` (Nhà tuyển dụng; vai trò khác → `403`) — Body `{ "image": "data:image/...;base64,..." }`; lưu loại tệp `JOB_BANNER` (migration `019_job_banner_upload.sql`), trả đường dẫn công khai để gắn vào tin.
 
 ### Thay đổi giới hạn hồ sơ và mật khẩu
 - `PUT /api/profile/me/student`, `PUT /api/profile/me/employer-public`, `PUT /api/profile/me/verification`: họ tên / tên hiển thị / tên pháp nhân **tối đa 255 ký tự — vượt thì trả `400`**, không cắt bớt âm thầm.
 - `POST /api/auth/change-password`: mật khẩu mới ≥ 8 ký tự.
+
+---
+
+## 4. Thay đổi sau đợt kiểm thử bổ sung 165 test case (21–22/11/2026)
+
+> Không có migration mới. Số hiệu lỗi tương ứng xem `BUGLOG.md` (BUG-28 → BUG-31). Kết quả: 479/479 test case Passed.
+
+### [API-22] Thông báo "việc cần Admin xử lý" (`ADMIN_TASK`)
+- Mỗi Admin đang hoạt động nhận 1 thông báo `type = 'ADMIN_TASK'` khi: đăng tin mới / sửa nội dung tin (`target_type = JOB`), gửi hồ sơ xác minh doanh nghiệp (`EMPLOYER_VERIFICATION`, `target_id` = id nhà tuyển dụng), báo cáo vi phạm (`REPORT`), khiếu nại tài khoản (`USER_APPEAL`), báo cáo / khiếu nại đánh giá (`REVIEW_REPORT`), đánh giá mới bị chuyển chờ duyệt (`COMPANY_REVIEW`, `JOB_REVIEW`).
+- Đọc qua `GET /api/notifications` như thông báo thường; giao diện dùng `target_type` để mở đúng mục trang Admin (`04_frontend/src/utils/notificationRoutes.js`).
+- Gửi sau khi thao tác chính đã lưu; lỗi gửi thông báo chỉ ghi log, không làm hỏng thao tác của người dùng.
+
+### [API-23] Xử lý báo cáo vi phạm — thông báo các bên
+- `POST /api/admin/reports/:id/action`:
+  - `WARNING` → đối tượng bị báo cáo nhận `VIOLATION_NOTICE`.
+  - `BAN_USER` → đi qua luồng khóa chuẩn (`PATCH /api/admin/users/:id/status`): chặn khóa Admin cuối cùng, `400` nếu Admin tự khóa mình; lỗi thì báo cáo vẫn ở trạng thái chờ.
+  - `REMOVE_JOB` → chỉ áp dụng báo cáo nhắm vào tin (`400` nếu không), lưu `moderation_reason`, nhà tuyển dụng nhận thông báo.
+  - Mọi kết quả → người gửi báo cáo nhận `REPORT_RESOLVED` (không tiết lộ hình thức xử lý).
+
+### [API-24] Khiếu nại tài khoản — một khiếu nại đang mở
+- `POST /api/profile/appeals` (đã đăng nhập) và `POST /api/auth/appeals` (tài khoản bị khóa): nội dung bắt buộc, tối đa 2000 ký tự; đang có khiếu nại `PENDING` / `IN_REVIEW` → `409 Conflict`.
+
+### [API-25] Chọn ứng viên — chỉ đơn còn hiệu lực (BUG-28)
+- `POST /api/jobs/:jobId/selections`: chỉ chấp nhận đơn `PENDING`, `REVIEWING`, `SHORTLISTED`. Đơn `WITHDRAWN` (sinh viên đã rút) hoặc trạng thái khác → `409 Conflict`, không tạo hợp đồng.
+
+### [API-26] Tìm việc — chuẩn hóa phân trang (BUG-29)
+- `GET /api/jobs?page=&limit=`: `page` < 1 hoặc không phải số → 1; `limit` không phải số → 20; `limit` tối đa **500** (trang Tìm việc tải 500 tin rồi lọc phía trình duyệt). Không còn lỗi `500` do tham số sai.
+
+### [API-27] Khóa tài khoản có thời hạn (BUG-30)
+- Vi phạm lần 3 (`POST /api/admin/users/:id/violations`) đặt `status = BANNED` kèm `suspension_expires_at` = 7 ngày.
+- Khi hết hạn, tài khoản tự về `ACTIVE` ở lần đăng nhập (`POST /api/auth/login`) hoặc request kế tiếp. Lúc còn hạn, `403` kèm thông báo "bị khóa … đến ngày dd/mm/yyyy".
+- Admin khóa tay (`PATCH /api/admin/users/:id/status` với `BANNED`) xóa `suspension_expires_at` → khóa vĩnh viễn tới khi mở tay.
+
+### [API-28] Webhook Twenty CRM — bắt buộc khóa bí mật cấu hình (BUG-31)
+- `POST /api/webhooks/twenty`, header `x-api-key: <JOBNEST_SYNC_API_KEY>`.
+- **Không còn khóa mặc định trong mã nguồn.** Máy chủ chưa đặt `JOBNEST_SYNC_API_KEY` (hoặc `TWENTY_SYNC_API_KEY`) → mọi yêu cầu bị `401` (webhook tắt). Khóa thiếu / sai → `401`.

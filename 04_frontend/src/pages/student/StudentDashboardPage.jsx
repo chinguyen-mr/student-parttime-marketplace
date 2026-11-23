@@ -33,6 +33,7 @@ import NotificationsPage from './NotificationsPage';
 import AccountSettingsPage from './AccountSettingsPage';
 import AvailabilityEditor, { normalizeSlots } from '../../components/student/AvailabilityEditor';
 import AvatarUploader from '../../components/common/AvatarUploader';
+import MobileSectionBar from '../../components/layout/MobileSectionBar';
 import StudentProfileForm from '../../components/student/StudentProfileForm';
 import MyExperienceReviews from '../../components/reviews/MyExperienceReviews';
 import { CountUp } from '../../components/motion';
@@ -64,6 +65,7 @@ export default function StudentDashboardPage({
 }) {
   const [activeTab, setActiveTab] = useRememberedTab('student', initialTab,
     ['dashboard', 'availability', 'profile', 'cv', 'saved_jobs', 'applications', 'assignments', 'reviews', 'notifications', 'settings']); // 'dashboard' | 'availability' | 'profile' | 'cv' | 'saved_jobs' | 'applications' | 'assignments' | 'reviews' | 'notifications'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // danh sách mục trên điện thoại
   
   // Dashboard overall loading & error states (WF-S01 Error / Loading / Retry)
   const [dashboardLoading, setDashboardLoading] = useState(false);
@@ -549,17 +551,34 @@ export default function StudentDashboardPage({
   };
 
 
+  const menuItems = [
+    { id: 'dashboard', label: 'Tổng quan', icon: Briefcase, count: null },
+    { id: 'availability', label: 'Lịch rảnh & Gợi ý AI', icon: Calendar, count: null },
+    { id: 'profile', label: 'Hồ sơ xin việc', icon: User, count: null },
+    { id: 'cv', label: 'Quản lý CV', icon: GraduationCap, count: null },
+    { id: 'saved_jobs', label: 'Việc làm đã lưu', icon: Bookmark, count: savedJobIds.length },
+    { id: 'applications', label: 'Lịch sử ứng tuyển', icon: Clock, count: applications.length },
+    { id: 'reviews', label: 'Đánh giá & Phản hồi', icon: Star, count: null },
+    { id: 'notifications', label: 'Thông báo', icon: Bell, count: unreadNotifsCount },
+    { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings, count: null },
+  ];
+  const currentMenu = menuItems.find(m => m.id === activeTab) || menuItems[0];
+
   return (
     <div className="student-dashboard-container">
       {/* =========================================================================
           MAIN 2-COLUMN LAYOUT: SIDEBAR (LEFT) + TAB CONTENT (RIGHT)
           ========================================================================= */}
       <div style={{ display: 'grid', gridTemplateColumns: '300px minmax(0, 1fr)', alignItems: 'flex-start' }} className="student-layout-grid">
-        
+
+        {/* Điện thoại/tablet: thanh "Mục đang xem ▾" thay cho cột menu */}
+        <MobileSectionBar icon={currentMenu.icon} label={currentMenu.label} count={currentMenu.count}
+          open={mobileMenuOpen} onToggle={() => setMobileMenuOpen(o => !o)} controlsId="student-sidebar" />
+
         {/* =====================================================================
             LEFT SIDEBAR (AVATAR + MENU ĐIỀU HƯỚNG THEO CHUẨN WF-S01)
             ===================================================================== */}
-        <aside className="student-sidebar" style={{
+        <aside id="student-sidebar" className={`student-sidebar${mobileMenuOpen ? ' mobile-open' : ''}`} style={{
           background: '#ffffff',
           borderRight: '1px solid var(--color-border)',
           padding: '24px 20px',
@@ -603,24 +622,14 @@ export default function StudentDashboardPage({
 
           {/* Sidebar Menu Items */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {[
-              { id: 'dashboard', label: 'Tổng quan', icon: Briefcase, count: null },
-              { id: 'availability', label: 'Lịch rảnh & Gợi ý AI', icon: Calendar, count: null },
-              { id: 'profile', label: 'Hồ sơ xin việc', icon: User, count: null },
-              { id: 'cv', label: 'Quản lý CV', icon: GraduationCap, count: null },
-              { id: 'saved_jobs', label: 'Việc làm đã lưu', icon: Bookmark, count: savedJobIds.length },
-              { id: 'applications', label: 'Lịch sử ứng tuyển', icon: Clock, count: applications.length },
-              { id: 'reviews', label: 'Đánh giá & Phản hồi', icon: Star, count: null },
-              { id: 'notifications', label: 'Thông báo', icon: Bell, count: unreadNotifsCount },
-              { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings, count: null },
-            ].map((menuItem) => {
+            {menuItems.map((menuItem) => {
               const Icon = menuItem.icon;
               const isActive = activeTab === menuItem.id;
 
               return (
                 <button
                   key={menuItem.id}
-                  onClick={() => setActiveTab(menuItem.id)}
+                  onClick={() => { setActiveTab(menuItem.id); setMobileMenuOpen(false); }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1541,13 +1550,13 @@ export default function StudentDashboardPage({
                 flexWrap: 'wrap',
                 gap: 16
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 10, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0, flex: '1 1 240px' }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 10, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', flexShrink: 0 }}>
                     <FileText size={26} />
                   </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)', overflowWrap: 'anywhere' }}>
                         {cvInfo?.original_name || `CV Mặc định - ${fullName}`}
                       </span>
                       <span style={{ background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 700 }}>

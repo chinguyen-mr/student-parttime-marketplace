@@ -2,6 +2,7 @@ const userRepository = require('../../database/repositories/user.repository');
 const jobRepository = require('../../database/repositories/job.repository');
 const db = require('../../config/db');
 const { NotFoundError, AppError, ConflictError } = require('../../utils/app-error');
+const { notifyAdmins } = require('../notifications/admin-notify');
 
 // Tên ngành chuẩn hóa: bỏ khoảng trắng thừa; so trùng không phân biệt hoa thường
 const normalizeCategoryName = (name) => String(name || '').trim().replace(/\s+/g, ' ');
@@ -126,7 +127,7 @@ class AdminService {
         if (status === 'BANNED') {
             await db.query(
                 `UPDATE users 
-                 SET suspension_reason = $1, suspended_at = CURRENT_TIMESTAMP 
+                 SET suspension_reason = $1, suspended_at = CURRENT_TIMESTAMP, suspension_expires_at = NULL
                  WHERE id = $2`,
                 [reason, userId]
             );
@@ -440,20 +441,47 @@ class AdminService {
             throw new ConflictError('Báo cáo này đã được xử lý, không thể xử lý lại.');
         }
 
+        // Người chịu trách nhiệm: tài khoản bị báo cáo, hoặc nhà tuyển dụng đăng tin bị báo cáo
+        let targetUserId = report.target_type === 'USER' ? report.target_id : null;
+        let jobTitle = null;
+        if (report.target_type === 'JOB') {
+            const jRes = await db.query('SELECT employer_id, title FROM jobs WHERE id = $1', [report.target_id]);
+            if (jRes.rows.length > 0) { targetUserId = jRes.rows[0].employer_id; jobTitle = jRes.rows[0].title; }
+        }
+        const why = (note && note.trim()) || report.reason;
+        const notifyUser = async (userId, type, title, body, targetType, targetId) => {
+            try {
+                await db.query(
+                    `INSERT INTO notifications (user_id, type, title, body, target_type, target_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [userId, type, title, body, targetType, targetId]
+                );
+            } catch (e) { console.warn('Lỗi gửi thông báo xử lý báo cáo:', e.message); }
+        };
+
         // Thực thi hành động tương ứng
         if (action === 'BAN_USER') {
-            let userIdToBan = report.target_type === 'USER' ? report.target_id : null;
-            if (report.target_type === 'JOB') {
-                const jRes = await db.query('SELECT employer_id FROM jobs WHERE id = $1', [report.target_id]);
-                if (jRes.rows.length > 0) userIdToBan = jRes.rows[0].employer_id;
-            }
-            if (userIdToBan) {
-                await db.query("UPDATE users SET status = 'BANNED', updated_at = CURRENT_TIMESTAMP WHERE id = $1", [userIdToBan]);
-            }
+            if (!targetUserId) throw new AppError('Không xác định được tài khoản cần khóa.', 400);
+            if (adminId && targetUserId === adminId) throw new AppError('Không thể tự khóa tài khoản của chính mình.', 400);
+            // Dùng chung luồng khóa chuẩn: chặn khóa Admin cuối cùng, lưu lý do, báo người bị khóa, ghi nhật ký
+            await this.updateUserStatus(targetUserId, 'BANNED', adminId, `Bị báo cáo vi phạm: ${why}`);
         } else if (action === 'REMOVE_JOB') {
-            if (report.target_type === 'JOB') {
-                await db.query("UPDATE jobs SET status = 'REJECTED', moderation_status = 'REJECTED', updated_at = CURRENT_TIMESTAMP WHERE id = $1", [report.target_id]);
-            }
+            if (report.target_type !== 'JOB') throw new AppError('Chỉ gỡ tin khi báo cáo nhắm vào tin tuyển dụng.', 400);
+            await db.query("UPDATE jobs SET status = 'REJECTED', moderation_status = 'REJECTED', moderation_reason = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1", [report.target_id, `Gỡ do báo cáo vi phạm: ${why}`]);
+            if (targetUserId) await notifyUser(targetUserId, 'JOB', 'Tin tuyển dụng bị gỡ do vi phạm',
+                `Tin "${jobTitle}" đã bị Quản trị viên gỡ khỏi trang công khai. Lý do: ${why}`, 'JOB', report.target_id);
+        } else if (action === 'WARNING' && targetUserId) {
+            await notifyUser(targetUserId, 'VIOLATION_NOTICE', 'Cảnh cáo từ Quản trị viên',
+                `${jobTitle ? `Tin "${jobTitle}"` : 'Tài khoản của bạn'} bị báo cáo và Quản trị viên đã xác nhận vi phạm: ${why}. Vui lòng tuân thủ quy chuẩn cộng đồng JobNest.`,
+                jobTitle ? 'JOB' : 'USER', jobTitle ? report.target_id : targetUserId);
+        }
+
+        // Báo kết quả cho người gửi báo cáo (không tiết lộ chi tiết hình thức xử lý với đối tượng)
+        if (report.reporter_id) {
+            await notifyUser(report.reporter_id, 'REPORT_RESOLVED', 'Báo cáo vi phạm đã được xử lý',
+                action === 'DISMISS'
+                    ? 'Quản trị viên đã xem xét báo cáo của bạn và chưa đủ căn cứ để xử lý vi phạm. Cảm ơn bạn đã góp phần giữ cộng đồng an toàn.'
+                    : 'Quản trị viên đã xác nhận và xử lý báo cáo của bạn theo quy định. Cảm ơn bạn đã góp phần giữ cộng đồng an toàn.',
+                'REPORT', report.id);
         }
 
         // Cập nhật trạng thái báo cáo
@@ -737,16 +765,28 @@ class AdminService {
 
     async submitAppeal(userId, payload) {
         const { violation_id, appeal_reason, evidence_url } = payload;
-        if (!appeal_reason || !appeal_reason.trim()) {
+        const reason = String(appeal_reason || '').trim();
+        if (!reason) {
             throw new AppError('Bắt buộc phải nhập nội dung giải trình khi gửi khiếu nại.', 400);
+        }
+        if (reason.length > 2000) {
+            throw new AppError('Nội dung giải trình tối đa 2000 ký tự.', 400);
+        }
+        // Mỗi tài khoản chỉ có 1 khiếu nại đang mở → tránh gửi lặp làm ngập hàng đợi của Admin
+        const open = await db.query(
+            `SELECT id FROM user_appeals WHERE user_id = $1 AND status IN ('PENDING', 'IN_REVIEW') LIMIT 1`, [userId]
+        );
+        if (open.rows.length) {
+            throw new ConflictError('Bạn đã có một khiếu nại đang chờ xử lý. Vui lòng chờ kết quả trước khi gửi khiếu nại mới.');
         }
 
         const res = await db.query(
             `INSERT INTO user_appeals (user_id, violation_id, appeal_reason, evidence_url)
              VALUES ($1, $2, $3, $4)
              RETURNING *`,
-            [userId, violation_id || null, appeal_reason, evidence_url || null]
+            [userId, violation_id || null, reason, evidence_url || null]
         );
+        await notifyAdmins('Khiếu nại tài khoản mới', `Tài khoản #${userId} vừa gửi khiếu nại: ${reason.slice(0, 200)}`, 'USER_APPEAL', res.rows[0].id);
 
         return res.rows[0];
     }

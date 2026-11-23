@@ -206,7 +206,7 @@ export default function AdminCategoriesPage({
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <ExportMenu
             disabled={loading || categories.length === 0}
             onError={() => showToast && showToast('Xuất báo cáo thất bại', 'error')}

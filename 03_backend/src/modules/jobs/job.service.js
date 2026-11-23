@@ -1,9 +1,22 @@
 const jobRepository = require('../../database/repositories/job.repository');
 const { NotFoundError, ForbiddenError, AppError } = require('../../utils/app-error');
+const { notifyAdmins } = require('../notifications/admin-notify');
+const { getPostingReadiness } = require('../auth/employer-public.service');
 
 class JobService {
     async createJob(employerId, jobData) {
-        return jobRepository.create(employerId, jobData);
+        // Hồ sơ doanh nghiệp phải hoàn thiện 100% và đã được Admin xác minh mới được đăng tin
+        const readiness = await getPostingReadiness(employerId);
+        if (!readiness.complete) {
+            throw new AppError(
+                `Hồ sơ doanh nghiệp mới hoàn thiện ${readiness.rate}%. Cần hoàn thiện 100% và được Quản trị viên xác minh trước khi đăng tin. Còn thiếu: ${readiness.missing.join(', ')}.`,
+                403,
+                { code: 'EMPLOYER_PROFILE_INCOMPLETE', rate: readiness.rate, missing: readiness.missing }
+            );
+        }
+        const job = await jobRepository.create(employerId, jobData);
+        await notifyAdmins('Tin tuyển dụng mới chờ duyệt', `Tin "${job.title}" vừa được đăng, cần kiểm duyệt trước khi hiển thị cho sinh viên.`, 'JOB', job.id);
+        return job;
     }
 
     async getJobById(jobId) {
@@ -79,7 +92,9 @@ class JobService {
             work_schedules: jobData.work_schedules !== undefined ? jobData.work_schedules : undefined,
         };
 
-        return jobRepository.update(jobId, updatePayload);
+        const updated = await jobRepository.update(jobId, updatePayload);
+        await notifyAdmins('Tin tuyển dụng sửa nội dung, chờ duyệt lại', `Tin "${updatePayload.title}" vừa được doanh nghiệp chỉnh sửa, cần kiểm duyệt lại.`, 'JOB', Number(jobId));
+        return updated;
     }
 
     async updateJobSchedules(jobId, employerId, schedules) {

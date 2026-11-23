@@ -164,12 +164,14 @@ export default function AdminLogsPage({
         </div>
 
         {/* Action Type filter */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', minWidth: 0, maxWidth: '100%' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Loại hành động:</span>
           <select
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
             style={{
+              maxWidth: '100%',
+              minWidth: 0,
               height: 38,
               borderRadius: 8,
               border: '1px solid var(--color-border-hover)',

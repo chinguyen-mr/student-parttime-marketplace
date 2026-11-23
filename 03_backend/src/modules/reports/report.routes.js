@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../../config/db');
 const { verifyToken } = require('../../middleware/auth.middleware');
 const { AppError } = require('../../utils/app-error');
+const { notifyAdmins } = require('../notifications/admin-notify');
 
 // POST /api/reports (WF-X01: Báo cáo vi phạm việc làm hoặc nhà tuyển dụng / người dùng)
 router.post('/', verifyToken, async (req, res, next) => {
@@ -54,6 +55,9 @@ router.post('/', verifyToken, async (req, res, next) => {
              RETURNING id, reporter_id, target_type, target_id, reason, description, status, created_at`,
             [req.user.id, target_type, parsedId, reason.trim(), (description || '').trim()]
         );
+
+        await notifyAdmins('Báo cáo vi phạm mới',
+            `${target_type === 'JOB' ? 'Tin tuyển dụng' : 'Người dùng'} #${parsedId} bị báo cáo: ${reason.trim().slice(0, 200)}`, 'REPORT', result.rows[0].id);
 
         res.status(201).json({
             success: true,

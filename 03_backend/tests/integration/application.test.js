@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const applicationService = require('../../src/modules/applications/application.service');
 const jobRepository = require('../../src/database/repositories/job.repository');
 const applicationRepository = require('../../src/database/repositories/application.repository');
-const profileRepository = require('../../src/database/repositories/profile.repository');
+const studentProfileService = require('../../src/modules/auth/student-profile.service');
 
 describe('UC-06 & UC-07: Quy tắc nghiệp vụ Ứng tuyển (Applications)', () => {
     test('Nhà tuyển dụng không thể tự nộp đơn ứng tuyển vào tin của chính mình', async () => {
@@ -67,9 +67,9 @@ describe('UC-06 & UC-07: Quy tắc nghiệp vụ Ứng tuyển (Applications)', 
             student_id: 20,
             status: 'PENDING',
         });
-        // Hồ sơ đầy đủ → không bị chặn ở bước "hồ sơ chưa hoàn thiện" (không phụ thuộc dữ liệu thật của user #20)
-        const originalFindProfile = profileRepository.findByUserId;
-        profileRepository.findByUserId = async () => ({ school: 'ĐH Văn Lang', major: 'CNTT' });
+        // Hồ sơ đầy đủ 100% → không bị chặn ở bước "hồ sơ chưa hoàn thiện" (không phụ thuộc dữ liệu thật của user #20)
+        const originalReadiness = studentProfileService.getApplyReadiness;
+        studentProfileService.getApplyReadiness = async () => ({ complete: true, rate: 100, missing: [] });
 
         await assert.rejects(
             async () => {
@@ -83,7 +83,23 @@ describe('UC-06 & UC-07: Quy tắc nghiệp vụ Ứng tuyển (Applications)', 
 
         jobRepository.findById = originalFindJob;
         applicationRepository.findByJobAndStudent = originalFindApp;
-        profileRepository.findByUserId = originalFindProfile;
+        studentProfileService.getApplyReadiness = originalReadiness;
+    });
+
+    test('Hồ sơ chưa hoàn thiện 100% → không được ứng tuyển, báo đúng % và mục còn thiếu', async () => {
+        const originalFindJob = jobRepository.findById;
+        const originalReadiness = studentProfileService.getApplyReadiness;
+        jobRepository.findById = async () => ({ id: 1, employer_id: 5, status: 'OPEN', moderation_status: 'APPROVED' });
+        studentProfileService.getApplyReadiness = async () => ({ complete: false, rate: 91, missing: ['Vị trí mong muốn'] });
+
+        await assert.rejects(
+            () => applicationService.applyForJob(20, { job_id: 1, cover_letter: 'Giới thiệu' }),
+            (err) => err.name === 'AppError' && err.statusCode === 400 && err.details?.code === 'PROFILE_INCOMPLETE'
+                && /91%/.test(err.message) && /Vị trí mong muốn/.test(err.message)
+        );
+
+        jobRepository.findById = originalFindJob;
+        studentProfileService.getApplyReadiness = originalReadiness;
     });
 
     test('Chặn hoàn toàn việc cập nhật sang trạng thái ACCEPTED qua updateStatus (A3 RULE)', async () => {

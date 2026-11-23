@@ -6,7 +6,11 @@ const { UnauthorizedError, BadRequestError } = require('../../utils/app-error');
 // Middleware xác thực API Key từ Twenty CRM gửi sang
 function verifyTwentyApiKey(req, res, next) {
     const receivedKey = req.headers['x-api-key'] || req.query.apiKey;
-    const configuredKey = process.env.JOBNEST_SYNC_API_KEY || process.env.TWENTY_SYNC_API_KEY || 'jobnest_twenty_secret_key_2026';
+    // Không có khóa mặc định trong mã nguồn: chưa cấu hình biến môi trường thì webhook bị tắt
+    const configuredKey = process.env.JOBNEST_SYNC_API_KEY || process.env.TWENTY_SYNC_API_KEY;
+    if (!configuredKey) {
+        return next(new UnauthorizedError('Webhook Twenty CRM chưa được cấu hình khóa API (JOBNEST_SYNC_API_KEY) trên máy chủ'));
+    }
 
     if (!receivedKey || receivedKey !== configuredKey) {
         return next(new UnauthorizedError('Từ chối truy cập: API Key của Twenty CRM không hợp lệ hoặc bị thiếu'));

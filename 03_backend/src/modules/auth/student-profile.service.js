@@ -91,14 +91,32 @@ function validate(body = {}) {
     return out;
 }
 
+// 11 mục của thanh "Mức độ hoàn thiện" (khớp StudentProfileForm.jsx). Đủ 100% mới được ứng tuyển.
+const filled = (v) => (Array.isArray(v) ? v.length > 0 : Boolean(v && String(v).trim()));
+const COMPLETION_ITEMS = [
+    ['Họ và tên', (p) => filled(p.full_name)],
+    ['Số điện thoại', (p) => filled(p.phone)],
+    ['Ngày sinh', (p) => filled(p.date_of_birth)],
+    ['Giới tính', (p) => filled(p.gender)],
+    ['Địa chỉ (Tỉnh/Thành phố, Phường/Xã)', (p) => filled(p.province) && filled(p.ward)],
+    ['Trường', (p) => filled(p.school)],
+    ['Chuyên ngành', (p) => filled(p.major)],
+    ['Giới thiệu bản thân', (p) => filled(p.bio)],
+    ['Vị trí mong muốn', (p) => filled(p.desired_position)],
+    ['Kỹ năng', (p) => filled(p.skills)],
+    ['Kinh nghiệm hoặc Ngoại ngữ', (p) => filled(p.experiences) || filled(p.languages)],
+];
+
+/** Mức hoàn thiện hồ sơ: { rate (0–100), missing: [tên mục còn thiếu], complete } — tính từ dữ liệu hiện tại. */
+function completionOf(p = {}) {
+    const missing = COMPLETION_ITEMS.filter(([, ok]) => !ok(p)).map(([label]) => label);
+    const rate = Math.round(((COMPLETION_ITEMS.length - missing.length) / COMPLETION_ITEMS.length) * 100);
+    return { rate, missing, complete: missing.length === 0 };
+}
+
 /** % hoàn thiện hồ sơ dựa trên các mục nhà tuyển dụng hay xem. */
 function completionRate(p) {
-    const checks = [
-        p.full_name, p.phone, p.date_of_birth, p.gender, p.province && p.ward,
-        p.school, p.major, p.bio, p.desired_position,
-        p.skills.length > 0, p.experiences.length > 0 || p.languages.length > 0,
-    ];
-    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+    return completionOf(p).rate;
 }
 
 class StudentProfileService {
@@ -206,9 +224,19 @@ class StudentProfileService {
         const profile = res.rows[0];
         if (!profile) return null;
         profile.experiences = await this.getExperiences(profile.id);
+        // Tính lại từ dữ liệu thật (cột profile_completion_rate có thể cũ) — giao diện dùng để chặn / gợi ý trước khi ứng tuyển
+        profile.completion = completionOf(profile);
+        profile.profile_completion_rate = profile.completion.rate;
         return profile;
+    }
+
+    /** Sinh viên chỉ được ứng tuyển khi hồ sơ hoàn thiện 100%. */
+    async getApplyReadiness(userId) {
+        const profile = await this.getMyProfile(userId);
+        return profile ? profile.completion : completionOf({});
     }
 }
 
 module.exports = new StudentProfileService();
 module.exports.validate = validate;
+module.exports.completionOf = completionOf;

@@ -3,6 +3,7 @@ import { Bell, CheckCheck, RefreshCw, ChevronRight } from 'lucide-react';
 import { Button } from '../../components/ui';
 import EmptyState from '../../components/common/EmptyState';
 import { API_BASE, formatApiError } from '../../config/api';
+import { employerTabForNotification } from '../../utils/notificationRoutes';
 
 export default function EmployerNotificationsPage({
   currentUser,
@@ -73,19 +74,9 @@ export default function EmployerNotificationsPage({
     }
 
     // Navigate according to type
-    if (onNavigateTab) {
-      if (item.target_type === 'COMPANY_REVIEW' || item.target_type === 'JOB_REVIEW') {
-        onNavigateTab('reviews');
-      } else if (item.type === 'APPLICATION' || item.title?.includes('ứng tuyển') || item.body?.includes('ứng tuyển')) {
-        onNavigateTab('applicants');
-      } else if (item.type === 'PROPOSAL' || item.title?.includes('đề xuất') || item.body?.includes('chào giá')) {
-        onNavigateTab('applicants');
-      } else if (item.type === 'ASSIGNMENT' || item.type === 'DELIVERABLE' || item.title?.includes('bàn giao')) {
-        onNavigateTab('employer_assignments');
-      } else {
-        onNavigateTab('employer_jobs');
-      }
-    }
+    // Mở đúng mục theo đối tượng của thông báo (không có đối tượng → ở lại danh sách)
+    const tab = employerTabForNotification(item);
+    if (onNavigateTab && tab !== 'notifications') onNavigateTab(tab);
   };
 
   const unreadCount = notifications.filter(n => !n.read_at).length;

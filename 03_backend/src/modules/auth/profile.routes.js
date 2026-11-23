@@ -18,6 +18,8 @@ router.get('/me', verifyToken, async (req, res, next) => {
             ? await studentProfileService.getMyProfile(req.user.id)
             : null;
         const profile = studentProfile || await profileService.getProfile(req.user.id);
+        // Nhà tuyển dụng: kèm mức sẵn sàng đăng tin (giao diện chặn và chỉ ra mục còn thiếu)
+        if (req.user.role === 'EMPLOYER') profile.posting_readiness = await employerPublicService.getPostingReadiness(req.user.id);
         res.status(200).json({
             success: true,
             data: profile,

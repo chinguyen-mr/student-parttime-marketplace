@@ -12,6 +12,7 @@ import {
   Settings
 } from 'lucide-react';
 import { Button } from '../../components/ui';
+import MobileSectionBar from '../../components/layout/MobileSectionBar';
 
 // Import all 12 Wireframe Employer Sub-pages (WF-E01 to WF-E12) + WF-X03 Settings
 import EmployerDashboardPage from './EmployerDashboardPage';             // WF-E01
@@ -88,11 +89,27 @@ export default function EmployerPortal({
 
   // Trang hồ sơ báo có thay đổi chưa lưu → hỏi trước khi chuyển mục khác trong menu
   const unsavedRef = React.useRef(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // danh sách mục trên điện thoại
   const goTab = (tab) => {
     if (tab !== activeTab && unsavedRef.current && !window.confirm('Bạn có thay đổi chưa lưu. Rời khỏi trang này?')) return;
     unsavedRef.current = false;
     setActiveTab(tab);
+    setMobileMenuOpen(false);
   };
+  const menuItems = [
+    { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+    { id: 'profile', label: 'Hồ sơ doanh nghiệp', icon: Building2 },
+    { id: 'jobs', label: 'Tin tuyển dụng', icon: Briefcase },
+    { id: 'applicants', label: 'Hồ sơ ứng viên', icon: Users },
+    { id: 'assignments', label: 'Quản lý hợp đồng', icon: FileText },
+    { id: 'reviews', label: 'Đánh giá', icon: Star },
+    { id: 'notifications', label: 'Thông báo', icon: Bell },
+    { id: 'representative', label: 'Thông tin người đại diện', icon: User },
+    { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings },
+  ];
+  // Trang phụ hiển thị theo mục cha (VD Đăng tin → Tin tuyển dụng)
+  const PARENT = { verification: 'profile', create_job: 'jobs', selection: 'applicants', deliverable: 'assignments', review_student: 'assignments' };
+  const currentMenu = menuItems.find(m => m.id === (PARENT[activeTab] || activeTab)) || menuItems[0];
 
   const prevInitialTabRef = React.useRef(initialTab);
   const prevEditingJobRef = React.useRef(initialEditingJob);
@@ -217,8 +234,12 @@ export default function EmployerPortal({
         width: '100%'
       }}>
         
+        {/* Điện thoại/tablet: thanh "Mục đang xem ▾" thay cho cột menu */}
+        <MobileSectionBar icon={currentMenu.icon} label={currentMenu.label}
+          open={mobileMenuOpen} onToggle={() => setMobileMenuOpen(o => !o)} controlsId="employer-sidebar" />
+
         {/* ================= REUSABLE LEFT SIDEBAR (SÁT MÉP TRÁI VIEWPORT) ================= */}
-        <aside className="employer-sidebar-aside" style={{
+        <aside id="employer-sidebar" className={`employer-sidebar-aside${mobileMenuOpen ? ' mobile-open' : ''}`} style={{
           width: 275,
           background: '#ffffff',
           borderRight: '1.5px solid #E2E8F0',
@@ -305,17 +326,7 @@ export default function EmployerPortal({
 
           {/* Sidebar Menu Items */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            {[
-              { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-              { id: 'profile', label: 'Hồ sơ doanh nghiệp', icon: Building2 },
-              { id: 'jobs', label: 'Tin tuyển dụng', icon: Briefcase },
-              { id: 'applicants', label: 'Hồ sơ ứng viên', icon: Users },
-              { id: 'assignments', label: 'Quản lý hợp đồng', icon: FileText },
-              { id: 'reviews', label: 'Đánh giá', icon: Star },
-              { id: 'notifications', label: 'Thông báo', icon: Bell },
-              { id: 'representative', label: 'Thông tin người đại diện', icon: User },
-              { id: 'settings', label: 'Cài đặt tài khoản', icon: Settings },
-            ].map(item => {
+            {menuItems.map(item => {
               const isActive = activeTab === item.id || (item.id === 'profile' && activeTab === 'verification');
               const IconComp = item.icon;
               return (
@@ -444,6 +455,7 @@ export default function EmployerPortal({
               onCancel={() => setActiveTab('jobs')}
               onSuccess={() => setActiveTab('jobs')}
               onNavigateVerification={() => setActiveTab('verification')}
+              onNavigateProfile={() => setActiveTab('profile')}
               showToast={showToast}
             />
           )}

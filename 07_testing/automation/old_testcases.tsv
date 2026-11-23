@@ -1,0 +1,314 @@
+TR-PB01-01	TC_REG_STU_001	[UI] Mở form đăng ký Sinh viên
+TR-PB01-02	TC_REG_STU_002	[Negative] Kiểm tra bắt buộc trước khi tạo tài khoản
+TR-PB01-03	TC_REG_STU_003	[Negative] Chặn Email đã có tài khoản
+TR-PB01-04	TC_REG_STU_004	[Positive] Tạo tài khoản Sinh viên hợp lệ
+TR-PB01-05	TC_REG_STU_005	[Security] Gán vai trò Sinh viên đúng quy tắc
+TR-PB01-06	TC_REG_STU_006	[Security] Không lưu mật khẩu rõ
+TR-PB01-02	TC_REG_STU_007	[Negative] Từ chối Email sai định dạng
+TR-PB01-02	TC_REG_STU_008	[Boundary] Ranh giới mật khẩu đăng ký theo chính sách
+TR-PB01-04	TC_REG_STU_009	[Boundary] Tên Sinh viên có dấu và ký tự Unicode
+TR-PB01-05	TC_REG_STU_010	[Security] Ngăn tự cấp quyền quản trị khi đăng ký
+TR-PB02-01	TC_LOGIN_STU_001	[UI] Mở form đăng nhập Sinh viên
+TR-PB02-02	TC_LOGIN_STU_002	[Positive] Đăng nhập Sinh viên với thông tin hợp lệ
+TR-PB02-03	TC_LOGIN_STU_003	[Negative] Từ chối mật khẩu Sinh viên không đúng
+TR-PB02-04	TC_LOGIN_STU_004	[Security] Giới hạn truy cập theo vai trò Sinh viên
+TR-PB02-05	TC_LOGIN_STU_005	[Performance] Kiểm tra hiệu năng API đăng nhập Sinh viên
+TR-PB02-03	TC_LOGIN_STU_006	[Negative] Bỏ trống mật khẩu khi đăng nhập
+TR-PB02-03	TC_LOGIN_STU_007	[Negative] Email Sinh viên không tồn tại
+TR-PB02-05	TC_LOGIN_STU_008	[Security] Chặn payload SQL injection ở login
+TR-PB02-05	TC_LOGIN_STU_009	[Boundary] Email và mật khẩu rất dài
+TR-PB03-01	TC_LOGOUT_STU_001	[Positive] Chức năng Đăng xuất xuất hiện cho Sinh viên
+TR-PB03-02	TC_LOGOUT_STU_002	[Security] Kết thúc phiên khi đăng xuất
+TR-PB03-03	TC_LOGOUT_STU_003	[Positive] Chuyển về trạng thái khách sau đăng xuất
+TR-PB03-04	TC_LOGOUT_STU_004	[Security] Không sử dụng lại phiên Sinh viên đã kết thúc
+TR-PB03-04	TC_LOGOUT_STU_005	[Negative] Không xem lại dữ liệu riêng tư bằng nút Back
+TR-PB03-02	TC_LOGOUT_STU_006	[Boundary] Đăng xuất nhiều lần không làm lỗi hệ thống
+TR-PB04-01	TC_RESET_STU_001	[UI] Hiển thị form Email khôi phục Sinh viên
+TR-PB04-02	TC_RESET_STU_002	[Negative] Báo lỗi Email khôi phục không đăng ký
+TR-PB04-03	TC_RESET_STU_003	[Positive] Gửi OTP hoặc liên kết khôi phục có hạn
+TR-PB04-04	TC_RESET_STU_004	[Positive] Đặt lại mật khẩu với mã hợp lệ
+TR-PB04-05	TC_RESET_STU_005	[Security] Băm mật khẩu Sinh viên sau reset
+TR-PB04-04	TC_RESET_STU_006	[Negative] Chặn OTP khôi phục sai
+TR-PB04-03	TC_RESET_STU_007	[Boundary] OTP hoặc link hết hạn
+TR-PB04-04	TC_RESET_STU_008	[Boundary] Mật khẩu mới có 7 và 8 ký tự
+TR-PB04-01	TC_RESET_STU_009	[Negative] Email khôi phục trống hoặc sai định dạng
+TR-PB05-01	TC_RBAC_STU_001	[Positive] Sinh viên được truy cập chức năng hợp lệ
+TR-PB05-02	TC_RBAC_STU_002	[Security] Chặn Sinh viên đăng tin của Nhà tuyển dụng
+TR-PB05-03	TC_RBAC_STU_003	[Security] Yêu cầu trái quyền không thay đổi dữ liệu
+TR-PB05-04	TC_RBAC_STU_004	[Security] API bảo vệ xác thực cho Sinh viên
+TR-PB05-02	TC_RBAC_STU_005	[Negative] Từ chối Sinh viên dùng API của Quản trị viên
+TR-PB05-03	TC_RBAC_STU_006	[Boundary] Thử truy cập object thuộc người khác bằng sửa ID
+TR-PB06-01	TC_REG_EMP_001	[UI] Mở form đăng ký Nhà tuyển dụng
+TR-PB06-02	TC_REG_EMP_002	[Negative] Kiểm tra dữ liệu bắt buộc khi đăng ký Nhà tuyển dụng
+TR-PB06-03	TC_REG_EMP_003	[Negative] Không cho đăng ký Email Nhà tuyển dụng trùng
+TR-PB06-04	TC_REG_EMP_004	[Positive] Đăng ký Nhà tuyển dụng thành công
+TR-PB06-05	TC_REG_EMP_005	[Security] Không tự đăng ký quyền Quản trị viên
+TR-PB06-06	TC_REG_EMP_006	[Security] Băm mật khẩu Nhà tuyển dụng
+TR-PB06-02	TC_REG_EMP_007	[Negative] Không nhận Email không hợp lệ
+TR-PB06-04	TC_REG_EMP_008	[Boundary] Tên doanh nghiệp có dấu và dấu câu
+TR-PB06-05	TC_REG_EMP_009	[Security] Tránh leo thang vai trò qua thuộc tính ẩn
+TR-PB07-01	TC_RBAC_EMP_001	[Positive] Nhà tuyển dụng dùng được trang quản lý tin
+TR-PB07-02	TC_RBAC_EMP_002	[Security] Không chỉnh sửa tin và ứng viên của Nhà tuyển dụng khác
+TR-PB07-03	TC_RBAC_EMP_003	[Security] Chặn Nhà tuyển dụng truy cập quản trị
+TR-PB07-04	TC_RBAC_EMP_004	[Security] Không thay đổi dữ liệu khi thiếu quyền
+TR-PB07-05	TC_RBAC_EMP_005	[Security] Bảo vệ API của Nhà tuyển dụng bằng xác thực
+TR-PB07-03	TC_RBAC_EMP_006	[Negative] Không sử dụng được chức năng chỉ Sinh viên
+TR-PB07-02	TC_RBAC_EMP_007	[Boundary] Chống IDOR với ID tin ở biên dải dữ liệu
+TR-PB08-01	TC_LOGIN_EMP_001	[UI] Mở biểu mẫu đăng nhập Nhà tuyển dụng
+TR-PB08-02	TC_LOGIN_EMP_002	[Positive] Đăng nhập Nhà tuyển dụng hợp lệ
+TR-PB08-03	TC_LOGIN_EMP_003	[Negative] Từ chối thông tin đăng nhập Nhà tuyển dụng sai
+TR-PB08-04	TC_LOGIN_EMP_004	[Security] Không truy cập chức năng ngoài vai trò
+TR-PB08-05	TC_LOGIN_EMP_005	[Performance] Đo hiệu năng API login Nhà tuyển dụng
+TR-PB08-03	TC_LOGIN_EMP_006	[Negative] Không chấp nhận Email rỗng
+TR-PB08-05	TC_LOGIN_EMP_007	[Security] Login an toàn với chuỗi SQL injection
+TR-PB08-05	TC_LOGIN_EMP_008	[Boundary] Dữ liệu đăng nhập rất dài
+TR-PB09-01	TC_LOGOUT_EMP_001	[Positive] Hiện tùy chọn Đăng xuất Nhà tuyển dụng
+TR-PB09-02	TC_LOGOUT_EMP_002	[Security] Đóng phiên Nhà tuyển dụng sau logout
+TR-PB09-03	TC_LOGOUT_EMP_003	[Positive] Chuyển Nhà tuyển dụng về trạng thái khách
+TR-PB09-04	TC_LOGOUT_EMP_004	[Security] Chặn truy cập quản lý tin bằng phiên đã logout
+TR-PB09-04	TC_LOGOUT_EMP_005	[Negative] Không xem lại danh sách ứng viên bằng Back
+TR-PB09-02	TC_LOGOUT_EMP_006	[Boundary] Logout lặp lại không cấp phiên mới
+TR-PB10-01	TC_RESET_EMP_001	[UI] Mở form khôi phục của Nhà tuyển dụng
+TR-PB10-02	TC_RESET_EMP_002	[Negative] Không khôi phục bằng Email chưa đăng ký
+TR-PB10-03	TC_RESET_EMP_003	[Positive] Nhà tuyển dụng nhận OTP/link có thời hạn
+TR-PB10-04	TC_RESET_EMP_004	[Positive] Đặt mật khẩu mới đủ tối thiểu 8 ký tự
+TR-PB10-06	TC_RESET_EMP_005	[Security] Lưu mật khẩu Nhà tuyển dụng dạng hash
+TR-PB10-04	TC_RESET_EMP_006	[Negative] Không nhận OTP hoặc link sai
+TR-PB10-03	TC_RESET_EMP_007	[Boundary] Không dùng được link quá hạn
+TR-PB10-04	TC_RESET_EMP_008	[Boundary] Ngưỡng 7 và 8 ký tự cho mật khẩu mới
+TR-PB10-01	TC_RESET_EMP_009	[Negative] Form khôi phục thiếu Email
+TR-PB11-01	TC_LOGIN_ADM_001	[UI] Quản trị viên có biểu mẫu đăng nhập
+TR-PB11-02	TC_LOGIN_ADM_002	[Positive] Login Quản trị viên hợp lệ
+TR-PB11-03	TC_LOGIN_ADM_003	[Negative] Từ chối mật khẩu Quản trị viên sai
+TR-PB11-04	TC_LOGIN_ADM_004	[Security] Chỉ cấp đúng chức năng quản trị được phân quyền
+TR-PB11-05	TC_LOGIN_ADM_005	[Performance] Thời gian login Admin theo NFR-01
+TR-PB11-03	TC_LOGIN_ADM_006	[Negative] Email Admin không tồn tại
+TR-PB11-05	TC_LOGIN_ADM_007	[Security] Không bypass login bằng SQL injection
+TR-PB11-05	TC_LOGIN_ADM_008	[Boundary] Input đăng nhập Admin quá dài
+TR-PB12-01	TC_LOGOUT_ADM_001	[Positive] Quản trị viên thấy tùy chọn Đăng xuất
+TR-PB12-02	TC_LOGOUT_ADM_002	[Security] Phiên quản trị kết thúc khi logout
+TR-PB12-03	TC_LOGOUT_ADM_003	[Positive] Giao diện trở lại chưa đăng nhập
+TR-PB12-04	TC_LOGOUT_ADM_004	[Security] Không dùng lại phiên Admin đã logout
+TR-PB12-04	TC_LOGOUT_ADM_005	[Negative] Không truy cập nhật ký bằng lịch sử trình duyệt
+TR-PB12-02	TC_LOGOUT_ADM_006	[Boundary] Đăng xuất Admin lặp lại an toàn
+TR-PB13-01	TC_JOB_CREATE_001	[Security] Chỉ Nhà tuyển dụng có quyền tạo tin
+TR-PB13-02	TC_JOB_CREATE_002	[UI] Form tạo tin đủ trường FR-02
+TR-PB13-03	TC_JOB_CREATE_003	[Negative] Validate mô tả công việc bắt buộc
+TR-PB13-04	TC_JOB_CREATE_004	[Positive] Lưu tin với dữ liệu hợp lệ
+TR-PB13-05	TC_JOB_CREATE_005	[Negative] Không lưu tin khi mức lương âm
+TR-PB13-06	TC_JOB_CREATE_006	[Positive] Tin mới theo cơ chế kiểm duyệt trước công khai
+TR-PB13-01	TC_JOB_CREATE_007	[Security] Từ chối đăng tin từ Sinh viên
+TR-PB13-03	TC_JOB_CREATE_008	[Negative] Kiểm tra thiếu thời gian, lương và địa điểm
+TR-PB13-03	TC_JOB_CREATE_009	[Boundary] Kiểm tra thời gian tuyển dụng trong quá khứ
+TR-PB13-03	TC_JOB_CREATE_010	[Boundary] Kiểm tra độ dài mô tả tại giới hạn cấu hình
+TR-PB13-05	TC_JOB_CREATE_011	[Security] Không đưa SQL injection qua mô tả vào DB
+TR-PB14-01	TC_JOB_EDIT_001	[Security] Chỉ chủ tin nhìn thấy Sửa và Đóng
+TR-PB14-02	TC_JOB_EDIT_002	[Positive] Chỉnh sửa tin với dữ liệu hợp lệ
+TR-PB14-03	TC_JOB_EDIT_003	[Positive] Đóng tin đổi trạng thái Đã đóng
+TR-PB14-04	TC_JOB_EDIT_004	[Positive] Tin đã đóng biến mất khỏi tìm kiếm
+TR-PB14-05	TC_JOB_EDIT_005	[Negative] Không sửa tin Đã nhận người
+TR-PB14-01	TC_JOB_EDIT_006	[Security] Không thể đóng tin không thuộc sở hữu bằng API
+TR-PB14-02	TC_JOB_EDIT_007	[Negative] Không lưu sửa tin thiếu mô tả
+TR-PB14-02	TC_JOB_EDIT_008	[Boundary] Sửa thời gian về quá khứ
+TR-PB14-03	TC_JOB_EDIT_009	[Boundary] Đóng tin đã đóng lần thứ hai
+TR-PB14-05	TC_JOB_EDIT_010	[Negative] Không sửa tin Hoàn thành
+TR-PB15-01	TC_JOB_SEARCH_001	[Positive] Hiển thị danh sách tin đủ điều kiện
+TR-PB15-02	TC_JOB_SEARCH_002	[Positive] Tìm kiếm tin bằng tiêu chí hỗ trợ
+TR-PB15-03	TC_JOB_SEARCH_003	[UI] Bộ lọc theo ngành, địa điểm, lương đúng FR-03
+TR-PB15-04	TC_JOB_SEARCH_004	[Positive] Kết quả khớp tiêu chí tìm kiếm
+TR-PB15-05	TC_JOB_SEARCH_005	[Negative] Thông báo rõ ràng khi không có kết quả
+TR-PB15-06	TC_JOB_SEARCH_006	[Positive] Tìm việc không bắt buộc đăng nhập
+TR-PB15-07	TC_JOB_SEARCH_007	[Performance] Đo thời gian API tìm kiếm theo ngưỡng 1,5 giây
+TR-PB15-02	TC_JOB_SEARCH_008	[Boundary] Từ khóa tìm kiếm có dấu và Unicode
+TR-PB15-04	TC_JOB_SEARCH_009	[Security] Không để ký tự SQL làm hỏng tìm kiếm
+TR-PB15-05	TC_JOB_SEARCH_010	[Boundary] Tập kết quả có 0, 1 và nhiều tin
+TR-PB15-01	TC_JOB_SEARCH_011	[Negative] Loại bỏ tin đã đóng/chưa duyệt
+TR-PB16-01	TC_JOB_FILTER_001	[UI] Hiển thị ba bộ lọc FR-03
+TR-PB16-02	TC_JOB_FILTER_002	[Positive] Lọc theo ngành nghề riêng lẻ
+TR-PB16-03	TC_JOB_FILTER_003	[Positive] Kết hợp đồng thời ba điều kiện lọc
+TR-PB16-04	TC_JOB_FILTER_004	[Negative] Không có kết quả lọc
+TR-PB16-05	TC_JOB_FILTER_005	[Performance] API lọc đáp ứng 1,5 giây tải thường
+TR-PB16-02	TC_JOB_FILTER_006	[Positive] Lọc địa điểm độc lập
+TR-PB16-02	TC_JOB_FILTER_007	[Positive] Lọc lương độc lập
+TR-PB16-03	TC_JOB_FILTER_008	[Boundary] Lọc đúng tại ranh giới mức lương
+TR-PB16-02	TC_JOB_FILTER_009	[Negative] Bộ lọc lương nhập số âm
+TR-PB17-01	TC_JOB_DETAIL_001	[Positive] Mở trang chi tiết tin công khai
+TR-PB17-02	TC_JOB_DETAIL_002	[UI] Chi tiết tin hiển thị trường FR-02
+TR-PB17-03	TC_JOB_DETAIL_003	[Negative] Tin không tồn tại được xử lý rõ ràng
+TR-PB17-04	TC_JOB_DETAIL_004	[Positive] Từ chi tiết tin được chuyển sang ứng tuyển
+TR-PB17-05	TC_JOB_DETAIL_005	[UI] Chi tiết nằm trong luồng tìm việc/ứng tuyển
+TR-PB17-03	TC_JOB_DETAIL_006	[Security] Không mở tin chưa duyệt bằng URL trực tiếp
+TR-PB17-03	TC_JOB_DETAIL_007	[Negative] Tin đã đóng bị từ chối truy cập công khai
+TR-PB17-04	TC_JOB_DETAIL_008	[Boundary] Tin vừa chuyển sang trạng thái không nhận đơn
+TR-PB18-01	TC_APPLY_001	[Security] Bắt buộc Sinh viên đăng nhập để ứng tuyển
+TR-PB18-02	TC_APPLY_002	[Positive] Chỉ ứng tuyển tin còn hiệu lực
+TR-PB18-03	TC_APPLY_003	[Positive] Ứng tuyển có CV hoặc phần giới thiệu
+TR-PB18-04	TC_APPLY_004	[Negative] Không nhận hồ sơ thiếu thông tin yêu cầu
+TR-PB18-05	TC_APPLY_005	[Positive] Lưu đơn mới ở trạng thái chờ xử lý
+TR-PB18-06	TC_APPLY_006	[Negative] Không tạo ứng tuyển trùng cùng tin
+TR-PB18-07	TC_APPLY_007	[Performance] Đo API ứng tuyển không quá 1,5 giây
+TR-PB18-02	TC_APPLY_008	[Negative] Không cho nộp hồ sơ tin đã đóng
+TR-PB18-03	TC_APPLY_009	[Positive] Nộp đơn chỉ có đoạn tự giới thiệu
+TR-PB18-03	TC_APPLY_010	[Boundary] Kiểm tra kích thước file CV sát ngưỡng cấu hình
+TR-PB18-04	TC_APPLY_011	[Negative] Từ chối CV có loại tệp không hợp lệ
+TR-PB18-04	TC_APPLY_012	[Security] Không thực thi HTML/Script trong lời giới thiệu
+TR-PB19-01	TC_APPLICANTS_001	[Positive] Xem ứng viên của tin do mình quản lý
+TR-PB19-02	TC_APPLICANTS_002	[Positive] Xem chi tiết CV và giới thiệu của ứng viên
+TR-PB19-03	TC_APPLICANTS_003	[Security] Chặn xem ứng viên tin người khác
+TR-PB19-04	TC_APPLICANTS_004	[Negative] Danh sách trống khi chưa có ứng viên
+TR-PB19-05	TC_APPLICANTS_005	[Positive] Danh sách ứng viên đồng bộ DB
+TR-PB19-03	TC_APPLICANTS_006	[Security] Không tải CV thuộc job người khác qua URL
+TR-PB19-05	TC_APPLICANTS_007	[Boundary] Hiển thị 0, 1 và nhiều ứng viên
+TR-PB19-02	TC_APPLICANTS_008	[Negative] Ứng viên không có file CV nhưng có giới thiệu
+TR-PB20-01	TC_APP_APPROVE_001	[Positive] Duyệt đơn thuộc tin mình quản lý
+TR-PB20-02	TC_APP_APPROVE_002	[Negative] Không duyệt đơn ở trạng thái không hợp lệ
+TR-PB20-03	TC_APP_APPROVE_003	[Positive] Lưu trạng thái đơn đã duyệt
+TR-PB20-04	TC_APP_APPROVE_004	[Positive] Thông báo Sinh viên sau khi duyệt thành công
+TR-PB20-05	TC_APP_APPROVE_005	[Security] Ngăn duyệt đơn của Nhà tuyển dụng khác
+TR-PB20-02	TC_APP_APPROVE_006	[Boundary] Không duyệt lặp đơn đã duyệt
+TR-PB20-02	TC_APP_APPROVE_007	[Negative] Đơn không tồn tại
+TR-PB20-04	TC_APP_APPROVE_008	[Negative] Duyệt thất bại không phát thông báo
+TR-PB21-01	TC_APP_REJECT_001	[Positive] Từ chối đơn chờ thuộc tin mình quản lý
+TR-PB21-02	TC_APP_REJECT_002	[Negative] Không từ chối đơn đã duyệt khi không hợp lệ
+TR-PB21-03	TC_APP_REJECT_003	[Positive] Lưu trạng thái đơn bị từ chối
+TR-PB21-04	TC_APP_REJECT_004	[Positive] Sinh viên nhận thông báo bị từ chối
+TR-PB21-05	TC_APP_REJECT_005	[Security] Không từ chối đơn của Nhà tuyển dụng khác
+TR-PB21-02	TC_APP_REJECT_006	[Boundary] Không từ chối hai lần sinh thông báo trùng
+TR-PB21-02	TC_APP_REJECT_007	[Negative] Từ chối đơn không tồn tại
+TR-PB21-04	TC_APP_REJECT_008	[Negative] Không gửi thông báo nếu từ chối thất bại
+TR-PB22-01	TC_JOB_STATUS_001	[UI] Hiển thị ba trạng thái công việc hợp lệ
+TR-PB22-02	TC_JOB_STATUS_002	[Positive] Chuyển Đang tuyển sang Đã nhận người
+TR-PB22-03	TC_JOB_STATUS_003	[Negative] Chặn chuyển thẳng Đang tuyển sang Hoàn thành
+TR-PB22-04	TC_JOB_STATUS_004	[Security] Chỉ chủ job được cập nhật trạng thái
+TR-PB22-05	TC_JOB_STATUS_005	[Positive] Lưu và hiển thị trạng thái hoàn thành
+TR-PB22-02	TC_JOB_STATUS_006	[Boundary] Chuyển trạng thái giữ nguyên tại một mốc
+TR-PB22-03	TC_JOB_STATUS_007	[Negative] Không chuyển ngược Hoàn thành về Đang tuyển
+TR-PB22-04	TC_JOB_STATUS_008	[Security] Sinh viên không tự đổi trạng thái công việc
+TR-PB23-01	TC_REVIEW_EMP_001	[Positive] Cho đánh giá sau khi công việc Hoàn thành
+TR-PB23-02	TC_REVIEW_EMP_002	[Security] Chỉ Sinh viên tham gia được đánh giá Nhà tuyển dụng
+TR-PB23-03	TC_REVIEW_EMP_003	[UI] Có trường sao và bình luận
+TR-PB23-04	TC_REVIEW_EMP_004	[Positive] Lưu đánh giá đúng Job và Nhà tuyển dụng
+TR-PB23-05	TC_REVIEW_EMP_005	[Negative] Không đánh giá công việc chưa hoàn thành
+TR-PB23-02	TC_REVIEW_EMP_006	[Security] Sinh viên không tham gia không được đánh giá
+TR-PB23-03	TC_REVIEW_EMP_007	[Boundary] Sao đánh giá nằm ngoài miền hợp lệ
+TR-PB23-03	TC_REVIEW_EMP_008	[Security] Bình luận không thực thi mã HTML
+TR-PB24-01	TC_REVIEW_STU_001	[Positive] Chỉ đánh giá Sinh viên khi Job Hoàn thành
+TR-PB24-02	TC_REVIEW_STU_002	[Security] Chỉ Nhà tuyển dụng sở hữu Job được đánh giá
+TR-PB24-03	TC_REVIEW_STU_003	[UI] Form đánh giá Sinh viên có sao và bình luận
+TR-PB24-04	TC_REVIEW_STU_004	[Positive] Đánh giá gắn đúng công việc và Sinh viên
+TR-PB24-05	TC_REVIEW_STU_005	[Negative] Không đánh giá khi Job chưa hoàn thành
+TR-PB24-02	TC_REVIEW_STU_006	[Security] Nhà tuyển dụng khác không đánh giá người làm
+TR-PB24-03	TC_REVIEW_STU_007	[Boundary] Sao ngoài miền hợp lệ
+TR-PB24-03	TC_REVIEW_STU_008	[Security] Không thực thi script trong bình luận
+TR-PB25-01	TC_NOTICE_STU_001	[Positive] Ghi nhận thông báo khi đơn được duyệt
+TR-PB25-02	TC_NOTICE_STU_002	[Positive] Ghi nhận thông báo khi đơn bị từ chối
+TR-PB25-03	TC_NOTICE_STU_003	[Positive] Nội dung thông báo phản ánh trạng thái DB
+TR-PB25-04	TC_NOTICE_STU_004	[Negative] Không gửi thông báo khi cập nhật thất bại
+TR-PB25-01	TC_NOTICE_STU_005	[Security] Thông báo chỉ đến đúng Sinh viên sở hữu đơn
+TR-PB25-03	TC_NOTICE_STU_006	[Boundary] Đổi trạng thái nhiều lần không sinh thông báo sai
+TR-PB26-01	TC_NOTICE_EMP_001	[Positive] Ghi nhận đơn khi Sinh viên nộp hợp lệ
+TR-PB26-02	TC_NOTICE_EMP_002	[Positive] Nhà tuyển dụng nhận thông báo có đơn mới
+TR-PB26-03	TC_NOTICE_EMP_003	[Positive] Thông báo liên kết đúng Job và đơn
+TR-PB26-04	TC_NOTICE_EMP_004	[Negative] Không thông báo đơn khi không lưu thành công
+TR-PB26-02	TC_NOTICE_EMP_005	[Security] Không gửi thông báo cho Nhà tuyển dụng khác
+TR-PB26-04	TC_NOTICE_EMP_006	[Boundary] Gửi trùng đơn không nhân đôi thông báo
+TR-PB27-01	TC_PROFILE_STU_VIEW_001	[Positive] Sinh viên mở đúng hồ sơ của mình
+TR-PB27-02	TC_PROFILE_STU_VIEW_002	[Positive] Hồ sơ hiển thị đúng dữ liệu được lưu
+TR-PB27-03	TC_PROFILE_STU_VIEW_003	[Security] Không xem hồ sơ riêng tư Sinh viên khác
+TR-PB27-04	TC_PROFILE_STU_VIEW_004	[Boundary] Hồ sơ chưa có dữ liệu
+TR-PB27-01	TC_PROFILE_STU_VIEW_005	[Negative] Khách không xem hồ sơ riêng tư
+TR-PB27-02	TC_PROFILE_STU_VIEW_006	[UI] Unicode trong họ tên hồ sơ Sinh viên
+TR-PB28-01	TC_PROFILE_STU_EDIT_001	[Positive] Sinh viên cập nhật hồ sơ chính mình
+TR-PB28-02	TC_PROFILE_STU_EDIT_002	[Negative] Không chấp nhận dữ liệu hồ sơ sai định dạng
+TR-PB28-03	TC_PROFILE_STU_EDIT_003	[Positive] Lưu cập nhật hồ sơ hợp lệ
+TR-PB28-04	TC_PROFILE_STU_EDIT_004	[Negative] Không lưu khi thiếu trường bắt buộc
+TR-PB28-05	TC_PROFILE_STU_EDIT_005	[Security] Không cập nhật hồ sơ Sinh viên khác
+TR-PB28-02	TC_PROFILE_STU_EDIT_006	[Boundary] Họ tên ở ngưỡng ký tự được cấu hình
+TR-PB28-03	TC_PROFILE_STU_EDIT_007	[Boundary] Cập nhật hồ sơ dùng tiếng Việt có dấu
+TR-PB28-05	TC_PROFILE_STU_EDIT_008	[Security] Chặn cập nhật thuộc tính nhạy cảm ngoài form
+TR-PB29-01	TC_PROFILE_EMP_VIEW_001	[Positive] Nhà tuyển dụng mở hồ sơ cá nhân
+TR-PB29-02	TC_PROFILE_EMP_VIEW_002	[Positive] Hiển thị thông tin NTD đã lưu
+TR-PB29-03	TC_PROFILE_EMP_VIEW_003	[Security] Không xem hồ sơ riêng tư NTD khác
+TR-PB29-04	TC_PROFILE_EMP_VIEW_004	[Boundary] Xem hồ sơ NTD chưa điền dữ liệu
+TR-PB29-01	TC_PROFILE_EMP_VIEW_005	[Negative] Chưa đăng nhập không truy cập hồ sơ
+TR-PB29-02	TC_PROFILE_EMP_VIEW_006	[UI] Hiển thị tên doanh nghiệp có dấu và ký hiệu
+TR-PB30-01	TC_PROFILE_EMP_EDIT_001	[Positive] Nhà tuyển dụng có thể sửa hồ sơ của mình
+TR-PB30-02	TC_PROFILE_EMP_EDIT_002	[Negative] Validate dữ liệu hồ sơ NTD
+TR-PB30-03	TC_PROFILE_EMP_EDIT_003	[Positive] Lưu hồ sơ NTD hợp lệ
+TR-PB30-04	TC_PROFILE_EMP_EDIT_004	[Negative] Không lưu dữ liệu hồ sơ NTD thiếu bắt buộc
+TR-PB30-05	TC_PROFILE_EMP_EDIT_005	[Security] Không sửa hồ sơ NTD khác
+TR-PB30-02	TC_PROFILE_EMP_EDIT_006	[Boundary] Tên doanh nghiệp đạt giới hạn độ dài
+TR-PB30-03	TC_PROFILE_EMP_EDIT_007	[Boundary] Lưu hồ sơ NTD với ký tự tiếng Việt
+TR-PB30-05	TC_PROFILE_EMP_EDIT_008	[Security] Không tự sửa trạng thái xác minh hoặc vai trò
+TR-PB31-01	TC_MOD_QUEUE_001	[Security] Chỉ Admin mở danh sách kiểm duyệt
+TR-PB31-02	TC_MOD_QUEUE_002	[Positive] Danh sách tin cần duyệt trong phạm vi quản trị
+TR-PB31-03	TC_MOD_QUEUE_003	[Positive] Admin xem chi tiết tin trước quyết định
+TR-PB31-04	TC_MOD_QUEUE_004	[Security] Tin chưa đủ điều kiện không công khai
+TR-PB31-01	TC_MOD_QUEUE_005	[Security] Sinh viên không vào trang kiểm duyệt
+TR-PB31-02	TC_MOD_QUEUE_006	[Boundary] Hàng đợi kiểm duyệt rỗng
+TR-PB31-04	TC_MOD_QUEUE_007	[Negative] Không mở liên kết trực tiếp tin chờ duyệt
+TR-PB32-01	TC_USER_ADMIN_001	[Security] Chỉ Admin truy cập quản lý tài khoản
+TR-PB32-02	TC_USER_ADMIN_002	[Positive] Danh sách tài khoản theo phạm vi quản lý
+TR-PB32-03	TC_USER_ADMIN_003	[Positive] Chỉ hiện thao tác quản lý đã thống nhất
+TR-PB32-04	TC_USER_ADMIN_004	[Positive] Lưu kết quả thao tác quản trị được duyệt
+TR-PB32-05	TC_USER_ADMIN_005	[Security] Người không phải Admin không quản lý tài khoản
+TR-PB32-02	TC_USER_ADMIN_006	[Boundary] Hiển thị danh sách quản lý tài khoản rỗng
+TR-PB32-03	TC_USER_ADMIN_007	[Security] Không thực hiện thao tác Admin ngoài danh sách được duyệt
+TR-PB32-05	TC_USER_ADMIN_008	[Negative] Sinh viên không đọc danh sách tài khoản quản trị
+TR-PB33-01	TC_JOB_MODERATE_001	[Positive] Admin xem tin chờ duyệt
+TR-PB33-02	TC_JOB_MODERATE_002	[Positive] Admin phê duyệt tin hợp lệ
+TR-PB33-03	TC_JOB_MODERATE_003	[Positive] Chỉ tin được duyệt mới công khai
+TR-PB33-04	TC_JOB_MODERATE_004	[Negative] Bắt buộc có lý do khi từ chối tin
+TR-PB33-02	TC_JOB_MODERATE_005	[Positive] Từ chối tin kèm lý do hợp lệ
+TR-PB33-01	TC_JOB_MODERATE_006	[Security] Không cho Nhà tuyển dụng kiểm duyệt
+TR-PB33-03	TC_JOB_MODERATE_007	[Negative] Tin bị từ chối không công khai
+TR-PB33-04	TC_JOB_MODERATE_008	[Boundary] Lý do từ chối chỉ có khoảng trắng
+TR-PB34-01	TC_EMP_VERIFY_001	[Positive] Admin xem hồ sơ doanh nghiệp cần xác minh
+TR-PB34-02	TC_EMP_VERIFY_002	[Positive] Xác minh thành công doanh nghiệp
+TR-PB34-03	TC_EMP_VERIFY_003	[Positive] Trạng thái xác minh được cập nhật
+TR-PB34-04	TC_EMP_VERIFY_004	[Positive] Doanh nghiệp nhận thông báo kết quả
+TR-PB34-02	TC_EMP_VERIFY_005	[Negative] Từ chối xác minh khi không đáp ứng điều kiện
+TR-PB34-01	TC_EMP_VERIFY_006	[Security] Người ngoài Admin không duyệt xác minh
+TR-PB34-03	TC_EMP_VERIFY_007	[Boundary] Không ghi cập nhật trùng khi xác minh lặp
+TR-PB34-04	TC_EMP_VERIFY_008	[Negative] Xác minh lỗi không gửi thông báo sai
+TR-PB35-01	TC_COMPLAINT_001	[Positive] Admin mở danh sách khiếu nại tài khoản
+TR-PB35-02	TC_COMPLAINT_002	[Positive] Xem chi tiết khiếu nại và tài khoản liên quan
+TR-PB35-03	TC_COMPLAINT_003	[Positive] Cập nhật trạng thái xử lý khiếu nại
+TR-PB35-04	TC_COMPLAINT_004	[Positive] Lưu kết quả xử lý khiếu nại
+TR-PB35-01	TC_COMPLAINT_005	[Security] Chặn người không phải Admin xem khiếu nại
+TR-PB35-03	TC_COMPLAINT_006	[Negative] Không nhận trạng thái khiếu nại không hợp lệ
+TR-PB35-04	TC_COMPLAINT_007	[Boundary] Khiếu nại không tồn tại
+TR-PB36-01	TC_VIOLATION_001	[Positive] Admin thấy danh sách báo cáo vi phạm
+TR-PB36-02	TC_VIOLATION_002	[Positive] Xem chi tiết báo cáo vi phạm
+TR-PB36-03	TC_VIOLATION_003	[Positive] Admin xử lý báo cáo hợp lệ
+TR-PB36-04	TC_VIOLATION_004	[Positive] Trạng thái báo cáo phản ánh quyết định
+TR-PB36-03	TC_VIOLATION_005	[Positive] Admin từ chối báo cáo
+TR-PB36-01	TC_VIOLATION_006	[Security] Sinh viên không quản trị báo cáo vi phạm
+TR-PB36-03	TC_VIOLATION_007	[Negative] Báo cáo không tồn tại
+TR-PB36-04	TC_VIOLATION_008	[Boundary] Xử lý lặp một báo cáo đã hoàn tất
+TR-PB37-01	TC_REVIEW_MOD_001	[Positive] Admin xem danh sách đánh giá chờ kiểm duyệt
+TR-PB37-02	TC_REVIEW_MOD_002	[Positive] Duyệt đánh giá hợp lệ
+TR-PB37-03	TC_REVIEW_MOD_003	[Negative] Không công khai đánh giá vi phạm
+TR-PB37-04	TC_REVIEW_MOD_004	[Positive] Lưu trạng thái kiểm duyệt đánh giá
+TR-PB37-02	TC_REVIEW_MOD_005	[Positive] Từ chối đánh giá không hợp lệ
+TR-PB37-01	TC_REVIEW_MOD_006	[Security] Nhà tuyển dụng không được kiểm duyệt đánh giá
+TR-PB37-03	TC_REVIEW_MOD_007	[Security] Không truy cập bài đánh giá bị từ chối qua link
+TR-PB37-04	TC_REVIEW_MOD_008	[Boundary] Duyệt lặp trạng thái đã duyệt
+TR-PB38-01	TC_CATEGORY_001	[Positive] Admin xem danh mục ngành nghề
+TR-PB38-02	TC_CATEGORY_002	[Positive] Thêm ngành nghề mới
+TR-PB38-03	TC_CATEGORY_003	[Positive] Sửa tên ngành nghề đã có
+TR-PB38-04	TC_CATEGORY_004	[Positive] Xóa danh mục thỏa quy tắc ràng buộc
+TR-PB38-05	TC_CATEGORY_005	[Negative] Không cho thêm tên ngành nghề trùng
+TR-PB38-02	TC_CATEGORY_006	[Negative] Không tạo danh mục có tên rỗng
+TR-PB38-03	TC_CATEGORY_007	[Boundary] Tên ngành Unicode và dấu câu
+TR-PB38-04	TC_CATEGORY_008	[Negative] Không xóa ngành đang được tin tham chiếu trái quy tắc
+TR-PB38-05	TC_CATEGORY_009	[Boundary] Chặn tên trùng do khoảng trắng và hoa thường
+TR-PB38-01	TC_CATEGORY_010	[Security] Không cho Sinh viên tạo/xóa ngành nghề
+TR-PB39-01	TC_AUDIT_LOG_001	[Positive] Admin xem danh sách nhật ký hệ thống
+TR-PB39-02	TC_AUDIT_LOG_002	[UI] Nhật ký có người, hành động và thời gian
+TR-PB39-03	TC_AUDIT_LOG_003	[Positive] Lọc nhật ký theo thời gian
+TR-PB39-04	TC_AUDIT_LOG_004	[Security] Sinh viên không xem được nhật ký
+TR-PB39-03	TC_AUDIT_LOG_005	[Positive] Lọc nhật ký theo loại hành động
+TR-PB39-03	TC_AUDIT_LOG_006	[Boundary] Lọc khoảng thời gian hai đầu trùng nhau
+TR-PB39-03	TC_AUDIT_LOG_007	[Negative] Không chấp nhận khoảng thời gian đảo
+TR-PB39-04	TC_AUDIT_LOG_008	[Security] Nhà tuyển dụng không xem log bằng API

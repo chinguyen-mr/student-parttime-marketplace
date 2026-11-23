@@ -116,6 +116,12 @@ class AuthService {
             throw new UnauthorizedError('Email hoặc mật khẩu không chính xác');
         }
 
+        // Khóa có thời hạn (vi phạm lần 3: 7 ngày) → hết hạn thì tự mở lại. Khóa tay/vĩnh viễn không có hạn.
+        if (['BANNED', 'SUSPENDED'].includes(user.status) && user.suspension_expires_at && new Date(user.suspension_expires_at) <= new Date()) {
+            await db.query("UPDATE users SET status = 'ACTIVE', suspension_reason = NULL, suspended_at = NULL, suspension_expires_at = NULL WHERE id = $1", [user.id]);
+            user.status = 'ACTIVE';
+        }
+
         if (user.status === 'BANNED') {
             // Kèm kết quả khiếu nại gần nhất: người bị khóa không đăng nhập được nên không xem được thông báo
             let appeal = null;
@@ -126,8 +132,9 @@ class AuthService {
                 );
                 appeal = a.rows[0] || null;
             } catch { /* bảng chưa có → bỏ qua */ }
+            const until = user.suspension_expires_at ? ` đến ngày ${new Date(user.suspension_expires_at).toLocaleDateString('vi-VN')}` : '';
             throw new AppError(
-                `Tài khoản của bạn đã bị khóa bởi Quản trị viên. Lý do: ${user.suspension_reason || 'Vi phạm điều khoản dịch vụ'}`,
+                `Tài khoản của bạn đã bị khóa bởi Quản trị viên${until}. Lý do: ${user.suspension_reason || 'Vi phạm điều khoản dịch vụ'}`,
                 403,
                 { code: 'ACCOUNT_BANNED', appeal } // frontend dựa vào mã này để mở form khiếu nại
             );

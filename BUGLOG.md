@@ -9,6 +9,14 @@ Thêm lỗi mới lên **đầu bảng tóm tắt** và thêm mục chi tiết t
 
 | # | Ngày | Mức | Lỗi | Trạng thái | Commit |
 |---|---|---|---|---|---|
+| BUG-35 | 22/11/2026 | 🟡 | Middleware bỏ qua lỗi DB khi kiểm tra trạng thái tài khoản → tài khoản bị khóa có thể lọt qua khi DB chập chờn | ⏳ Đang mở | — |
+| BUG-34 | 22/11/2026 | 🟡 | F5 ở trang Tìm việc rồi nộp đơn → mở lại mục cũ (VD Lịch rảnh) thay vì Lịch sử ứng tuyển | ⏳ Đang mở | — |
+| BUG-33 | 21/11/2026 | 🟡 | `npm run seed` lỗi khóa ngoại ở seed `002_seed_proposals_notifications.sql` | ⏳ Đang mở | — |
+| BUG-32 | 21/11/2026 | 🟡 | `npm run migrate` trên CSDL trống dừng ở `006_normalize_work_type.sql` (thiếu cột `level`) | ⏳ Đang mở | — |
+| BUG-31 | 22/11/2026 | 🔴 | Webhook Twenty CRM nhận khóa API mặc định ghi trong mã nguồn → ai cũng tự đánh dấu doanh nghiệp "Đã xác minh" | ✅ Đã sửa | Chưa commit |
+| BUG-30 | 22/11/2026 | 🟠 | Vi phạm lần 3 "tạm khóa 7 ngày" không bao giờ tự mở (thực chất khóa vĩnh viễn) | ✅ Đã sửa | Chưa commit |
+| BUG-29 | 22/11/2026 | 🟡 | `GET /api/jobs` lỗi 500 khi `page`/`limit` âm hoặc không phải số; `limit` không có trần | ✅ Đã sửa | Chưa commit |
+| BUG-28 | 22/11/2026 | 🟠 | Nhà tuyển dụng chọn được đơn sinh viên đã rút → tạo hợp đồng cho đơn đã rút | ✅ Đã sửa | Chưa commit |
 | BUG-27 | 20/11/2026 | 🟠 | Trên máy tính, bấm avatar không mở được menu tài khoản (rê chuột mở rồi bấm lại đóng) | ✅ Đã sửa | Đợt kiểm thử 314 TC |
 | BUG-26 | 20/11/2026 | 🟠 | Khối "Nhà tuyển dụng đánh giá bạn" hiển thị dữ liệu mẫu cố định (5.0★, "Công ty TNHH… | ✅ Đã sửa | Đợt kiểm thử 314 TC |
 | BUG-25 | 20/11/2026 | 🟡 | API lọc nhận mức lương âm hoặc không phải số (-1, abc) mà không báo lỗi, trả về toàn bộ tin | ✅ Đã sửa | Đợt kiểm thử 314 TC |
@@ -40,6 +48,56 @@ Thêm lỗi mới lên **đầu bảng tóm tắt** và thêm mục chi tiết t
 ---
 
 ## Chi tiết
+
+> BUG-28 → BUG-35 phát hiện ở đợt kiểm thử bổ sung 165 test case (TC số 315 → 479, PB-40 → PB-65, ngày 21–22/11/2026) và khi dựng môi trường / quay video kiểm thử; số hiệu trùng với sheet *Bug Analysis* trong `07_testing/CDTN2_TestReport.xlsx`. Sau khi sửa BUG-28 → BUG-31: 479/479 test case Passed. BUG-32 → BUG-35 mức nhẹ, còn mở.
+
+### BUG-35 — Middleware bỏ qua lỗi DB khi kiểm tra trạng thái tài khoản 🟡
+- **Hiện tượng:** Nếu truy vấn kiểm tra trạng thái tài khoản (khóa / thu hồi phiên) bị lỗi, request vẫn được xử lý tiếp → tài khoản bị khóa có thể dùng tạm token cũ khi DB chập chờn.
+- **Nguyên nhân:** `03_backend/src/middleware/auth.middleware.js` — `catch (dbErr) { }` rỗng.
+- **Cách sửa (đề xuất):** Trả 503 khi không kiểm tra được trạng thái tài khoản.
+- **Kiểm chứng:** Phát hiện khi đọc mã nguồn; chưa tái hiện trên DB thật (cần làm hỏng kết nối DB). Chưa có test case.
+
+### BUG-34 — F5 rồi nộp đơn mở nhầm mục 🟡
+- **Hiện tượng:** Sinh viên ở mục Lịch rảnh → sang Tìm việc → bấm F5 → mở tin → nộp đơn: sau khi nộp, web mở mục Lịch rảnh thay vì Lịch sử ứng tuyển. Không F5 thì đúng.
+- **Nguyên nhân:** `04_frontend/src/utils/rememberedTab.js` khôi phục mục đã nhớ ở lần đầu khu vực Sinh viên hiển thị sau F5, kể cả khi lúc F5 người dùng đang ở trang khác.
+- **Cách sửa (đề xuất):** Chỉ khôi phục mục cho khu vực đang hiển thị tại thời điểm F5.
+- **Kiểm chứng:** Đã tái hiện bằng Playwright (2 kịch bản có / không F5). Phát hiện khi quay video kiểm thử (`07_testing/automation/record_demo.cjs`).
+
+### BUG-33 — Seed dữ liệu mẫu lỗi khóa ngoại 🟡
+- **Hiện tượng:** `npm run seed` dừng ở `002_seed_proposals_notifications.sql`: vi phạm khóa ngoại `proposals_student_id_fkey`.
+- **Nguyên nhân:** Seed dùng ID sinh viên cố định chưa tồn tại trong DB mới.
+- **Cách sửa (đề xuất):** Lấy ID theo email bằng `SELECT` thay vì ID cố định.
+- **Kiểm chứng:** Phát hiện khi dựng PostgreSQL kiểm thử trống (21/11/2026).
+
+### BUG-32 — Migration trên CSDL trống dừng ở 006 🟡
+- **Hiện tượng:** `npm run migrate` trên DB trống báo `column "level" does not exist` ở `006_normalize_work_type.sql`.
+- **Nguyên nhân:** Migration 006 dùng cột `level` mà chưa migration nào trước đó tạo.
+- **Cách sửa (đề xuất):** `ADD COLUMN IF NOT EXISTS level` trước khi dùng; tạm thời máy mới nạp `02_database/jobnest_schema.sql`.
+- **Kiểm chứng:** Phát hiện khi dựng PostgreSQL kiểm thử trống (21/11/2026).
+
+### BUG-31 — Webhook Twenty CRM nhận khóa mặc định công khai 🔴
+- **Hiện tượng:** Gửi `POST /api/webhooks/twenty` với `x-api-key: jobnest_twenty_secret_key_2026` (có sẵn trong mã nguồn) → 200, doanh nghiệp chưa từng nộp giấy tờ chuyển sang "Đã xác minh" và có huy hiệu trên trang công khai.
+- **Nguyên nhân:** `webhook.routes.js` dùng giá trị mặc định khi thiếu `JOBNEST_SYNC_API_KEY` / `TWENTY_SYNC_API_KEY`; cấu hình Docker hiện tại không đặt biến này.
+- **Cách sửa:** Bỏ khóa mặc định; thiếu biến môi trường thì webhook từ chối mọi yêu cầu (401). **Cần đặt `JOBNEST_SYNC_API_KEY` (chuỗi ngẫu nhiên dài) trên máy chủ** và dùng cùng khóa bên Twenty CRM.
+- **Kiểm chứng:** Khóa mặc định / không khóa / khóa sai → 401; khóa đúng cấu hình → 200 và cập nhật xác minh. Test case: TC_WEBHOOK_001, TC_WEBHOOK_002, TC_WEBHOOK_003.
+
+### BUG-30 — Khóa 7 ngày (vi phạm lần 3) không tự mở 🟠
+- **Hiện tượng:** Thông báo "tạm khóa 7 ngày" nhưng hết hạn vẫn không đăng nhập được, trạng thái vẫn `BANNED`.
+- **Nguyên nhân:** `admin.service.js` đặt `BANNED` cho bậc 3; phần tự mở khóa (đăng nhập + middleware) chỉ xử lý `SUSPENDED` — mà ràng buộc CSDL không cho phép trạng thái `SUSPENDED`.
+- **Cách sửa:** Tài khoản `BANNED` có `suspension_expires_at` sẽ tự về `ACTIVE` khi hết hạn (ở đăng nhập và mọi request); thông báo khóa ghi rõ "đến ngày…". Admin khóa tay thì xóa hạn → khóa vĩnh viễn.
+- **Kiểm chứng:** Hết hạn → đăng nhập được, về ACTIVE; khóa tay sau khóa tạm → vẫn bị chặn. Test case: TC_VIOL_003, TC_VIOL_006.
+
+### BUG-29 — Phân trang tìm việc lỗi 500 🟡
+- **Hiện tượng:** `GET /api/jobs?page=-1`, `?page=abc`, `?limit=abc` trả 500 ("OFFSET must not be negative" / "invalid input syntax for type bigint"); `limit=100000` trả toàn bộ, không giới hạn.
+- **Nguyên nhân:** `job.routes.js` đưa `page`/`limit` vào câu SQL mà không kiểm tra.
+- **Cách sửa:** Giá trị sai/âm → mặc định (page 1, limit 20); trần 500 tin/lần (trang Tìm việc tải 500 tin để lọc phía trình duyệt).
+- **Kiểm chứng:** Các tham số trên → 200. Test case: TC_PROBE_006, TC_PROBE_011.
+
+### BUG-28 — Chọn được đơn ứng tuyển đã rút 🟠
+- **Hiện tượng:** Sinh viên rút đơn, nhà tuyển dụng vẫn chọn được đơn đó → tạo hợp đồng và báo sinh viên "được chấp nhận".
+- **Nguyên nhân:** `selection.service.js` chỉ chặn đơn `ACCEPTED` / `REJECTED`, bỏ sót `WITHDRAWN`.
+- **Cách sửa:** Chỉ cho chọn đơn `PENDING` / `REVIEWING` / `SHORTLISTED`; trạng thái khác trả 409.
+- **Kiểm chứng:** Chọn đơn đã rút → 409, không tạo hợp đồng; 25 test tích hợp cũ (gồm selection) vẫn Passed. Test case: TC_PROBE_001.
 
 > BUG-10 → BUG-27 phát hiện khi chạy đủ 314 test case (file `CDTN2_TestCases.xlsx`) ngày 19–20/11/2026; số hiệu trùng với sheet *Bug Analysis* trong Test Report. Kết quả lượt chạy cuối: 314/314 Passed.
 

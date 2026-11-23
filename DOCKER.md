@@ -45,6 +45,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 > File `.env` đã được `.gitignore` loại trừ — không commit giá trị thật.
 > Nếu để trống `POSTGRES_PASSWORD` hoặc `JWT_SECRET`, Docker sẽ báo lỗi dừng ngay (đúng thiết kế).
 
+Tùy chọn — chỉ khi dùng đồng bộ Twenty CRM: đặt `JOBNEST_SYNC_API_KEY=<chuỗi ngẫu nhiên dài>` trong `.env` và dùng đúng khóa này ở phía Twenty CRM (header `x-api-key`). Để trống thì webhook `/api/webhooks/twenty` tắt; mã nguồn không còn khóa mặc định.
+
 ## 4. Khởi động toàn bộ hệ thống
 
 ```powershell

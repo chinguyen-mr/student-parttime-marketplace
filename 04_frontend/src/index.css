@@ -610,36 +610,47 @@ input::placeholder, textarea::placeholder {
   }
 }
 
-/* Nhà tuyển dụng trên tablet/điện thoại: EmployerPortal đặt layout bằng inline style (luôn 2 cột 275px)
-   và không có nút mở menu → xếp sidebar lên trên, menu cuộn ngang, nội dung chiếm hết chiều rộng. */
+/* ---------- Trang Sinh viên / Nhà tuyển dụng / Admin trên tablet & điện thoại (≤ 900px) ----------
+   Cột menu bên trái → thanh "Mục đang xem ▾" (MobileSectionBar). Bấm để mở danh sách mục đầy đủ (chạm 48px),
+   chọn mục thì danh sách tự đóng. Nội dung chiếm hết chiều rộng. */
+.jn-section-bar { display: none; }
 @media (max-width: 900px) {
-  .employer-portal-container .employer-grid-layout {
-    grid-template-columns: minmax(0, 1fr) !important;
+  .employer-portal-container .employer-grid-layout,
+  .admin-portal-container .employer-grid-layout,
+  .student-layout-grid { grid-template-columns: minmax(0, 1fr) !important; }
+
+  .jn-section-bar {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 10px 16px;
+    background: #fff; border: none; border-bottom: 1px solid var(--color-border); text-align: left; cursor: pointer;
+    position: sticky; top: var(--app-header-h, 0px); z-index: 20; box-shadow: 0 2px 8px rgba(41, 38, 58, 0.05);
+    font-family: inherit; color: var(--color-text);
   }
-  .employer-portal-container .employer-sidebar-aside {
-    display: flex !important;
-    position: static !important;
-    width: 100% !important;
-    height: auto !important;
-    padding: 12px 16px !important;
-    border-right: none !important;
+  .jn-section-bar-icon {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--color-lavender-light); color: var(--color-primary);
   }
-  .employer-portal-container .employer-sidebar-aside > div:first-child {
-    display: none !important; /* thẻ tên/email: đã có ở header, tiết kiệm chiều cao */
+  .jn-section-bar-text { display: flex; flex-direction: column; min-width: 0; flex: 1; line-height: 1.25; }
+  .jn-section-bar-hint { font-size: 11.5px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
+  .jn-section-bar-label { font-size: 15.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jn-section-bar-count { background: var(--color-lavender-light); color: var(--color-primary); font-size: 12px; font-weight: 800; border-radius: 999px; padding: 2px 9px; }
+  .jn-section-bar-chevron { color: var(--color-primary); flex-shrink: 0; transition: transform 0.2s ease-in-out; }
+  .jn-section-bar[aria-expanded="true"] .jn-section-bar-chevron { transform: rotate(180deg); }
+  .jn-section-bar[aria-expanded="true"] { background: var(--color-lavender-surface); }
+
+  /* Danh sách mục: ẩn, chỉ mở khi bấm thanh trên */
+  .employer-sidebar-aside, .student-sidebar { display: none !important; }
+  .employer-sidebar-aside.mobile-open, .student-sidebar.mobile-open {
+    display: block !important; position: static !important; width: 100% !important; height: auto !important;
+    padding: 8px 12px 12px !important; border-right: none !important; border-bottom: 1px solid var(--color-border) !important;
+    background: #fff !important; overflow: visible !important;
   }
-  .employer-portal-container .employer-sidebar-aside nav {
-    flex-direction: row !important;
-    overflow-x: auto;
-    padding-bottom: 2px;
-  }
-  .employer-portal-container .employer-sidebar-aside nav button {
-    width: auto !important;
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-  .employer-portal-container main {
-    padding: 18px 16px 48px !important;
-  }
+  .employer-sidebar-aside.mobile-open > div:first-child, .student-sidebar.mobile-open > div:first-child { display: none !important; } /* thẻ tên: đã có ở header */
+  .employer-sidebar-aside.mobile-open nav button, .student-sidebar.mobile-open nav button { min-height: 48px; width: 100% !important; }
+
+  .employer-portal-container main, .admin-portal-container main, .student-layout-grid > main { padding: 18px 16px 48px !important; }
+}
+@media (max-width: 640px) {
+  .jn-section-bar { top: 0; } /* header không dính trên điện thoại */
 }
 
 /* ==========================================================================
@@ -834,6 +845,88 @@ input::placeholder, textarea::placeholder {
 }
 @media (max-width: 380px) {
   .jn-wordmark { display: none; }
+}
+
+/* ---------- Điện thoại: header 1 dòng (logo · vai trò · chuông · avatar · ☰), menu gom vào ngăn ☰ ----------
+   Trước đây menu xuống 3–4 dòng, chiếm ~1/4 màn hình. Các nút "← Trang quản lý", "+ Đăng tin mới" chuyển vào ngăn ☰. */
+.jn-mobile-menu-btn, .jn-mobile-nav { display: none; }
+@media (max-width: 640px) {
+  .jn-header-row { flex-wrap: nowrap !important; padding: 8px 0; gap: 8px !important; min-height: 60px !important; }
+  .jn-header-brand { flex-wrap: nowrap !important; gap: 8px !important; flex: 0 1 auto !important; min-width: 0; }
+  .jn-role-badge { padding: 2px 9px !important; font-size: 11.5px !important; white-space: nowrap; }
+  .jn-header-post-btn, .jn-back-workspace, .jn-header-nav { display: none !important; }
+  .jn-header-actions { flex-wrap: nowrap !important; margin-left: auto; gap: 8px !important; }
+  .jn-mobile-menu-btn {
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--color-border-hover);
+    background: #fff; color: var(--color-text); cursor: pointer; transition: all 0.2s ease-in-out;
+  }
+  .jn-mobile-menu-btn[aria-expanded="true"] { background: var(--color-lavender-light); border-color: var(--color-primary); color: var(--color-primary); }
+  .jn-mobile-nav { display: flex; flex-direction: column; gap: 2px; padding: 6px 0 12px; border-top: 1px solid var(--color-border); }
+  .jn-mobile-nav button {
+    display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 12px; border: none; border-radius: 12px;
+    background: none; font-size: 15px; font-weight: 600; color: var(--color-text); text-align: left; cursor: pointer;
+  }
+  .jn-mobile-nav button svg { color: var(--color-primary); flex-shrink: 0; }
+  .jn-mobile-nav button.is-active { background: var(--color-lavender-light); color: var(--color-primary); font-weight: 800; }
+  .jn-mobile-nav button:active { background: var(--color-lavender-surface); }
+}
+@media (max-width: 420px) {
+  .jn-wordmark { display: none; } /* chừa chỗ cho Đăng nhập / Đăng ký / ☰ */
+}
+
+@media (max-width: 900px) {
+  /* Bảng dữ liệu: giữ độ rộng đọc được và vuốt ngang trong khung bảng (trước đây bị ép cột: tiêu đề, email vỡ thành nhiều dòng).
+     Bảng tự xử lý độ rộng (VD lịch rảnh) gắn class jn-table-fit để bỏ qua. */
+  *:has(> table:not(.jn-table-fit)) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table:not(.jn-table-fit) { min-width: 760px; }
+  /* Tiêu đề cột không xuống dòng; bỏ ghim (sticky): trong khung vuốt ngang, khoảng ghim tính theo khung bảng
+     nên dòng tiêu đề bị đẩy xuống giữa bảng (VD Admin → Người dùng) */
+  table:not(.jn-table-fit) th { white-space: nowrap; position: static !important; }
+}
+
+/* ---------- Điện thoại: banner gọn, ô nhập & nút đủ lớn để chạm ---------- */
+@media (max-width: 640px) {
+  /* Banner Tìm việc: bỏ nhãn quảng cáo + đoạn mô tả dài → ô tìm kiếm và danh sách việc hiện sớm hơn */
+  .jn-search-hero { padding: 18px 16px !important; margin-bottom: 18px !important; }
+  .jn-search-hero-badge, .jn-search-hero-desc { display: none !important; }
+  .jn-search-hero-title { font-size: 19px !important; line-height: 1.3; }
+  /* Ô nhập/chọn cao ≥ 44px; cỡ chữ 16px để iPhone không tự phóng to khi chạm vào ô */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]), select, textarea {
+    font-size: 16px !important;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]), select { min-height: 44px; }
+}
+
+/* ---------- Điện thoại: bảng → danh sách thẻ ----------
+   Mỗi dòng là 1 thẻ, mỗi ô hiện "Nhãn cột" phía trên giá trị (nhãn do utils/mobileTables.js gắn vào data-label).
+   Không phải vuốt ngang; bảng jn-table-fit (VD lịch rảnh) giữ nguyên dạng bảng. */
+@media (max-width: 640px) {
+  *:has(> table:not(.jn-table-fit)) { overflow-x: visible; }
+  table:not(.jn-table-fit) { min-width: 0 !important; width: 100% !important; border: 0 !important; background: transparent !important; }
+  table:not(.jn-table-fit) thead { display: none !important; }
+  table:not(.jn-table-fit) tbody { display: flex !important; flex-direction: column; gap: 10px; padding: 10px 0; }
+  table:not(.jn-table-fit) tr {
+    display: block !important; background: #fff !important; border: 1px solid var(--color-border) !important;
+    border-radius: 14px; padding: 4px 14px !important; box-shadow: 0 1px 2px rgba(41, 38, 58, 0.05);
+  }
+  table:not(.jn-table-fit) td {
+    display: block !important; width: auto !important; max-width: none !important; text-align: left !important;
+    padding: 9px 0 !important; border: 0 !important; border-bottom: 1px dashed var(--color-border) !important; overflow-wrap: anywhere;
+  }
+  table:not(.jn-table-fit) td:last-child { border-bottom: 0 !important; }
+  table:not(.jn-table-fit) td[data-label]:not([data-label=""])::before {
+    content: attr(data-label); display: block; margin-bottom: 3px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; color: var(--color-text-secondary);
+  }
+  /* Ô trống (VD ô chỉ có checkbox) không chiếm chỗ thừa */
+  table:not(.jn-table-fit) td:empty { display: none !important; }
+}
+
+/* Điện thoại: đã có nhãn vai trò (Sinh viên / Nhà tuyển dụng) → ẩn chữ JOBNEST cạnh logo để chuông + avatar còn chỗ trên cùng dòng */
+@media (max-width: 640px) {
+  .jn-header-brand:has(.jn-role-badge) .jn-wordmark { display: none; }
+  .jn-header-brand { flex: 0 1 auto !important; }
 }
 
 /* ---------- Tilt 3D theo con trỏ (biến CSS do hook useTilt ghi) ---------- */

@@ -102,7 +102,7 @@ export default function AvailabilityEditor({ slots, savedSlots, onChange, onSave
 
       {/* Lưới 7 ngày × 3 ca */}
       <div style={{ overflowX: 'auto', border: '1px solid var(--color-border)', borderRadius: 12, padding: '4px 8px 8px', opacity: loading ? 0.5 : 1 }}>
-        <table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <table className="jn-table-fit" style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <thead>
             <tr style={{ background: '#F5F3FF' }}>
               <th style={{ ...headerCell, width: 120, textAlign: 'left', paddingLeft: 14 }}>Ca \ Ngày</th>

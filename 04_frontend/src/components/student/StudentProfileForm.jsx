@@ -214,7 +214,7 @@ export default function StudentProfileForm({ token, email, showToast, onSaved, a
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: 'var(--color-text)' }}>Hồ sơ xin việc</h2>
             <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '4px 0 0 0', maxWidth: '55ch' }}>
-              Nhà tuyển dụng xem hồ sơ này khi bạn ứng tuyển. Hồ sơ càng đầy đủ, cơ hội được chọn càng cao.
+              Nhà tuyển dụng xem hồ sơ này khi bạn ứng tuyển. <strong>Cần hoàn thiện 100% mới ứng tuyển được.</strong>
             </p>
           </div>
           <div style={{ fontSize: 26, fontWeight: 800, color: percent >= 80 ? '#047857' : '#7565A8' }}>{percent}%</div>

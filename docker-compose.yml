@@ -55,6 +55,8 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:-JobNest Platform <noreply@jobnest.vn>}
+      # Khóa bí mật webhook Twenty CRM (đặt trong .env). Để trống = webhook tắt (không có khóa mặc định).
+      JOBNEST_SYNC_API_KEY: ${JOBNEST_SYNC_API_KEY:-}
     ports:
       - "5000:5000"
     networks:

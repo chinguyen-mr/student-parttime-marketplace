@@ -11,8 +11,12 @@ const { NotFoundError, AppError } = require('../../utils/app-error');
 // GET /api/jobs (UC-05: Tìm kiếm & Lọc tin tuyển dụng)
 router.get('/', async (req, res, next) => {
     try {
-        const { keyword, category, location, minSalary, maxSalary, workType, employerId, page = 1, limit = 20 } = req.query;
-        const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+        const { keyword, category, location, minSalary, maxSalary, workType, employerId } = req.query;
+        // Phân trang: giá trị sai/âm → mặc định (trước đây NaN/số âm làm lỗi 500).
+        // Trần 500 tin/lần: trang Tìm việc tải 500 tin rồi lọc phía trình duyệt (App.jsx fetchJobs).
+        const pageNum = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const limitNum = Math.min(500, Math.max(1, parseInt(req.query.limit, 10) || 20));
+        const offset = (pageNum - 1) * limitNum;
 
         // Mức lương lọc phải là số không âm; giá trị sai không bị bỏ qua âm thầm (trả về toàn bộ tin là kết quả sai)
         const salaryParam = (v) => (v === undefined || v === '' ? null : Number(v));
@@ -34,7 +38,7 @@ router.get('/', async (req, res, next) => {
             employerId: employerId ? parseInt(employerId, 10) : null,
             status: 'OPEN',
             moderationStatus: 'APPROVED',
-            limit: parseInt(limit, 10),
+            limit: limitNum,
             offset,
         });
 

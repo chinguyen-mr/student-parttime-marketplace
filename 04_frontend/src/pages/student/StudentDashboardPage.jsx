@@ -734,7 +734,7 @@ export default function StudentDashboardPage({
               ) : (
                 <>
                   {/* 4 Metric Stat Cards matching WF-S01 exactly */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 210px), 1fr))', gap: 16, marginBottom: 24 }}>
+                  <div className="jn-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 210px), 1fr))', gap: 16, marginBottom: 24 }}>
                     {/* 1. Đơn đang chờ duyệt */}
                     <div 
                       onClick={() => setActiveTab('applications')}

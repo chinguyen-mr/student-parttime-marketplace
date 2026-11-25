@@ -402,7 +402,7 @@ export default function EmployerDashboardPage({
     <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24 }}>
       
       {/* ================= 1. 4 KPI STATS CARDS (1 HÀNG TRÊN DESKTOP) ================= */}
-      <div style={{
+      <div className="jn-kpi-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
         gap: 20

@@ -698,11 +698,12 @@ input::placeholder, textarea::placeholder {
   }
 }
 
-/* Mobile nhỏ (<=640px): 1 cột */
+/* Điện thoại (<=640px): ô thống kê 2 cột, gọn (1 cột thì mỗi ô chiếm cả màn hình, phải cuộn rất dài) */
 @media (max-width: 640px) {
-  .admin-kpi-grid {
-    grid-template-columns: 1fr;
-  }
+  .admin-kpi-grid, .jn-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+  .admin-kpi-grid > *, .jn-kpi-grid > * { padding: 12px 14px !important; min-height: 0 !important; border-radius: 12px !important; }
+  .admin-kpi-grid span, .jn-kpi-grid span { white-space: normal !important; }
+  .admin-kpi-grid .jn-kpi-number, .jn-kpi-grid .jn-kpi-number { font-size: 24px; }
 }
 
 /* Trang Sinh viên: màn hình hẹp → sidebar nằm trên, không dính */
@@ -915,9 +916,11 @@ input::placeholder, textarea::placeholder {
     padding: 9px 0 !important; border: 0 !important; border-bottom: 1px dashed var(--color-border) !important; overflow-wrap: anywhere;
   }
   table:not(.jn-table-fit) td:last-child { border-bottom: 0 !important; }
+  /* Nhãn bên trái, giá trị bên phải (thẻ ngắn bằng nửa so với nhãn nằm trên) */
+  table:not(.jn-table-fit) td[data-label]:not([data-label=""]) { position: relative; padding-left: 36% !important; min-height: 38px; }
   table:not(.jn-table-fit) td[data-label]:not([data-label=""])::before {
-    content: attr(data-label); display: block; margin-bottom: 3px;
-    font-size: 11.5px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; color: var(--color-text-secondary);
+    content: attr(data-label); position: absolute; left: 0; top: 10px; width: calc(36% - 10px);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.3px; line-height: 1.35; text-transform: uppercase; color: var(--color-text-secondary);
   }
   /* Ô trống (VD ô chỉ có checkbox) không chiếm chỗ thừa */
   table:not(.jn-table-fit) td:empty { display: none !important; }
